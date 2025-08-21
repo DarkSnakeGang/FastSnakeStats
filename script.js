@@ -1538,37 +1538,7 @@ function addDays(date, days) {
   return result;
 }
 
-function checkBestDate(name){
-    var playerid = players[name];
-    if(typeof(playerid) == 'undefined'){
-        return "not found";
-    }
-    var checkdate = firstdate;
-    var thisdate = new Date();
-    var bestdate = new Date();
-    var bestp = 0;
-    var index = 0;
-    if(!showAmount){
-        var index = 2;
-    }
-    while(true){
-        maxdate = checkdate;
-        calculateBestRuns();
-        calculateRanglist();
-        if(typeof(ranglist[playerid]) != 'undefined'){
-            if(ranglist[playerid][index] >= bestp){
-                bestp = ranglist[playerid][index];
-                bestdate = checkdate;
-            }
-        }
-        //increase
-        checkdate = addDays(checkdate, 1);
-        if(checkdate > thisdate){
-            break;
-        }
-    }
-    return bestdate;
-}
+
 
 // Legacy SpeedInfo.js integration functions - kept for compatibility but not used
 
@@ -2290,46 +2260,7 @@ function initializeUI() {
         console.error("Option buttons container not found!");
     }
 
-    //username
-    var sendUsernameBtn = document.getElementById('sendusername');
-    if(sendUsernameBtn) {
-        sendUsernameBtn.addEventListener('click', () =>{
-            var usernameResult = document.getElementById('usernameResult');
-            var usernameInput = document.getElementById('username');
-            var datepicker = document.getElementById('datepicker');
-            
-            if(usernameResult) usernameResult.setAttribute('style','');
-            if(usernameResult) usernameResult.innerHTML = "Calculating...";
-            
-            requestAnimationFrame(() =>
-                requestAnimationFrame(() =>{
-                date = checkBestDate(usernameInput ? usernameInput.value : '');
-                if(date == "not found"){
-                    if(usernameResult) usernameResult.innerHTML = "Username not found";
-                }
-                else{
-                    if(datepicker) datepicker.valueAsDate = date;
-                    maxdate = date;
-                    calculateBestRuns();
-                    switchMode(mode);
-                    if(usernameResult) usernameResult.innerHTML = "Date set!";
-                }
-            }));
-        });
-    }
 
-    function setHighestLabel(){
-        var highestLabel = document.getElementById('highestLabel');
-        if(highestLabel) {
-            if(showAmount){
-                highestLabel.innerHTML = "Enter an username to calculate the date with the highest number of runs from this user";
-            }
-            else{
-                highestLabel.innerHTML = "Enter an username to calculate the date with the highest percentage of runs from this user";
-            }
-        }
-    }
-    setHighestLabel();
 
          //showamount
      var showAmountCheckbox = document.getElementById('showAmount');

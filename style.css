@@ -148,6 +148,76 @@ h2{
 	margin-top: 0;
 }
 
+/* Ensure ranglist table has the same styling as main table */
+.ranglist-wrapper table {
+	border-top: none;
+	border: 10px solid #578A34;
+	background-color: #578A34;
+	border-collapse: collapse;
+	color: white;
+	margin: 8px 8px;
+	box-shadow: 0 8px 16px var(--shadow);
+	border-radius: 10px;
+	overflow: hidden;
+	transition: all 0.3s ease;
+}
+
+.ranglist-wrapper table:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 12px 24px var(--shadow);
+}
+
+.ranglist-wrapper thead {
+	font-size: 18px;
+	background: linear-gradient(135deg, #4C792D, #578A34);
+}
+
+.ranglist-wrapper th {
+	border: 3px solid #578A34;
+	height: 50px;
+	padding: 10px;
+	text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.ranglist-wrapper td {
+	border: 3px solid #578A34;
+	color: white;
+	text-align: center;
+	padding: 8px;
+	transition: all 0.2s ease;
+}
+
+.ranglist-wrapper td:hover {
+	background-color: rgba(255,255,255,0.1);
+}
+
+/* Mode-specific styling for ranglist table */
+.ranglist-wrapper table.mode1 {
+	background-color: #51AD3E;
+	border: 10px solid #51AD3E;
+}
+
+.ranglist-wrapper .mode1 th {
+	border: 3px solid #51AD3E;
+}
+
+.ranglist-wrapper .mode1 td {
+	border: 3px solid #51AD3E;
+}
+
+.ranglist-wrapper table.mode2 {
+	background-color: #AB593E;
+	border: 10px solid #AB593E;
+}
+
+.ranglist-wrapper .mode2 th {
+	border: 3px solid #AB593E;
+}
+
+.ranglist-wrapper .mode2 td {
+	border: 3px solid #AB593E;
+}
+
 /* Improve table aesthetics */
 .container table {
 	border-top: none;
