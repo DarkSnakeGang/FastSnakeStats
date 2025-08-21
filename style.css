@@ -1,0 +1,904 @@
+/* CSS Variables for theming */
+:root {
+	--bg-color: #4DC1F9;
+	--text-color: #333;
+	--sidebar-bg: rgba(255, 255, 255, 0.95);
+	--sidebar-text: #333;
+	--button-bg: #4DC1F9;
+	--button-hover: #3BA8E0;
+	--button-active: #E9DC00;
+	--button-active-text: #333;
+	--title-color: #E9DC00;
+	--shadow: rgba(0,0,0,0.2);
+}
+
+/* Dark mode */
+body.dark-mode {
+	--bg-color: #1a1a1a;
+	--text-color: #ffffff;
+	--sidebar-bg: rgba(40, 40, 40, 0.95);
+	--sidebar-text: #ffffff;
+	--button-bg: #4DC1F9;
+	--button-hover: #3BA8E0;
+	--button-active: #E9DC00;
+	--button-active-text: #333;
+	--title-color: #E9DC00;
+	--shadow: rgba(0,0,0,0.4);
+}
+
+/* Dark mode settings table */
+body.dark-mode .table-selector {
+	background: rgba(0, 0, 0, 0.25);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Dark mode table colors */
+body.dark-mode .container table {
+	border-color: #2d4a1f;
+	background-color: #2d4a1f;
+}
+
+body.dark-mode .container thead {
+	background: linear-gradient(135deg, #1e3a15, #2d4a1f);
+}
+
+body.dark-mode .container th,
+body.dark-mode .container td {
+	border-color: #2d4a1f;
+}
+
+body.dark-mode .container td:hover {
+	background-color: rgba(255,255,255,0.05);
+}
+
+body.dark-mode .result {
+	background-color: #1e3a15;
+}
+
+body.dark-mode .result:hover {
+	background-color: #2d4a1f;
+}
+
+body {
+	background-color: var(--bg-color);
+	background-image: linear-gradient(135deg, var(--bg-color) 0%, rgba(77, 193, 249, 0.8) 100%);
+	background-attachment: fixed;
+	white-space-collapsing:discard;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+	color: var(--text-color);
+	min-height: 100vh;
+}
+
+h1{
+	color: var(--title-color);
+	font-size: 50px;
+	margin: 4px;
+	text-shadow: 2px 2px 4px var(--shadow);
+}
+h2{
+	color: var(--title-color);
+	font-size: 30px;
+	margin: 4px;
+	text-shadow: 1px 1px 2px var(--shadow);
+}
+
+/* Table Selector Sidebar */
+.table-selector {
+	position: fixed;
+	left: 20px;
+	top: 100px;
+	background: rgba(255, 255, 255, 0.15);
+	border-radius: 15px;
+	padding: 25px;
+	box-shadow: 0 8px 32px var(--shadow);
+	max-width: 280px;
+	z-index: 100;
+	backdrop-filter: blur(15px);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Dark mode toggle button */
+.dark-mode-toggle {
+	position: fixed;
+	left: 20px;
+	top: 20px;
+	background: var(--button-bg);
+	color: white;
+	border: none;
+	border-radius: 50%;
+	width: 50px;
+	height: 50px;
+	font-size: 20px;
+	cursor: pointer;
+	box-shadow: 0 4px 8px var(--shadow);
+	transition: all 0.3s ease;
+	z-index: 1000;
+}
+
+.dark-mode-toggle:hover {
+	background: var(--button-hover);
+	transform: scale(1.1);
+}
+
+
+
+/* Table wrapper for better centering */
+.table-wrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 0;
+}
+
+/* Main table wrapper - first table */
+.main-table-wrapper {
+	max-width: 70%;
+}
+
+/* Ranglist wrapper - second table */
+.ranglist-wrapper {
+	max-width: 25%;
+}
+
+/* Remove the old ranglist margin */
+.ranglist {
+	margin-top: 0;
+}
+
+/* Improve table aesthetics */
+.container table {
+	border-top: none;
+	border: 10px solid #578A34;
+	background-color: #578A34;
+	border-collapse: collapse;
+	color: white;
+	margin: 8px 8px;
+	box-shadow: 0 8px 16px var(--shadow);
+	border-radius: 10px;
+	overflow: hidden;
+	transition: all 0.3s ease;
+}
+
+.container table:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 12px 24px var(--shadow);
+}
+
+/* Improve table header styling */
+.container thead {
+	font-size: 18px;
+	background: linear-gradient(135deg, #4C792D, #578A34);
+}
+
+.container th {
+	border: 3px solid #578A34;
+	height: 50px;
+	padding: 10px;
+	text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Improve table cell styling */
+.container td {
+	border: 3px solid #578A34;
+	color: white;
+	text-align: center;
+	padding: 8px;
+	transition: all 0.2s ease;
+}
+
+.container td:hover {
+	background-color: rgba(255,255,255,0.1);
+}
+
+.table-selector h3 {
+	color: var(--sidebar-text);
+	margin: 0 0 20px 0;
+	font-size: 20px;
+	font-weight: 600;
+	text-align: center;
+	text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.table-selector label {
+	color: var(--sidebar-text);
+	font-weight: 600;
+	font-size: 14px;
+	margin-bottom: 8px;
+	display: block;
+	text-align: center;
+	text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.table-selector .button-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 20px;
+	justify-content: center;
+}
+
+.table-option-btn {
+	background: var(--button-bg);
+	color: white;
+	border: none;
+	border-radius: 12px;
+	padding: 8px;
+	margin: 2px;
+	font-size: 12px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	width: 55px;
+	height: 55px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 4px 12px var(--shadow);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.table-option-btn img {
+	max-width: 100%;
+	max-height: 100%;
+	width: auto;
+	height: auto;
+}
+
+.table-option-btn:hover {
+	background: var(--button-hover);
+	transform: scale(1.05) translateY(-2px);
+	box-shadow: 0 8px 20px var(--shadow);
+}
+
+.table-option-btn.active {
+	background: var(--button-active);
+	color: var(--button-active-text);
+	transform: scale(1.1) translateY(-2px);
+	box-shadow: 0 10px 25px var(--shadow);
+	border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+
+
+/* Refresh button specific styling */
+.refresh-btn {
+	width: auto;
+	min-width: 100px;
+	font-size: 14px;
+	font-weight: 600;
+	background: linear-gradient(135deg, var(--button-bg), var(--button-hover));
+}
+
+
+
+/* Adjust container to make room for sidebar */
+.container{
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: flex-start;
+	margin-left: 320px; /* Make room for sidebar */
+	margin-top: 0px; /* Reset margin-top */
+	width: calc(100% - 320px); /* Take remaining width after sidebar */
+	padding: 20px;
+	padding-top: 20px; /* Reduced padding-top to push tables up */
+	min-height: calc(100vh - 200px);
+	position: relative;
+	transform: translateX(-160px); /* Center the container globally */
+	gap: 30px; /* Space between tables */
+}
+@media only screen and (max-width: 900px) {
+	.container{
+		justify-content: flex-start;
+		margin-left: 20px;
+	}
+	.table-selector {
+		position: relative;
+		left: auto;
+		top: auto;
+		margin: 20px auto;
+		max-width: 90%;
+	}
+}
+
+.container table.mode1{
+	background-color: #51AD3E;
+	border: 10px solid #51AD3E;
+}
+.container .mode1 th{
+	border: 3px solid #51AD3E;
+}
+.container .mode1 td{
+	border: 3px solid #51AD3E;
+}
+
+.container table.mode2{
+	background-color: #AB593E;
+	border: 10px solid #AB593E;
+}
+.container .mode2 th{
+	border: 3px solid #AB593E;
+}
+.container .mode2 td{
+	border: 3px solid #AB593E;
+}
+
+
+
+
+.container th img{
+	width:40px;
+	height:auto;
+	padding: 4px 4px;
+	padding-right: 12px;
+}
+
+.ranglist img{
+	width:100px;
+}
+
+
+.container td a{
+	color:white;
+	text-decoration: none;
+}
+
+.result{
+	align:center;
+	/*background-color: #50712B;*/
+	background-color: #4C792D;
+	width:100px;
+}
+
+.result a{
+	display: block;
+}
+
+.result a a{
+	width:fit-content;
+	margin:auto;
+}
+
+.result:hover{
+	background-color: #578A34;
+	transform: scale(1.02);
+	transition: all 0.2s ease;
+}
+
+.gradient-text {
+	font-size: 23px;
+	font-weight: bold;
+    background-color: #f3ec78;
+    background-size: 100%;
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    -webkit-text-fill-color: transparent; 
+    -moz-text-fill-color: transparent;
+    padding: 4px 4px;
+}
+
+.time{
+	margin-top: 5px;
+	margin-left: 4px;
+	margin-right:4px;
+	font-size: 18px;
+	display: block;
+	white-space: nowrap;
+}
+
+.name{
+	margin-left: 5px;
+	margin-right: 5px;
+	text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Dark mode username shadows */
+body.dark-mode .name {
+	text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.percentage{
+	font-size: 20px;
+	font-weight: bold;
+}
+
+button{
+    background-color: Transparent;
+    background-repeat:no-repeat;
+    border: none;
+    cursor:pointer;
+    overflow: hidden;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+}
+button:focus {outline:0;}
+
+.mybutton {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0.16, rgb(207, 207, 207)), color-stop(0.79, rgb(252, 252, 252)));
+  background-image: -moz-linear-gradient(center bottom, rgb(207, 207, 207) 16%, rgb(252, 252, 252) 79%);
+  background-image: linear-gradient(to top, rgb(207, 207, 207) 16%, rgb(252, 252, 252) 79%); 
+  padding: 3px;
+  border: 1px solid #000;
+  color: black;
+  text-decoration: none;
+}
+
+/* The Modal (background) */
+
+.modal-button {
+    position: absolute;
+    right: 0.8em;
+    top: 0.8em;
+}
+.modal-button2 {
+    position: absolute;
+    right: 4em;
+    top: 0.8em;
+}
+
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1000; /* Sit on top */
+  padding-top: 20px; /* Location of the box - moved higher */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(0,0,0,0.6); /* Darker overlay */
+  backdrop-filter: blur(5px); /* Blur background */
+}
+
+/* Modal Content */
+.modal-content {
+  background: linear-gradient(135deg, rgba(77, 193, 249, 0.95), rgba(77, 193, 249, 0.85));
+  color: white;
+  margin: auto;
+  padding: 20px;
+  padding-top: 0px;
+  border: none;
+  border-radius: 20px;
+  width: 900px;
+  max-width: 90%;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  animation: modalFadeIn 0.4s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  text-align: center;
+}
+
+/* Modal text styling */
+.modal-content p {
+  margin: 20px 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: white;
+  text-align: center;
+}
+
+.modal-content strong {
+  color: var(--title-color);
+  font-weight: 700;
+  font-size: 32px;
+}
+
+/* Modal links styling */
+.modal-content a {
+  color: var(--button-bg);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  padding: 12px 24px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(77, 193, 249, 0.1), rgba(77, 193, 249, 0.05));
+  border: 2px solid rgba(77, 193, 249, 0.2);
+  display: inline-block;
+  margin: 8px;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(77, 193, 249, 0.1);
+}
+
+.modal-content a:hover {
+  color: white;
+  background: linear-gradient(135deg, var(--button-bg), var(--button-hover));
+  border-color: var(--button-bg);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(77, 193, 249, 0.3);
+}
+
+/* Info modal specific styling */
+#infoModal .modal-content {
+  background: linear-gradient(135deg, rgba(77, 193, 249, 0.95), rgba(77, 193, 249, 0.85));
+  color: white;
+  max-width: 500px;
+  width: 90%;
+}
+
+#infoModal .modal-content p {
+  color: white;
+  margin: 15px 0;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+#infoModal .modal-content strong {
+  color: var(--title-color);
+  font-weight: 700;
+  font-size: 18px;
+}
+
+#infoModal .modal-content a {
+  color: var(--title-color);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(233, 220, 0, 0.2), rgba(233, 220, 0, 0.1));
+  border: 1px solid rgba(233, 220, 0, 0.3);
+  display: inline-block;
+  margin: 5px;
+  font-size: 14px;
+}
+
+#infoModal .modal-content a:hover {
+  color: #333;
+  background: linear-gradient(135deg, var(--title-color), #D4C700);
+  border-color: var(--title-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(233, 220, 0, 0.3);
+}
+
+/* Settings form items */
+.settings-form-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+  gap: 10px;
+}
+
+/* Modal form elements styling */
+.modal-content label {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  font-weight: 600;
+  color: white;
+  font-size: 15px;
+  text-align: center;
+  justify-content: center;
+}
+
+/* Fix checkbox alignment for all checkboxes in modal */
+.modal-content input[type="checkbox"] {
+  margin: 0 10px 0 0;
+  width: 18px;
+  height: 18px;
+  accent-color: #E9DC00;
+  flex-shrink: 0;
+}
+
+.modal-content input[type="date"],
+.modal-content input[type="input"] {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid rgba(77, 193, 249, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #333;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-sizing: border-box;
+}
+
+.modal-content input[type="date"]:focus,
+.modal-content input[type="input"]:focus {
+  outline: none;
+  border-color: var(--button-bg);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 4px rgba(77, 193, 249, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Modal button styling */
+.modal-content .mybutton {
+  background: linear-gradient(135deg, #E9DC00, #D4C700);
+  color: #333;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 15px 0;
+  box-shadow: 0 6px 15px rgba(233, 220, 0, 0.3);
+  width: 100%;
+}
+
+.modal-content .mybutton:hover {
+  background: linear-gradient(135deg, #FF6B6B, #FF5252);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
+}
+
+.modal-content .mybutton:disabled {
+  background: linear-gradient(135deg, #9E9E9E, #757575);
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content .mybutton:disabled:hover {
+  background: linear-gradient(135deg, #9E9E9E, #757575);
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Game mode icons container */
+#optionButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 20px;
+  padding: 20px;
+  background: transparent;
+  border-radius: 15px;
+  border: none;
+}
+
+/* Top row container for category and other settings */
+.top-settings-row {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* Settings containers */
+.settings-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 25px;
+  background: transparent;
+  border-radius: 10px;
+  border: none;
+  min-width: 280px;
+  text-align: center;
+}
+
+/* Category container - left column */
+.category-container {
+  flex: 1;
+  max-width: 400px;
+}
+
+/* Other settings container - right column */
+.other-settings-container {
+  flex: 1;
+  max-width: 350px;
+}
+
+/* Button groups for wrapping icons */
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 60px;
+}
+
+/* Settings titles */
+.settings-title {
+  width: 100%;
+  text-align: center;
+  margin: 0 0 10px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Style the individual option buttons */
+#optionButtons .optionButton {
+  display: inline-block;
+  margin: 5px;
+}
+
+/* Fix icon layout in settings containers */
+.settings-container .optionButton {
+  display: inline-block;
+  margin: 5px;
+}
+
+/* Ensure icons wrap properly in containers */
+.settings-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  border: 1px solid rgba(77, 193, 249, 0.1);
+  min-width: 200px;
+  text-align: center;
+}
+
+/* Fix for table-option-btn buttons in settings containers */
+.settings-container .table-option-btn {
+  display: inline-block;
+  margin: 3px;
+  flex-shrink: 0;
+}
+
+/* Checkbox wrapper for run mode settings */
+.checkbox-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+/* Individual checkbox items */
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.checkbox-item input[type="checkbox"] {
+  margin: 0;
+  width: 18px;
+  height: 18px;
+  accent-color: #E9DC00;
+  flex-shrink: 0;
+}
+
+.checkbox-item label {
+  margin: 0;
+  font-weight: 600;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* The Close Button - Hidden for settings popup */
+.close {
+  display: none;
+}
+
+/* Show close button for info modal */
+#infoModal .close {
+  display: block;
+  color: white;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  transition: all 0.3s ease;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
+#infoModal .close:hover,
+#infoModal .close:focus {
+  color: var(--title-color);
+  transform: scale(1.1);
+}
+
+/* Dark mode modal improvements */
+body.dark-mode .modal {
+  background-color: rgba(0,0,0,0.8);
+}
+
+body.dark-mode .modal-content {
+  background: linear-gradient(135deg, rgba(40, 40, 40, 0.95), rgba(30, 30, 30, 0.9));
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .modal-content label {
+  color: white;
+}
+
+body.dark-mode .modal-content input[type="date"],
+body.dark-mode .modal-content input[type="input"] {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-color: rgba(77, 193, 249, 0.3);
+}
+
+body.dark-mode .modal-content input[type="date"]:focus,
+body.dark-mode .modal-content input[type="input"]:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--button-bg);
+}
+
+body.dark-mode .close {
+  color: white;
+}
+
+body.dark-mode .close:hover,
+body.dark-mode .close:focus {
+  color: var(--button-bg);
+}
+
+body.dark-mode #optionButtons {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(77, 193, 249, 0.2);
+}
+
+body.dark-mode .settings-container {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(77, 193, 249, 0.2);
+}
+
+body.dark-mode .settings-title {
+  color: white;
+}
+
+body.dark-mode .checkbox-item label {
+  color: white;
+}
+
+body.dark-mode .modal-content p {
+  color: white;
+}
+
+body.dark-mode .modal-content strong {
+  color: var(--title-color);
+}
+
+.optionButtonImage{
+	transition: all 1s ease;
+	width:50px;
+	height: auto;
+}
+
+.optionButtonImageDisabled{
+	transform: scale(0.5);
+	opacity:0.45
+}
+.optionButton{
+	border: none;
+	padding: 0px 0px;
+	margin: 0px 0px;
+	display: inline;
+	outline:none;
+	background-color: rgba(0,0,0,0);
+	width: 60px;
+
+}
