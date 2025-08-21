@@ -56,6 +56,7 @@ var worldRecords = {}; // Store world records data
 var isDarkMode = false; // Default to light mode
 var isTimeTravelEnabled = false; // Time travel toggle state
 var selectedTimeTravelDate = ""; // Currently selected date for time travel
+var isMultipleTablesEnabled = false; // Multiple tables toggle state
 
 // Load settings from localStorage
 function loadSettings() {
@@ -90,6 +91,13 @@ function loadSettings() {
     
     if(localStorage.getItem('selectedTimeTravelDate') != null){
         selectedTimeTravelDate = localStorage.getItem('selectedTimeTravelDate');
+    }
+    
+    // Load multiple tables settings
+    if(localStorage.getItem('multipleTablesEnabled') == null){
+        localStorage.setItem('multipleTablesEnabled', isMultipleTablesEnabled);
+    } else {
+        isMultipleTablesEnabled = localStorage.getItem('multipleTablesEnabled') === 'true';
     }
     
     // Load table settings
@@ -158,6 +166,7 @@ function saveSettings() {
     localStorage.setItem('tableSettings', JSON.stringify(currentTableSettings));
     localStorage.setItem('timeTravelEnabled', isTimeTravelEnabled);
     localStorage.setItem('selectedTimeTravelDate', selectedTimeTravelDate);
+    localStorage.setItem('multipleTablesEnabled', isMultipleTablesEnabled);
     
     // Save visibility settings for all options
     var visibilitySettings = {
@@ -222,6 +231,33 @@ async function toggleTimeTravel() {
             timeTravelBtn.setAttribute('title', 'Time travel mode disabled. Click to enable.');
         }
     }
+    
+    // Refresh data based on current state
+    if (isLoading) return;
+    await refreshWorldRecordsForSettings();
+}
+
+// Toggle multiple tables mode
+async function toggleMultipleTables() {
+    isMultipleTablesEnabled = !isMultipleTablesEnabled;
+    saveSettings();
+    
+    // Update toggle button
+    const multipleTablesBtn = document.querySelector('.multiple-tables-btn');
+    if(multipleTablesBtn) {
+        if(isMultipleTablesEnabled) {
+            multipleTablesBtn.innerHTML = '📊 Multiple Tables';
+            multipleTablesBtn.classList.add('active');
+            multipleTablesBtn.setAttribute('title', 'Multiple tables mode enabled. Click to disable.');
+        } else {
+            multipleTablesBtn.innerHTML = '📊 Multiple Tables';
+            multipleTablesBtn.classList.remove('active');
+            multipleTablesBtn.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
+        }
+    }
+    
+    // Regenerate table selector to show/hide count/speed/size options
+    generateTableSelector();
     
     // Refresh data based on current state
     if (isLoading) return;
@@ -894,7 +930,7 @@ function createNameElement(user){
     return a;
 }
 
-function generateLeaderboard(settings){
+function generateLeaderboard(settings, specificGamemode = null){
     var table = document.createElement('table');
     table.setAttribute('class','leaderboard');
 
@@ -957,7 +993,7 @@ function generateLeaderboard(settings){
     //creat tbody
     var tbody = document.createElement('tbody');
     for(gamemode in thisBoardRuns){
-        if(gamemodes[gamemode].visible){
+        if(gamemodes[gamemode].visible && (specificGamemode === null || gamemode === specificGamemode)){
             row = document.createElement('tr');
             th = document.createElement('th');
             th.appendChild(createIconElement(gamemodes[gamemode]));
@@ -1026,10 +1062,14 @@ function generateSingleTable(){
     
     // Only generate table if we have data
     if(Object.keys(worldRecords).length > 0) {
-        generateLeaderboard(currentTableSettings);
-        // Also generate the ranglist (summary table)
-        calculateRanglist();
-        generateRanglist();
+        if(isMultipleTablesEnabled) {
+            generateMultipleTables();
+        } else {
+            generateLeaderboard(currentTableSettings);
+            // Also generate the ranglist (summary table)
+            calculateRanglist();
+            generateRanglist();
+        }
     } else {
         // Show a message that data is loading
         var container = document.querySelector('.container');
@@ -1090,7 +1130,6 @@ function generateTableSelector(){
         }
     }
     appleSelector.appendChild(appleButtonGroup);
-    sidebar.appendChild(appleSelector);
     
     // Speed selector
     var speedSelector = document.createElement('div');
@@ -1126,7 +1165,6 @@ function generateTableSelector(){
         }
     }
     speedSelector.appendChild(speedButtonGroup);
-    sidebar.appendChild(speedSelector);
     
     // Size selector
     var sizeSelector = document.createElement('div');
@@ -1162,7 +1200,13 @@ function generateTableSelector(){
         }
     }
     sizeSelector.appendChild(sizeButtonGroup);
-    sidebar.appendChild(sizeSelector);
+    
+    // Only show count/speed/size selectors when multiple tables is disabled
+    if (!isMultipleTablesEnabled) {
+        sidebar.appendChild(appleSelector);
+        sidebar.appendChild(speedSelector);
+        sidebar.appendChild(sizeSelector);
+    }
     
     // Add options section (refresh and time travel buttons)
     var optionsSelector = document.createElement('div');
@@ -1188,6 +1232,19 @@ function generateTableSelector(){
     }
     timeTravelButton.onclick = toggleTimeTravel;
     optionsButtonGroup.appendChild(timeTravelButton);
+    
+    var multipleTablesButton = document.createElement('button');
+    multipleTablesButton.setAttribute('class', 'table-option-btn multiple-tables-btn');
+    if(isMultipleTablesEnabled) {
+        multipleTablesButton.innerHTML = '📊 Multiple Tables';
+        multipleTablesButton.classList.add('active');
+        multipleTablesButton.setAttribute('title', 'Multiple tables mode enabled. Click to disable.');
+    } else {
+        multipleTablesButton.innerHTML = '📊 Multiple Tables';
+        multipleTablesButton.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
+    }
+    multipleTablesButton.onclick = toggleMultipleTables;
+    optionsButtonGroup.appendChild(multipleTablesButton);
     
     optionsSelector.appendChild(optionsButtonGroup);
     sidebar.appendChild(optionsSelector);
@@ -1251,7 +1308,7 @@ function updateTableSelector(){
         refreshButton.setAttribute('title', 'Refresh world records for current settings');
     }
     
-    // Update time travel button state
+    // Also update the time travel button state
     var timeTravelButton = document.querySelector('.time-travel-btn');
     if (timeTravelButton) {
         if(isTimeTravelEnabled) {
@@ -1262,6 +1319,20 @@ function updateTableSelector(){
             timeTravelButton.innerHTML = '⏰ Time Travel';
             timeTravelButton.classList.remove('active');
             timeTravelButton.setAttribute('title', 'Time travel mode disabled. Click to enable.');
+        }
+    }
+    
+    // Also update the multiple tables button state
+    var multipleTablesButton = document.querySelector('.multiple-tables-btn');
+    if (multipleTablesButton) {
+        if(isMultipleTablesEnabled) {
+            multipleTablesButton.innerHTML = '📊 Multiple Tables';
+            multipleTablesButton.classList.add('active');
+            multipleTablesButton.setAttribute('title', 'Multiple tables mode enabled. Click to disable.');
+        } else {
+            multipleTablesButton.innerHTML = '📊 Multiple Tables';
+            multipleTablesButton.classList.remove('active');
+            multipleTablesButton.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
         }
     }
     
@@ -1313,22 +1384,17 @@ function setLoadingState(loading) {
     // Update time travel button text
     var timeTravelButton = document.querySelector('.time-travel-btn');
     if (timeTravelButton) {
-        if (loading) {
-            timeTravelButton.innerHTML = '⏳ Loading...';
-            timeTravelButton.disabled = true;
-            timeTravelButton.setAttribute('title', 'Please wait while world records are being fetched...');
-        } else {
-            if(isTimeTravelEnabled) {
-                timeTravelButton.innerHTML = '⏰ Time Travel ON';
-                timeTravelButton.classList.add('active');
-                timeTravelButton.setAttribute('title', 'Time travel mode enabled. Click to disable.');
-            } else {
-                timeTravelButton.innerHTML = '⏰ Time Travel OFF';
-                timeTravelButton.classList.remove('active');
-                timeTravelButton.setAttribute('title', 'Time travel mode disabled. Click to enable.');
-            }
-            timeTravelButton.disabled = false;
-        }
+        timeTravelButton.disabled = loading;
+        timeTravelButton.innerHTML = '⏰ Time Travel';
+        timeTravelButton.title = loading ? 'Loading...' : (isTimeTravelEnabled ? 'Time travel mode enabled. Click to disable.' : 'Time travel mode disabled. Click to enable.');
+    }
+    
+    // Update multiple tables button
+    var multipleTablesButton = document.querySelector('.multiple-tables-btn');
+    if (multipleTablesButton) {
+        multipleTablesButton.disabled = loading;
+        multipleTablesButton.innerHTML = '📊 Multiple Tables';
+        multipleTablesButton.title = loading ? 'Loading...' : (isMultipleTablesEnabled ? 'Multiple tables mode enabled. Click to disable.' : 'Multiple tables mode disabled. Click to enable.');
     }
     
     // Don't show loading message - table will be updated live instead
@@ -1551,26 +1617,49 @@ async function getAllWorldRecordsForCurrentSettings() {
         return;
     }
     
-    // Get current settings from the table selector
-    let count = 0; // 1 Apple
-    let speed = 0; // Normal
-    let size = 0;  // Standard
+    // Get all selected combinations from the settings popup if multiple tables is enabled
+    var selectedCombinations = [];
     
-    // Map current table settings to indices
-    const countNames = ["1 Apple", "3 Apples", "5 Apples", "Dice"];
-    const speedNames = ["Normal", "Fast", "Slow"];
-    const sizeNames = ["Standard", "Small", "Large"];
+    if (isMultipleTablesEnabled) {
+        // Get selected apple amounts
+        var selectedAppleAmounts = [];
+        for(var appleAmount in appleAmounts) {
+            if(appleAmounts[appleAmount].visible) {
+                selectedAppleAmounts.push(appleAmount);
+            }
+        }
+        
+        // Get selected speeds
+        var selectedSpeeds = [];
+        for(var speed in speeds) {
+            if(speeds[speed].visible) {
+                selectedSpeeds.push(speed);
+            }
+        }
+        
+        // Get selected sizes
+        var selectedSizes = [];
+        for(var size in sizes) {
+            if(sizes[size].visible) {
+                selectedSizes.push(size);
+            }
+        }
+        
+        // Generate all combinations of apple amount, speed, and size
+        for(var i = 0; i < selectedAppleAmounts.length; i++) {
+            for(var j = 0; j < selectedSpeeds.length; j++) {
+                for(var k = 0; k < selectedSizes.length; k++) {
+                    var combination = [selectedAppleAmounts[i], selectedSpeeds[j], selectedSizes[k]];
+                    selectedCombinations.push(combination);
+                }
+            }
+        }
+    } else {
+        // Use current table settings for single table mode
+        selectedCombinations = [currentTableSettings];
+    }
     
-    count = countNames.indexOf(currentTableSettings[0]);
-    speed = speedNames.indexOf(currentTableSettings[1]);
-    size = sizeNames.indexOf(currentTableSettings[2]);
-    
-    if (count === -1) count = 0;
-    if (speed === -1) speed = 0;
-    if (size === -1) size = 0;
-    
-    console.log("Current settings:", currentTableSettings);
-    console.log("Mapped indices - count:", count, "speed:", speed, "size:", size);
+    console.log("Fetching data for combinations:", selectedCombinations);
     
     // Fetch world records for all game modes and levels
     // All modes get regular levels (25, 50, 100, All Apples)
@@ -1580,168 +1669,189 @@ async function getAllWorldRecordsForCurrentSettings() {
     const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
     const highscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 3]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Cheese
     
-    // Calculate total requests: regular levels for all modes + highscore levels for highscore modes
-    let totalRequests = levels.length * modeNames.length + highscoreLevels.length * highscoreModes.length;
+    // Calculate total requests: (regular levels for all modes + highscore levels for highscore modes) * number of combinations
+    let totalRequests = (levels.length * modeNames.length + highscoreLevels.length * highscoreModes.length) * selectedCombinations.length;
     let completedRequests = 0;
     
     // Clear existing world records
     worldRecords = {};
     
-    // Fetch regular level-based records for all modes
-    for (let modeIndex = 0; modeIndex < modeNames.length; modeIndex++) {
-        for (let levelIndex = 0; levelIndex < levels.length; levelIndex++) {
-            const level = levels[levelIndex];
-            const mode = modeIndex;
-            
-            try {
-                const record = await window.worldRecordFetcher.getWorldRecord(level, mode, count, speed, size);
-                completedRequests++;
+    // Fetch data for each combination
+    for (let comboIndex = 0; comboIndex < selectedCombinations.length; comboIndex++) {
+        const combo = selectedCombinations[comboIndex];
+        
+        // Map combination to indices
+        const countNames = ["1 Apple", "3 Apples", "5 Apples", "Dice"];
+        const speedNames = ["Normal", "Fast", "Slow"];
+        const sizeNames = ["Standard", "Small", "Large"];
+        
+        let count = countNames.indexOf(combo[0]);
+        let speed = speedNames.indexOf(combo[1]);
+        let size = sizeNames.indexOf(combo[2]);
+        
+        if (count === -1) count = 0;
+        if (speed === -1) speed = 0;
+        if (size === -1) size = 0;
+        
+        console.log(`Fetching for combination ${comboIndex + 1}/${selectedCombinations.length}:`, combo);
+        console.log("Mapped indices - count:", count, "speed:", speed, "size:", size);
+        
+        // Fetch regular level-based records for all modes
+        for (let modeIndex = 0; modeIndex < modeNames.length; modeIndex++) {
+            for (let levelIndex = 0; levelIndex < levels.length; levelIndex++) {
+                const level = levels[levelIndex];
+                const mode = modeIndex;
                 
-                if (record.success) {
-                    // Create a key for this combination using actual setting names
-                    let key = `${currentTableSettings[0]}|${currentTableSettings[1]}|${currentTableSettings[2]}|${modeNames[mode]}|${level + " Apples"}`;
+                try {
+                    const record = await window.worldRecordFetcher.getWorldRecord(level, mode, count, speed, size);
+                    completedRequests++;
                     
-                    // Convert all runs to the expected format
-                    let convertedRuns = [];
-                    
-                    for (const run of record.runs) {
-                        let convertedRun = {
-                            times: { primary: run.time.raw },
-                            date: run.date.toISOString(),
-                            id: run.runId,
-                            weblink: run.weblink,
-                            players: {
-                                data: [{
-                                    names: { international: run.player.name },
-                                    id: run.player.id,
-                                    rel: "user",
-                                    weblink: `https://www.speedrun.com/user/${run.player.name}`,
-                                    "name-style": run.player.nameStyle || {
-                                        style: "solid",
-                                        color: {
-                                            dark: "#ffffff"
-                                        }
-                                    }
-                                }]
-                            },
-                            values: {} // We'll need to reconstruct this if needed
-                        };
-                        convertedRuns.push(convertedRun);
+                    if (record.success) {
+                        // Create a key for this combination using actual setting names
+                        let key = `${combo[0]}|${combo[1]}|${combo[2]}|${modeNames[mode]}|${level + " Apples"}`;
                         
-                        // Add player to players list
-                        if (typeof players[run.player.name] == 'undefined') {
-                            players[run.player.name] = run.player.id;
+                        // Convert all runs to the expected format
+                        let convertedRuns = [];
+                        
+                        for (const run of record.runs) {
+                            let convertedRun = {
+                                times: { primary: run.time.raw },
+                                date: run.date.toISOString(),
+                                id: run.runId,
+                                weblink: run.weblink,
+                                players: {
+                                    data: [{
+                                        names: { international: run.player.name },
+                                        id: run.player.id,
+                                        rel: "user",
+                                        weblink: `https://www.speedrun.com/user/${run.player.name}`,
+                                        "name-style": run.player.nameStyle || {
+                                            style: "solid",
+                                            color: {
+                                                dark: "#ffffff"
+                                            }
+                                        }
+                                    }]
+                                },
+                                values: {} // We'll need to reconstruct this if needed
+                            };
+                            convertedRuns.push(convertedRun);
+                            
+                            // Add player to players list
+                            if (typeof players[run.player.name] == 'undefined') {
+                                players[run.player.name] = run.player.id;
+                            }
                         }
+                        
+                        // Store all the world records (tied runs)
+                        worldRecords[key] = convertedRuns;
+                        
+                        console.log(`✅ Fetched ${record.runs.length} WR(s) for ${modeNames[mode]} - ${level} Apples (${combo[0]}, ${combo[1]}, ${combo[2]})`);
+                        
+                        // Update the display immediately for each record
+                        calculateBestRuns();
+                        calculateRanglist();
+                        generateRanglist();
+                        generateSingleTable();
+                    } else {
+                        console.log(`❌ No WR found for ${modeNames[mode]} - ${level} Apples (${combo[0]}, ${combo[1]}, ${combo[2]}): ${record.message}`);
                     }
                     
-                    // Store all the world records (tied runs)
-                    worldRecords[key] = convertedRuns;
+                    // Check if all requests are complete
+                    if (completedRequests === totalRequests) {
+                        console.log("All world records fetched for all combinations");
+                        console.log("Total records fetched:", Object.keys(worldRecords).length);
+                    }
                     
-                    console.log(`✅ Fetched ${record.runs.length} WR(s) for ${modeNames[mode]} - ${level} Apples`);
+                } catch (error) {
+                    completedRequests++;
+                    console.error(`Error fetching WR for ${modeNames[mode]} - ${level} Apples (${combo[0]}, ${combo[1]}, ${combo[2]}):`, error);
                     
-                    // Update the display immediately for each record
-                    calculateBestRuns();
-                    calculateRanglist();
-                    generateRanglist();
-                    generateSingleTable();
-                } else {
-                    console.log(`❌ No WR found for ${modeNames[mode]} - ${level} Apples: ${record.message}`);
-                }
-                
-                // Check if all requests are complete
-                if (completedRequests === totalRequests) {
-                    console.log("All world records fetched for current settings");
-                    console.log("Total records fetched:", Object.keys(worldRecords).length);
-                }
-                
-            } catch (error) {
-                completedRequests++;
-                console.error(`Error fetching WR for ${modeNames[mode]} - ${level} Apples:`, error);
-                
-                // Check if all requests are complete
-                if (completedRequests === totalRequests) {
-                    console.log("All world records fetched for current settings");
-                    console.log("Total records fetched:", Object.keys(worldRecords).length);
+                    // Check if all requests are complete
+                    if (completedRequests === totalRequests) {
+                        console.log("All world records fetched for all combinations");
+                        console.log("Total records fetched:", Object.keys(worldRecords).length);
+                    }
                 }
             }
         }
-    }
-    
-    // Fetch highscore records only for highscore modes
-    for (let levelIndex = 0; levelIndex < highscoreLevels.length; levelIndex++) {
-        const level = highscoreLevels[levelIndex];
-        for (let modeIndex = 0; modeIndex < highscoreModes.length; modeIndex++) {
-            const mode = highscoreModes[modeIndex];
-            
-            try {
-                const record = await window.worldRecordFetcher.getWorldRecord(level, mode, count, speed, size);
-                completedRequests++;
+        
+        // Fetch highscore records only for highscore modes
+        for (let levelIndex = 0; levelIndex < highscoreLevels.length; levelIndex++) {
+            const level = highscoreLevels[levelIndex];
+            for (let modeIndex = 0; modeIndex < highscoreModes.length; modeIndex++) {
+                const mode = highscoreModes[modeIndex];
                 
-                if (record.success) {
-                    // Create a key for this combination using actual setting names
-                    let key = `${currentTableSettings[0]}|${currentTableSettings[1]}|${currentTableSettings[2]}|${modeNames[mode]}|High Score`;
+                try {
+                    const record = await window.worldRecordFetcher.getWorldRecord(level, mode, count, speed, size);
+                    completedRequests++;
                     
-                    // Convert all runs to the expected format
-                    let convertedRuns = [];
-                    
-                    for (const run of record.runs) {
-                        let convertedRun = {
-                            times: { primary: run.time.raw },
-                            date: run.date.toISOString(),
-                            id: run.runId,
-                            weblink: run.weblink,
-                            players: {
-                                data: [{
-                                    names: { international: run.player.name },
-                                    id: run.player.id,
-                                    rel: "user",
-                                    weblink: `https://www.speedrun.com/user/${run.player.name}`,
-                                    "name-style": run.player.nameStyle || {
-                                        style: "solid",
-                                        color: {
-                                            dark: "#ffffff"
-                                        }
-                                    }
-                                }]
-                            },
-                            values: {} // We'll need to reconstruct this if needed
-                        };
-                        convertedRuns.push(convertedRun);
+                    if (record.success) {
+                        // Create a key for this combination using actual setting names
+                        let key = `${combo[0]}|${combo[1]}|${combo[2]}|${modeNames[mode]}|High Score`;
                         
-                        // Add player to players list
-                        if (typeof players[run.player.name] == 'undefined') {
-                            players[run.player.name] = run.player.id;
+                        // Convert all runs to the expected format
+                        let convertedRuns = [];
+                        
+                        for (const run of record.runs) {
+                            let convertedRun = {
+                                times: { primary: run.time.raw },
+                                date: run.date.toISOString(),
+                                id: run.runId,
+                                weblink: run.weblink,
+                                players: {
+                                    data: [{
+                                        names: { international: run.player.name },
+                                        id: run.player.id,
+                                        rel: "user",
+                                        weblink: `https://www.speedrun.com/user/${run.player.name}`,
+                                        "name-style": run.player.nameStyle || {
+                                            style: "solid",
+                                            color: {
+                                                dark: "#ffffff"
+                                            }
+                                        }
+                                    }]
+                                },
+                                values: {} // We'll need to reconstruct this if needed
+                            };
+                            convertedRuns.push(convertedRun);
+                            
+                            // Add player to players list
+                            if (typeof players[run.player.name] == 'undefined') {
+                                players[run.player.name] = run.player.id;
+                            }
                         }
+                        
+                        // Store all the world records (tied runs)
+                        worldRecords[key] = convertedRuns;
+                        
+                        console.log(`✅ Fetched ${record.runs.length} WR(s) for ${modeNames[mode]} - High Score (${combo[0]}, ${combo[1]}, ${combo[2]})`);
+                        
+                        // Update the display immediately for each record
+                        calculateBestRuns();
+                        calculateRanglist();
+                        generateRanglist();
+                        generateSingleTable();
+                    } else {
+                        console.log(`❌ No WR found for ${modeNames[mode]} - High Score (${combo[0]}, ${combo[1]}, ${combo[2]}): ${record.message}`);
                     }
                     
-                    // Store all the world records (tied runs)
-                    worldRecords[key] = convertedRuns;
+                    // Check if all requests are complete
+                    if (completedRequests === totalRequests) {
+                        console.log("All world records fetched for all combinations");
+                        console.log("Total records fetched:", Object.keys(worldRecords).length);
+                    }
                     
-                    console.log(`✅ Fetched ${record.runs.length} WR(s) for ${modeNames[mode]} - High Score`);
+                } catch (error) {
+                    completedRequests++;
+                    console.error(`Error fetching WR for ${modeNames[mode]} - High Score (${combo[0]}, ${combo[1]}, ${combo[2]}):`, error);
                     
-                    // Update the display immediately for each record
-                    calculateBestRuns();
-                    calculateRanglist();
-                    generateRanglist();
-                    generateSingleTable();
-                } else {
-                    console.log(`❌ No WR found for ${modeNames[mode]} - High Score: ${record.message}`);
-                }
-                
-                // Check if all requests are complete
-                if (completedRequests === totalRequests) {
-                    console.log("All world records fetched for current settings");
-                    console.log("Total records fetched:", Object.keys(worldRecords).length);
-                }
-                
-            } catch (error) {
-                completedRequests++;
-                console.error(`Error fetching WR for ${modeNames[mode]} - High Score:`, error);
-                
-                // Check if all requests are complete
-                if (completedRequests === totalRequests) {
-                    console.log("All world records fetched for current settings");
-                    console.log("Total records fetched:", Object.keys(worldRecords).length);
+                    // Check if all requests are complete
+                    if (completedRequests === totalRequests) {
+                        console.log("All world records fetched for all combinations");
+                        console.log("Total records fetched:", Object.keys(worldRecords).length);
+                    }
                 }
             }
         }
@@ -1758,26 +1868,49 @@ async function getAllWorldRecordsForDate(date) {
         return;
     }
     
-    // Get current settings from the table selector
-    let count = 0; // 1 Apple
-    let speed = 0; // Normal
-    let size = 0;  // Standard
+    // Get all selected combinations from the settings popup if multiple tables is enabled
+    var selectedCombinations = [];
     
-    // Map current table settings to indices
-    const countNames = ["1 Apple", "3 Apples", "5 Apples", "Dice"];
-    const speedNames = ["Normal", "Fast", "Slow"];
-    const sizeNames = ["Standard", "Small", "Large"];
+    if (isMultipleTablesEnabled) {
+        // Get selected apple amounts
+        var selectedAppleAmounts = [];
+        for(var appleAmount in appleAmounts) {
+            if(appleAmounts[appleAmount].visible) {
+                selectedAppleAmounts.push(appleAmount);
+            }
+        }
+        
+        // Get selected speeds
+        var selectedSpeeds = [];
+        for(var speed in speeds) {
+            if(speeds[speed].visible) {
+                selectedSpeeds.push(speed);
+            }
+        }
+        
+        // Get selected sizes
+        var selectedSizes = [];
+        for(var size in sizes) {
+            if(sizes[size].visible) {
+                selectedSizes.push(size);
+            }
+        }
+        
+        // Generate all combinations of apple amount, speed, and size
+        for(var i = 0; i < selectedAppleAmounts.length; i++) {
+            for(var j = 0; j < selectedSpeeds.length; j++) {
+                for(var k = 0; k < selectedSizes.length; k++) {
+                    var combination = [selectedAppleAmounts[i], selectedSpeeds[j], selectedSizes[k]];
+                    selectedCombinations.push(combination);
+                }
+            }
+        }
+    } else {
+        // Use current table settings for single table mode
+        selectedCombinations = [currentTableSettings];
+    }
     
-    count = countNames.indexOf(currentTableSettings[0]);
-    speed = speedNames.indexOf(currentTableSettings[1]);
-    size = sizeNames.indexOf(currentTableSettings[2]);
-    
-    if (count === -1) count = 0;
-    if (speed === -1) speed = 0;
-    if (size === -1) size = 0;
-    
-    console.log("Current settings:", currentTableSettings);
-    console.log("Mapped indices - count:", count, "speed:", speed, "size:", size);
+    console.log("Fetching data for combinations:", selectedCombinations);
     console.log("Target date:", date);
     
     // Fetch world records for all game modes and levels
@@ -1788,26 +1921,46 @@ async function getAllWorldRecordsForDate(date) {
     const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
     const highscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 3]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Cheese
     
-    // Calculate total requests: regular levels for all modes + highscore levels for highscore modes
-    let totalRequests = levels.length * modeNames.length + highscoreLevels.length * highscoreModes.length;
+    // Calculate total requests: (regular levels for all modes + highscore levels for highscore modes) * number of combinations
+    let totalRequests = (levels.length * modeNames.length + highscoreLevels.length * highscoreModes.length) * selectedCombinations.length;
     let completedRequests = 0;
     
     // Clear existing world records
     worldRecords = {};
     
-    // Fetch regular level-based records for all modes
-    for (let modeIndex = 0; modeIndex < modeNames.length; modeIndex++) {
-        for (let levelIndex = 0; levelIndex < levels.length; levelIndex++) {
-            const level = levels[levelIndex];
-            const mode = modeIndex;
-            
-            try {
-                const record = await window.worldRecordFetcher.getWorldRecordForDate(level, mode, count, speed, size, date);
-                completedRequests++;
+    // Fetch data for each combination
+    for (let comboIndex = 0; comboIndex < selectedCombinations.length; comboIndex++) {
+        const combo = selectedCombinations[comboIndex];
+        
+        // Map combination to indices
+        const countNames = ["1 Apple", "3 Apples", "5 Apples", "Dice"];
+        const speedNames = ["Normal", "Fast", "Slow"];
+        const sizeNames = ["Standard", "Small", "Large"];
+        
+        let count = countNames.indexOf(combo[0]);
+        let speed = speedNames.indexOf(combo[1]);
+        let size = sizeNames.indexOf(combo[2]);
+        
+        if (count === -1) count = 0;
+        if (speed === -1) speed = 0;
+        if (size === -1) size = 0;
+        
+        console.log(`Fetching for combination ${comboIndex + 1}/${selectedCombinations.length}:`, combo);
+        console.log("Mapped indices - count:", count, "speed:", speed, "size:", size);
+        
+        // Fetch regular level-based records for all modes
+        for (let modeIndex = 0; modeIndex < modeNames.length; modeIndex++) {
+            for (let levelIndex = 0; levelIndex < levels.length; levelIndex++) {
+                const level = levels[levelIndex];
+                const mode = modeIndex;
                 
-                if (record.success) {
-                    // Create a key for this combination using actual setting names
-                    let key = `${currentTableSettings[0]}|${currentTableSettings[1]}|${currentTableSettings[2]}|${modeNames[mode]}|${level + " Apples"}`;
+                try {
+                    const record = await window.worldRecordFetcher.getWorldRecordForDate(level, mode, count, speed, size, date);
+                    completedRequests++;
+                    
+                    if (record.success) {
+                        // Create a key for this combination using actual setting names
+                        let key = `${combo[0]}|${combo[1]}|${combo[2]}|${modeNames[mode]}|${level + " Apples"}`;
                     
                     // Convert all runs to the expected format
                     let convertedRuns = [];
@@ -1858,17 +2011,17 @@ async function getAllWorldRecordsForDate(date) {
                 
                 // Check if all requests are complete
                 if (completedRequests === totalRequests) {
-                    console.log("All world records fetched for date:", date);
+                    console.log("All world records fetched for all combinations (Date: ${date})");
                     console.log("Total records fetched:", Object.keys(worldRecords).length);
                 }
                 
             } catch (error) {
                 completedRequests++;
-                console.error(`Error fetching WR for ${modeNames[mode]} - ${level} Apples (Date: ${date}):`, error);
+                console.error(`Error fetching WR for ${modeNames[mode]} - ${level} Apples (${combo[0]}, ${combo[1]}, ${combo[2]}) (Date: ${date}):`, error);
                 
                 // Check if all requests are complete
                 if (completedRequests === totalRequests) {
-                    console.log("All world records fetched for date:", date);
+                    console.log("All world records fetched for all combinations (Date: ${date})");
                     console.log("Total records fetched:", Object.keys(worldRecords).length);
                 }
             }
@@ -1887,7 +2040,7 @@ async function getAllWorldRecordsForDate(date) {
                 
                 if (record.success) {
                     // Create a key for this combination using actual setting names
-                    let key = `${currentTableSettings[0]}|${currentTableSettings[1]}|${currentTableSettings[2]}|${modeNames[mode]}|High Score`;
+                    let key = `${combo[0]}|${combo[1]}|${combo[2]}|${modeNames[mode]}|High Score`;
                     
                     // Convert all runs to the expected format
                     let convertedRuns = [];
@@ -1925,7 +2078,7 @@ async function getAllWorldRecordsForDate(date) {
                     // Store all the world records (tied runs)
                     worldRecords[key] = convertedRuns;
                     
-                    console.log(`✅ Fetched ${record.runs.length} WR(s) for ${modeNames[mode]} - High Score (Date: ${date})`);
+                    console.log(`✅ Fetched ${record.runs.length} WR(s) for ${modeNames[mode]} - High Score (${combo[0]}, ${combo[1]}, ${combo[2]}) (Date: ${date})`);
                     
                     // Update the display immediately for each record
                     calculateBestRuns();
@@ -1933,27 +2086,28 @@ async function getAllWorldRecordsForDate(date) {
                     generateRanglist();
                     generateSingleTable();
                 } else {
-                    console.log(`❌ No WR found for ${modeNames[mode]} - High Score (Date: ${date}): ${record.message}`);
+                    console.log(`❌ No WR found for ${modeNames[mode]} - High Score (${combo[0]}, ${combo[1]}, ${combo[2]}) (Date: ${date}): ${record.message}`);
                 }
                 
                 // Check if all requests are complete
                 if (completedRequests === totalRequests) {
-                    console.log("All world records fetched for date:", date);
+                    console.log("All world records fetched for all combinations (Date: ${date})");
                     console.log("Total records fetched:", Object.keys(worldRecords).length);
                 }
                 
             } catch (error) {
                 completedRequests++;
-                console.error(`Error fetching WR for ${modeNames[mode]} - High Score (Date: ${date}):`, error);
+                console.error(`Error fetching WR for ${modeNames[mode]} - High Score (${combo[0]}, ${combo[1]}, ${combo[2]}) (Date: ${date}):`, error);
                 
                 // Check if all requests are complete
                 if (completedRequests === totalRequests) {
-                    console.log("All world records fetched for date:", date);
+                    console.log("All world records fetched for all combinations (Date: ${date})");
                     console.log("Total records fetched:", Object.keys(worldRecords).length);
                 }
             }
         }
     }
+}
 }
 
 //option buttons
@@ -2376,6 +2530,67 @@ function startWorldRecordsDownload() {
             }
         }, 15000);
     });
+}
+
+function generateMultipleTables(){
+    // Clear existing content
+    removeLeaderboards();
+    
+    // Only generate tables if we have data
+    if(Object.keys(worldRecords).length > 0) {
+        // Get all selected combinations from the settings popup
+        var selectedCombinations = [];
+        
+        // Get selected apple amounts
+        var selectedAppleAmounts = [];
+        for(var appleAmount in appleAmounts) {
+            if(appleAmounts[appleAmount].visible) {
+                selectedAppleAmounts.push(appleAmount);
+            }
+        }
+        
+        // Get selected speeds
+        var selectedSpeeds = [];
+        for(var speed in speeds) {
+            if(speeds[speed].visible) {
+                selectedSpeeds.push(speed);
+            }
+        }
+        
+        // Get selected sizes
+        var selectedSizes = [];
+        for(var size in sizes) {
+            if(sizes[size].visible) {
+                selectedSizes.push(size);
+            }
+        }
+        
+        // Generate all combinations of apple amount, speed, and size
+        for(var i = 0; i < selectedAppleAmounts.length; i++) {
+            for(var j = 0; j < selectedSpeeds.length; j++) {
+                for(var k = 0; k < selectedSizes.length; k++) {
+                    var combination = [selectedAppleAmounts[i], selectedSpeeds[j], selectedSizes[k]];
+                    selectedCombinations.push(combination);
+                }
+            }
+        }
+        
+        // Generate a table for each combination
+        for(var i = 0; i < selectedCombinations.length; i++) {
+            var combo = selectedCombinations[i];
+            generateLeaderboard(combo);
+        }
+        
+        // Also generate the ranglist (summary table)
+        calculateRanglist();
+        generateRanglist();
+    } else {
+        // Show a message that data is loading
+        var container = document.querySelector('.container');
+        if(container) {
+            container.innerHTML = '<p style="color: white; font-size: 18px;">Loading world records...</p>';
+        }
+    }
 }
 
 

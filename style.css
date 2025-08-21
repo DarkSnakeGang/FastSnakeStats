@@ -368,13 +368,40 @@ h2{
 	background: #218838;
 }
 
+/* Multiple tables button specific styling */
+.multiple-tables-btn {
+	width: auto;
+	min-width: 120px;
+	font-size: 14px;
+	font-weight: 600;
+	background: linear-gradient(135deg, #8B0000, #B22222);
+}
+
+.multiple-tables-btn.active {
+	background: #28a745;
+	color: white;
+	transform: scale(1.1) translateY(-2px);
+	box-shadow: 0 10px 25px var(--shadow);
+	border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.multiple-tables-btn:hover {
+	background: linear-gradient(135deg, #660000, #8B0000);
+	transform: scale(1.05) translateY(-2px);
+	box-shadow: 0 8px 20px var(--shadow);
+}
+
+.multiple-tables-btn.active:hover {
+	background: #218838;
+}
+
 
 
 /* Adjust container to make room for sidebar */
 .container{
 	display: flex;
 	flex-direction: row;
-	justify-content: center;
+	justify-content: flex-start; /* Changed from center to flex-start to avoid centering issues */
 	align-items: flex-start;
 	margin-left: 320px; /* Make room for sidebar */
 	margin-top: 0px; /* Reset margin-top */
@@ -383,7 +410,7 @@ h2{
 	padding-top: 20px; /* Reduced padding-top to push tables up */
 	min-height: calc(100vh - 200px);
 	position: relative;
-	transform: translateX(-160px); /* Center the container globally */
+	/* Removed transform: translateX(-160px) to prevent centering issues with multiple tables */
 	gap: 30px; /* Space between tables */
 }
 @media only screen and (max-width: 900px) {
