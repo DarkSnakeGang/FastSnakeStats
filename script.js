@@ -1538,10 +1538,7 @@ function generateTableSelector(){
     
     // Create a container for the data content (API calls and stop button)
     var dataContentContainer = document.createElement('div');
-    dataContentContainer.style.display = 'flex';
-    dataContentContainer.style.alignItems = 'center';
-    dataContentContainer.style.gap = '10px';
-    dataContentContainer.style.marginTop = '5px';
+    dataContentContainer.setAttribute('class', 'data-content-container');
     var dataInfo = document.createElement('div');
     dataInfo.setAttribute('class', 'data-info');
     dataInfo.setAttribute('id', 'dataInfo');

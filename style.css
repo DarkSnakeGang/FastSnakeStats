@@ -65,7 +65,6 @@ body.dark-mode .container table {
 .sidebar-info-btn:hover,
 .sidebar-settings-btn:hover {
 	background: rgba(0, 0, 0, 0.3);
-	transform: scale(1.05);
 }
 
 /* Emoji icons in sidebar buttons */
@@ -139,7 +138,7 @@ h2{
 	position: fixed;
 	left: 20px;
 	top: 20px;
-	background: var(--button-bg);
+	background: rgba(0, 0, 0, 0.3);
 	color: white;
 	border: none;
 	border-radius: 50%;
@@ -153,8 +152,16 @@ h2{
 }
 
 .dark-mode-toggle:hover {
-	background: var(--button-hover);
-	transform: scale(1.1);
+	background: rgba(0, 0, 0, 0.5);
+}
+
+/* Light mode toggle button (sun icon) */
+body.dark-mode .dark-mode-toggle {
+	background: rgba(255, 255, 255, 0.3);
+}
+
+body.dark-mode .dark-mode-toggle:hover {
+	background: rgba(255, 255, 255, 0.5);
 }
 
 
@@ -357,15 +364,11 @@ body:not(.dark-mode) .container td {
 
 .table-option-btn:hover {
 	background: var(--button-hover);
-	transform: scale(1.05) translateY(-2px);
-	box-shadow: 0 8px 20px var(--shadow);
 }
 
 .table-option-btn.active {
 	background: var(--button-active);
 	color: var(--button-active-text);
-	transform: scale(1.1) translateY(-2px);
-	box-shadow: 0 10px 25px var(--shadow);
 	border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
@@ -375,10 +378,18 @@ body:not(.dark-mode) .container td {
 .refresh-btn {
 	width: auto;
 	min-width: 100px;
-	height: 55px;
+	height: 40px;
 	font-size: 14px;
 	font-weight: 600;
-	background: linear-gradient(135deg, var(--button-bg), var(--button-hover));
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(77, 193, 249, 0.2);
+	border-radius: 8px;
+	padding: 10px 15px;
+}
+
+.refresh-btn:hover {
+	background: rgba(255, 255, 255, 0.2);
+	border-color: rgba(77, 193, 249, 0.4);
 }
 
 /* Individual refresh button styling for multiple tables */
@@ -402,7 +413,6 @@ body:not(.dark-mode) .container td {
 
 .individual-refresh-btn:hover {
 	background: rgba(0, 0, 0, 0.3);
-	transform: scale(1.05);
 }
 
 
@@ -411,24 +421,27 @@ body:not(.dark-mode) .container td {
 .time-travel-btn {
 	width: auto;
 	min-width: 120px;
-	height: 55px;
+	height: 40px;
 	font-size: 14px;
 	font-weight: 600;
 	background: linear-gradient(135deg, #8B0000, #B22222);
+	border: 1px solid rgba(77, 193, 249, 0.2);
+	border-radius: 8px;
+	padding: 10px 15px;
 }
+
+/* Dark mode time travel button - will be moved to end for proper specificity */
 
 .time-travel-btn.active {
 	background: #28a745;
 	color: white;
-	transform: scale(1.1) translateY(-2px);
-	box-shadow: 0 10px 25px var(--shadow);
-	border: 2px solid rgba(255, 255, 255, 0.3);
+	border: 1px solid rgba(77, 193, 249, 0.2);
+	border-radius: 8px;
+	padding: 10px 15px;
 }
 
 .time-travel-btn:hover {
 	background: linear-gradient(135deg, #660000, #8B0000);
-	transform: scale(1.05) translateY(-2px);
-	box-shadow: 0 8px 20px var(--shadow);
 }
 
 .time-travel-btn.active:hover {
@@ -439,24 +452,27 @@ body:not(.dark-mode) .container td {
 .multiple-tables-btn {
 	width: auto;
 	min-width: 120px;
-	height: 55px;
+	height: 40px;
 	font-size: 14px;
 	font-weight: 600;
 	background: linear-gradient(135deg, #8B0000, #B22222);
+	border: 1px solid rgba(77, 193, 249, 0.2);
+	border-radius: 8px;
+	padding: 10px 15px;
 }
+
+/* Dark mode multiple tables button - will be moved to end for proper specificity */
 
 .multiple-tables-btn.active {
 	background: #28a745;
 	color: white;
-	transform: scale(1.1) translateY(-2px);
-	box-shadow: 0 10px 25px var(--shadow);
-	border: 2px solid rgba(255, 255, 255, 0.3);
+	border: 1px solid rgba(77, 193, 249, 0.2);
+	border-radius: 8px;
+	padding: 10px 15px;
 }
 
 .multiple-tables-btn:hover {
 	background: linear-gradient(135deg, #660000, #8B0000);
-	transform: scale(1.05) translateY(-2px);
-	box-shadow: 0 8px 20px var(--shadow);
 }
 
 .multiple-tables-btn.active:hover {
@@ -467,7 +483,7 @@ body:not(.dark-mode) .container td {
 .stop-resume-btn {
 	width: auto;
 	min-width: 120px;
-	height: 55px;
+	height: 40px;
 	font-size: 14px;
 	font-weight: 600;
 	background: linear-gradient(135deg, #8B0000, #B22222);
@@ -480,18 +496,20 @@ body:not(.dark-mode) .container td {
 	vertical-align: top;
 }
 
+/* Dark mode stop/resume button */
+body.dark-mode .stop-resume-btn {
+	background: linear-gradient(135deg, #8B0000, #B22222);
+	border: 1px solid rgba(77, 193, 249, 0.2);
+}
+
 .stop-resume-btn:hover {
 	background: linear-gradient(135deg, #660000, #8B0000);
-	transform: scale(1.05) translateY(-2px);
-	box-shadow: 0 8px 20px var(--shadow);
 }
 
 .stop-resume-btn:disabled {
 	background: linear-gradient(135deg, #8B0000, #B22222);
 	opacity: 0.5;
 	cursor: not-allowed;
-	transform: none;
-	box-shadow: none;
 }
 
 
@@ -586,7 +604,6 @@ body:not(.dark-mode) .container td {
 
 .result:hover{
 	background-color: #578A34;
-	transform: scale(1.02);
 	transition: all 0.2s ease;
 }
 
@@ -752,8 +769,6 @@ button:focus {outline:0;}
   color: white;
   background: linear-gradient(135deg, var(--button-bg), var(--button-hover));
   border-color: var(--button-bg);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(77, 193, 249, 0.3);
 }
 
 /* Info modal specific styling */
@@ -795,8 +810,6 @@ button:focus {outline:0;}
   color: #333;
   background: linear-gradient(135deg, var(--title-color), #D4C700);
   border-color: var(--title-color);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(233, 220, 0, 0.3);
 }
 
 /* Settings form items */
@@ -871,8 +884,6 @@ button:focus {outline:0;}
 
 .modal-content .mybutton:hover {
   background: linear-gradient(135deg, #FF6B6B, #FF5252);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
 }
 
 .modal-content .mybutton:disabled {
@@ -880,14 +891,10 @@ button:focus {outline:0;}
   color: #666;
   cursor: not-allowed;
   opacity: 0.6;
-  transform: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .modal-content .mybutton:disabled:hover {
   background: linear-gradient(135deg, #9E9E9E, #757575);
-  transform: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Game mode icons container */
@@ -1026,11 +1033,9 @@ button:focus {outline:0;}
 @keyframes modalFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
   }
 }
 
@@ -1059,7 +1064,6 @@ button:focus {outline:0;}
 #infoModal .close:hover,
 #infoModal .close:focus {
   color: var(--title-color);
-  transform: scale(1.1);
 }
 
 /* Dark mode modal improvements */
@@ -1114,7 +1118,24 @@ body.dark-mode .settings-title {
 }
 
 body.dark-mode .checkbox-item label {
-  color: white;
+	color: white;
+}
+
+/* Dark mode styling for category settings */
+body.dark-mode .table-option-btn {
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(77, 193, 249, 0.2);
+}
+
+body.dark-mode .table-option-btn:hover {
+	background: rgba(255, 255, 255, 0.2);
+	border-color: rgba(77, 193, 249, 0.4);
+}
+
+body.dark-mode .table-option-btn.active {
+	background: var(--button-active);
+	color: var(--button-active-text);
+	border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 body.dark-mode .modal-content p {
@@ -1159,7 +1180,6 @@ body.dark-mode #infoModal .modal-content a:hover {
 }
 
 .optionButtonImageDisabled{
-	transform: scale(0.5);
 	opacity:0.45
 }
 .optionButton{
@@ -1181,6 +1201,15 @@ body.dark-mode #infoModal .modal-content a:hover {
 	padding: 10px;
 	margin-top: 5px;
 	display: inline-block;
+}
+
+/* Center the data content container */
+.data-content-container {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 5px;
+	justify-content: center;
 }
 
 .progress-display {
@@ -1208,4 +1237,47 @@ body.dark-mode .progress-display {
 
 body.dark-mode #apiProgress {
 	color: var(--button-bg);
+}
+
+/* Dark mode time travel and multiple tables buttons - placed at end for highest specificity */
+body.dark-mode .time-travel-btn {
+	background: linear-gradient(135deg, #8B0000, #B22222) !important;
+	border: 1px solid rgba(77, 193, 249, 0.2) !important;
+}
+
+body.dark-mode .time-travel-btn.active {
+	background: #28a745 !important;
+	color: white !important;
+	border: 1px solid rgba(77, 193, 249, 0.2) !important;
+	border-radius: 8px !important;
+	padding: 10px 15px !important;
+}
+
+body.dark-mode .time-travel-btn:hover {
+	background: linear-gradient(135deg, #660000, #8B0000) !important;
+}
+
+body.dark-mode .time-travel-btn.active:hover {
+	background: #218838 !important;
+}
+
+body.dark-mode .multiple-tables-btn {
+	background: linear-gradient(135deg, #8B0000, #B22222) !important;
+	border: 1px solid rgba(77, 193, 249, 0.2) !important;
+}
+
+body.dark-mode .multiple-tables-btn.active {
+	background: #28a745 !important;
+	color: white !important;
+	border: 1px solid rgba(77, 193, 249, 0.2) !important;
+	border-radius: 8px !important;
+	padding: 10px 15px !important;
+}
+
+body.dark-mode .multiple-tables-btn:hover {
+	background: linear-gradient(135deg, #660000, #8B0000) !important;
+}
+
+body.dark-mode .multiple-tables-btn.active:hover {
+	background: #218838 !important;
 }
