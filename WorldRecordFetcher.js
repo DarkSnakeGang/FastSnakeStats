@@ -504,9 +504,9 @@ class WorldRecordFetcher {
         }
     }
 
-    // Fetch multiple world records concurrently (batch of 80)
+    // Fetch multiple world records concurrently (batch of 40)
     async fetchWorldRecordsBatch(requests) {
-        const batchSize = 80;
+        const batchSize = 40;
         const results = [];
         
         for (let i = 0; i < requests.length; i += batchSize) {
