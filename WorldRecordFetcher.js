@@ -2,10 +2,20 @@
 class WorldRecordFetcher {
     constructor() {
         this.gameID = "o1y9pyk6"; // Snake game ID
+        this.lastFailureTime = 0; // Track when the last API failure occurred
+        this.failureDelay = 250; // 0.25 seconds delay after failure
     }
 
         // Simple API request function with retry logic
     async fetchAPI(url, maxRetries = 5, baseDelay = 1000) {
+        // Check if we need to wait due to a recent failure
+        const now = Date.now();
+        const timeSinceLastFailure = now - this.lastFailureTime;
+        if (timeSinceLastFailure < this.failureDelay) {
+            const waitTime = this.failureDelay - timeSinceLastFailure;
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+        }
+
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
                 const response = await fetch(url, {
@@ -18,6 +28,8 @@ class WorldRecordFetcher {
                 if (!response.ok) {
                     // Don't retry on 4xx client errors (except 429 rate limit)
                     if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+                        // Record failure time for future API calls
+                        this.lastFailureTime = Date.now();
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
                     // For 5xx server errors and 429 rate limit, retry
@@ -27,6 +39,9 @@ class WorldRecordFetcher {
                 const data = await response.json();
                 return data;
             } catch (error) {
+                // Record failure time for future API calls
+                this.lastFailureTime = Date.now();
+                
                 // If this is the last attempt, throw the error
                 if (attempt === maxRetries) {
                     throw error;
@@ -505,7 +520,7 @@ class WorldRecordFetcher {
     }
 
     // Fetch multiple world records concurrently (batch of 40)
-    async fetchWorldRecordsBatch(requests) {
+    async fetchWorldRecordsBatch(requests, progressCallback = null) {
         const batchSize = 40;
         const results = [];
         
@@ -534,6 +549,11 @@ class WorldRecordFetcher {
             
             const batchResults = await Promise.all(batchPromises);
             results.push(...batchResults);
+            
+            // Update progress after each batch
+            if (progressCallback) {
+                progressCallback(results.length);
+            }
         }
         
         return results;
