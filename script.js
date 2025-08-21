@@ -2041,63 +2041,139 @@ async function getAllWorldRecordsForCurrentSettings() {
     apiCallProgress.total = allRequests.length;
     updateApiProgress();
     
-    // Use the WorldRecordFetcher's batch processing (40 concurrent requests)
-    const batchResults = await window.worldRecordFetcher.fetchWorldRecordsBatch(allRequests, (completedCount) => {
-        apiCallProgress.successful = completedCount;
-        updateApiProgress();
-    });
-    
-    // Process batch results
-    for (let j = 0; j < batchResults.length; j++) {
-        const record = batchResults[j];
-        const request = allRequests[j];
-        
-        if (record.success) {
-            // Create a key for this combination using actual setting names
-            let key = `${request.combo[0]}|${request.combo[1]}|${request.combo[2]}|${request.modeName}|${request.levelName}`;
+    if (isMultipleTablesEnabled) {
+        // Load tables one by one for multiple tables mode
+        for (let comboIndex = 0; comboIndex < selectedCombinations.length; comboIndex++) {
+            const combo = selectedCombinations[comboIndex];
             
-            // Convert all runs to the expected format
-            let convertedRuns = [];
+            // Get requests for this specific combination
+            const comboRequests = allRequests.filter(request => 
+                request.combo[0] === combo[0] && 
+                request.combo[1] === combo[1] && 
+                request.combo[2] === combo[2]
+            );
             
-            for (const run of record.runs) {
-                let convertedRun = {
-                    times: { primary: run.time.raw },
-                    date: run.date.toISOString(),
-                    id: run.runId,
-                    weblink: run.weblink,
-                    players: {
-                        data: [{
-                            names: { international: run.player.name },
-                            id: run.player.id,
-                            rel: "user",
-                            weblink: `https://www.speedrun.com/user/${run.player.name}`,
-                            "name-style": run.player.nameStyle || {
-                                style: "solid",
-                                color: {
-                                    dark: "#ffffff"
-                                }
-                            }
-                        }]
-                    },
-                    values: {} // We'll need to reconstruct this if needed
-                };
-                convertedRuns.push(convertedRun);
+            // Process this combination's requests
+            const comboResults = await window.worldRecordFetcher.fetchWorldRecordsBatch(comboRequests, (completedCount) => {
+                apiCallProgress.successful = (comboIndex * comboRequests.length) + completedCount;
+                updateApiProgress();
+            });
+            
+            // Process results for this combination
+            for (let j = 0; j < comboResults.length; j++) {
+                const record = comboResults[j];
+                const request = comboRequests[j];
                 
-                // Add player to players list
-                if (typeof players[run.player.name] == 'undefined') {
-                    players[run.player.name] = run.player.id;
+                if (record.success) {
+                    // Create a key for this combination using actual setting names
+                    let key = `${request.combo[0]}|${request.combo[1]}|${request.combo[2]}|${request.modeName}|${request.levelName}`;
+                    
+                    // Convert all runs to the expected format
+                    let convertedRuns = [];
+                    
+                    for (const run of record.runs) {
+                        let convertedRun = {
+                            times: { primary: run.time.raw },
+                            date: run.date.toISOString(),
+                            id: run.runId,
+                            weblink: run.weblink,
+                            players: {
+                                data: [{
+                                    names: { international: run.player.name },
+                                    id: run.player.id,
+                                    rel: "user",
+                                    weblink: `https://www.speedrun.com/user/${run.player.name}`,
+                                    "name-style": run.player.nameStyle || {
+                                        style: "solid",
+                                        color: {
+                                            dark: "#ffffff"
+                                        }
+                                    }
+                                }]
+                            },
+                            values: {} // We'll need to reconstruct this if needed
+                        };
+                        convertedRuns.push(convertedRun);
+                        
+                        // Add player to players list
+                        if (typeof players[run.player.name] == 'undefined') {
+                            players[run.player.name] = run.player.id;
+                        }
+                    }
+                    
+                    // Store all the world records (tied runs)
+                    worldRecords[key] = convertedRuns;
                 }
             }
             
-            // Store all the world records (tied runs)
-            worldRecords[key] = convertedRuns;
-            
-            // Update the display immediately for each record
+            // Update the display after each table is loaded
             calculateBestRuns();
             calculateRanglist();
             generateRanglist();
             generateSingleTable();
+            
+            // Small delay to show progress
+            await new Promise(resolve => setTimeout(resolve, 100));
         }
+    } else {
+        // Single table mode - load all at once
+        const batchResults = await window.worldRecordFetcher.fetchWorldRecordsBatch(allRequests, (completedCount) => {
+            apiCallProgress.successful = completedCount;
+            updateApiProgress();
+        });
+        
+        // Process batch results
+        for (let j = 0; j < batchResults.length; j++) {
+            const record = batchResults[j];
+            const request = allRequests[j];
+            
+            if (record.success) {
+                // Create a key for this combination using actual setting names
+                let key = `${request.combo[0]}|${request.combo[1]}|${request.combo[2]}|${request.modeName}|${request.levelName}`;
+                
+                // Convert all runs to the expected format
+                let convertedRuns = [];
+                
+                for (const run of record.runs) {
+                    let convertedRun = {
+                        times: { primary: run.time.raw },
+                        date: run.date.toISOString(),
+                        id: run.runId,
+                        weblink: run.weblink,
+                        players: {
+                            data: [{
+                                names: { international: run.player.name },
+                                id: run.player.id,
+                                rel: "user",
+                                weblink: `https://www.speedrun.com/user/${run.player.name}`,
+                                "name-style": run.player.nameStyle || {
+                                    style: "solid",
+                                    color: {
+                                        dark: "#ffffff"
+                                    }
+                                }
+                            }]
+                        },
+                        values: {} // We'll need to reconstruct this if needed
+                    };
+                    convertedRuns.push(convertedRun);
+                    
+                    // Add player to players list
+                    if (typeof players[run.player.name] == 'undefined') {
+                        players[run.player.name] = run.player.id;
+                    }
+                }
+                
+                // Store all the world records (tied runs)
+                worldRecords[key] = convertedRuns;
+            }
+        }
+        
+        // Update the display once for single table mode
+        calculateBestRuns();
+        calculateRanglist();
+        generateRanglist();
+        generateSingleTable();
     }
 }
 
