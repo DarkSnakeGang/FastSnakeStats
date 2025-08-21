@@ -289,6 +289,190 @@ class WorldRecordFetcher {
             };
         }
     }
+
+    // Get world record for specific parameters and date
+    async getWorldRecordForDate(level, mode = 0, count = 0, speed = 0, size = 0, date) {
+        try {
+            
+            // Step 1: Get game data
+            const variables = await this.fetchAPI(`https://www.speedrun.com/api/v1/games/${this.gameID}/variables`);
+            const levels = await this.fetchAPI(`https://www.speedrun.com/api/v1/games/${this.gameID}/levels`);
+            const categories = await this.fetchAPI(`https://www.speedrun.com/api/v1/games/${this.gameID}/categories`);
+            
+            // Step 2: Find the level ID for the mode
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
+            const modeName = modeNames[mode];
+            
+            const levelData = levels.data.find(l => l.name.includes(modeName));
+            if (!levelData) {
+                throw new Error(`Level not found for mode: ${modeName}`);
+            }
+            
+            // Step 3: Find the category ID
+            const categoryName = level === "H" ? modeName : `${level} Apples`;
+            const categoryData = categories.data.find(c => c.name.includes(categoryName));
+            if (!categoryData) {
+                throw new Error(`Category not found: ${categoryName}`);
+            }
+            
+            // Step 4: Build variable parameters
+            const params = [];
+            
+            // Count variable - "Multi Apple Amount"
+            const countVar = variables.data.find(v => v.name === "Multi Apple Amount");
+            if (countVar && countVar.values && countVar.values.values) {
+                const countNames = ["1 Apple", "3 Apples", "5 Apples", "Dice"];
+                const countValueEntry = Object.entries(countVar.values.values).find(([key, value]) => value.label === countNames[count]);
+                if (countValueEntry) {
+                    const [valueId, valueObj] = countValueEntry;
+                    params.push(`var-${countVar.id}=${valueId}`);
+                }
+            }
+            
+            // Speed variables - add all Speed variables with Normal speed
+            const speedVars = variables.data.filter(v => v.name === "Speed");
+            
+            // Add all speed variables with Normal speed
+            for (let i = 0; i < speedVars.length; i++) {
+                const sv = speedVars[i];
+                if (sv.values && sv.values.values) {
+                    const valueLabels = Object.values(sv.values.values).map(v => v.label);
+                    
+                    // Find Normal speed for this variable
+                    const speedNames = ["Normal", "Fast", "Slow"];
+                    const speedValueEntry = Object.entries(sv.values.values).find(([key, value]) => value.label === speedNames[speed]);
+                    if (speedValueEntry) {
+                        const [valueId, valueObj] = speedValueEntry;
+                        params.push(`var-${sv.id}=${valueId}`);
+                    }
+                }
+            }
+            
+            // Size variable - "Board Size"
+            const sizeVar = variables.data.find(v => v.name === "Board Size");
+            if (sizeVar && sizeVar.values && sizeVar.values.values) {
+                const sizeNames = ["Standard", "Small", "Large"];
+                const sizeValueEntry = Object.entries(sizeVar.values.values).find(([key, value]) => value.label === sizeNames[size]);
+                if (sizeValueEntry) {
+                    const [valueId, valueObj] = sizeValueEntry;
+                    params.push(`var-${sizeVar.id}=${valueId}`);
+                }
+            }
+            
+            // Step 5: Build leaderboard URL with date filter
+            let leaderboardUrl;
+            if (level === "H") {
+                leaderboardUrl = `https://www.speedrun.com/api/v1/leaderboards/${this.gameID}/category/${categoryData.id}?top=10&date=${date}`;
+            } else {
+                leaderboardUrl = `https://www.speedrun.com/api/v1/leaderboards/${this.gameID}/level/${levelData.id}/${categoryData.id}?top=10&date=${date}`;
+            }
+            
+            // Only add parameters if they have valid values (not undefined)
+            const validParams = params.filter(p => !p.includes('undefined'));
+            if (validParams.length > 0) {
+                leaderboardUrl += "&" + validParams.join("&");
+            }
+            
+            // Step 6: Get leaderboard
+            const leaderboard = await this.fetchAPI(leaderboardUrl);
+            
+            // Step 7: Process result
+            if (!leaderboard.data || !leaderboard.data.runs || leaderboard.data.runs.length === 0) {
+                return {
+                    success: false,
+                    message: "No world record found for this date",
+                    category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "Dice"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
+                    settings: {
+                        count: ["1 Apple", "3 Apples", "5 Apples", "Dice"][count],
+                        speed: ["Normal", "Fast", "Slow"][speed],
+                        size: ["Standard", "Small", "Large"][size]
+                    },
+                    date: date
+                };
+            }
+            
+            // Get the best time from the first run
+            const bestTime = leaderboard.data.runs[0].run.times.primary;
+            
+            // Filter runs to only include those with the same best time (tied world records)
+            const tiedRuns = [];
+            
+            for (const run of leaderboard.data.runs) {
+                if (run.run.times.primary === bestTime) {
+                    // Check what variables the returned run actually has
+                    if (run.run && run.run.values) {
+                        await this.decodeRunVariables(run.run.values);
+                    }
+                    
+                    let playerId = null;
+                    let runData = null;
+                    
+                    // Check for the correct structure: run.run.players[0] (array)
+                    if (run.run && run.run.players && Array.isArray(run.run.players) && run.run.players.length > 0) {
+                        const playerRef = run.run.players[0];
+                        
+                        // Player reference should have an 'id' field
+                        if (playerRef && playerRef.id) {
+                            playerId = playerRef.id;
+                            runData = run.run;
+                        } else {
+                            continue; // Skip this run if player reference is missing
+                        }
+                    } else {
+                        continue; // Skip this run if player data structure is wrong
+                    }
+                    
+                    // Fetch the full player data using the ID
+                    const player = await this.getPlayerData(playerId);
+                    
+                    tiedRuns.push({
+                        player: {
+                            name: player.name,
+                            id: player.id,
+                            nameStyle: player.nameStyle
+                        },
+                        time: {
+                            raw: runData.times.primary,
+                            formatted: this.formatTime(runData.times.primary)
+                        },
+                        date: new Date(runData.date),
+                        runId: runData.id,
+                        weblink: runData.weblink
+                    });
+                } else {
+                    // Stop when we find a run with a different time
+                    break;
+                }
+            }
+            
+            return {
+                success: true,
+                runs: tiedRuns,
+                category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "Dice"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
+                settings: {
+                    count: ["1 Apple", "3 Apples", "5 Apples", "Dice"][count],
+                    speed: ["Normal", "Fast", "Slow"][speed],
+                    size: ["Standard", "Small", "Large"][size]
+                },
+                date: date
+            };
+            
+        } catch (error) {
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
+            const categoryName = level === "H" ? modeNames[mode] : level + " Apples";
+            return {
+                success: false,
+                error: error.message,
+                category: `${modeNames[mode]} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "Dice"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
+                settings: {
+                    count: ["1 Apple", "3 Apples", "5 Apples", "Dice"][count],
+                    speed: ["Normal", "Fast", "Slow"][speed],
+                    size: ["Standard", "Small", "Large"][size]
+                },
+                date: date
+            };
+        }
+    }
 }
 
 // Create global instance
