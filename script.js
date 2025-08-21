@@ -50,7 +50,7 @@ var bestRuns = [];
 var date = "";
 var ranglist = [];
 var players = [];
-var showAmount = false;
+
 var currentTableSettings = ["1 Apple", "Normal", "Standard"]; // Default table settings
 var worldRecords = {}; // Store world records data
 var isDarkMode = false; // Default to light mode
@@ -70,17 +70,7 @@ function updateApiProgress() {
 
 // Load settings from localStorage
 function loadSettings() {
-    // Load showAmount setting
-    if(localStorage.getItem('showAmount') == null){
-        localStorage.setItem('showAmount', showAmount);
-    } else {
-        showAmount = localStorage.getItem('showAmount');
-        if(showAmount == "true"){
-            showAmount = true;
-        } else {
-            showAmount = false;
-        }
-    }
+
     
     // Load dark mode setting
     if(localStorage.getItem('darkMode') == null){
@@ -169,7 +159,7 @@ function loadSettings() {
 
 // Save settings to localStorage
 function saveSettings() {
-    localStorage.setItem('showAmount', showAmount);
+
     localStorage.setItem('darkMode', isDarkMode);
     localStorage.setItem('tableSettings', JSON.stringify(currentTableSettings));
     localStorage.setItem('timeTravelEnabled', isTimeTravelEnabled);
@@ -1701,29 +1691,42 @@ function generateRanglist(){
     var thead = document.createElement('thead');
     var row = document.createElement('tr');
     var th = document.createElement('th');
-    th.setAttribute('colspan', 2);
+    th.setAttribute('colspan', 3);
     th.appendChild(createIconElement(gamemodes['Classic']));
     row.appendChild(th);
+    thead.appendChild(row);
+    
+    // Add column headers
+    row = document.createElement('tr');
+    var nameHeader = document.createElement('th');
+    nameHeader.textContent = 'Player';
+    row.appendChild(nameHeader);
+    
+    var countHeader = document.createElement('th');
+    countHeader.textContent = 'Count';
+    row.appendChild(countHeader);
+    
+    var percentageHeader = document.createElement('th');
+    percentageHeader.textContent = 'Percentage';
+    row.appendChild(percentageHeader);
+    
     thead.appendChild(row);
     table.append(thead);
 
     var i = 0;
     var tbody = document.createElement('tbody');
     var values = []
-    var index = 0;
-    if(!showAmount){
-        var index = 2;
-    }
+
     for(id in ranglist){
-        if(values.indexOf(ranglist[id][index]) == -1){
-            values.push(ranglist[id][index]);
+        if(values.indexOf(ranglist[id][0]) == -1){
+            values.push(ranglist[id][0]);
         }
     }
     values = values.sort(function(a, b){return b-a});
     
     for(value of values){
         for(id in ranglist){
-            if(ranglist[id][index] == value){
+            if(ranglist[id][0] == value){
 
                 //delete anonymous
                 if(ranglist[id][1].rel != "user"){
@@ -1733,18 +1736,21 @@ function generateRanglist(){
                 row = document.createElement('tr');
                 row.setAttribute('class','ranglistRow result');
 
+                // Player name column
                 var td = document.createElement('td');
                 td.appendChild(createNameElement(ranglist[id][1]))
                 row.appendChild(td);
 
+                // Count column
                 td = document.createElement('td');
                 td.setAttribute('class','percentage result');
-                if(index == 2){
-                    td.appendChild(document.createTextNode(ranglist[id][index]+"%"));
-                }
-                else{
-                    td.appendChild(document.createTextNode(ranglist[id][index]));
-                }
+                td.appendChild(document.createTextNode(ranglist[id][0]));
+                row.appendChild(td);
+
+                // Percentage column
+                td = document.createElement('td');
+                td.setAttribute('class','percentage result');
+                td.appendChild(document.createTextNode(ranglist[id][2]+"%"));
                 row.appendChild(td);
                 if(i >= maxRanglistLength){
                     row.setAttribute('style','display:none');
@@ -1757,7 +1763,7 @@ function generateRanglist(){
     if(i >  maxRanglistLength){
         row = document.createElement('tr');
         td = document.createElement('td');
-        td.setAttribute('colspan',2);
+        td.setAttribute('colspan',3);
         b = document.createElement('button');
         b.setAttribute('id','morebutton');
         //a.setAttribute('href','');
@@ -2665,17 +2671,7 @@ function initializeUI() {
 
 
 
-         //showamount
-     var showAmountCheckbox = document.getElementById('showAmount');
-     if(showAmountCheckbox) {
-         showAmountCheckbox.checked = showAmount;
-         showAmountCheckbox.addEventListener('click', (e) => {
-             showAmount = showAmountCheckbox.checked;
-             saveSettings(); // Save settings when changed
-             setHighestLabel();
-             switchMode(mode);
-         });
-     }
+         
 }
 
 function startWorldRecordsDownload() {
