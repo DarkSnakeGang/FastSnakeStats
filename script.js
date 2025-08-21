@@ -54,6 +54,8 @@ var showAmount = false;
 var currentTableSettings = ["1 Apple", "Normal", "Standard"]; // Default table settings
 var worldRecords = {}; // Store world records data
 var isDarkMode = false; // Default to light mode
+var isTimeTravelEnabled = false; // Time travel toggle state
+var selectedTimeTravelDate = ""; // Currently selected date for time travel
 
 // Load settings from localStorage
 function loadSettings() {
@@ -77,6 +79,17 @@ function loadSettings() {
         if(isDarkMode) {
             document.body.classList.add('dark-mode');
         }
+    }
+    
+    // Load time travel settings
+    if(localStorage.getItem('timeTravelEnabled') == null){
+        localStorage.setItem('timeTravelEnabled', isTimeTravelEnabled);
+    } else {
+        isTimeTravelEnabled = localStorage.getItem('timeTravelEnabled') === 'true';
+    }
+    
+    if(localStorage.getItem('selectedTimeTravelDate') != null){
+        selectedTimeTravelDate = localStorage.getItem('selectedTimeTravelDate');
     }
     
     // Load table settings
@@ -143,6 +156,8 @@ function saveSettings() {
     localStorage.setItem('showAmount', showAmount);
     localStorage.setItem('darkMode', isDarkMode);
     localStorage.setItem('tableSettings', JSON.stringify(currentTableSettings));
+    localStorage.setItem('timeTravelEnabled', isTimeTravelEnabled);
+    localStorage.setItem('selectedTimeTravelDate', selectedTimeTravelDate);
     
     // Save visibility settings for all options
     var visibilitySettings = {
@@ -187,6 +202,30 @@ function toggleDarkMode() {
     if(toggleBtn) {
         toggleBtn.innerHTML = isDarkMode ? '☀️' : '🌙';
     }
+}
+
+// Toggle time travel mode
+async function toggleTimeTravel() {
+    isTimeTravelEnabled = !isTimeTravelEnabled;
+    saveSettings();
+    
+    // Update toggle button
+    const timeTravelBtn = document.querySelector('.time-travel-btn');
+    if(timeTravelBtn) {
+        if(isTimeTravelEnabled) {
+            timeTravelBtn.innerHTML = '⏰ Time Travel';
+            timeTravelBtn.classList.add('active');
+            timeTravelBtn.setAttribute('title', 'Time travel mode enabled. Click to disable.');
+        } else {
+            timeTravelBtn.innerHTML = '⏰ Time Travel';
+            timeTravelBtn.classList.remove('active');
+            timeTravelBtn.setAttribute('title', 'Time travel mode disabled. Click to enable.');
+        }
+    }
+    
+    // Refresh data based on current state
+    if (isLoading) return;
+    await refreshWorldRecordsForSettings();
 }
 
 // Initialize settings
@@ -577,6 +616,10 @@ async function refreshWorldRecordsForSettings() {
     if (isLoading) return; // Prevent multiple simultaneous refreshes
     
     console.log("🔄 Refreshing world records for current settings:", currentTableSettings);
+    console.log("⏰ Time travel enabled:", isTimeTravelEnabled);
+    if(isTimeTravelEnabled) {
+        console.log("📅 Selected date:", selectedTimeTravelDate);
+    }
     
     // Set loading state
     setLoadingState(true);
@@ -591,8 +634,14 @@ async function refreshWorldRecordsForSettings() {
         // Ensure settings are saved before proceeding
         saveSettings();
         
-        // Fetch fresh world records for the current settings
-        await getAllWorldRecordsForCurrentSettings();
+        // Fetch fresh world records based on time travel state
+        if (isTimeTravelEnabled && selectedTimeTravelDate) {
+            console.log("🕰️ Fetching historical records for date:", selectedTimeTravelDate);
+            await getAllWorldRecordsForDate(selectedTimeTravelDate);
+        } else {
+            console.log("🔄 Fetching current world records");
+            await getAllWorldRecordsForCurrentSettings();
+        }
         
         // Update button highlighting with a small delay to ensure DOM is ready
         setTimeout(() => {
@@ -1009,7 +1058,7 @@ function generateTableSelector(){
     
     // Apple Amount selector
     var appleSelector = document.createElement('div');
-    appleSelector.innerHTML = '<label>Apple Amount:</label>';
+    appleSelector.innerHTML = '<label>Apple Amount</label>';
     var appleButtonGroup = document.createElement('div');
     appleButtonGroup.setAttribute('class', 'button-group');
     for(var appleAmount in appleAmounts){
@@ -1045,7 +1094,7 @@ function generateTableSelector(){
     
     // Speed selector
     var speedSelector = document.createElement('div');
-    speedSelector.innerHTML = '<label>Speed:</label>';
+    speedSelector.innerHTML = '<label>Speed</label>';
     var speedButtonGroup = document.createElement('div');
     speedButtonGroup.setAttribute('class', 'button-group');
     for(var speed in speeds){
@@ -1081,7 +1130,7 @@ function generateTableSelector(){
     
     // Size selector
     var sizeSelector = document.createElement('div');
-    sizeSelector.innerHTML = '<label>Size:</label>';
+    sizeSelector.innerHTML = '<label>Size</label>';
     var sizeButtonGroup = document.createElement('div');
     sizeButtonGroup.setAttribute('class', 'button-group');
     for(var size in sizes){
@@ -1115,19 +1164,33 @@ function generateTableSelector(){
     sizeSelector.appendChild(sizeButtonGroup);
     sidebar.appendChild(sizeSelector);
     
-    // Add refresh button
-    var refreshSelector = document.createElement('div');
-    refreshSelector.innerHTML = '<label>World Records:</label>';
-    var refreshButtonGroup = document.createElement('div');
-    refreshButtonGroup.setAttribute('class', 'button-group');
+    // Add options section (refresh and time travel buttons)
+    var optionsSelector = document.createElement('div');
+    optionsSelector.innerHTML = '<label>Options</label>';
+    var optionsButtonGroup = document.createElement('div');
+    optionsButtonGroup.setAttribute('class', 'button-group');
     
     var refreshButton = document.createElement('button');
     refreshButton.setAttribute('class', 'table-option-btn refresh-btn');
     refreshButton.innerHTML = '🔄 Refresh';
     refreshButton.onclick = refreshWorldRecordsForSettings;
-    refreshButtonGroup.appendChild(refreshButton);
-    refreshSelector.appendChild(refreshButtonGroup);
-    sidebar.appendChild(refreshSelector);
+    optionsButtonGroup.appendChild(refreshButton);
+    
+    var timeTravelButton = document.createElement('button');
+    timeTravelButton.setAttribute('class', 'table-option-btn time-travel-btn');
+    if(isTimeTravelEnabled) {
+        timeTravelButton.innerHTML = '⏰ Time Travel';
+        timeTravelButton.classList.add('active');
+        timeTravelButton.setAttribute('title', 'Time travel mode enabled. Click to disable.');
+    } else {
+        timeTravelButton.innerHTML = '⏰ Time Travel';
+        timeTravelButton.setAttribute('title', 'Time travel mode disabled. Click to enable.');
+    }
+    timeTravelButton.onclick = toggleTimeTravel;
+    optionsButtonGroup.appendChild(timeTravelButton);
+    
+    optionsSelector.appendChild(optionsButtonGroup);
+    sidebar.appendChild(optionsSelector);
     
     // Add sidebar to page
     var existingSidebar = document.querySelector('.table-selector');
@@ -1188,6 +1251,20 @@ function updateTableSelector(){
         refreshButton.setAttribute('title', 'Refresh world records for current settings');
     }
     
+    // Update time travel button state
+    var timeTravelButton = document.querySelector('.time-travel-btn');
+    if (timeTravelButton) {
+        if(isTimeTravelEnabled) {
+            timeTravelButton.innerHTML = '⏰ Time Travel';
+            timeTravelButton.classList.add('active');
+            timeTravelButton.setAttribute('title', 'Time travel mode enabled. Click to disable.');
+        } else {
+            timeTravelButton.innerHTML = '⏰ Time Travel';
+            timeTravelButton.classList.remove('active');
+            timeTravelButton.setAttribute('title', 'Time travel mode disabled. Click to enable.');
+        }
+    }
+    
     // Log the final state for debugging
     var activeButtons = document.querySelectorAll('.table-option-btn.active');
     console.log("🎯 Final active buttons count:", activeButtons.length);
@@ -1230,6 +1307,27 @@ function setLoadingState(loading) {
             refreshButton.innerHTML = '🔄 Refresh';
             refreshButton.disabled = false;
             refreshButton.setAttribute('title', 'Refresh world records for current settings');
+        }
+    }
+    
+    // Update time travel button text
+    var timeTravelButton = document.querySelector('.time-travel-btn');
+    if (timeTravelButton) {
+        if (loading) {
+            timeTravelButton.innerHTML = '⏳ Loading...';
+            timeTravelButton.disabled = true;
+            timeTravelButton.setAttribute('title', 'Please wait while world records are being fetched...');
+        } else {
+            if(isTimeTravelEnabled) {
+                timeTravelButton.innerHTML = '⏰ Time Travel ON';
+                timeTravelButton.classList.add('active');
+                timeTravelButton.setAttribute('title', 'Time travel mode enabled. Click to disable.');
+            } else {
+                timeTravelButton.innerHTML = '⏰ Time Travel OFF';
+                timeTravelButton.classList.remove('active');
+                timeTravelButton.setAttribute('title', 'Time travel mode disabled. Click to enable.');
+            }
+            timeTravelButton.disabled = false;
         }
     }
     
@@ -2029,39 +2127,53 @@ function initializeUI() {
     // Initialize datepicker
     var datepicker = document.getElementById("datepicker");
     if(datepicker) {
+        // Set the datepicker value if we have a saved date
+        if(selectedTimeTravelDate) {
+            datepicker.value = selectedTimeTravelDate;
+        }
+        
         datepicker.onchange = async function(){
             if (isLoading) return; // Prevent multiple simultaneous requests
             
             const selectedDate = datepicker.value;
+            selectedTimeTravelDate = selectedDate; // Save the selected date
+            saveSettings();
+            
             if (!selectedDate) {
-                console.log("No date selected, using current world records");
-                await refreshWorldRecordsForSettings();
+                console.log("No date selected, clearing time travel date");
+                selectedTimeTravelDate = "";
+                saveSettings();
                 return;
             }
             
             console.log("Date selected:", selectedDate);
             
-            // Set loading state
-            setLoadingState(true);
-            
-            try {
-                // Fetch world records for the selected date
-                await getAllWorldRecordsForDate(selectedDate);
+            // Only fetch data if time travel is enabled
+            if (isTimeTravelEnabled) {
+                // Set loading state
+                setLoadingState(true);
                 
-                // Update the display
-                calculateBestRuns();
-                calculateRanglist();
-                generateRanglist();
-                generateSingleTable();
-                
-                console.log("World records fetched for date:", selectedDate);
-            } catch (error) {
-                console.error("Error fetching world records for date:", error);
-                // Fallback to current records
-                await refreshWorldRecordsForSettings();
-            } finally {
-                // Clear loading state
-                setLoadingState(false);
+                try {
+                    // Fetch world records for the selected date
+                    await getAllWorldRecordsForDate(selectedDate);
+                    
+                    // Update the display
+                    calculateBestRuns();
+                    calculateRanglist();
+                    generateRanglist();
+                    generateSingleTable();
+                    
+                    console.log("World records fetched for date:", selectedDate);
+                } catch (error) {
+                    console.error("Error fetching world records for date:", error);
+                    // Fallback to current records
+                    await refreshWorldRecordsForSettings();
+                } finally {
+                    // Clear loading state
+                    setLoadingState(false);
+                }
+            } else {
+                console.log("Time travel is disabled, date saved but not fetching data");
             }
         }
     }
