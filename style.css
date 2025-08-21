@@ -532,15 +532,176 @@ body.dark-mode .stop-resume-btn {
 }
 @media only screen and (max-width: 900px) {
 	.container{
-		justify-content: flex-start;
-		margin-left: 20px;
+		justify-content: center;
+		margin-left: 0;
+		width: 100%;
+		padding: 5px;
+		gap: 10px;
+		flex-direction: column;
+		align-items: center;
+		overflow-x: auto;
 	}
+	
 	.table-selector {
 		position: relative;
 		left: auto;
 		top: auto;
-		margin: 20px auto;
-		max-width: 90%;
+		margin: 10px auto;
+		max-width: 95%;
+		z-index: 50;
+		padding: 15px;
+	}
+	
+	.main-table-wrapper,
+	.ranglist-wrapper {
+		width: auto;
+		min-width: 0;
+		overflow-x: auto;
+	}
+	
+	.table-wrapper {
+		width: auto;
+		overflow-x: auto;
+	}
+	
+	.container table {
+		width: auto;
+		margin: 2px;
+		min-width: auto;
+		font-size: 12px;
+	}
+	
+	.ranglist-wrapper table {
+		width: auto;
+		margin: 2px;
+		min-width: auto;
+		font-size: 11px;
+	}
+	
+	.container th,
+	.ranglist-wrapper th {
+		padding: 6px;
+		height: 40px;
+		font-size: 14px;
+	}
+	
+	.container td,
+	.ranglist-wrapper td {
+		padding: 4px;
+		font-size: 12px;
+	}
+	
+	.container th img {
+		width: 30px;
+		padding: 2px;
+		padding-right: 8px;
+	}
+	
+	.ranglist img {
+		width: 60px;
+	}
+	
+	.dark-mode-toggle {
+		position: fixed;
+		left: 10px;
+		top: 10px;
+		width: 40px;
+		height: 40px;
+		font-size: 16px;
+		z-index: 1001;
+	}
+	
+	.sidebar-header {
+		flex-direction: column;
+		gap: 10px;
+	}
+	
+	.sidebar-info-btn,
+	.sidebar-settings-btn {
+		width: 100%;
+		padding: 10px;
+	}
+	
+	.table-option-btn {
+		width: 45px;
+		height: 45px;
+		font-size: 10px;
+	}
+	
+	.refresh-btn,
+	.time-travel-btn,
+	.multiple-tables-btn,
+	.stop-resume-btn {
+		width: auto;
+		min-width: 80px;
+		height: 35px;
+		font-size: 12px;
+		padding: 8px 12px;
+	}
+	
+	.settings-container {
+		min-width: 150px;
+		padding: 15px;
+	}
+	
+	.modal-content {
+		width: 95%;
+		padding: 15px;
+		margin: 10px;
+	}
+	
+	.top-settings-row {
+		flex-direction: column;
+		gap: 15px;
+	}
+	
+	.category-container,
+	.other-settings-container {
+		max-width: 100%;
+	}
+	
+	/* Ensure tables can be scrolled horizontally on mobile */
+	.container table,
+	.ranglist-wrapper table {
+		table-layout: auto;
+		white-space: nowrap;
+		width: auto;
+		min-width: auto;
+	}
+	
+	/* Make table cells more compact on mobile */
+	.container td,
+	.ranglist-wrapper td {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		max-width: 120px;
+	}
+	
+	/* Ensure the result column is visible */
+	.result {
+		width: 80px;
+		min-width: 80px;
+	}
+	
+	/* Force horizontal scrolling for table wrappers */
+	.table-wrapper {
+		overflow-x: auto;
+		width: auto;
+		max-width: none;
+	}
+	
+	/* Ensure ranglist table is fully scrollable */
+	.ranglist-wrapper {
+		overflow-x: auto;
+		width: auto;
+		max-width: none;
+	}
+	
+	/* Remove any width constraints that might cut off content */
+	.ranglist-wrapper table {
+		width: auto;
+		min-width: auto;
 	}
 }
 
