@@ -3,7 +3,7 @@ class WorldRecordFetcher {
     constructor() {
         this.gameID = "o1y9pyk6"; // Snake game ID
         this.lastFailureTime = 0; // Track when the last API failure occurred
-        this.failureDelay = 250; // 0.25 seconds delay after failure
+        this.failureDelay = 600; // 0.6 seconds delay after failure
     }
 
         // Simple API request function with retry logic
