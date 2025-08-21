@@ -4,24 +4,40 @@ class WorldRecordFetcher {
         this.gameID = "o1y9pyk6"; // Snake game ID
     }
 
-    // Simple API request function
-    async fetchAPI(url) {
-        try {
-                         const response = await fetch(url, {
-                 method: 'GET',
-                 headers: {
-                     'Accept': 'application/json'
-                 }
-             });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        // Simple API request function with retry logic
+    async fetchAPI(url, maxRetries = 5, baseDelay = 1000) {
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    // Don't retry on 4xx client errors (except 429 rate limit)
+                    if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    // For 5xx server errors and 429 rate limit, retry
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                // If this is the last attempt, throw the error
+                if (attempt === maxRetries) {
+                    throw error;
+                }
+                
+                // Calculate delay with exponential backoff
+                const delay = baseDelay * Math.pow(2, attempt - 1);
+                
+                // Wait before retrying
+                await new Promise(resolve => setTimeout(resolve, delay));
             }
-            
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            throw error;
         }
     }
 
@@ -49,31 +65,45 @@ class WorldRecordFetcher {
             const playerData = await this.fetchAPI(`https://www.speedrun.com/api/v1/users/${playerId}`);
             
             if (playerData && playerData.data) {
-                return {
-                    name: playerData.data.names ? playerData.data.names.international : playerData.data.name,
-                    id: playerData.data.id,
-                    nameStyle: playerData.data["name-style"] || {
-                        style: "solid",
-                        color: {
-                            dark: "#ffffff"
+                // Check if we have valid name data
+                let playerName = null;
+                
+                if (playerData.data.names && playerData.data.names.international) {
+                    playerName = playerData.data.names.international;
+                } else if (playerData.data.name) {
+                    playerName = playerData.data.name;
+                }
+                
+                // Only return valid player data if we have a name
+                if (playerName && playerName.trim() !== "") {
+                    return {
+                        name: playerName,
+                        id: playerData.data.id,
+                        nameStyle: playerData.data["name-style"] || {
+                            style: "solid",
+                            color: {
+                                dark: "#ffffff"
+                            }
                         }
-                    }
-                };
-            } else {
-                return {
-                    name: "Unknown Player",
-                    id: playerId,
-                    nameStyle: {
-                        style: "solid",
-                        color: {
-                            dark: "#ffffff"
-                        }
-                    }
-                };
+                    };
+                }
             }
-        } catch (error) {
+            
+            // If we reach here, something went wrong - try to get a better fallback
             return {
-                name: "Unknown Player",
+                name: `Player ${playerId.substring(0, 8)}`,
+                id: playerId,
+                nameStyle: {
+                    style: "solid",
+                    color: {
+                        dark: "#ffffff"
+                    }
+                }
+            };
+        } catch (error) {
+            // If API call fails, use a more descriptive fallback
+            return {
+                name: `Player ${playerId.substring(0, 8)}`,
                 id: playerId,
                 nameStyle: {
                     style: "solid",
@@ -96,7 +126,7 @@ class WorldRecordFetcher {
                     if (variable.values && variable.values.values) {
                         const value = variable.values.values[valueId];
                         if (value) {
-                            console.log(`Variable: ${variable.name} = ${value.label}`);
+                    
                         }
                     }
                 }
@@ -472,6 +502,41 @@ class WorldRecordFetcher {
                 date: date
             };
         }
+    }
+
+    // Fetch multiple world records concurrently (batch of 80)
+    async fetchWorldRecordsBatch(requests) {
+        const batchSize = 80;
+        const results = [];
+        
+        for (let i = 0; i < requests.length; i += batchSize) {
+            const batch = requests.slice(i, i + batchSize);
+            const batchPromises = batch.map(request => {
+                if (request.date) {
+                    return this.getWorldRecordForDate(
+                        request.level, 
+                        request.mode, 
+                        request.count, 
+                        request.speed, 
+                        request.size, 
+                        request.date
+                    );
+                } else {
+                    return this.getWorldRecord(
+                        request.level, 
+                        request.mode, 
+                        request.count, 
+                        request.speed, 
+                        request.size
+                    );
+                }
+            });
+            
+            const batchResults = await Promise.all(batchPromises);
+            results.push(...batchResults);
+        }
+        
+        return results;
     }
 }
 

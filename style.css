@@ -38,6 +38,40 @@ body.dark-mode .container table {
 	background-color: #2d4a1f;
 }
 
+/* Sidebar header with buttons */
+.sidebar-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 15px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+	.sidebar-info-btn,
+	.sidebar-settings-btn {
+		background: rgba(0, 0, 0, 0.2);
+		border: 1px solid rgba(0, 0, 0, 0.3);
+		border-radius: 8px;
+		padding: 8px;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 1em;
+	}
+
+.sidebar-info-btn:hover,
+.sidebar-settings-btn:hover {
+	background: rgba(0, 0, 0, 0.3);
+	transform: scale(1.05);
+}
+
+/* Emoji icons in sidebar buttons */
+
+/* Dark mode sidebar buttons - now using consistent styling for both modes */
+
 body.dark-mode .container thead {
 	background: linear-gradient(135deg, #1e3a15, #2d4a1f);
 }
@@ -259,6 +293,11 @@ h2{
 	transition: all 0.2s ease;
 }
 
+/* Light mode only - slightly darker cell backgrounds */
+body:not(.dark-mode) .container td {
+	background-color: #4C792D;
+}
+
 .container td:hover {
 	background-color: rgba(255,255,255,0.1);
 }
@@ -403,15 +442,15 @@ h2{
 	flex-direction: row;
 	justify-content: flex-start; /* Changed from center to flex-start to avoid centering issues */
 	align-items: flex-start;
-	margin-left: 320px; /* Make room for sidebar */
+	margin-left: 400px; /* Increased margin to move tables further from sidebar */
 	margin-top: 0px; /* Reset margin-top */
-	width: calc(100% - 320px); /* Take remaining width after sidebar */
+	width: calc(100% - 400px); /* Take remaining width after sidebar */
 	padding: 20px;
 	padding-top: 20px; /* Reduced padding-top to push tables up */
 	min-height: calc(100vh - 200px);
 	position: relative;
 	/* Removed transform: translateX(-160px) to prevent centering issues with multiple tables */
-	gap: 30px; /* Space between tables */
+	gap: 50px; /* Space between tables */
 }
 @media only screen and (max-width: 900px) {
 	.container{
@@ -538,12 +577,7 @@ body.dark-mode .player-separator {
 .name{
 	margin-left: 5px;
 	margin-right: 5px;
-	text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-}
-
-/* Dark mode username shadows */
-body.dark-mode .name {
-	text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3);
+	font-weight: bold;
 }
 
 .percentage{
@@ -582,11 +616,13 @@ button:focus {outline:0;}
     position: absolute;
     right: 0.8em;
     top: 0.8em;
+    display: none; /* Hide original modal buttons */
 }
 .modal-button2 {
     position: absolute;
     right: 4em;
     top: 0.8em;
+    display: none; /* Hide original modal buttons */
 }
 
 .modal {
