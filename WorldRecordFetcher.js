@@ -175,12 +175,12 @@ class WorldRecordFetcher {
                 }
             }
             
-            // Step 5: Build leaderboard URL
+            // Step 5: Build leaderboard URL - request more records to get all tied runs
             let leaderboardUrl;
             if (level === "H") {
-                leaderboardUrl = `https://www.speedrun.com/api/v1/leaderboards/${this.gameID}/category/${categoryData.id}?top=1`;
+                leaderboardUrl = `https://www.speedrun.com/api/v1/leaderboards/${this.gameID}/category/${categoryData.id}?top=10`;
             } else {
-                leaderboardUrl = `https://www.speedrun.com/api/v1/leaderboards/${this.gameID}/level/${levelData.id}/${categoryData.id}?top=1`;
+                leaderboardUrl = `https://www.speedrun.com/api/v1/leaderboards/${this.gameID}/level/${levelData.id}/${categoryData.id}?top=10`;
             }
             
             // Only add parameters if they have valid values (not undefined)
@@ -209,66 +209,63 @@ class WorldRecordFetcher {
                 };
             }
             
-            const run = leaderboard.data.runs[0];
+            // Get the best time from the first run
+            const bestTime = leaderboard.data.runs[0].run.times.primary;
             
-            // Check what variables the returned run actually has
-            if (run.run && run.run.values) {
-                await this.decodeRunVariables(run.run.values);
-            }
+            // Filter runs to only include those with the same best time (tied world records)
+            const tiedRuns = [];
             
-            let playerId = null;
-            let runData = null;
-            
-            // Check for the correct structure: run.run.players[0] (array)
-            if (run.run && run.run.players && Array.isArray(run.run.players) && run.run.players.length > 0) {
-                const playerRef = run.run.players[0];
-                
-                // Player reference should have an 'id' field
-                if (playerRef && playerRef.id) {
-                    playerId = playerRef.id;
-                    runData = run.run;
-                } else {
-                    return {
-                        success: false,
-                        message: "Player reference missing ID",
-                        category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "Dice"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
-                        settings: {
-                            count: ["1 Apple", "3 Apples", "5 Apples", "Dice"][count],
-                            speed: ["Normal", "Fast", "Slow"][speed],
-                            size: ["Standard", "Small", "Large"][size]
-                        }
-                    };
-                }
-            } else {
-                return {
-                    success: false,
-                    message: "Could not find player data in run structure",
-                    category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "Dice"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
-                    settings: {
-                        count: ["1 Apple", "3 Apples", "5 Apples", "Dice"][count],
-                        speed: ["Normal", "Fast", "Slow"][speed],
-                        size: ["Standard", "Small", "Large"][size]
+            for (const run of leaderboard.data.runs) {
+                if (run.run.times.primary === bestTime) {
+                    // Check what variables the returned run actually has
+                    if (run.run && run.run.values) {
+                        await this.decodeRunVariables(run.run.values);
                     }
-                };
+                    
+                    let playerId = null;
+                    let runData = null;
+                    
+                    // Check for the correct structure: run.run.players[0] (array)
+                    if (run.run && run.run.players && Array.isArray(run.run.players) && run.run.players.length > 0) {
+                        const playerRef = run.run.players[0];
+                        
+                        // Player reference should have an 'id' field
+                        if (playerRef && playerRef.id) {
+                            playerId = playerRef.id;
+                            runData = run.run;
+                        } else {
+                            continue; // Skip this run if player reference is missing
+                        }
+                    } else {
+                        continue; // Skip this run if player data structure is wrong
+                    }
+                    
+                    // Fetch the full player data using the ID
+                    const player = await this.getPlayerData(playerId);
+                    
+                    tiedRuns.push({
+                        player: {
+                            name: player.name,
+                            id: player.id,
+                            nameStyle: player.nameStyle
+                        },
+                        time: {
+                            raw: runData.times.primary,
+                            formatted: this.formatTime(runData.times.primary)
+                        },
+                        date: new Date(runData.date),
+                        runId: runData.id,
+                        weblink: runData.weblink
+                    });
+                } else {
+                    // Stop when we find a run with a different time
+                    break;
+                }
             }
-            
-            // Fetch the full player data using the ID
-            const player = await this.getPlayerData(playerId);
             
             return {
                 success: true,
-                player: {
-                    name: player.name,
-                    id: player.id,
-                    nameStyle: player.nameStyle
-                },
-                time: {
-                    raw: runData.times.primary,
-                    formatted: this.formatTime(runData.times.primary)
-                },
-                date: new Date(runData.date),
-                runId: runData.id,
-                weblink: runData.weblink,
+                runs: tiedRuns,
                 category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "Dice"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
                 settings: {
                     count: ["1 Apple", "3 Apples", "5 Apples", "Dice"][count],

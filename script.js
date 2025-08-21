@@ -651,7 +651,7 @@ function calculateBestRuns(callback){
     
     // Process world records directly
     for(var key in worldRecords){
-        var run = worldRecords[key];
+        var runs = worldRecords[key];
         var settings = key.split("|");
         var appleAmount = settings[0];
         var speed = settings[1];
@@ -660,15 +660,18 @@ function calculateBestRuns(callback){
         var runMode = settings[4];
         
         try{
-            bestRuns[appleAmount][speed][size][gamemode][runMode] = [run];
+            // Store all runs for this combination
+            bestRuns[appleAmount][speed][size][gamemode][runMode] = runs;
             
-            // Track dates for historical features
-            var rundate = new Date(run.date);
-            if(firstdate == undefined){
-                firstdate = rundate;
-            }
-            else if(rundate < firstdate){
-                firstdate = rundate;
+            // Track dates for historical features (use the first run's date)
+            if(runs.length > 0) {
+                var rundate = new Date(runs[0].date);
+                if(firstdate == undefined){
+                    firstdate = rundate;
+                }
+                else if(rundate < firstdate){
+                    firstdate = rundate;
+                }
             }
         }
         catch{//non valid combination
@@ -698,7 +701,7 @@ function calculateRanglist(){
     
     // Count world records per player
     for(var key in worldRecords){
-        var run = worldRecords[key];
+        var runs = worldRecords[key];
         var settings = key.split("|");
         var appleAmount = settings[0];
         var speed = settings[1];
@@ -713,12 +716,16 @@ function calculateRanglist(){
            gamemodes[gamemode].visible && 
            runModes[runMode].visible){
             
-            var id = run.players.data[0].id;
-            if(typeof(ranglist[id]) == 'undefined'){
-                ranglist[id] = [1, run.players.data[0]];
-            }
-            else{
-                ranglist[id][0] += 1;
+            // Count each run for each player
+            for(var i = 0; i < runs.length; i++) {
+                var run = runs[i];
+                var id = run.players.data[0].id;
+                if(typeof(ranglist[id]) == 'undefined'){
+                    ranglist[id] = [1, run.players.data[0]];
+                }
+                else{
+                    ranglist[id][0] += 1;
+                }
             }
         }
     }
@@ -862,6 +869,10 @@ function generateLeaderboard(settings){
                  if(runMode === "High Score" && !highscoreModes.includes(gamemode)){
                      continue;
                  }
+                 // Don't show "100 Apples" for "Small" size
+                 if(runMode === "100 Apples" && settings[2] === "Small"){
+                     continue;
+                 }
                  if(runModes[runMode].visible && thisBoardRunModes.indexOf(runMode) == -1){
                      thisBoardRunModes.push(runMode);
                  }
@@ -908,14 +919,36 @@ function generateLeaderboard(settings){
                 if(typeof(thisBoardRuns[gamemode][runMode]) != 'undefined'){
                     td.setAttribute('class','result');
                     if(thisBoardRuns[gamemode][runMode].length != 0){
-                        var a = document.createElement('a');
-                        a.setAttribute('href', thisBoardRuns[gamemode][runMode][0].weblink);
-                        a.setAttribute('target','_blank');
-                        a.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode][0].times));
-                        for(run of thisBoardRuns[gamemode][runMode]){
-                            a.appendChild(createNameElement(run.players.data[0]))
+                        // Create a container for all runs
+                        var runsContainer = document.createElement('div');
+                        runsContainer.setAttribute('class', 'runs-container');
+                        
+                        // Add time display (same for all tied runs)
+                        var timeDisplay = document.createElement('div');
+                        timeDisplay.setAttribute('class', 'time-display');
+                        timeDisplay.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode][0].times));
+                        runsContainer.appendChild(timeDisplay);
+                        
+                        // Add all player names with their individual links
+                        for(var i = 0; i < thisBoardRuns[gamemode][runMode].length; i++){
+                            var run = thisBoardRuns[gamemode][runMode][i];
+                            var playerLink = document.createElement('a');
+                            playerLink.setAttribute('href', run.weblink);
+                            playerLink.setAttribute('target','_blank');
+                            playerLink.appendChild(createNameElement(run.players.data[0]));
+                            
+                            // Add separator between players (except for the last one)
+                            if(i < thisBoardRuns[gamemode][runMode].length - 1) {
+                                var separator = document.createElement('span');
+                                separator.innerHTML = ' ';
+                                separator.setAttribute('class', 'player-separator');
+                                runsContainer.appendChild(separator);
+                            }
+                            
+                            runsContainer.appendChild(playerLink);
                         }
-                        td.appendChild(a);
+                        
+                        td.appendChild(runsContainer);
                     }
                 }
                 row.appendChild(td);
@@ -1496,38 +1529,43 @@ async function getAllWorldRecordsForCurrentSettings() {
                     // Create a key for this combination using actual setting names
                     let key = `${currentTableSettings[0]}|${currentTableSettings[1]}|${currentTableSettings[2]}|${modeNames[mode]}|${level + " Apples"}`;
                     
-                    // Convert our record format to the expected format
-                    let convertedRun = {
-                        times: { primary: record.time.raw },
-                        date: record.date.toISOString(),
-                        id: record.runId,
-                        weblink: record.weblink,
-                        players: {
-                            data: [{
-                                names: { international: record.player.name },
-                                id: record.player.id,
-                                rel: "user",
-                                weblink: `https://www.speedrun.com/user/${record.player.id}`,
-                                "name-style": record.player.nameStyle || {
-                                    style: "solid",
-                                    color: {
-                                        dark: "#ffffff"
+                    // Convert all runs to the expected format
+                    let convertedRuns = [];
+                    
+                    for (const run of record.runs) {
+                        let convertedRun = {
+                            times: { primary: run.time.raw },
+                            date: run.date.toISOString(),
+                            id: run.runId,
+                            weblink: run.weblink,
+                            players: {
+                                data: [{
+                                    names: { international: run.player.name },
+                                    id: run.player.id,
+                                    rel: "user",
+                                    weblink: `https://www.speedrun.com/user/${run.player.name}`,
+                                    "name-style": run.player.nameStyle || {
+                                        style: "solid",
+                                        color: {
+                                            dark: "#ffffff"
+                                        }
                                     }
-                                }
-                            }]
-                        },
-                        values: {} // We'll need to reconstruct this if needed
-                    };
-                    
-                    // Store the world record
-                    worldRecords[key] = convertedRun;
-                    
-                    // Add player to players list
-                    if (typeof players[record.player.name] == 'undefined') {
-                        players[record.player.name] = record.player.id;
+                                }]
+                            },
+                            values: {} // We'll need to reconstruct this if needed
+                        };
+                        convertedRuns.push(convertedRun);
+                        
+                        // Add player to players list
+                        if (typeof players[run.player.name] == 'undefined') {
+                            players[run.player.name] = run.player.id;
+                        }
                     }
                     
-                    console.log(`✅ Fetched WR for ${modeNames[mode]} - ${level} Apples: ${record.player.name} - ${record.time.formatted}`);
+                    // Store all the world records (tied runs)
+                    worldRecords[key] = convertedRuns;
+                    
+                    console.log(`✅ Fetched ${record.runs.length} WR(s) for ${modeNames[mode]} - ${level} Apples`);
                     
                     // Update the display immediately for each record
                     calculateBestRuns();
@@ -1571,38 +1609,43 @@ async function getAllWorldRecordsForCurrentSettings() {
                     // Create a key for this combination using actual setting names
                     let key = `${currentTableSettings[0]}|${currentTableSettings[1]}|${currentTableSettings[2]}|${modeNames[mode]}|High Score`;
                     
-                    // Convert our record format to the expected format
-                    let convertedRun = {
-                        times: { primary: record.time.raw },
-                        date: record.date.toISOString(),
-                        id: record.runId,
-                        weblink: record.weblink,
-                        players: {
-                            data: [{
-                                names: { international: record.player.name },
-                                id: record.player.id,
-                                rel: "user",
-                                weblink: `https://www.speedrun.com/user/${record.player.id}`,
-                                "name-style": record.player.nameStyle || {
-                                    style: "solid",
-                                    color: {
-                                        dark: "#ffffff"
+                    // Convert all runs to the expected format
+                    let convertedRuns = [];
+                    
+                    for (const run of record.runs) {
+                        let convertedRun = {
+                            times: { primary: run.time.raw },
+                            date: run.date.toISOString(),
+                            id: run.runId,
+                            weblink: run.weblink,
+                            players: {
+                                data: [{
+                                    names: { international: run.player.name },
+                                    id: run.player.id,
+                                    rel: "user",
+                                    weblink: `https://www.speedrun.com/user/${run.player.name}`,
+                                    "name-style": run.player.nameStyle || {
+                                        style: "solid",
+                                        color: {
+                                            dark: "#ffffff"
+                                        }
                                     }
-                                }
-                            }]
-                        },
-                        values: {} // We'll need to reconstruct this if needed
-                    };
-                    
-                    // Store the world record
-                    worldRecords[key] = convertedRun;
-                    
-                    // Add player to players list
-                    if (typeof players[record.player.name] == 'undefined') {
-                        players[record.player.name] = record.player.id;
+                                }]
+                            },
+                            values: {} // We'll need to reconstruct this if needed
+                        };
+                        convertedRuns.push(convertedRun);
+                        
+                        // Add player to players list
+                        if (typeof players[run.player.name] == 'undefined') {
+                            players[run.player.name] = run.player.id;
+                        }
                     }
                     
-                    console.log(`✅ Fetched WR for ${modeNames[mode]} - High Score: ${record.player.name} - ${record.time.formatted}`);
+                    // Store all the world records (tied runs)
+                    worldRecords[key] = convertedRuns;
+                    
+                    console.log(`✅ Fetched ${record.runs.length} WR(s) for ${modeNames[mode]} - High Score`);
                     
                     // Update the display immediately for each record
                     calculateBestRuns();

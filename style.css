@@ -367,6 +367,29 @@ h2{
 	transition: all 0.2s ease;
 }
 
+/* Styling for multiple runs container */
+.runs-container {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.time-display {
+	font-weight: bold;
+	margin-bottom: 4px;
+}
+
+.player-separator {
+	color: #666;
+	font-weight: normal;
+	margin: 0 4px;
+}
+
+/* Dark mode styling for runs container */
+body.dark-mode .player-separator {
+	color: #aaa;
+}
+
 .gradient-text {
 	font-size: 23px;
 	font-weight: bold;
@@ -880,6 +903,33 @@ body.dark-mode .modal-content p {
 
 body.dark-mode .modal-content strong {
   color: var(--title-color);
+}
+
+/* Dark mode specific styling for info modal */
+body.dark-mode #infoModal .modal-content {
+  background: linear-gradient(135deg, rgba(40, 40, 40, 0.95), rgba(30, 30, 30, 0.9));
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode #infoModal .modal-content p {
+  color: white;
+}
+
+body.dark-mode #infoModal .modal-content strong {
+  color: var(--title-color);
+}
+
+body.dark-mode #infoModal .modal-content a {
+  color: var(--button-bg);
+  background: linear-gradient(135deg, rgba(77, 193, 249, 0.1), rgba(77, 193, 249, 0.05));
+  border: 2px solid rgba(77, 193, 249, 0.2);
+}
+
+body.dark-mode #infoModal .modal-content a:hover {
+  color: white;
+  background: linear-gradient(135deg, var(--button-bg), var(--button-hover));
+  border-color: var(--button-bg);
 }
 
 .optionButtonImage{
