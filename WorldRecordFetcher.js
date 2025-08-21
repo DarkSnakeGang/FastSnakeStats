@@ -525,6 +525,11 @@ class WorldRecordFetcher {
         const results = [];
         
         for (let i = 0; i < requests.length; i += batchSize) {
+            // Check if API calls are paused
+            while (window.isApiPaused) {
+                await new Promise(resolve => setTimeout(resolve, 100)); // Wait 100ms before checking again
+            }
+            
             const batch = requests.slice(i, i + batchSize);
             const batchPromises = batch.map(request => {
                 if (request.date) {

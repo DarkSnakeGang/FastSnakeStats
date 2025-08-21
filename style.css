@@ -197,7 +197,7 @@ h2{
 }
 
 .ranglist-wrapper table:hover {
-	transform: translateY(-2px);
+	/* transform: translateY(-2px); - Disabled jump-up animation */
 	box-shadow: 0 12px 24px var(--shadow);
 }
 
@@ -267,7 +267,7 @@ h2{
 }
 
 .container table:hover {
-	transform: translateY(-2px);
+	/* transform: translateY(-2px); - Disabled jump-up animation */
 	box-shadow: 0 12px 24px var(--shadow);
 }
 
@@ -461,6 +461,37 @@ body:not(.dark-mode) .container td {
 
 .multiple-tables-btn.active:hover {
 	background: #218838;
+}
+
+/* Stop/Resume button specific styling */
+.stop-resume-btn {
+	width: auto;
+	min-width: 120px;
+	height: 55px;
+	font-size: 14px;
+	font-weight: 600;
+	background: linear-gradient(135deg, #8B0000, #B22222);
+	color: white;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	margin-left: 10px;
+	vertical-align: top;
+}
+
+.stop-resume-btn:hover {
+	background: linear-gradient(135deg, #660000, #8B0000);
+	transform: scale(1.05) translateY(-2px);
+	box-shadow: 0 8px 20px var(--shadow);
+}
+
+.stop-resume-btn:disabled {
+	background: linear-gradient(135deg, #8B0000, #B22222);
+	opacity: 0.5;
+	cursor: not-allowed;
+	transform: none;
+	box-shadow: none;
 }
 
 
@@ -1149,6 +1180,7 @@ body.dark-mode #infoModal .modal-content a:hover {
 	border-radius: 8px;
 	padding: 10px;
 	margin-top: 5px;
+	display: inline-block;
 }
 
 .progress-display {
@@ -1156,6 +1188,7 @@ body.dark-mode #infoModal .modal-content a:hover {
 	color: var(--text-color);
 	text-align: center;
 	font-weight: 500;
+	width: 100%;
 }
 
 #apiProgress {

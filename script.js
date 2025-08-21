@@ -59,12 +59,34 @@ var selectedTimeTravelDate = ""; // Currently selected date for time travel
 var isMultipleTablesEnabled = false; // Multiple tables toggle state
 var isApiOverloaded = false; // Track if SRC API is overloaded (420 error)
 var apiCallProgress = { successful: 0, total: 0 }; // Track API call progress for runs only
+var isApiPaused = false; // Track if API calls are paused
+var pausedApiState = null; // Store state when API calls are paused
+window.isApiPaused = false; // Make it accessible to WorldRecordFetcher
 
 // Function to update API call progress display
 function updateApiProgress() {
     var progressElement = document.getElementById('apiProgress');
     if (progressElement) {
         progressElement.textContent = `${apiCallProgress.successful}/${apiCallProgress.total}`;
+    }
+    
+    // Update stop/resume button visibility based on progress
+    var stopResumeButton = document.querySelector('.stop-resume-btn');
+    if (stopResumeButton) {
+        if ((apiCallProgress.total > 0 && apiCallProgress.successful < apiCallProgress.total) || (isLoading && apiCallProgress.total === 0)) {
+            if (isLoading || isApiPaused) {
+                stopResumeButton.style.display = 'block';
+                if (isApiPaused) {
+                    stopResumeButton.innerHTML = '▶️ Resume';
+                    stopResumeButton.setAttribute('title', 'Resume API calls');
+                } else {
+                    stopResumeButton.innerHTML = '⏸️ Stop';
+                    stopResumeButton.setAttribute('title', 'Stop API calls');
+                }
+            }
+        } else if (apiCallProgress.total > 0 && apiCallProgress.successful >= apiCallProgress.total) {
+            stopResumeButton.style.display = 'none';
+        }
     }
 }
 
@@ -1513,17 +1535,36 @@ function generateTableSelector(){
     // Add data section (API call progress)
     var dataSelector = document.createElement('div');
     dataSelector.innerHTML = '<label>Data</label>';
+    
+    // Create a container for the data content (API calls and stop button)
+    var dataContentContainer = document.createElement('div');
+    dataContentContainer.style.display = 'flex';
+    dataContentContainer.style.alignItems = 'center';
+    dataContentContainer.style.gap = '10px';
+    dataContentContainer.style.marginTop = '5px';
     var dataInfo = document.createElement('div');
     dataInfo.setAttribute('class', 'data-info');
     dataInfo.setAttribute('id', 'dataInfo');
     
-    // Create progress display
+    // Create progress display (centered)
     var progressDisplay = document.createElement('div');
     progressDisplay.setAttribute('class', 'progress-display');
     progressDisplay.innerHTML = `API Calls: <span id="apiProgress">0/0</span>`;
     dataInfo.appendChild(progressDisplay);
     
-    dataSelector.appendChild(dataInfo);
+    // Create stop/resume button (outside but inline)
+    var stopResumeButton = document.createElement('button');
+    stopResumeButton.setAttribute('class', 'stop-resume-btn');
+    stopResumeButton.setAttribute('id', 'stopResumeBtn');
+    stopResumeButton.innerHTML = '⏸️ Stop';
+    stopResumeButton.setAttribute('title', 'Stop API calls');
+    stopResumeButton.style.display = 'none'; // Hidden by default
+    stopResumeButton.onclick = toggleApiPause;
+    
+    // Add both elements to the content container
+    dataContentContainer.appendChild(dataInfo);
+    dataContentContainer.appendChild(stopResumeButton);
+    dataSelector.appendChild(dataContentContainer);
     sidebar.appendChild(dataSelector);
     
     // Add sidebar to page
@@ -1596,6 +1637,14 @@ function updateTableSelector(){
         refreshButton.setAttribute('title', 'Refresh world records for current settings');
     }
     
+    // Update stop/resume button state (should remain enabled)
+    var stopResumeButton = document.querySelector('.stop-resume-btn');
+    if (stopResumeButton) {
+        stopResumeButton.disabled = false;
+        stopResumeButton.style.opacity = '1';
+        stopResumeButton.style.cursor = 'pointer';
+    }
+    
     // Also update the time travel button state
     var timeTravelButton = document.querySelector('.time-travel-btn');
     if (timeTravelButton) {
@@ -1635,6 +1684,10 @@ function setLoadingState(loading) {
     isLoading = loading;
     var buttons = document.querySelectorAll('.table-option-btn');
     buttons.forEach(function(button) {
+        // Skip the stop/resume button - it should remain enabled during loading
+        if (button.classList.contains('stop-resume-btn')) {
+            return;
+        }
         if (loading) {
             button.disabled = true;
             button.style.opacity = '0.5';
@@ -1682,7 +1735,85 @@ function setLoadingState(loading) {
         multipleTablesButton.title = loading ? 'Loading...' : (isMultipleTablesEnabled ? 'Multiple tables mode enabled. Click to disable.' : 'Multiple tables mode disabled. Click to enable.');
     }
     
+    // Update stop/resume button visibility
+    var stopResumeButton = document.querySelector('.stop-resume-btn');
+    if (stopResumeButton) {
+        if (loading && (apiCallProgress.total > 0 || isApiPaused)) {
+            stopResumeButton.style.display = 'block';
+            if (isApiPaused) {
+                stopResumeButton.innerHTML = '▶️ Resume';
+                stopResumeButton.setAttribute('title', 'Resume API calls');
+            } else {
+                stopResumeButton.innerHTML = '⏸️ Stop';
+                stopResumeButton.setAttribute('title', 'Stop API calls');
+            }
+        } else if (isApiPaused && apiCallProgress.total > 0 && apiCallProgress.successful < apiCallProgress.total) {
+            // Show resume button even when not loading but paused
+            stopResumeButton.style.display = 'block';
+            stopResumeButton.innerHTML = '▶️ Resume';
+            stopResumeButton.setAttribute('title', 'Resume API calls');
+        } else if (!loading && apiCallProgress.total > 0 && apiCallProgress.successful >= apiCallProgress.total) {
+            // Hide button when all API calls are completed
+            stopResumeButton.style.display = 'none';
+        }
+    }
+    
     // Don't show loading message - table will be updated live instead
+}
+
+// Toggle API pause/resume functionality
+function toggleApiPause() {
+    if (isApiPaused) {
+        // Resume API calls
+        isApiPaused = false;
+        window.isApiPaused = false;
+        
+        // Re-enable loading state
+        setLoadingState(true);
+        
+        // Resume from where we left off
+        if (pausedApiState) {
+            resumeApiCalls(pausedApiState);
+        }
+    } else {
+        // Pause API calls
+        isApiPaused = true;
+        window.isApiPaused = true;
+        
+        // Store current state for resuming
+        pausedApiState = {
+            progress: { ...apiCallProgress },
+            timestamp: Date.now()
+        };
+        
+        // Disable loading state but keep buttons enabled
+        setLoadingState(false);
+        
+        // Update refresh button to show paused state
+        var refreshButton = document.querySelector('.refresh-btn');
+        if (refreshButton) {
+            refreshButton.innerHTML = '⏸️ Paused';
+            refreshButton.setAttribute('title', 'API calls are paused. Click Resume to continue.');
+        }
+        
+        // Update stop button to show resume
+        var stopResumeButton = document.querySelector('.stop-resume-btn');
+        if (stopResumeButton) {
+            stopResumeButton.innerHTML = '▶️ Resume';
+            stopResumeButton.setAttribute('title', 'Resume API calls');
+        }
+    }
+}
+
+// Resume API calls from paused state
+function resumeApiCalls(pausedState) {
+    // Update progress to where we left off
+    apiCallProgress = { ...pausedState.progress };
+    updateApiProgress();
+    
+    // Continue with the current API call process
+    // This will be handled by the existing API call functions
+    // which will check isApiPaused and continue from where they left off
 }
 
 function generateRanglist(){
@@ -2681,11 +2812,16 @@ function startWorldRecordsDownload() {
         return;
     }
 
+    // Set loading state immediately for initial load
+    setLoadingState(true);
+
     // Add timeout to prevent infinite loading
     var loadingTimeout = setTimeout(function() {
         if(container) {
             container.innerHTML = '<p style="color: white; font-size: 18px;">API connection issues. Please check your internet connection and try again.</p>';
         }
+        // Re-enable category settings on timeout
+        setLoadingState(false);
     }, 30000); // 30 second timeout
 
     // Add a shorter timeout for API failures
@@ -2708,6 +2844,8 @@ function startWorldRecordsDownload() {
                 });
             }
         }
+        // Re-enable category settings on API timeout
+        setLoadingState(false);
     }, 10000); // 10 second timeout for API
 
     getGameDetails(
@@ -2717,6 +2855,17 @@ function startWorldRecordsDownload() {
         
         // Generate table selector first so the API progress element exists
         generateTableSelector();
+        
+        // Show stop button immediately for initial load
+        var stopResumeButton = document.querySelector('.stop-resume-btn');
+        if (stopResumeButton) {
+            stopResumeButton.style.display = 'block';
+            stopResumeButton.innerHTML = '⏸️ Stop';
+            stopResumeButton.setAttribute('title', 'Stop API calls');
+        }
+        
+        // Update API progress display to show initial state
+        updateApiProgress();
         
         // Use the new WorldRecordFetcher to get the most recent world records
         getAllWorldRecordsForCurrentSettings().then(() => {
@@ -2733,6 +2882,9 @@ function startWorldRecordsDownload() {
                 clearTimeout(loadingTimeout);
                 clearTimeout(apiTimeout);
                 clearInterval(checkCompletion);
+                
+                // Re-enable category settings after completion
+                setLoadingState(false);
                 
                 calculateBestRuns();
                 calculateRanglist();
@@ -2762,6 +2914,8 @@ function startWorldRecordsDownload() {
                 if(container) {
                     container.innerHTML = '<p style="color: white; font-size: 18px;">No world records found. The API might be temporarily unavailable.</p>';
                 }
+                // Re-enable category settings on fallback timeout
+                setLoadingState(false);
             }
         }, 15000);
     });
