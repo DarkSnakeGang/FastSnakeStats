@@ -1480,9 +1480,9 @@ body.dark-mode .multiple-tables-btn.active:hover {
 
 /* Base container layout - mobile first */
 .container {
-	display: flex;
+		display: flex;
 	flex-direction: column;
-	align-items: center;
+		align-items: center;
 	margin-left: 400px; /* Margin for left sidebar */
 	margin-top: 0px;
 	width: calc(100% - 400px);
@@ -1495,22 +1495,22 @@ body.dark-mode .multiple-tables-btn.active:hover {
 
 /* Table wrapper base styles */
 .table-wrapper {
-	display: flex;
+		display: flex;
 	flex-direction: column;
-	align-items: center;
+		align-items: center;
 	margin: 0;
-	width: 100%;
+		width: 100%;
 }
 
 /* Main table wrapper */
 .main-table-wrapper {
-	width: 100%;
+		width: 100%;
 	max-width: 100%;
 }
 
 /* Ranglist wrapper */
 .ranglist-wrapper {
-	width: 100%;
+		width: 100%;
 	max-width: 100%;
 }
 
