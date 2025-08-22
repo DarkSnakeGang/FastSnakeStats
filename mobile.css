@@ -137,7 +137,7 @@
 		backdrop-filter: blur(15px);
 		border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 		z-index: 1000;
-		padding: 15px 20px;
+		padding: 8px 20px;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -147,7 +147,12 @@
 		display: flex;
 		align-items: center;
 		gap: 15px;
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
 	}
+
+
 
 	.mobile-header-icon {
 		width: 40px;
@@ -179,6 +184,7 @@
 		font-size: 18px;
 		font-weight: 600;
 		box-shadow: none;
+		margin-left: auto;
 	}
 
 	.mobile-dark-mode-btn:hover {
@@ -221,7 +227,7 @@
 	/* Mobile Navigation */
 	.mobile-nav {
 		position: fixed !important;
-		bottom: 0 !important;
+		bottom: -2px !important;
 		left: 0 !important;
 		right: 0 !important;
 		z-index: 1000 !important;
@@ -286,10 +292,10 @@
 
 	/* Mobile Main Content */
 	.mobile-main {
-		margin-top: 80px;
+		margin-top: 60px;
 		margin-bottom: 100px;
 		padding: var(--mobile-spacing);
-		min-height: calc(100vh - 180px);
+		min-height: calc(100vh - 160px);
 	}
 
 	/* Mobile Card Design */
@@ -557,8 +563,23 @@
 	.mobile-checkbox {
 		width: 20px;
 		height: 20px;
-		accent-color: var(--mobile-primary);
+		accent-color: #0d6efd;
 		flex-shrink: 0;
+		border: 2px solid #0d6efd;
+		border-radius: 4px;
+		background-color: transparent;
+		appearance: none;
+		-webkit-appearance: none;
+		position: relative;
+		cursor: pointer;
+	}
+	
+	.mobile-checkbox:checked {
+		background-color: #0d6efd;
+		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+		background-size: 12px;
+		background-position: center;
+		background-repeat: no-repeat;
 	}
 
 	.mobile-checkbox-label {
@@ -2174,7 +2195,7 @@
     }
     
     .mobile-settings-content {
-        background: transparent !important;
+        background: rgba(0, 0, 0, 0.1) !important;
         border-radius: 15px;
         padding: 20px;
         max-width: 90%;
@@ -2182,5 +2203,11 @@
         overflow-y: auto;
         backdrop-filter: blur(15px);
         border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Dark mode override for mobile settings content */
+    body.dark-mode .mobile-settings-content {
+        background: rgba(0, 0, 0, 0.3) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
 }
