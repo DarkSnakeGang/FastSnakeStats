@@ -31,6 +31,11 @@ if (document.readyState === 'loading') {
 function initializeSimpleMobileUI() {
     console.log('Initializing simple mobile UI...');
     
+    // Load settings immediately to ensure they're available
+    if (typeof loadSettings === 'function') {
+        loadSettings();
+    }
+    
     // Setup mobile navigation
     setupMobileNavigation();
     
@@ -51,7 +56,8 @@ function waitForDesktopSystem() {
             typeof generateLeaderboard === 'function' && 
             typeof generateMultipleTables === 'function' &&
             typeof currentTableSettings !== 'undefined' &&
-            typeof isMultipleTablesEnabled !== 'undefined') {
+            typeof isMultipleTablesEnabled !== 'undefined' &&
+            typeof loadSettings === 'function') {
             clearInterval(checkInterval);
             console.log('Desktop system ready, showing mobile records...');
             console.log('Available functions:', {
@@ -59,8 +65,16 @@ function waitForDesktopSystem() {
                 generateLeaderboard: typeof generateLeaderboard,
                 generateMultipleTables: typeof generateMultipleTables,
                 currentTableSettings: typeof currentTableSettings,
-                isMultipleTablesEnabled: typeof isMultipleTablesEnabled
+                isMultipleTablesEnabled: typeof isMultipleTablesEnabled,
+                loadSettings: typeof loadSettings
             });
+            
+            // Load settings to ensure game modes are properly initialized
+            loadSettings();
+            
+            // Initialize mobile run and game modes
+            initializeMobileRunAndGameModes();
+            
             showBasicMobileRecordsSection();
             
             // Update API progress display
@@ -77,7 +91,8 @@ function waitForDesktopSystem() {
             generateLeaderboard: typeof generateLeaderboard,
             generateMultipleTables: typeof generateMultipleTables,
             currentTableSettings: typeof currentTableSettings,
-            isMultipleTablesEnabled: typeof isMultipleTablesEnabled
+            isMultipleTablesEnabled: typeof isMultipleTablesEnabled,
+            loadSettings: typeof loadSettings
         });
         showBasicMobileRecordsSection();
     }, 10000);
@@ -483,6 +498,14 @@ function showBasicMobileSettingsSection() {
     const mobileTablesContainer = document.getElementById('mobileTablesContainer');
     if (!mobileTablesContainer) return;
 
+    // Ensure settings are loaded before generating checkboxes
+    if (typeof loadSettings === 'function') {
+        loadSettings();
+    }
+    
+    // Initialize run modes and game modes to be all selected if they haven't been set before
+    initializeMobileRunAndGameModes();
+
     mobileTablesContainer.innerHTML = `
         <div class="mobile-settings-content">
             <h2 style="font-size: 24px; font-weight: 700; color: var(--mobile-text); margin-bottom: 20px; text-align: center;">Settings</h2>
@@ -509,18 +532,18 @@ function showBasicMobileSettingsSection() {
                 </div>
             </div>
 
-            <!-- Options Section (from desktop table-selector) -->
+            <!-- Options Section -->
             <div class="mobile-form-group">
                 <label class="mobile-form-label">Options</label>
                 <div class="mobile-options-section">
                     <div class="mobile-options-grid">
-                        <button class="mobile-option-btn" id="mobileDarkModeToggle">
+                        <button class="mobile-option-btn" id="mobileDarkModeToggle" title="${isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}">
                             ${isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
                         </button>
-                        <button class="mobile-option-btn" id="mobileTimeTravelBtn">
+                        <button class="mobile-option-btn" id="mobileTimeTravelBtn" title="Toggle time travel mode">
                             ⏰ Time Travel
                         </button>
-                        <button class="mobile-option-btn" id="mobileMultipleTablesToggle" ${isMultipleTablesEnabled ? 'class="mobile-option-btn active"' : 'class="mobile-option-btn"'}>
+                        <button class="mobile-option-btn" id="mobileMultipleTablesToggle" title="Toggle multiple tables mode">
                             📊 Multiple Tables
                         </button>
                     </div>
@@ -529,7 +552,6 @@ function showBasicMobileSettingsSection() {
 
             <!-- Action Buttons -->
             <div class="mobile-btn-group">
-                <button class="mobile-btn" id="mobileSettingsSave">Save Settings</button>
                 <button class="mobile-btn secondary" id="mobileSettingsReset">Reset to Default</button>
             </div>
         </div>
@@ -540,9 +562,6 @@ function showBasicMobileSettingsSection() {
     
     // Ensure settings are synchronized with desktop system
     console.log('Mobile settings section loaded - settings synchronized with desktop');
-    
-    // Initialize run modes and game modes to be all selected if they haven't been set before
-    initializeMobileRunAndGameModes();
 }
 
 // Initialize run modes and game modes to be all selected
@@ -568,6 +587,9 @@ function initializeMobileRunAndGameModes() {
         localStorage.setItem('mobileGameModesInitialized', 'true');
         saveSettings();
     }
+    
+    // Save the initial settings
+    saveSettings();
 }
 
 // Generate mobile category checkboxes
@@ -671,18 +693,11 @@ function setupMobileSettingsEventListeners() {
         datePicker.addEventListener('change', function() {
             selectedTimeTravelDate = this.value;
             saveSettings();
-            // Refresh table when date changes
-            refreshMobileTableAfterSettingsChange();
         });
     }
 
-    // Save and reset buttons
-    const saveBtn = document.getElementById('mobileSettingsSave');
+    // Reset button
     const resetBtn = document.getElementById('mobileSettingsReset');
-    
-    if (saveBtn) {
-        saveBtn.addEventListener('click', saveMobileSettings);
-    }
     
     if (resetBtn) {
         resetBtn.addEventListener('click', resetMobileSettings);
@@ -705,6 +720,7 @@ function setupMobileOptionsListeners() {
     if (darkModeToggle) {
         darkModeToggle.addEventListener('click', function() {
             toggleDarkMode();
+            saveSettings();
             // Update button text
             this.textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
             this.setAttribute('title', isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode');
@@ -716,6 +732,7 @@ function setupMobileOptionsListeners() {
     if (timeTravelBtn) {
         timeTravelBtn.addEventListener('click', function() {
             toggleTimeTravel();
+            saveSettings();
             // Update button state
             if (isTimeTravelEnabled) {
                 this.classList.add('active');
@@ -788,8 +805,6 @@ function setupMobileCheckboxListeners() {
                     }
                 }
                 saveSettings();
-                // Refresh table when settings change
-                refreshMobileTableAfterSettingsChange();
             });
         }
     }
@@ -816,8 +831,6 @@ function setupMobileCheckboxListeners() {
                     }
                 }
                 saveSettings();
-                // Refresh table when settings change
-                refreshMobileTableAfterSettingsChange();
             });
         }
     }
@@ -844,8 +857,6 @@ function setupMobileCheckboxListeners() {
                     }
                 }
                 saveSettings();
-                // Refresh table when settings change
-                refreshMobileTableAfterSettingsChange();
             });
         }
     }
@@ -880,8 +891,6 @@ function saveMobileSettings() {
     // Settings are already saved via checkbox listeners
     // This function can be used for additional mobile-specific settings
     console.log('Mobile settings saved');
-    // Refresh table when settings are saved
-    refreshMobileTableAfterSettingsChange();
 }
 
 // Refresh mobile table after settings change
@@ -890,7 +899,7 @@ function refreshMobileTableAfterSettingsChange() {
     if (mobileState.currentSection === 'records') {
         console.log('Refreshing mobile table after settings change');
         // Reload the table data with new settings
-        loadMobileTableData();
+        showBasicMobileRecordsSection();
     }
 }
 
@@ -985,9 +994,6 @@ function resetMobileSettings() {
 
     // Save settings
     saveSettings();
-    
-    // Refresh table after reset
-    refreshMobileTableAfterSettingsChange();
     
     // Show success message
     const resetButton = document.getElementById('mobileSettingsReset');
