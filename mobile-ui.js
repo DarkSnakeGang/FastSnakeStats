@@ -1400,7 +1400,7 @@ function initializeMobileLoadingState() {
         // Update mobile stop/resume button
         const mobileStopResumeBtn = document.getElementById('mobileStopResumeBtn');
         if (mobileStopResumeBtn) {
-            if (loading && (apiCallProgress.total > 0 || isApiPaused)) {
+            if (loading || isApiPaused) {
                 mobileStopResumeBtn.style.display = 'block';
                 if (isApiPaused) {
                     mobileStopResumeBtn.textContent = '▶️ Resume';
@@ -1409,11 +1409,7 @@ function initializeMobileLoadingState() {
                     mobileStopResumeBtn.textContent = '⏸️ Stop';
                     mobileStopResumeBtn.setAttribute('title', 'Stop API calls');
                 }
-            } else if (isApiPaused && apiCallProgress.total > 0 && apiCallProgress.successful < apiCallProgress.total) {
-                mobileStopResumeBtn.style.display = 'block';
-                mobileStopResumeBtn.textContent = '▶️ Resume';
-                mobileStopResumeBtn.setAttribute('title', 'Resume API calls');
-            } else if (!loading && apiCallProgress.total > 0 && apiCallProgress.successful >= apiCallProgress.total) {
+            } else {
                 mobileStopResumeBtn.style.display = 'none';
             }
         }
