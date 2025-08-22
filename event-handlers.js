@@ -11,10 +11,10 @@ function toggleDarkMode() {
     }
     saveSettings();
     
-    // Update toggle button icon
+    // Update toggle button icon and text
     const toggleBtn = document.querySelector('.dark-mode-toggle');
     if(toggleBtn) {
-        toggleBtn.innerHTML = isDarkMode ? '☀️' : '🌙';
+        toggleBtn.innerHTML = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
     }
 }
 

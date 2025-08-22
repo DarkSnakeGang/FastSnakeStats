@@ -403,9 +403,175 @@ function generateLeaderboard(settings, specificGamemode = null){
     var tableWrapper = document.createElement('div');
     tableWrapper.setAttribute('class', 'table-wrapper main-table-wrapper');
     tableWrapper.setAttribute('data-settings', settings.join('|'));
+    tableWrapper.style.gridArea = 'main'; // Ensure grid area is set
     tableWrapper.appendChild(table);
 
     document.getElementsByClassName("container")[0].appendChild(tableWrapper);
+}
+
+function generateLeaderboardForMultiple(settings, container){
+    // Validate parameters
+    if (!settings || !Array.isArray(settings) || settings.length === 0) {
+        console.error('Invalid settings parameter:', settings);
+        return;
+    }
+    
+    if (!container || !container.appendChild) {
+        console.error('Invalid container parameter:', container);
+        return;
+    }
+    
+    // Use the same logic as generateLeaderboard but for multiple tables
+    var table = document.createElement('table');
+    table.setAttribute('class','leaderboard');
+
+    //calculate stuff
+    var thisBoardRunModes = [];
+    var thisBoardRuns = bestRuns[settings[0]][settings[1]][settings[2]];
+    
+    // Check if we have data for this combination
+    if(!thisBoardRuns){
+        return;
+    }
+    
+    // Find all run modes that have data for this combination
+    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Cheese"];
+    
+    for(gamemode in thisBoardRuns){
+        if(gamemodes[gamemode].visible){
+            for(runMode in thisBoardRuns[gamemode]){
+                // Only show "High Score" column for highscore modes
+                if(runMode === "High Score" && !highscoreModes.includes(gamemode)){
+                    continue;
+                }
+                // Don't show "100 Apples" for "Small" size
+                if(runMode === "100 Apples" && settings[2] === "Small"){
+                    continue;
+                }
+                if(runModes[runMode].visible && thisBoardRunModes.indexOf(runMode) == -1){
+                    thisBoardRunModes.push(runMode);
+                }
+            }
+        }
+    }
+    
+    //create thead
+    var thead = document.createElement('thead');
+    var row;
+    var th;
+    var td;
+    row = document.createElement('tr');
+    th = document.createElement('th');
+    th.setAttribute('class', 'settingsRow');
+    th.setAttribute('colspan', thisBoardRunModes.length+1);
+    th.appendChild(createIconElement(appleAmounts[settings[0]]));
+    th.appendChild(createIconElement(speeds[settings[1]]));
+    th.appendChild(createIconElement(sizes[settings[2]]));
+    
+    row.appendChild(th);
+    thead.appendChild(row);
+
+    row = document.createElement('tr');
+    // Create the first header cell (to the left of "25 Apples")
+    var firstHeaderCell = document.createElement('th');
+    
+    // Add individual refresh button to the first header cell when multiple tables mode is enabled
+    if (isMultipleTablesEnabled) {
+        var refreshButton = document.createElement('button');
+        refreshButton.setAttribute('class', 'table-option-btn refresh-btn individual-refresh-btn');
+        refreshButton.innerHTML = '🔄';
+        refreshButton.setAttribute('title', `Refresh ${settings[0]} ${settings[1]} ${settings[2]} table`);
+        refreshButton.onclick = function(settings) {
+            return async function() {
+                if (isLoading) return; // Prevent clicks while loading
+                await refreshSpecificTable(settings);
+            };
+        }(settings);
+        
+        // Add button to the first header cell
+        firstHeaderCell.appendChild(refreshButton);
+    }
+    
+    row.appendChild(firstHeaderCell);
+    for(runMode of thisBoardRunModes){
+        let th = document.createElement('th');
+        th.appendChild(createIconElement(runModes[runMode]));
+        row.appendChild(th);
+    }
+    thead.appendChild(row);
+    table.appendChild(thead);
+
+    //creat tbody
+    var tbody = document.createElement('tbody');
+    for(gamemode in thisBoardRuns){
+        if(gamemodes[gamemode].visible){
+            row = document.createElement('tr');
+            th = document.createElement('th');
+            th.appendChild(createIconElement(gamemodes[gamemode]));
+            row.appendChild(th);
+
+            for(runMode of thisBoardRunModes){
+                td = document.createElement('td');
+                if(typeof(thisBoardRuns[gamemode][runMode]) != 'undefined'){
+                    td.setAttribute('class','result');
+                    if(thisBoardRuns[gamemode][runMode].length != 0){
+                        // Create a container for all runs
+                        var runsContainer = document.createElement('div');
+                        runsContainer.setAttribute('class', 'runs-container');
+                        
+                        // Add time display (same for all tied runs) - link to first run
+                        var timeDisplay = document.createElement('div');
+                        timeDisplay.setAttribute('class', 'time-display');
+                        var timeLink = document.createElement('a');
+                        timeLink.setAttribute('href', thisBoardRuns[gamemode][runMode][0].weblink);
+                        timeLink.setAttribute('target', '_blank');
+                        timeLink.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode][0].times));
+                        timeDisplay.appendChild(timeLink);
+                        runsContainer.appendChild(timeDisplay);
+                        
+                        // Add all player names with their individual links
+                        for(var i = 0; i < thisBoardRuns[gamemode][runMode].length; i++){
+                            var run = thisBoardRuns[gamemode][runMode][i];
+                            var playerLink = document.createElement('a');
+                            playerLink.setAttribute('href', run.weblink);
+                            playerLink.setAttribute('target','_blank');
+                            playerLink.appendChild(createNameElement(run.players.data[0]));
+                            
+                            // Add separator between players (except for the last one)
+                            if(i < thisBoardRuns[gamemode][runMode].length - 1) {
+                                var separator = document.createElement('span');
+                                separator.innerHTML = ' ';
+                                separator.setAttribute('class', 'player-separator');
+                                runsContainer.appendChild(separator);
+                            }
+                            
+                            runsContainer.appendChild(playerLink);
+                        }
+                        
+                        td.appendChild(runsContainer);
+                    }
+                }
+                row.appendChild(td);
+            }
+            tbody.appendChild(row);
+
+        }
+    }
+    table.appendChild(tbody);
+
+    // Create a wrapper for the table
+    var tableWrapper = document.createElement('div');
+    tableWrapper.setAttribute('class', 'table-wrapper multiple-table-wrapper');
+    tableWrapper.setAttribute('data-settings', settings.join('|'));
+    // Don't set grid area for multiple tables
+    tableWrapper.appendChild(table);
+    
+    // Validate that tableWrapper is a valid Node before appending
+    if (tableWrapper && tableWrapper.nodeType) {
+        container.appendChild(tableWrapper);
+    } else {
+        console.error('tableWrapper is not a valid Node:', tableWrapper);
+    }
 }
 
 function generateSingleTable(){
@@ -432,52 +598,15 @@ function generateSingleTable(){
 }
 
 function generateTableSelector(){
-    // Create dark mode toggle button (only if it doesn't exist)
-    var existingToggle = document.querySelector('.dark-mode-toggle');
-    if(!existingToggle) {
-        var darkModeToggle = document.createElement('button');
-        darkModeToggle.setAttribute('class', 'dark-mode-toggle');
-        darkModeToggle.innerHTML = isDarkMode ? '☀️' : '🌙';
-        darkModeToggle.onclick = toggleDarkMode;
-        darkModeToggle.setAttribute('title', isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode');
-        document.body.appendChild(darkModeToggle);
-    }
-    
-    // Create info and settings buttons for the sidebar
-    var existingInfoBtn = document.querySelector('.sidebar-info-btn');
-    if(!existingInfoBtn) {
-        var infoBtn = document.createElement('button');
-        infoBtn.setAttribute('class', 'sidebar-info-btn');
-        infoBtn.setAttribute('id', 'sidebarInfoBtn');
-        infoBtn.innerHTML = 'ℹ️';
-        infoBtn.setAttribute('title', 'Information');
-    }
-    
-    var existingSettingsBtn = document.querySelector('.sidebar-settings-btn');
-    if(!existingSettingsBtn) {
-        var settingsBtn = document.createElement('button');
-        settingsBtn.setAttribute('class', 'sidebar-settings-btn');
-                        settingsBtn.setAttribute('id', 'sidebarSettingsBtn');
-                settingsBtn.innerHTML = '⚙️';
-                settingsBtn.setAttribute('title', 'Settings');
-    }
-    
     // Create sidebar for table selection
     var sidebar = document.createElement('div');
     sidebar.setAttribute('class', 'table-selector');
     
-    // Add info and settings buttons to the sidebar header
+    // Create sidebar header with info and settings buttons
     var sidebarHeader = document.createElement('div');
     sidebarHeader.setAttribute('class', 'sidebar-header');
     
-    // Add info button
-    if(!existingInfoBtn) {
-        sidebarHeader.appendChild(infoBtn);
-    } else {
-        sidebarHeader.appendChild(existingInfoBtn);
-    }
-    
-    // Add Category Settings text between the icons
+    // Add Category Settings text
     var categoryText = document.createElement('h3');
     categoryText.textContent = 'Category Settings';
     categoryText.style.margin = '0';
@@ -485,14 +614,36 @@ function generateTableSelector(){
     categoryText.style.textAlign = 'center';
     sidebarHeader.appendChild(categoryText);
     
-    // Add settings button
-    if(!existingSettingsBtn) {
-        sidebarHeader.appendChild(settingsBtn);
-    } else {
-        sidebarHeader.appendChild(existingSettingsBtn);
-    }
+    // Create sidebar info button
+    var sidebarInfoBtn = document.createElement('button');
+    sidebarInfoBtn.setAttribute('class', 'sidebar-info-btn');
+    sidebarInfoBtn.innerHTML = 'ℹ️';
+    sidebarInfoBtn.setAttribute('title', 'Info');
+    sidebarHeader.appendChild(sidebarInfoBtn);
+    
+    // Create sidebar settings button
+    var sidebarSettingsBtn = document.createElement('button');
+    sidebarSettingsBtn.setAttribute('class', 'sidebar-settings-btn');
+    sidebarSettingsBtn.innerHTML = '⚙️';
+    sidebarSettingsBtn.setAttribute('title', 'Settings');
+    sidebarHeader.appendChild(sidebarSettingsBtn);
     
     sidebar.appendChild(sidebarHeader);
+    
+    // Add event listeners for sidebar buttons
+    sidebarInfoBtn.addEventListener('click', function() {
+        var modal = document.getElementById("infoModal");
+        if(modal) {
+            modal.style.display = "block";
+        }
+    });
+    
+    sidebarSettingsBtn.addEventListener('click', function() {
+        var modal2 = document.getElementById("settingsModal");
+        if(modal2) {
+            modal2.style.display = "block";
+        }
+    });
     
     // Apple Amount selector
     var appleSelector = document.createElement('div');
@@ -658,6 +809,13 @@ function generateTableSelector(){
     var optionsButtonGroup = document.createElement('div');
     optionsButtonGroup.setAttribute('class', 'button-group');
     
+    var darkModeToggle = document.createElement('button');
+    darkModeToggle.setAttribute('class', 'dark-mode-toggle');
+    darkModeToggle.innerHTML = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+    darkModeToggle.onclick = toggleDarkMode;
+    darkModeToggle.setAttribute('title', isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode');
+    optionsButtonGroup.appendChild(darkModeToggle);
+    
     var refreshButton = document.createElement('button');
     refreshButton.setAttribute('class', 'table-option-btn refresh-btn');
     refreshButton.innerHTML = '🔄 Refresh';
@@ -731,23 +889,6 @@ function generateTableSelector(){
         existingSidebar.remove();
     }
     document.body.insertBefore(sidebar, document.querySelector('.container'));
-    
-    // Add event listeners for sidebar buttons
-    var sidebarInfoBtn = document.getElementById('sidebarInfoBtn');
-    if(sidebarInfoBtn) {
-        sidebarInfoBtn.onclick = function() {
-            var modal = document.getElementById("infoModal");
-            if(modal) modal.style.display = "block";
-        }
-    }
-    
-    var sidebarSettingsBtn = document.getElementById('sidebarSettingsBtn');
-    if(sidebarSettingsBtn) {
-        sidebarSettingsBtn.onclick = function() {
-            var modal = document.getElementById("settingsModal");
-            if(modal) modal.style.display = "block";
-        }
-    }
 }
 
 function updateTableSelector(){
@@ -906,7 +1047,7 @@ function generateRanglist(){
 
                 // Count column
                 td = document.createElement('td');
-                td.setAttribute('class','ranglist-count-cell result');
+                td.setAttribute('class','ranglist-count-cell percentage result');
                 td.appendChild(document.createTextNode(ranglist[id][0]));
                 row.appendChild(td);
 
@@ -942,6 +1083,7 @@ function generateRanglist(){
     // Create a wrapper for the ranglist table
     var ranglistWrapper = document.createElement('div');
     ranglistWrapper.setAttribute('class', 'table-wrapper ranglist-wrapper');
+    ranglistWrapper.style.gridArea = 'ranglist'; // Ensure grid area is set
     ranglistWrapper.appendChild(table);
     
     // Add the "more runners" button after the table if it exists
@@ -1009,11 +1151,19 @@ function generateMultipleTables(){
             }
         }
         
+        // Create a container for multiple tables
+        var multipleTablesContainer = document.createElement('div');
+        multipleTablesContainer.setAttribute('class', 'multiple-tables-container');
+        multipleTablesContainer.style.gridArea = 'main';
+        
         // Generate a table for each combination
         for(var i = 0; i < selectedCombinations.length; i++) {
             var combo = selectedCombinations[i];
-            generateLeaderboard(combo);
+            generateLeaderboardForMultiple(combo, multipleTablesContainer);
         }
+        
+        // Add the multiple tables container to the main container
+        document.getElementsByClassName("container")[0].appendChild(multipleTablesContainer);
         
         // Also generate the ranglist (summary table)
         calculateRanglist();
