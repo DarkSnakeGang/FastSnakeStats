@@ -36,9 +36,6 @@ function initializeSimpleMobileUI() {
     // Setup mobile navigation
     setupMobileNavigation();
     
-    // Setup mobile dark mode button
-    setupMobileDarkModeButton();
-    
     // Wait for desktop system to be ready, then show initial section
     waitForDesktopSystem();
     
@@ -142,34 +139,7 @@ function setupMobileNavigation() {
     console.log('Mobile navigation setup complete');
 }
 
-// Setup mobile dark mode button
-function setupMobileDarkModeButton() {
-    const darkModeBtn = document.getElementById('mobileDarkModeBtn');
-    if (darkModeBtn) {
-        // Set initial state
-        updateMobileDarkModeButton();
-        
-        // Add click event
-        darkModeBtn.addEventListener('click', function() {
-            toggleDarkMode();
-            updateMobileDarkModeButton();
-        });
-    }
-}
 
-// Update mobile dark mode button appearance
-function updateMobileDarkModeButton() {
-    const darkModeBtn = document.getElementById('mobileDarkModeBtn');
-    if (darkModeBtn) {
-        if (isDarkMode) {
-            darkModeBtn.textContent = '☀️';
-            darkModeBtn.title = 'Switch to Light Mode';
-        } else {
-            darkModeBtn.textContent = '🌙';
-            darkModeBtn.title = 'Switch to Dark Mode';
-        }
-    }
-}
 
 // Switch basic mobile section
 function switchBasicMobileSection(section) {
@@ -203,6 +173,12 @@ function switchBasicMobileSection(section) {
             break;
         case 'summary':
             showBasicMobileSummarySection();
+            // Refresh summary when switching to summary to ensure latest data is shown
+            setTimeout(() => {
+                if (mobileState.currentSection === 'summary') {
+                    loadMobileSummaryData();
+                }
+            }, 200);
             break;
         default:
             console.log('Unknown mobile section:', section);
@@ -306,11 +282,18 @@ function setupMobileRecordsEventListeners() {
                 // Call the refresh function and wait for it to complete
                 await refreshWorldRecordsForSettings();
                 
-                // Wait a bit for the desktop table to be generated
-                setTimeout(() => {
-                    // Load the mobile table data after refresh is complete
-                    loadMobileTableData();
-                }, 100);
+                            // Wait a bit for the desktop table to be generated
+            setTimeout(() => {
+                // Load the mobile table data after refresh is complete
+                loadMobileTableData();
+                
+                // Also refresh the summary table if we're on the summary tab
+                if (mobileState.currentSection === 'summary') {
+                    setTimeout(() => {
+                        loadMobileSummaryData();
+                    }, 200);
+                }
+            }, 100);
                 
             } catch (error) {
                 console.error('Error refreshing mobile table:', error);
@@ -584,97 +567,84 @@ function initializeMobileRunAndGameModes() {
     }
 }
 
-// Generate mobile category checkboxes
+// Generate mobile category icon buttons
 function generateMobileCategoryCheckboxes() {
     let html = '';
     
     // Apple Amounts
     html += '<div class="mobile-category-section">';
     html += '<h4 class="mobile-category-title">Apple Amounts</h4>';
+    html += '<div class="mobile-button-group">';
     for (const [key, value] of Object.entries(appleAmounts)) {
-        const isChecked = isMultipleTablesEnabled ? value.visible : (currentTableSettings[0] === key);
+        const isActive = isMultipleTablesEnabled ? value.visible : (currentTableSettings[0] === key);
         html += `
-            <div class="mobile-checkbox-group">
-                <input type="checkbox" id="mobile_${value.id}" class="mobile-checkbox" ${isChecked ? 'checked' : ''}>
-                <label for="mobile_${value.id}" class="mobile-checkbox-label">
-                    <img src="${value.icon}" alt="${key}" class="mobile-category-icon">
-                    ${key}
-                </label>
-            </div>
+            <button class="mobile-table-option-btn ${isActive ? 'active' : ''}" data-setting="${key}" data-type="apple">
+                <img src="${value.icon}" alt="${key}" class="mobile-category-icon">
+            </button>
         `;
     }
-    html += '</div>';
+    html += '</div></div>';
 
     // Speeds
     html += '<div class="mobile-category-section">';
     html += '<h4 class="mobile-category-title">Speeds</h4>';
+    html += '<div class="mobile-button-group">';
     for (const [key, value] of Object.entries(speeds)) {
-        const isChecked = isMultipleTablesEnabled ? value.visible : (currentTableSettings[1] === key);
+        const isActive = isMultipleTablesEnabled ? value.visible : (currentTableSettings[1] === key);
         html += `
-            <div class="mobile-checkbox-group">
-                <input type="checkbox" id="mobile_${value.id}" class="mobile-checkbox" ${isChecked ? 'checked' : ''}>
-                <label for="mobile_${value.id}" class="mobile-checkbox-label">
-                    <img src="${value.icon}" alt="${key}" class="mobile-category-icon">
-                    ${key}
-                </label>
-            </div>
+            <button class="mobile-table-option-btn ${isActive ? 'active' : ''}" data-setting="${key}" data-type="speed">
+                <img src="${value.icon}" alt="${key}" class="mobile-category-icon">
+            </button>
         `;
     }
-    html += '</div>';
+    html += '</div></div>';
 
     // Sizes
     html += '<div class="mobile-category-section">';
     html += '<h4 class="mobile-category-title">Sizes</h4>';
+    html += '<div class="mobile-button-group">';
     for (const [key, value] of Object.entries(sizes)) {
-        const isChecked = isMultipleTablesEnabled ? value.visible : (currentTableSettings[2] === key);
+        const isActive = isMultipleTablesEnabled ? value.visible : (currentTableSettings[2] === key);
         html += `
-            <div class="mobile-checkbox-group">
-                <input type="checkbox" id="mobile_${value.id}" class="mobile-checkbox" ${isChecked ? 'checked' : ''}>
-                <label for="mobile_${value.id}" class="mobile-checkbox-label">
-                    <img src="${value.icon}" alt="${key}" class="mobile-category-icon">
-                    ${key}
-                </label>
-            </div>
+            <button class="mobile-table-option-btn ${isActive ? 'active' : ''}" data-setting="${key}" data-type="size">
+                <img src="${value.icon}" alt="${key}" class="mobile-category-icon">
+            </button>
         `;
     }
-    html += '</div>';
+    html += '</div></div>';
 
     // Game Modes
     html += '<div class="mobile-category-section">';
     html += '<h4 class="mobile-category-title">Game Modes</h4>';
+    html += '<div class="mobile-button-group">';
     for (const [key, value] of Object.entries(gamemodes)) {
         // Game modes are always toggle behavior (always use value.visible)
-        const isChecked = value.visible;
+        const isActive = value.visible;
         html += `
-            <div class="mobile-checkbox-group">
-                <input type="checkbox" id="mobile_${value.id}" class="mobile-checkbox" ${isChecked ? 'checked' : ''}>
-                <label for="mobile_${value.id}" class="mobile-checkbox-label">
-                    <img src="${value.icon}" alt="${key}" class="mobile-category-icon">
-                    ${key}
-                </label>
-            </div>
+            <button class="mobile-table-option-btn ${isActive ? 'active' : ''}" data-setting="${key}" data-type="gamemode">
+                <img src="${value.icon}" alt="${key}" class="mobile-category-icon">
+            </button>
         `;
     }
-    html += '</div>';
+    html += '</div></div>';
 
     return html;
 }
 
-// Generate mobile run mode checkboxes
+// Generate mobile run mode icon buttons
 function generateMobileRunModeCheckboxes() {
     let html = '';
+    html += '<div class="mobile-button-group">';
     for (const [key, value] of Object.entries(runModes)) {
         // Run modes are always toggle behavior and start all selected
-        const isChecked = value.visible;
+        const isActive = value.visible;
         html += `
-            <div class="mobile-checkbox-group">
-                <input type="checkbox" id="mobile_${value.id}" class="mobile-checkbox" ${isChecked ? 'checked' : ''}>
-                <label for="mobile_${value.id}" class="mobile-checkbox-label">
-                    ${value.text}
-                </label>
-            </div>
+            <button class="mobile-table-option-btn ${isActive ? 'active' : ''}" data-setting="${key}" data-type="runmode">
+                ${value.text}
+            </button>
         `;
     }
+    html += '</div>';
     return html;
 }
 
@@ -763,8 +733,8 @@ function setupMobileOptionsListeners() {
                 this.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
             }
             
-            // Update checkbox states to reflect new radio/toggle behavior
-            updateMobileCheckboxStates();
+            // Update button states to reflect new radio/toggle behavior
+            updateMobileButtonStates();
         });
     }
 }
@@ -774,109 +744,54 @@ function setupMobileDataListeners() {
     // Data listeners are now handled in setupMobileRecordsEventListeners
 }
 
-// Setup mobile checkbox listeners
+// Setup mobile icon button listeners
 function setupMobileCheckboxListeners() {
-    // Apple Amounts
-    for (const [key, value] of Object.entries(appleAmounts)) {
-        const checkbox = document.getElementById(`mobile_${value.id}`);
-        if (checkbox) {
-            checkbox.addEventListener('change', function() {
+    // Add click listeners to all mobile table option buttons
+    const buttons = document.querySelectorAll('.mobile-table-option-btn');
+    buttons.forEach(button => {
+        button.addEventListener('click', function() {
+            if (isLoading) return; // Prevent clicks while loading
+            
+            const setting = this.getAttribute('data-setting');
+            const type = this.getAttribute('data-type');
+            
+            if (type === 'apple') {
                 if (isMultipleTablesEnabled) {
                     // Toggle behavior: toggle the visible state
-                    appleAmounts[key].visible = this.checked;
+                    appleAmounts[setting].visible = !appleAmounts[setting].visible;
                 } else {
                     // Radio behavior: set only this one as active
-                    currentTableSettings[0] = key;
-                    // Uncheck all other apple amounts
-                    for (const [otherKey, otherValue] of Object.entries(appleAmounts)) {
-                        if (otherKey !== key) {
-                            const otherCheckbox = document.getElementById(`mobile_${otherValue.id}`);
-                            if (otherCheckbox) {
-                                otherCheckbox.checked = false;
-                            }
-                        }
-                    }
+                    currentTableSettings[0] = setting;
                 }
-                saveSettings();
-            });
-        }
-    }
-
-    // Speeds
-    for (const [key, value] of Object.entries(speeds)) {
-        const checkbox = document.getElementById(`mobile_${value.id}`);
-        if (checkbox) {
-            checkbox.addEventListener('change', function() {
+            } else if (type === 'speed') {
                 if (isMultipleTablesEnabled) {
                     // Toggle behavior: toggle the visible state
-                    speeds[key].visible = this.checked;
+                    speeds[setting].visible = !speeds[setting].visible;
                 } else {
                     // Radio behavior: set only this one as active
-                    currentTableSettings[1] = key;
-                    // Uncheck all other speeds
-                    for (const [otherKey, otherValue] of Object.entries(speeds)) {
-                        if (otherKey !== key) {
-                            const otherCheckbox = document.getElementById(`mobile_${otherValue.id}`);
-                            if (otherCheckbox) {
-                                otherCheckbox.checked = false;
-                            }
-                        }
-                    }
+                    currentTableSettings[1] = setting;
                 }
-                saveSettings();
-            });
-        }
-    }
-
-    // Sizes
-    for (const [key, value] of Object.entries(sizes)) {
-        const checkbox = document.getElementById(`mobile_${value.id}`);
-        if (checkbox) {
-            checkbox.addEventListener('change', function() {
+            } else if (type === 'size') {
                 if (isMultipleTablesEnabled) {
                     // Toggle behavior: toggle the visible state
-                    sizes[key].visible = this.checked;
+                    sizes[setting].visible = !sizes[setting].visible;
                 } else {
                     // Radio behavior: set only this one as active
-                    currentTableSettings[2] = key;
-                    // Uncheck all other sizes
-                    for (const [otherKey, otherValue] of Object.entries(sizes)) {
-                        if (otherKey !== key) {
-                            const otherCheckbox = document.getElementById(`mobile_${otherValue.id}`);
-                            if (otherCheckbox) {
-                                otherCheckbox.checked = false;
-                            }
-                        }
-                    }
+                    currentTableSettings[2] = setting;
                 }
-                saveSettings();
-            });
-        }
-    }
-
-    // Game Modes
-    for (const [key, value] of Object.entries(gamemodes)) {
-        const checkbox = document.getElementById(`mobile_${value.id}`);
-        if (checkbox) {
-            checkbox.addEventListener('change', function() {
+            } else if (type === 'gamemode') {
                 // Game modes are always toggle behavior
-                gamemodes[key].visible = this.checked;
-                saveSettings();
-            });
-        }
-    }
-
-    // Run Modes
-    for (const [key, value] of Object.entries(runModes)) {
-        const checkbox = document.getElementById(`mobile_${value.id}`);
-        if (checkbox) {
-            checkbox.addEventListener('change', function() {
+                gamemodes[setting].visible = !gamemodes[setting].visible;
+            } else if (type === 'runmode') {
                 // Run modes are always toggle behavior
-                runModes[key].visible = this.checked;
-                saveSettings();
-            });
-        }
-    }
+                runModes[setting].visible = !runModes[setting].visible;
+            }
+            
+            saveSettings();
+            // Update button states immediately
+            updateMobileButtonStates();
+        });
+    });
 }
 
 // Save mobile settings
@@ -896,85 +811,93 @@ function refreshMobileTableAfterSettingsChange() {
     }
 }
 
-// Update mobile checkbox states to reflect radio/toggle behavior
-function updateMobileCheckboxStates() {
+// Update mobile button states to reflect radio/toggle behavior
+function updateMobileButtonStates() {
     // Apple Amounts
     for (const [key, value] of Object.entries(appleAmounts)) {
-        const checkbox = document.getElementById(`mobile_${value.id}`);
-        if (checkbox) {
-            const isChecked = isMultipleTablesEnabled ? value.visible : (currentTableSettings[0] === key);
-            checkbox.checked = isChecked;
+        const button = document.querySelector(`.mobile-table-option-btn[data-setting="${key}"][data-type="apple"]`);
+        if (button) {
+            const isActive = isMultipleTablesEnabled ? value.visible : (currentTableSettings[0] === key);
+            if (isActive) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
         }
     }
 
     // Speeds
     for (const [key, value] of Object.entries(speeds)) {
-        const checkbox = document.getElementById(`mobile_${value.id}`);
-        if (checkbox) {
-            const isChecked = isMultipleTablesEnabled ? value.visible : (currentTableSettings[1] === key);
-            checkbox.checked = isChecked;
+        const button = document.querySelector(`.mobile-table-option-btn[data-setting="${key}"][data-type="speed"]`);
+        if (button) {
+            const isActive = isMultipleTablesEnabled ? value.visible : (currentTableSettings[1] === key);
+            if (isActive) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
         }
     }
 
     // Sizes
     for (const [key, value] of Object.entries(sizes)) {
-        const checkbox = document.getElementById(`mobile_${value.id}`);
-        if (checkbox) {
-            const isChecked = isMultipleTablesEnabled ? value.visible : (currentTableSettings[2] === key);
-            checkbox.checked = isChecked;
+        const button = document.querySelector(`.mobile-table-option-btn[data-setting="${key}"][data-type="size"]`);
+        if (button) {
+            const isActive = isMultipleTablesEnabled ? value.visible : (currentTableSettings[2] === key);
+            if (isActive) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
         }
     }
 
     // Game Modes
     for (const [key, value] of Object.entries(gamemodes)) {
-        const checkbox = document.getElementById(`mobile_${value.id}`);
-        if (checkbox) {
-            // Game modes are always toggle behavior
-            checkbox.checked = value.visible;
+        const button = document.querySelector(`.mobile-table-option-btn[data-setting="${key}"][data-type="gamemode"]`);
+        if (button) {
+            if (value.visible) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
         }
     }
 
     // Run Modes
     for (const [key, value] of Object.entries(runModes)) {
-        const checkbox = document.getElementById(`mobile_${value.id}`);
-        if (checkbox) {
-            // Run modes are always toggle behavior
-            checkbox.checked = value.visible;
+        const button = document.querySelector(`.mobile-table-option-btn[data-setting="${key}"][data-type="runmode"]`);
+        if (button) {
+            if (value.visible) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
         }
     }
 }
 
 // Reset mobile settings to default
 function resetMobileSettings() {
-    // Reset all checkboxes to checked (visible)
+    // Reset all buttons to active (visible)
     for (const [key, value] of Object.entries(appleAmounts)) {
         value.visible = true;
-        const checkbox = document.getElementById(`mobile_${value.id}`);
-        if (checkbox) checkbox.checked = true;
     }
 
     for (const [key, value] of Object.entries(speeds)) {
         value.visible = true;
-        const checkbox = document.getElementById(`mobile_${value.id}`);
-        if (checkbox) checkbox.checked = true;
     }
 
     for (const [key, value] of Object.entries(sizes)) {
         value.visible = true;
-        const checkbox = document.getElementById(`mobile_${value.id}`);
-        if (checkbox) checkbox.checked = true;
     }
 
     for (const [key, value] of Object.entries(gamemodes)) {
         value.visible = true;
-        const checkbox = document.getElementById(`mobile_${value.id}`);
-        if (checkbox) checkbox.checked = true;
     }
 
     for (const [key, value] of Object.entries(runModes)) {
         value.visible = true;
-        const checkbox = document.getElementById(`mobile_${value.id}`);
-        if (checkbox) checkbox.checked = true;
     }
 
     // Clear date picker
@@ -987,6 +910,9 @@ function resetMobileSettings() {
 
     // Save settings
     saveSettings();
+    
+    // Update button states to reflect the reset
+    updateMobileButtonStates();
     
     // Show success message
     const resetButton = document.getElementById('mobileSettingsReset');
@@ -1003,25 +929,123 @@ function showBasicMobileSummarySection() {
     const mobileTablesContainer = document.getElementById('mobileTablesContainer');
     if (!mobileTablesContainer) return;
 
-        mobileTablesContainer.innerHTML = `
-            <div class="mobile-card">
-                <div class="mobile-card-header">
-                    <h2 class="mobile-card-title">Summary</h2>
+    mobileTablesContainer.innerHTML = `
+        <div class="mobile-card">
+            <div class="mobile-card-header">
+                <h2 class="mobile-card-title">Summary</h2>
+            </div>
+        </div>
+        
+        <!-- Mobile Summary Table Container -->
+        <div id="mobileSummaryContent" class="mobile-table-content">
+            <div class="mobile-loading">
+                <p>Loading summary...</p>
+            </div>
+        </div>
+    `;
+
+    // Load the summary table data
+    setTimeout(() => {
+        loadMobileSummaryData();
+    }, 100);
+}
+
+// Load mobile summary table data
+function loadMobileSummaryData() {
+    const mobileSummaryContent = document.getElementById('mobileSummaryContent');
+    if (!mobileSummaryContent) return;
+
+    console.log('loadMobileSummaryData: Starting summary load');
+    console.log('worldRecords available:', typeof worldRecords !== 'undefined' && Object.keys(worldRecords).length > 0);
+    console.log('ranglist available:', typeof ranglist !== 'undefined' && ranglist.length > 0);
+
+    // Check if we have world records data first
+    if (typeof worldRecords !== 'undefined' && Object.keys(worldRecords).length > 0) {
+        console.log('World records data available, generating summary table...');
+        
+        // Create a mobile-specific wrapper for the summary table
+        const summaryWrapper = document.createElement('div');
+        summaryWrapper.setAttribute('class', 'mobile-summary-wrapper');
+        mobileSummaryContent.innerHTML = '';
+        mobileSummaryContent.appendChild(summaryWrapper);
+        
+        // Call the same functions desktop uses for summary table
+        if (typeof calculateRanglist === 'function' && typeof generateRanglist === 'function') {
+            console.log('Calling calculateRanglist...');
+            calculateRanglist();
+            
+            console.log('Ranglist calculated:', ranglist);
+            console.log('Ranglist keys:', Object.keys(ranglist));
+            console.log('Ranglist entries count:', Object.keys(ranglist).length);
+            
+            if (Object.keys(ranglist).length > 0) {
+                console.log('Generating ranglist table...');
+                generateRanglist();
+                
+                // Find the generated ranglist element
+                const ranglistElement = document.querySelector('.ranglist-wrapper');
+                console.log('Found ranglist element:', ranglistElement);
+                
+                if (ranglistElement) {
+                    // Clone the content and move it to mobile
+                    const clonedContent = ranglistElement.cloneNode(true);
+                    summaryWrapper.appendChild(clonedContent);
+                    
+                    // Fix the "more runners" button in the cloned content
+                    const moreButton = clonedContent.querySelector('#morebutton');
+                    if (moreButton) {
+                        console.log('Found more button, adding mobile event listener');
+                        moreButton.addEventListener('click', () => {
+                            console.log('More button clicked, showing all runners');
+                            // Show all hidden rows in this specific table
+                            const hiddenRows = clonedContent.querySelectorAll('.ranglistRow[style*="display:none"]');
+                            hiddenRows.forEach(row => {
+                                row.style.display = '';
+                            });
+                            // Hide the button
+                            moreButton.style.display = 'none';
+                        });
+                    }
+                    
+                    // Remove the original from desktop (since we cloned it)
+                    ranglistElement.remove();
+                    
+                    console.log('Summary table loaded successfully');
+                } else {
+                    console.log('ERROR: Could not find .ranglist-wrapper after generation');
+                    mobileSummaryContent.innerHTML = `
+                        <div class="mobile-loading">
+                            <p>Error: Could not generate summary table</p>
+                        </div>
+                    `;
+                }
+            } else {
+                console.log('No ranglist data after calculation');
+                mobileSummaryContent.innerHTML = `
+                    <div class="mobile-loading">
+                        <p>No summary data available for current settings.</p>
+                        <p>Try adjusting your category selections in Settings.</p>
+                    </div>
+                `;
+            }
+        } else {
+            console.log('ERROR: calculateRanglist or generateRanglist functions not found');
+            mobileSummaryContent.innerHTML = `
+                <div class="mobile-loading">
+                    <p>Error: Summary functions not available</p>
                 </div>
-                <div class="mobile-empty">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="8" y1="6" x2="21" y2="6"></line>
-                    <line x1="8" y1="12" x2="21" y2="12"></line>
-                    <line x1="8" y1="18" x2="21" y2="18"></line>
-                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                    </svg>
-                <p>Mobile Summary Section</p>
-                <p>This will be implemented to show desktop summary</p>
-                                    </div>
-                                </div>
-                            `;
+            `;
+        }
+    } else {
+        console.log('No world records data available, showing message to load records first');
+        // Show message to load records first
+        mobileSummaryContent.innerHTML = `
+            <div class="mobile-loading">
+                <p>No world records loaded yet.</p>
+                <p>Go to Records tab and click "Refresh" to load data first.</p>
+            </div>
+        `;
+    }
 }
 
 // Helper function to get ordinal suffix
@@ -1046,6 +1070,7 @@ window.mobileUI = {
     switchBasicMobileSection,
     showBasicMobileSettingsSection,
     showBasicMobileRecordsSection,
-    showBasicMobileSummarySection
+    showBasicMobileSummarySection,
+    loadMobileSummaryData
 };
 
