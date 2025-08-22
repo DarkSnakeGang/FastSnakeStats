@@ -1,0 +1,2177 @@
+/* ======================================== */
+/* MOBILE CSS - EXTRACTED FROM STYLE.CSS */
+/* ======================================== */
+
+/* Mobile-specific variables */
+@media (max-width: 1023px) {
+	:root {
+		--mobile-primary: #0d6efd;
+		--mobile-secondary: #6c757d;
+		--mobile-surface: rgba(255, 255, 255, 0.95);
+		--mobile-text: #333;
+		--mobile-border: rgba(0, 0, 0, 0.1);
+		--mobile-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+		--mobile-radius: 16px;
+		--mobile-spacing: 16px;
+	}
+
+	body.dark-mode {
+		--mobile-surface: rgba(40, 40, 40, 0.95);
+		--mobile-text: #ffffff;
+		--mobile-border: rgba(255, 255, 255, 0.1);
+		--mobile-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+	}
+
+	/* Dark mode mobile settings overrides */
+	body.dark-mode .mobile-form-input {
+		background: rgba(255, 255, 255, 0.1);
+		color: #ffffff;
+		border-color: rgba(255, 255, 255, 0.2);
+	}
+
+	body.dark-mode .mobile-form-input:focus {
+		background: rgba(255, 255, 255, 0.15);
+		border-color: var(--mobile-primary);
+	}
+
+	body.dark-mode .mobile-category-section {
+		background: rgba(255, 255, 255, 0.1);
+		border-color: rgba(255, 255, 255, 0.2);
+	}
+
+	body.dark-mode .mobile-checkbox-group {
+		background: rgba(255, 255, 255, 0.05);
+	}
+
+	body.dark-mode .mobile-checkbox-group:hover {
+		background: rgba(255, 255, 255, 0.1);
+	}
+
+	/* Dark mode mobile header */
+	body.dark-mode .mobile-header {
+		background: rgba(0, 0, 0, 0.25);
+		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
+	/* Dark mode mobile card and table overrides */
+	body.dark-mode .mobile-card {
+		background: rgba(255, 255, 255, 0.1);
+		border-color: rgba(255, 255, 255, 0.2);
+	}
+
+	body.dark-mode .mobile-mode-btn {
+		background: rgba(255, 255, 255, 0.1);
+		border-color: rgba(255, 255, 255, 0.2);
+	}
+
+	body.dark-mode .mobile-mode-btn .mode-label {
+		background: rgba(255, 255, 255, 0.1);
+	}
+
+	body.dark-mode .mobile-table-container {
+		background: rgba(255, 255, 255, 0.1);
+		border-color: rgba(255, 255, 255, 0.2);
+	}
+
+	/* Dark mode mobile options and data sections */
+	body.dark-mode .mobile-option-btn {
+		background: rgba(255, 255, 255, 0.1);
+		border-color: rgba(255, 255, 255, 0.2);
+	}
+
+	body.dark-mode .mobile-data-info {
+		background: rgba(255, 255, 255, 0.1);
+		border-color: rgba(255, 255, 255, 0.2);
+	}
+
+	/* Hide all desktop elements on mobile */
+	.table-selector,
+	.dark-mode-toggle,
+	.modal-button,
+	.modal-button2,
+	.container,
+	h1:not(.mobile-header h1) {
+		display: none !important;
+	}
+
+	/* Ensure mobile header h1 is visible */
+	.mobile-header h1 {
+		display: block !important;
+	}
+
+	/* Ensure mobile elements are shown on mobile */
+	.mobile-header,
+	.mobile-main,
+	.mobile-nav {
+		display: block !important;
+	}
+
+	/* Mobile base styles */
+	body {
+		margin: 0;
+		padding: 0;
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		overflow-x: hidden;
+		-webkit-text-size-adjust: 100%;
+		-ms-text-size-adjust: 100%;
+	}
+
+	/* Mobile Header */
+	.mobile-header {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		background: rgba(0, 0, 0, 0.1);
+		backdrop-filter: blur(15px);
+		border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+		z-index: 1000;
+		padding: 15px 20px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.mobile-header-content {
+		display: flex;
+		align-items: center;
+		gap: 15px;
+	}
+
+	.mobile-header-icon {
+		width: 40px;
+		height: 40px;
+		object-fit: contain;
+	}
+
+	.mobile-header h1 {
+		color: var(--title-color);
+		font-size: 28px;
+		margin: 0;
+		text-shadow: 2px 2px 4px var(--shadow);
+	}
+
+	/* Mobile Dark Mode Button */
+	.mobile-dark-mode-btn {
+		width: 40px;
+		height: 40px;
+		border-radius: 12px;
+		border: none;
+		background: transparent;
+		color: var(--mobile-text);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		-webkit-tap-highlight-color: transparent;
+		font-size: 18px;
+		font-weight: 600;
+		box-shadow: none;
+	}
+
+	.mobile-dark-mode-btn:hover {
+		transform: translateY(-2px);
+		background: rgba(0, 0, 0, 0.1);
+	}
+
+	.mobile-header-actions {
+		display: flex;
+		gap: 12px;
+		align-items: center;
+	}
+
+	.mobile-header-btn {
+		width: 44px;
+		height: 44px;
+		border-radius: 12px;
+		border: none;
+		background: var(--mobile-primary);
+		color: white;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		box-shadow: 0 2px 8px rgba(77, 193, 249, 0.3);
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.mobile-header-btn:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(77, 193, 249, 0.4);
+	}
+
+	.mobile-header-btn svg {
+		width: 20px;
+		height: 20px;
+	}
+
+	/* Mobile Navigation */
+	.mobile-nav {
+		position: fixed !important;
+		bottom: 0 !important;
+		left: 0 !important;
+		right: 0 !important;
+		z-index: 1000 !important;
+		background: var(--mobile-surface) !important;
+		backdrop-filter: blur(20px) !important;
+		border-top: 1px solid var(--mobile-border) !important;
+		padding: 8px 4px calc(8px + env(safe-area-inset-bottom)) !important;
+		display: flex !important;
+		flex-direction: row !important;
+		justify-content: space-around !important;
+		align-items: center !important;
+		box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1) !important;
+		width: 100% !important;
+	}
+
+	.mobile-nav-item {
+		display: flex !important;
+		flex-direction: row !important;
+		align-items: center !important;
+		gap: 2px !important;
+		padding: 4px 6px !important;
+		border-radius: 6px !important;
+		cursor: pointer !important;
+		transition: all 0.2s ease !important;
+		color: var(--mobile-text) !important;
+		text-decoration: none !important;
+		min-width: 40px !important;
+		justify-content: center !important;
+		-webkit-tap-highlight-color: transparent !important;
+		font-size: 16px !important;
+		font-weight: 600 !important;
+		flex: 1 !important;
+		max-width: 80px !important;
+	}
+
+	.mobile-nav-item.active {
+		background: var(--mobile-primary);
+		color: white !important;
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+	}
+
+	.mobile-nav-item:hover {
+		background: rgba(13, 110, 253, 0.1);
+		transform: translateY(-1px);
+	}
+
+	.mobile-nav-item.active:hover {
+		background: var(--mobile-primary);
+		color: white !important;
+		transform: translateY(-2px);
+	}
+
+	.mobile-nav-item svg {
+		display: none;
+	}
+
+	.mobile-nav-item span {
+		font-size: 18px;
+		font-weight: 600;
+	}
+
+	/* Mobile Main Content */
+	.mobile-main {
+		margin-top: 80px;
+		margin-bottom: 100px;
+		padding: var(--mobile-spacing);
+		min-height: calc(100vh - 180px);
+	}
+
+	/* Mobile Card Design */
+	.mobile-card {
+		background: rgba(0, 0, 0, 0.1);
+		border-radius: var(--mobile-radius);
+		padding: var(--mobile-spacing);
+		margin-bottom: var(--mobile-spacing);
+		box-shadow: var(--mobile-shadow);
+		border: 1px solid var(--mobile-border);
+		backdrop-filter: blur(20px);
+	}
+
+	.mobile-card-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 16px;
+	}
+
+	.mobile-card-title {
+		font-size: 18px;
+		font-weight: 700;
+		color: var(--mobile-text);
+		margin: 0;
+	}
+
+	.mobile-card-action {
+		background: var(--mobile-primary);
+		color: white;
+		border: none;
+		border-radius: 8px;
+		padding: 8px 12px;
+		font-size: 14px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.mobile-card-action:hover {
+		background: var(--button-hover);
+		transform: translateY(-1px);
+	}
+
+	/* Mobile Game Mode Selector */
+	.mobile-mode-selector {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+		gap: 12px;
+		margin-bottom: var(--mobile-spacing);
+	}
+
+	.mobile-mode-btn {
+		aspect-ratio: 1;
+		border-radius: 16px;
+		border: 2px solid var(--mobile-border);
+		background: rgba(0, 0, 0, 0.1);
+		cursor: pointer;
+		transition: all 0.2s ease;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		position: relative;
+		overflow: hidden;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.mobile-mode-btn.active {
+		border-color: var(--mobile-primary);
+		background: var(--mobile-primary);
+		transform: scale(1.05);
+		box-shadow: 0 4px 12px rgba(77, 193, 249, 0.3);
+	}
+
+	.mobile-mode-btn img {
+		width: 60%;
+		height: 60%;
+		object-fit: contain;
+	}
+
+	.mobile-mode-btn .mode-label {
+		position: absolute;
+		bottom: 4px;
+		left: 50%;
+		transform: translateX(-50%);
+		font-size: 10px;
+		font-weight: 600;
+		color: var(--mobile-text);
+		background: rgba(0, 0, 0, 0.1);
+		padding: 2px 6px;
+		border-radius: 4px;
+		white-space: nowrap;
+	}
+
+	.mobile-mode-btn.active .mode-label {
+		color: white;
+		background: var(--mobile-primary);
+	}
+
+	/* Mobile Table Container */
+	.mobile-table-container {
+		overflow-x: auto;
+		border-radius: var(--mobile-radius);
+		background: rgba(0, 0, 0, 0.1);
+		box-shadow: var(--mobile-shadow);
+		margin-bottom: var(--mobile-spacing);
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.mobile-table {
+		width: 100%;
+		min-width: 600px;
+		border-collapse: collapse;
+		font-size: 14px;
+	}
+
+	.mobile-table thead {
+		background: linear-gradient(135deg, var(--mobile-primary), var(--button-hover));
+		color: white;
+		position: sticky;
+		top: 0;
+		z-index: 10;
+	}
+
+	.mobile-table th {
+		padding: 12px 8px;
+		text-align: center;
+		font-weight: 600;
+		font-size: 12px;
+		border-bottom: 2px solid var(--mobile-primary);
+	}
+
+	.mobile-table td {
+		padding: 8px;
+		text-align: center;
+		border-bottom: 1px solid var(--mobile-border);
+		vertical-align: middle;
+	}
+
+	.mobile-table tbody tr:hover {
+		background: rgba(77, 193, 249, 0.1);
+	}
+
+	.mobile-table img {
+		width: 24px;
+		height: 24px;
+		vertical-align: middle;
+		margin-right: 4px;
+	}
+
+	/* Mobile Result Cell */
+	.mobile-result {
+		background: var(--mobile-primary);
+		color: white;
+		border-radius: 8px;
+		padding: 8px;
+		font-weight: 600;
+		font-size: 12px;
+		text-align: center;
+	}
+
+	.mobile-result a {
+		color: white;
+		text-decoration: none;
+		display: block;
+	}
+
+	/* Mobile Time Display */
+	.mobile-time {
+		font-size: 16px;
+		font-weight: 700;
+		color: var(--mobile-text);
+		margin-bottom: 4px;
+	}
+
+	.mobile-name {
+		font-size: 12px;
+		color: var(--mobile-text);
+		opacity: 0.8;
+	}
+
+	.mobile-percentage {
+		font-size: 14px;
+		font-weight: 600;
+		color: var(--mobile-secondary);
+	}
+
+
+
+	/* Mobile Settings Content */
+	.mobile-settings-content {
+		padding: 16px 0;
+	}
+
+	.mobile-form-group {
+		margin-bottom: 24px;
+	}
+
+	.mobile-form-label {
+		display: block;
+		font-size: 16px;
+		font-weight: 600;
+		color: var(--mobile-text);
+		margin-bottom: 12px;
+	}
+
+	.mobile-form-input {
+		width: 100%;
+		padding: 12px 16px;
+		border: 2px solid var(--mobile-border);
+		border-radius: 12px;
+		background: rgba(0, 0, 0, 0.1);
+		color: var(--mobile-text);
+		font-size: 16px;
+		transition: all 0.2s ease;
+		box-sizing: border-box;
+	}
+
+	.mobile-form-input:focus {
+		outline: none;
+		border-color: var(--mobile-primary);
+		box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+		background: rgba(0, 0, 0, 0.15);
+	}
+
+	/* Mobile Category Grid */
+	.mobile-category-grid {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+
+	.mobile-category-section {
+		background: rgba(0, 0, 0, 0.1);
+		border-radius: 12px;
+		padding: 16px;
+		border: 1px solid var(--mobile-border);
+	}
+
+	.mobile-category-title {
+		font-size: 18px;
+		font-weight: 700;
+		color: var(--mobile-text);
+		margin: 0 0 16px 0;
+		text-align: center;
+	}
+
+	/* Mobile Checkbox Groups */
+	.mobile-checkbox-group {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		margin-bottom: 12px;
+		padding: 8px 12px;
+		border-radius: 8px;
+		background: rgba(0, 0, 0, 0.05);
+		transition: all 0.2s ease;
+	}
+
+	.mobile-checkbox-group:hover {
+		background: rgba(0, 0, 0, 0.1);
+	}
+
+	.mobile-checkbox {
+		width: 20px;
+		height: 20px;
+		accent-color: var(--mobile-primary);
+		flex-shrink: 0;
+	}
+
+	.mobile-checkbox-label {
+		font-size: 14px;
+		color: var(--mobile-text);
+		font-weight: 500;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		flex: 1;
+		cursor: pointer;
+	}
+
+	.mobile-category-icon {
+		width: 24px;
+		height: 24px;
+		object-fit: contain;
+		flex-shrink: 0;
+	}
+
+	/* Mobile Button Group */
+	.mobile-btn-group {
+		display: flex;
+		gap: 12px;
+		margin-top: 24px;
+	}
+
+	.mobile-btn-group .mobile-btn {
+		flex: 1;
+		min-height: 48px;
+		font-size: 16px;
+		font-weight: 600;
+	}
+
+	/* Mobile Options Section */
+	.mobile-options-section {
+		margin-top: 16px;
+	}
+
+	.mobile-options-grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 12px;
+	}
+
+	.mobile-option-btn {
+		background: rgba(0, 0, 0, 0.1);
+		color: var(--mobile-text);
+		border: 2px solid var(--mobile-border);
+		border-radius: 12px;
+		padding: 12px 16px;
+		font-size: 14px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		min-height: 48px;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.mobile-option-btn:hover {
+		background: rgba(0, 0, 0, 0.15);
+		transform: translateY(-2px);
+	}
+
+	.mobile-option-btn.active {
+		background: var(--mobile-primary);
+		color: white;
+		border-color: var(--mobile-primary);
+	}
+
+	/* Mobile Data Section */
+	.mobile-data-section {
+		margin-top: 16px;
+	}
+
+	.mobile-data-info {
+		background: rgba(0, 0, 0, 0.1);
+		border-radius: 12px;
+		padding: 16px;
+		border: 1px solid var(--mobile-border);
+		margin-bottom: 12px;
+	}
+
+	.mobile-progress-display {
+		font-size: 16px;
+		font-weight: 600;
+		color: var(--mobile-text);
+		text-align: center;
+	}
+
+	/* Mobile Button Styles */
+	.mobile-btn {
+		background: var(--mobile-primary);
+		color: white;
+		border: none;
+		border-radius: 12px;
+		padding: 12px 24px;
+		font-size: 16px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		min-height: 48px;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.mobile-btn:hover {
+		background: #0b5ed7;
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+	}
+
+	.mobile-btn.secondary {
+		background: transparent;
+		color: var(--mobile-text);
+		border: 2px solid var(--mobile-border);
+	}
+
+	.mobile-btn.secondary:hover {
+		background: var(--mobile-border);
+		color: var(--mobile-text);
+	}
+
+	.mobile-btn-group .mobile-btn {
+		flex: 1;
+	}
+
+	/* Mobile Loading States */
+	.mobile-loading {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 40px;
+		color: var(--mobile-text);
+	}
+
+	.mobile-spinner {
+		width: 32px;
+		height: 32px;
+		border: 3px solid var(--mobile-border);
+		border-top: 3px solid var(--mobile-primary);
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+		margin-right: 12px;
+	}
+
+	@keyframes spin {
+		0% { transform: rotate(0deg); }
+		100% { transform: rotate(360deg); }
+	}
+
+	/* Mobile Empty States */
+	.mobile-empty {
+		text-align: center;
+		padding: 40px 20px;
+		color: var(--mobile-text);
+		opacity: 0.6;
+	}
+
+	.mobile-empty svg {
+		width: 64px;
+		height: 64px;
+		margin-bottom: 16px;
+		opacity: 0.4;
+	}
+
+	/* Mobile Responsive Breakpoints */
+	@media (min-width: 768px) {
+		.mobile-main {
+			max-width: 768px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		
+		.mobile-mode-selector {
+			grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+		}
+		
+		.mobile-table {
+			font-size: 16px;
+		}
+		
+		.mobile-table th {
+			font-size: 14px;
+		}
+	}
+
+	@media (min-width: 1024px) {
+		.mobile-main {
+			max-width: 1024px;
+		}
+		
+		.mobile-table-container {
+			display: grid;
+			grid-template-columns: 2fr 1fr;
+			gap: var(--mobile-spacing);
+		}
+	}
+
+	/* Mobile-specific improvements */
+	/* Ensure proper viewport handling */
+	body {
+		overflow-x: hidden;
+	}
+
+	/* Improve touch targets for mobile elements only */
+	.mobile-header-btn,
+	.mobile-nav-item,
+	.mobile-mode-btn,
+	.mobile-card-action,
+	.mobile-btn {
+		min-height: 44px;
+		min-width: 44px;
+	}
+
+	/* Prevent text selection on mobile interactive elements */
+	.mobile-header-btn,
+	.mobile-nav-item,
+	.mobile-mode-btn,
+	.mobile-card-action,
+	.mobile-btn {
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		-webkit-touch-callout: none;
+	}
+
+	/* Ensure proper font rendering for mobile elements */
+	.mobile-header,
+	.mobile-main,
+	.mobile-nav,
+	.mobile-card,
+	.mobile-settings-panel {
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+}
+
+/* ======================================== */
+/* MOBILE RESPONSIVE BREAKPOINTS */
+/* ======================================== */
+
+/* Mobile container layout - only for actual mobile devices */
+@media only screen and (max-width: 768px) {
+	/* Mobile container layout - only for actual mobile devices */
+	.container {
+		justify-content: center;
+		margin-left: 0;
+		width: 100%;
+		padding: 10px;
+		gap: 15px;
+		flex-direction: column;
+		align-items: center;
+		overflow-x: hidden;
+		overflow-y: auto;
+	}
+	
+	/* Mobile table selector */
+	.table-selector {
+		position: relative;
+		left: auto;
+		top: auto;
+		margin: 10px auto;
+		max-width: 95%;
+		z-index: 50;
+		padding: 15px;
+		width: 100%;
+		box-sizing: border-box;
+	}
+	
+	/* Mobile table wrappers */
+	.main-table-wrapper,
+	.ranglist-wrapper {
+		width: 100%;
+		max-width: 100%;
+		overflow-x: auto;
+		overflow-y: hidden;
+	}
+	
+	.table-wrapper {
+		width: 100%;
+		max-width: 100%;
+		overflow-x: auto;
+		overflow-y: hidden;
+	}
+	
+	/* Mobile table styling */
+	.container table {
+		width: 100%;
+		min-width: 600px; /* Reduced from 800px for better mobile fit */
+		font-size: 10px;
+		table-layout: auto; /* Changed from fixed for better mobile layout */
+		margin: 0;
+	}
+	
+	.ranglist-wrapper table {
+		width: 85%;
+		min-width: 340px;
+		font-size: 10px;
+		margin: 0 auto;
+		table-layout: fixed; /* Fixed layout for summary table */
+		border-collapse: collapse;
+	}
+	
+	/* Mobile table headers and cells */
+	.container th {
+		padding: 2px;
+		height: 30px;
+		font-size: 10px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	
+	.container td {
+		padding: 2px;
+		font-size: 9px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	
+	/* Summary table mobile styling - simplified structure */
+	.ranglist-wrapper table {
+		table-layout: fixed;
+		width: 100%;
+	}
+	
+	.ranglist-wrapper th,
+	.ranglist-wrapper td {
+		text-align: center;
+		vertical-align: middle;
+		padding: 4px;
+		font-size: 10px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	
+	/* Specific column widths for mobile summary table */
+	.ranglist-player-header,
+	.ranglist-player-cell {
+		width: 50% !important;
+	}
+	
+	.ranglist-count-header,
+	.ranglist-count-cell {
+		width: 25% !important;
+	}
+	
+	.ranglist-percentage-header,
+	.ranglist-percentage-cell {
+		width: 25% !important;
+	}
+	
+	/* Mobile table images */
+	.container th img {
+		width: 20px;
+		padding: 1px;
+		padding-right: 2px;
+	}
+	
+	.ranglist img {
+		width: 40px;
+	}
+	
+	/* Mobile dark mode toggle */
+	.dark-mode-toggle {
+		position: fixed;
+		left: 10px;
+		top: 10px;
+		width: 40px;
+		height: 40px;
+		font-size: 16px;
+		z-index: 1001;
+	}
+	
+	/* Mobile sidebar header */
+	.sidebar-header {
+		flex-direction: column;
+		gap: 10px;
+	}
+	
+	.sidebar-info-btn,
+	.sidebar-settings-btn {
+		width: 100%;
+		padding: 10px;
+	}
+	
+	/* Mobile table option buttons */
+	.table-option-btn {
+		width: 40px;
+		height: 40px;
+		font-size: 9px;
+		margin: 2px;
+	}
+	
+	/* Mobile button groups */
+	.table-selector .button-group {
+		gap: 4px;
+		margin-bottom: 15px;
+	}
+	
+	/* Mobile titles and labels */
+	.table-selector h3 {
+		font-size: 16px;
+		margin-bottom: 15px;
+	}
+	
+	.table-selector label {
+		font-size: 12px;
+		margin-bottom: 6px;
+	}
+	
+	/* Mobile refresh and control buttons */
+	.refresh-btn,
+	.time-travel-btn,
+	.multiple-tables-btn,
+	.stop-resume-btn {
+		width: auto;
+		min-width: 80px;
+		height: 35px;
+		font-size: 12px;
+		padding: 8px 12px;
+		margin: 2px;
+	}
+	
+	/* Mobile individual refresh buttons */
+	.individual-refresh-btn {
+		width: 25px;
+		height: 25px;
+		min-width: 25px;
+		font-size: 12px;
+		padding: 4px;
+		margin-left: 5px;
+	}
+	
+	/* Mobile data info section */
+	.data-info {
+		padding: 8px;
+		margin-top: 3px;
+		font-size: 12px;
+	}
+	
+	.progress-display {
+		font-size: 12px;
+	}
+	
+	/* Mobile modal improvements */
+	.modal-content {
+		width: 95%;
+		padding: 15px;
+		margin: 10px;
+		max-height: 90vh;
+		overflow-y: auto;
+	}
+	
+	.settings-container {
+		min-width: 120px;
+		padding: 10px;
+	}
+	
+	.top-settings-row {
+		flex-direction: column;
+		gap: 15px;
+	}
+	
+	.category-container,
+	.other-settings-container {
+		max-width: 100%;
+	}
+	
+	/* Mobile settings titles */
+	.settings-title {
+		font-size: 16px;
+		margin-bottom: 8px;
+	}
+	
+	/* Mobile checkbox items */
+	.checkbox-item {
+		gap: 8px;
+	}
+	
+	.checkbox-item label {
+		font-size: 13px;
+	}
+	
+	/* Mobile form elements */
+	.modal-content input[type="date"],
+	.modal-content input[type="input"] {
+		padding: 10px;
+		font-size: 14px;
+	}
+	
+	.modal-content .mybutton {
+		padding: 12px 20px;
+		font-size: 14px;
+	}
+	
+	/* Mobile option buttons */
+	.optionButton {
+		width: 50px;
+	}
+	
+	.optionButtonImage {
+		width: 40px;
+	}
+	
+	/* Mobile table borders and spacing */
+	.container table,
+	.ranglist-wrapper table {
+		border: 3px solid #578A34;
+		border-radius: 6px;
+		margin: 3px 0;
+	}
+	
+	.container th,
+	.container td,
+	.ranglist-wrapper th,
+	.ranglist-wrapper td {
+		border: 2px solid #578A34;
+	}
+	
+	/* Mobile result column */
+	.result {
+		width: 60px;
+		min-width: 60px;
+	}
+	
+	/* Mobile time and name display */
+	.time {
+		font-size: 12px;
+		margin: 1px 1px;
+	}
+	
+	.name {
+		font-size: 10px;
+		margin: 1px 2px;
+	}
+	
+	.percentage {
+		font-size: 14px;
+	}
+	
+	/* Mobile gradient text */
+	.gradient-text {
+		font-size: 16px;
+		padding: 1px 1px;
+	}
+	
+	/* Mobile runs container */
+	.runs-container {
+		gap: 2px;
+	}
+	
+	.time-display {
+		margin-bottom: 2px;
+	}
+	
+	/* Mobile player separator */
+	.player-separator {
+		margin: 0 2px;
+	}
+	
+	/* Mobile table hover effects */
+	.container table:hover,
+	.ranglist-wrapper table:hover {
+		box-shadow: 0 6px 12px var(--shadow);
+	}
+	
+	/* Mobile table cell hover */
+	.container td:hover,
+	.ranglist-wrapper td:hover {
+		background-color: rgba(255,255,255,0.15);
+	}
+	
+	/* Mobile result hover */
+	.result:hover {
+		background-color: #578A34;
+	}
+	
+	/* Mobile links */
+	.container td a {
+		font-size: 10px;
+	}
+	
+	/* Mobile table header styling */
+	.container thead,
+	.ranglist-wrapper thead {
+		font-size: 14px;
+	}
+	
+	/* Mobile mode-specific styling */
+	.container table.mode1,
+	.ranglist-wrapper table.mode1 {
+		border: 5px solid #51AD3E;
+	}
+	
+	.container .mode1 th,
+	.container .mode1 td,
+	.ranglist-wrapper .mode1 th,
+	.ranglist-wrapper .mode1 td {
+		border: 2px solid #51AD3E;
+	}
+	
+	.container table.mode2,
+	.ranglist-wrapper table.mode2 {
+		border: 5px solid #AB593E;
+	}
+	
+	.container .mode2 th,
+	.container .mode2 td,
+	.ranglist-wrapper .mode2 th,
+	.ranglist-wrapper .mode2 td {
+		border: 2px solid #AB593E;
+	}
+}
+
+/* Additional mobile styles for very small screens */
+@media only screen and (max-width: 600px) {
+	/* Extra small mobile container */
+	.container {
+		padding: 5px;
+		gap: 10px;
+	}
+	
+	/* Extra small mobile table selector */
+	.table-selector {
+		padding: 10px;
+		margin: 5px auto;
+	}
+	
+	/* Extra small mobile tables */
+	.container table {
+		font-size: 8px;
+		min-width: 550px;
+	}
+	
+	.ranglist-wrapper table {
+		width: 85%;
+		font-size: 8px;
+		min-width: 298px;
+		margin: 0 auto;
+		table-layout: fixed; /* Fixed layout for summary table */
+	}
+	
+	/* Extra small mobile table headers and cells */
+	.container th {
+		padding: 2px;
+		height: 30px;
+		font-size: 10px;
+	}
+	
+	.container td {
+		padding: 2px;
+		font-size: 8px;
+	}
+	
+	.ranglist-wrapper th,
+	.ranglist-wrapper td {
+		padding: 2px;
+		font-size: 8px;
+		text-align: center;
+		vertical-align: middle;
+	}
+	
+	/* Specific column widths for extra small mobile summary table */
+	.ranglist-player-header,
+	.ranglist-player-cell {
+		width: 50% !important;
+	}
+	
+	.ranglist-count-header,
+	.ranglist-count-cell {
+		width: 25% !important;
+	}
+	
+	.ranglist-percentage-header,
+	.ranglist-percentage-cell {
+		width: 25% !important;
+	}
+	
+	/* Extra small mobile table images */
+	.container th img {
+		width: 20px;
+		padding: 0px;
+		padding-right: 2px;
+	}
+	
+	.ranglist img {
+		width: 40px;
+	}
+	
+	/* Extra small mobile buttons */
+	.table-option-btn {
+		width: 35px;
+		height: 35px;
+		font-size: 8px;
+		margin: 1px;
+	}
+	
+	.refresh-btn,
+	.time-travel-btn,
+	.multiple-tables-btn,
+	.stop-resume-btn {
+		min-width: 70px;
+		height: 30px;
+		font-size: 11px;
+		padding: 6px 10px;
+		margin: 1px;
+	}
+	
+	.individual-refresh-btn {
+		width: 20px;
+		height: 20px;
+		min-width: 20px;
+		font-size: 10px;
+		padding: 2px;
+		margin-left: 3px;
+	}
+	
+	/* Extra small mobile titles and labels */
+	.table-selector h3 {
+		font-size: 14px;
+		margin-bottom: 10px;
+	}
+	
+	.table-selector label {
+		font-size: 10px;
+		margin-bottom: 4px;
+	}
+	
+	/* Extra small mobile button groups */
+	.table-selector .button-group {
+		gap: 2px;
+		margin-bottom: 10px;
+	}
+	
+	/* Extra small mobile data info */
+	.data-info {
+		padding: 6px;
+		margin-top: 2px;
+		font-size: 10px;
+	}
+	
+	.progress-display {
+		font-size: 10px;
+	}
+	
+	/* Extra small mobile modal */
+	.modal-content {
+		width: 98%;
+		padding: 10px;
+		margin: 5px;
+		max-height: 95vh;
+	}
+	
+	.settings-container {
+		min-width: 100px;
+		padding: 8px;
+	}
+	
+	/* Extra small mobile settings */
+	.settings-title {
+		font-size: 14px;
+		margin-bottom: 6px;
+	}
+	
+	.checkbox-item label {
+		font-size: 11px;
+	}
+	
+	/* Extra small mobile form elements */
+	.modal-content input[type="date"],
+	.modal-content input[type="input"] {
+		padding: 8px;
+		font-size: 12px;
+	}
+	
+	.modal-content .mybutton {
+		padding: 10px 16px;
+		font-size: 12px;
+	}
+	
+	/* Extra small mobile option buttons */
+	.optionButton {
+		width: 45px;
+	}
+	
+	.optionButtonImage {
+		width: 35px;
+	}
+	
+	/* Extra small mobile table styling */
+	.container table,
+	.ranglist-wrapper table {
+		border: 2px solid #578A34;
+		border-radius: 4px;
+		margin: 2px 0;
+	}
+	
+	.container th,
+	.container td,
+	.ranglist-wrapper th,
+	.ranglist-wrapper td {
+		border: 1px solid #578A34;
+	}
+	
+	/* Extra small mobile result column */
+	.result {
+		width: 50px;
+		min-width: 50px;
+	}
+	
+	/* Extra small mobile text elements */
+	.time {
+		font-size: 12px;
+		margin: 1px 1px;
+	}
+	
+	.name {
+		font-size: 10px;
+		margin: 1px 2px;
+	}
+	
+	.percentage {
+		font-size: 14px;
+	}
+	
+	.gradient-text {
+		font-size: 16px;
+		padding: 1px 1px;
+	}
+	
+	/* Extra small mobile runs container */
+	.runs-container {
+		gap: 1px;
+	}
+	
+	.time-display {
+		margin-bottom: 1px;
+	}
+	
+	.player-separator {
+		margin: 0 1px;
+	}
+	
+	/* Extra small mobile links */
+	.container td a {
+		font-size: 8px;
+	}
+	
+	/* Extra small mobile table headers */
+	.container thead,
+	.ranglist-wrapper thead {
+		font-size: 12px;
+	}
+	
+	/* Extra small mobile mode-specific styling */
+	.container table.mode1,
+	.ranglist-wrapper table.mode1 {
+		border: 3px solid #51AD3E;
+	}
+	
+	.container .mode1 th,
+	.container .mode1 td,
+	.ranglist-wrapper .mode1 th,
+	.ranglist-wrapper .mode1 td {
+		border: 1px solid #51AD3E;
+	}
+	
+	.container table.mode2,
+	.ranglist-wrapper table.mode2 {
+		border: 3px solid #AB593E;
+	}
+	
+	.container .mode2 th,
+	.container .mode2 td,
+	.ranglist-wrapper .mode2 th,
+	.ranglist-wrapper .mode2 td {
+		border: 1px solid #AB593E;
+	}
+	
+	/* Extra small mobile sidebar header */
+	.sidebar-header {
+		gap: 8px;
+	}
+	
+	.sidebar-info-btn,
+	.sidebar-settings-btn {
+		padding: 8px;
+	}
+	
+	/* Extra small mobile dark mode toggle */
+	.dark-mode-toggle {
+		width: 35px;
+		height: 35px;
+		font-size: 14px;
+	}
+}
+
+/* Ultra small mobile devices (iPhone SE, etc.) */
+@media only screen and (max-width: 375px) {
+	/* Ultra small mobile container */
+	.container {
+		padding: 3px;
+		gap: 8px;
+	}
+	
+	/* Ultra small mobile table selector */
+	.table-selector {
+		padding: 8px;
+		margin: 3px auto;
+	}
+	
+	/* Ultra small mobile tables */
+	.container table {
+		font-size: 7px;
+		min-width: 500px;
+	}
+	
+	.ranglist-wrapper table {
+		width: 85%;
+		font-size: 7px;
+		min-width: 255px;
+		margin: 0 auto;
+		table-layout: fixed; /* Fixed layout for summary table */
+	}
+	
+	/* Ultra small mobile table headers and cells */
+	.container th {
+		padding: 1px;
+		height: 25px;
+		font-size: 9px;
+	}
+	
+	.container td {
+		padding: 1px;
+		font-size: 7px;
+	}
+	
+	.ranglist-wrapper th,
+	.ranglist-wrapper td {
+		padding: 1px;
+		font-size: 7px;
+		text-align: center;
+		vertical-align: middle;
+	}
+	
+	/* Specific column widths for ultra small mobile summary table */
+	.ranglist-player-header,
+	.ranglist-player-cell {
+		width: 50% !important;
+	}
+	
+	.ranglist-count-header,
+	.ranglist-count-cell {
+		width: 25% !important;
+	}
+	
+	.ranglist-percentage-header,
+	.ranglist-percentage-cell {
+		width: 25% !important;
+	}
+	
+	/* Ultra small mobile table images */
+	.container th img {
+		width: 18px;
+		padding: 0px;
+		padding-right: 1px;
+	}
+	
+	.ranglist img {
+		width: 35px;
+	}
+	
+	/* Ultra small mobile buttons */
+	.table-option-btn {
+		width: 30px;
+		height: 30px;
+		font-size: 7px;
+		margin: 1px;
+	}
+	
+	.refresh-btn,
+	.time-travel-btn,
+	.multiple-tables-btn,
+	.stop-resume-btn {
+		min-width: 60px;
+		height: 25px;
+		font-size: 10px;
+		padding: 4px 8px;
+		margin: 1px;
+	}
+	
+	.individual-refresh-btn {
+		width: 18px;
+		height: 18px;
+		min-width: 18px;
+		font-size: 9px;
+		padding: 1px;
+		margin-left: 2px;
+	}
+	
+	/* Ultra small mobile titles and labels */
+	.table-selector h3 {
+		font-size: 12px;
+		margin-bottom: 8px;
+	}
+	
+	.table-selector label {
+		font-size: 9px;
+		margin-bottom: 3px;
+	}
+	
+	/* Ultra small mobile button groups */
+	.table-selector .button-group {
+		gap: 1px;
+		margin-bottom: 8px;
+	}
+	
+	/* Ultra small mobile data info */
+	.data-info {
+		padding: 4px;
+		margin-top: 1px;
+		font-size: 9px;
+	}
+	
+	.progress-display {
+		font-size: 9px;
+	}
+	
+	/* Ultra small mobile modal */
+	.modal-content {
+		width: 99%;
+		padding: 8px;
+		margin: 3px;
+		max-height: 98vh;
+	}
+	
+	.settings-container {
+		min-width: 80px;
+		padding: 6px;
+	}
+	
+	/* Ultra small mobile settings */
+	.settings-title {
+		font-size: 12px;
+		margin-bottom: 4px;
+	}
+	
+	.checkbox-item label {
+		font-size: 10px;
+	}
+	
+	/* Ultra small mobile form elements */
+	.modal-content input[type="date"],
+	.modal-content input[type="input"] {
+		padding: 6px;
+		font-size: 11px;
+	}
+	
+	.modal-content .mybutton {
+		padding: 8px 12px;
+		font-size: 11px;
+	}
+	
+	/* Ultra small mobile option buttons */
+	.optionButton {
+		width: 40px;
+	}
+	
+	.optionButtonImage {
+		width: 30px;
+	}
+	
+	/* Ultra small mobile table styling */
+	.container table,
+	.ranglist-wrapper table {
+		border: 1px solid #578A34;
+		border-radius: 3px;
+		margin: 1px 0;
+	}
+	
+	.container th,
+	.container td,
+	.ranglist-wrapper th,
+	.ranglist-wrapper td {
+		border: 1px solid #578A34;
+	}
+	
+	/* Ultra small mobile result column */
+	.result {
+		width: 40px;
+		min-width: 40px;
+	}
+	
+	/* Ultra small mobile text elements */
+	.time {
+		font-size: 10px;
+		margin: 1px 1px;
+	}
+	
+	.name {
+		font-size: 8px;
+		margin: 1px 1px;
+	}
+	
+	.percentage {
+		font-size: 12px;
+	}
+	
+	.gradient-text {
+		font-size: 14px;
+		padding: 1px 1px;
+	}
+	
+	/* Ultra small mobile runs container */
+	.runs-container {
+		gap: 1px;
+	}
+	
+	.time-display {
+		margin-bottom: 1px;
+	}
+	
+	.player-separator {
+		margin: 0 1px;
+	}
+	
+	/* Ultra small mobile links */
+	.container td a {
+		font-size: 7px;
+	}
+	
+	/* Ultra small mobile table headers */
+	.container thead,
+	.ranglist-wrapper thead {
+		font-size: 10px;
+	}
+	
+	/* Ultra small mobile mode-specific styling */
+	.container table.mode1,
+	.ranglist-wrapper table.mode1 {
+		border: 2px solid #51AD3E;
+	}
+	
+	.container .mode1 th,
+	.container .mode1 td,
+	.ranglist-wrapper .mode1 th,
+	.ranglist-wrapper .mode1 td {
+		border: 1px solid #51AD3E;
+	}
+	
+	.container table.mode2,
+	.ranglist-wrapper table.mode2 {
+		border: 2px solid #AB593E;
+	}
+	
+	.container .mode2 th,
+	.container .mode2 td,
+	.ranglist-wrapper .mode2 th,
+	.ranglist-wrapper .mode2 td {
+		border: 1px solid #AB593E;
+	}
+	
+	/* Ultra small mobile sidebar header */
+	.sidebar-header {
+		gap: 6px;
+	}
+	
+	.sidebar-info-btn,
+	.sidebar-settings-btn {
+		padding: 6px;
+	}
+	
+	/* Ultra small mobile dark mode toggle */
+	.dark-mode-toggle {
+		width: 30px;
+		height: 30px;
+		font-size: 12px;
+	}
+}
+
+/* Mobile-specific improvements for all mobile devices */
+@media only screen and (max-width: 900px) {
+	/* Ensure proper viewport handling */
+	body {
+		-webkit-text-size-adjust: 100%;
+		-ms-text-size-adjust: 100%;
+	}
+	
+	/* Improve touch targets */
+	button, 
+	.table-option-btn,
+	.refresh-btn,
+	.time-travel-btn,
+	.multiple-tables-btn,
+	.stop-resume-btn,
+	.individual-refresh-btn,
+	.sidebar-info-btn,
+	.sidebar-settings-btn,
+	.dark-mode-toggle {
+		min-height: 44px;
+		min-width: 44px;
+	}
+	
+	/* Improve table scrolling */
+	.table-wrapper,
+	.main-table-wrapper,
+	.ranglist-wrapper {
+		-webkit-overflow-scrolling: touch;
+		scroll-behavior: smooth;
+	}
+	
+	/* Prevent text selection on buttons */
+	button,
+	.table-option-btn,
+	.refresh-btn,
+	.time-travel-btn,
+	.multiple-tables-btn,
+	.stop-resume-btn,
+	.individual-refresh-btn {
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		-webkit-touch-callout: none;
+		-webkit-tap-highlight-color: transparent;
+	}
+	
+	/* Improve modal scrolling */
+	.modal {
+		-webkit-overflow-scrolling: touch;
+	}
+	
+	.modal-content {
+		-webkit-overflow-scrolling: touch;
+	}
+	
+	/* Improve form elements */
+	.modal-content input[type="date"],
+	.modal-content input[type="input"],
+	.modal-content input[type="checkbox"] {
+		-webkit-appearance: none;
+		appearance: none;
+		border-radius: 4px;
+	}
+	
+	/* Improve table cell touch targets */
+	.container td,
+	.ranglist-wrapper td {
+		min-height: 30px;
+	}
+	
+	/* Ensure proper spacing for touch */
+	.table-selector .button-group {
+		touch-action: manipulation;
+	}
+	
+	/* Improve sidebar touch targets */
+	.sidebar-header {
+		touch-action: manipulation;
+	}
+	
+	/* Ensure proper font rendering */
+	* {
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+	
+	/* Improve table header readability */
+	.container thead,
+	.ranglist-wrapper thead {
+		position: sticky;
+		top: 0;
+		z-index: 10;
+	}
+	
+	/* Ensure proper table layout */
+	.container table {
+		border-collapse: collapse;
+		table-layout: auto;
+	}
+	
+	.ranglist-wrapper table {
+		border-collapse: collapse;
+	}
+	
+	/* Improve link touch targets */
+	.container td a {
+		display: block;
+		padding: 2px;
+		min-height: 20px;
+	}
+	
+	/* Ensure proper button spacing */
+	.refresh-btn,
+	.time-travel-btn,
+	.multiple-tables-btn,
+	.stop-resume-btn {
+		margin: 3px;
+	}
+	
+	/* Improve modal button spacing */
+	.modal-content .mybutton {
+		margin: 8px 0;
+	}
+	
+	/* Ensure proper checkbox alignment */
+	.checkbox-item {
+		align-items: center;
+		min-height: 30px;
+	}
+	
+	/* Improve settings container spacing */
+	.settings-container {
+		margin: 5px 0;
+	}
+	
+	/* Ensure proper data info display */
+	.data-content-container {
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 5px;
+	}
+	
+	/* Improve progress display */
+	#apiProgress {
+		font-weight: bold;
+		word-break: break-word;
+	}
+	
+	/* Ensure proper table image display */
+	.container th img,
+	.ranglist img {
+		display: inline-block;
+		vertical-align: middle;
+	}
+	
+	/* Improve table cell content */
+	.container td {
+		vertical-align: middle;
+		text-align: center;
+		max-width: 120px; /* Limit cell width on mobile */
+		word-wrap: break-word;
+	}
+	
+	.ranglist-wrapper td {
+		vertical-align: middle;
+		text-align: center;
+		max-width: 120px; /* Limit cell width on mobile */
+		word-wrap: break-word;
+	}
+	
+	/* Ensure proper result column display */
+	.result {
+		text-align: center;
+		vertical-align: middle;
+	}
+	
+	/* Improve time and name display */
+	.time,
+	.name {
+		display: block;
+		text-align: center;
+	}
+	
+	/* Ensure proper percentage display */
+	.percentage {
+		display: block;
+		text-align: center;
+		font-weight: bold;
+	}
+	
+	/* Improve gradient text display */
+	.gradient-text {
+		display: block;
+		text-align: center;
+	}
+	
+	/* Ensure proper runs container */
+	.runs-container {
+		text-align: center;
+	}
+	
+	/* Improve player separator */
+	.player-separator {
+		display: inline-block;
+		text-align: center;
+	}
+	
+	/* Ensure proper table wrapper display */
+	.table-wrapper {
+		display: block;
+		width: 100%;
+	}
+	
+	/* Improve main table wrapper */
+	.main-table-wrapper {
+		display: block;
+		width: 100%;
+	}
+	
+	/* Improve ranglist wrapper */
+	.ranglist-wrapper {
+		display: block;
+		width: 100%;
+	}
+	
+	/* Ensure proper container layout */
+	.container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-start;
+	}
+	
+	/* Improve table selector layout */
+	.table-selector {
+		display: block;
+		width: 100%;
+		max-width: 95%;
+	}
+	
+	/* Ensure proper button group layout */
+	.button-group {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-items: center;
+	}
+	
+	/* Improve individual button layout */
+	.table-option-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Ensure proper refresh button layout */
+	.refresh-btn,
+	.time-travel-btn,
+	.multiple-tables-btn,
+	.stop-resume-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Improve individual refresh button layout */
+	.individual-refresh-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Ensure proper sidebar header layout */
+	.sidebar-header {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Improve sidebar button layout */
+	.sidebar-info-btn,
+	.sidebar-settings-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Ensure proper dark mode toggle layout */
+	.dark-mode-toggle {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Improve modal layout */
+	.modal {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Ensure proper modal content layout */
+	.modal-content {
+		display: block;
+		width: 95%;
+		max-width: 95%;
+	}
+	
+	/* Improve settings container layout */
+	.settings-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Ensure proper top settings row layout */
+	.top-settings-row {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Improve category container layout */
+	.category-container,
+	.other-settings-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+	}
+	
+	/* Ensure proper checkbox wrapper layout */
+	.checkbox-wrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+	}
+	
+	/* Improve checkbox item layout */
+	.checkbox-item {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+	}
+	
+	/* Ensure proper form elements layout */
+	.modal-content input[type="date"],
+	.modal-content input[type="input"] {
+		display: block;
+		width: 100%;
+		box-sizing: border-box;
+	}
+	
+	/* Improve modal button layout */
+	.modal-content .mybutton {
+		display: block;
+		width: 100%;
+		box-sizing: border-box;
+	}
+	
+	/* Ensure proper data info layout */
+	.data-info {
+		display: block;
+		width: 100%;
+		text-align: center;
+	}
+	
+	/* Improve data content container layout */
+	.data-content-container {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+	}
+	
+	/* Ensure proper progress display layout */
+	.progress-display {
+		display: block;
+		width: 100%;
+		text-align: center;
+	}
+	
+	/* Improve API progress layout */
+	#apiProgress {
+		display: inline-block;
+		text-align: center;
+	}
+}
+
+/* Hide desktop modals on mobile */
+@media (max-width: 1023px) {
+    .modal {
+        display: none !important;
+    }
+    
+    /* Ensure mobile modals are properly styled */
+    .mobile-settings-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 2000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .mobile-settings-panel.active {
+        display: flex;
+    }
+    
+    .mobile-settings-content {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 20px;
+        max-width: 90%;
+        max-height: 90%;
+        overflow-y: auto;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+}
