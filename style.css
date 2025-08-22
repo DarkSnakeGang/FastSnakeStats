@@ -1335,15 +1335,7 @@ body.dark-mode #infoModal .modal-content a:hover {
 
 }
 
-/* Data section styling */
-.data-info {
-	background: rgba(255, 255, 255, 0.1);
-	border: 1px solid rgba(77, 193, 249, 0.2);
-	border-radius: 8px;
-	padding: 10px;
-	margin-top: 5px;
-	display: inline-block;
-}
+
 
 /* Center the data content container */
 .data-content-container {
@@ -1392,11 +1384,7 @@ body.dark-mode #infoModal .modal-content a:hover {
 	color: gray;
 }
 
-/* Dark mode data section */
-body.dark-mode .data-info {
-	background: rgba(255, 255, 255, 0.1);
-	border-color: rgba(77, 193, 249, 0.2);
-}
+
 
 body.dark-mode .progress-display {
 	color: white;

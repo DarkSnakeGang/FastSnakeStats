@@ -1023,12 +1023,6 @@ function generateTableSelector(){
     darkModeToggle.setAttribute('title', isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode');
     optionsButtonGroup.appendChild(darkModeToggle);
     
-    var refreshButton = document.createElement('button');
-    refreshButton.setAttribute('class', 'table-option-btn refresh-btn');
-    refreshButton.innerHTML = '🔄 Refresh';
-    refreshButton.onclick = refreshWorldRecordsForSettings;
-    optionsButtonGroup.appendChild(refreshButton);
-    
     var timeTravelButton = document.createElement('button');
     timeTravelButton.setAttribute('class', 'table-option-btn time-travel-btn');
     if(isTimeTravelEnabled) {
@@ -1058,22 +1052,20 @@ function generateTableSelector(){
     optionsSelector.appendChild(optionsButtonGroup);
     sidebar.appendChild(optionsSelector);
     
-    // Add data section (API call progress)
+    // Add data section (Refresh button and stop button)
     var dataSelector = document.createElement('div');
     dataSelector.innerHTML = '<label>Data</label>';
     
-    // Create a container for the data content (API calls and stop button)
+    // Create a container for the data content
     var dataContentContainer = document.createElement('div');
     dataContentContainer.setAttribute('class', 'data-content-container');
-    var dataInfo = document.createElement('div');
-    dataInfo.setAttribute('class', 'data-info');
-    dataInfo.setAttribute('id', 'dataInfo');
     
-    // Create progress display (centered)
-    var progressDisplay = document.createElement('div');
-    progressDisplay.setAttribute('class', 'progress-display');
-    progressDisplay.innerHTML = `API Calls: <span id="apiProgress">0/0</span>`;
-    dataInfo.appendChild(progressDisplay);
+    // Create refresh button in data section
+    var refreshButton = document.createElement('button');
+    refreshButton.setAttribute('class', 'table-option-btn refresh-btn');
+    refreshButton.innerHTML = '🔄 Refresh';
+    refreshButton.onclick = refreshWorldRecordsForSettings;
+    dataContentContainer.appendChild(refreshButton);
     
     // Create cache info display (hidden from user)
     var cacheInfo = document.createElement('div');
@@ -1083,7 +1075,7 @@ function generateTableSelector(){
         Last Updated: <span id="cacheTimestamp">Never</span>
         Records: <span id="cacheSize">0</span>
     `;
-    dataInfo.appendChild(cacheInfo);
+    dataContentContainer.appendChild(cacheInfo);
     
     // Create stop/resume button (outside but inline)
     var stopResumeButton = document.createElement('button');
@@ -1094,8 +1086,7 @@ function generateTableSelector(){
     stopResumeButton.style.display = 'none'; // Hidden by default
     stopResumeButton.onclick = toggleApiPause;
     
-    // Add both elements to the content container
-    dataContentContainer.appendChild(dataInfo);
+    // Add stop button to the content container
     dataContentContainer.appendChild(stopResumeButton);
     dataSelector.appendChild(dataContentContainer);
     sidebar.appendChild(dataSelector);

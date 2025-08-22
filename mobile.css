@@ -341,15 +341,9 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		border-radius: 8px;
 	}
 
-	.mobile-data-info {
-		flex: 1;
-	}
 
-	.mobile-progress-display {
-		font-size: 14px;
-		font-weight: 600;
-		color: var(--mobile-text);
-	}
+
+
 
 
 

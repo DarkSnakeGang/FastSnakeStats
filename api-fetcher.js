@@ -682,10 +682,7 @@ async function getAllWorldRecordsForCurrentSettings() {
     apiCallProgress.successful = 0;
     updateApiProgress();
     
-    // Update mobile API progress if on mobile
-    if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
-        updateMobileApiCallProgress(0, 0);
-    }
+
     
     if (isMultipleTablesEnabled) {
         // Load tables one by one for multiple tables mode
@@ -710,20 +707,14 @@ async function getAllWorldRecordsForCurrentSettings() {
                     apiCallProgress.total = totalApiCallsNeeded;
                     updateApiProgress();
                     
-                    // Update mobile API progress if on mobile
-                    if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
-                        updateMobileApiCallProgress(0, totalApiCallsNeeded);
-                    }
+
                 } else {
                     // Update successful API calls (only actual API calls, not cache)
                     totalApiCallsCompleted += completedCount;
                     apiCallProgress.successful = totalApiCallsCompleted;
                     updateApiProgress();
                     
-                    // Update mobile API progress if on mobile
-                    if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
-                        updateMobileApiCallProgress(totalApiCallsCompleted, totalApiCallsNeeded);
-                    }
+
                 }
             });
             
@@ -805,10 +796,7 @@ async function getAllWorldRecordsForCurrentSettings() {
         apiCallProgress.total = currentRequests.length;
         updateApiProgress();
         
-        // Update mobile API progress if on mobile
-        if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
-            updateMobileApiCallProgress(0, currentRequests.length);
-        }
+
         
         let batchResults;
         try {
@@ -816,10 +804,7 @@ async function getAllWorldRecordsForCurrentSettings() {
                 apiCallProgress.successful = completedCount;
                 updateApiProgress();
                 
-                // Update mobile API progress if on mobile
-                if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
-                    updateMobileApiCallProgress(completedCount, apiCallProgress.total);
-                }
+                
             });
             console.log('fetchWorldRecordsBatch completed, got', batchResults.length, 'results');
         } catch (error) {
@@ -898,10 +883,7 @@ async function getAllWorldRecordsForCurrentSettings() {
         apiCallProgress.successful = apiCallProgress.total;
         updateApiProgress();
         
-        // Update mobile API progress if on mobile
-        if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
-            updateMobileApiCallProgress(apiCallProgress.total, apiCallProgress.total);
-        }
+
     }
 }
 
@@ -1099,15 +1081,9 @@ async function getAllWorldRecordsForDate(date) {
         apiCallProgress.total = requestsToProcess.length;
         updateApiProgress();
         
-        // Update mobile API progress if on mobile
-        if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
-            updateMobileApiCallProgress(0, requestsToProcess.length);
-        }
+
     } else {
-        // Update mobile API progress if on mobile
-        if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
-            updateMobileApiCallProgress(0, allRequests.length);
-        }
+
     }
     
     try {
@@ -1115,10 +1091,7 @@ async function getAllWorldRecordsForDate(date) {
             apiCallProgress.successful = completedCount;
             updateApiProgress();
             
-            // Update mobile API progress if on mobile
-            if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
-                updateMobileApiCallProgress(completedCount, apiCallProgress.total);
-            }
+
         });
         
         // Process batch results

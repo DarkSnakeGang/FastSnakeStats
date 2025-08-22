@@ -5,12 +5,11 @@
 // Mobile state management
 let mobileState = {
     currentSection: 'records',
-    selectedModes: [],
-    isLoading: false
+    isInitialized: false
 };
 
-// Mobile-specific API progress counter
-let mobileApiCallProgress = { successful: 0, total: 0 };
+// Mobile-specific variables
+let mobileTableData = null;
 
 // Mobile-specific toggle functions (in case desktop functions aren't available)
 function mobileToggleDarkMode() {
@@ -223,7 +222,7 @@ function waitForDesktopSystem() {
             showBasicMobileRecordsSection();
             
             // Update API progress display
-            updateMobileApiProgress();
+            // updateMobileApiProgress(); // This function is removed
             
             // Trigger initial records loading for mobile
             triggerMobileInitialRecordsLoad();
@@ -244,37 +243,6 @@ function waitForDesktopSystem() {
         });
         showBasicMobileRecordsSection();
     }, 10000);
-}
-
-// Update mobile API progress display
-function updateMobileApiProgress() {
-    const mobileApiProgress = document.getElementById('mobileApiProgress');
-    if (mobileApiProgress) {
-        // Use mobile-specific API progress counter only
-        mobileApiProgress.textContent = `${mobileApiCallProgress.successful}/${mobileApiCallProgress.total}`;
-    }
-}
-
-
-
-// Mobile-specific function to update API progress
-function updateMobileApiCallProgress(successful, total) {
-    mobileApiCallProgress.successful = successful;
-    mobileApiCallProgress.total = total;
-    updateMobileApiProgress();
-}
-
-// Mobile-specific function to reset API progress
-function resetMobileApiProgress() {
-    mobileApiCallProgress.successful = 0;
-    mobileApiCallProgress.total = 0;
-    updateMobileApiProgress();
-}
-
-// Mobile-specific function to increment successful API calls
-function incrementMobileApiProgress() {
-    mobileApiCallProgress.successful++;
-    updateMobileApiProgress();
 }
 
 // Setup mobile navigation
@@ -368,7 +336,7 @@ function showBasicMobileRecordsSection() {
     if (existingRecordsContent && existingRecordsContent.textContent === 'World Records') {
         // If records content exists, update API progress and load table data
         console.log('Records content already exists, updating API progress and loading table');
-        updateMobileApiProgress();
+        // updateMobileApiProgress(); // This function is removed
         loadMobileTableData();
         return;
     }
@@ -383,17 +351,11 @@ function showBasicMobileRecordsSection() {
             <!-- Mobile Records Controls -->
             <div class="mobile-records-controls">
                 <div class="mobile-controls-grid">
-                    <button class="mobile-option-btn" id="mobileRefreshBtn">🔄 Refresh</button>
                 </div>
                 
                 <!-- Data Section -->
                 <div class="mobile-data-section">
-                    <div class="mobile-data-info">
-                        <div class="mobile-progress-display">
-                            API Calls: <span id="mobileApiProgress">0/0</span>
-                        </div>
-
-                    </div>
+                    <button class="mobile-option-btn" id="mobileRefreshBtn">🔄 Refresh</button>
                     <button class="mobile-option-btn" id="mobileStopResumeBtn" style="display: none;">
                         ⏸️ Stop
                     </button>
@@ -428,7 +390,7 @@ function showBasicMobileRecordsSection() {
     loadMobileTableData();
 
     // Set up periodic API progress updates
-    setInterval(updateMobileApiProgress, 1000);
+    // setInterval(updateMobileApiProgress, 1000); // This function is removed
     
 
 }
@@ -639,7 +601,7 @@ function loadMobileTableData() {
         }
         
         // Update API progress after loading
-        updateMobileApiProgress();
+        // updateMobileApiProgress(); // This function is removed
     } else {
         console.log('No world records data available, showing loading message');
         // Show loading message
