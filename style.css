@@ -627,14 +627,14 @@ body.dark-mode .stop-resume-btn {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	margin-left: 400px; /* Margin for left sidebar */
+	margin-left: 310px; /* Margin for left sidebar (20px + 280px + 10px gap) */
 	margin-top: 0px; /* Reset margin-top */
-	width: calc(100% - 400px); /* Take remaining width after sidebar */
+	width: calc(100% - 310px); /* Take remaining width after sidebar */
 	padding: 20px;
-	padding-top: 20px; /* Reduced padding-top to push tables up */
+	padding-top: 10px; /* Reduced padding-top to push tables up */
 	min-height: calc(100vh - 200px);
 	position: relative;
-	gap: 20px; /* Reduced gap to give more space for tables */
+	gap: 10px; /* Reduced gap to give more space for tables */
 }
 
 /* Desktop grid layout for side-by-side tables */
@@ -1536,14 +1536,14 @@ body.dark-mode .multiple-tables-btn.active:hover {
 		display: flex;
 	flex-direction: column;
 		align-items: center;
-	margin-left: 400px; /* Margin for left sidebar */
+	margin-left: 310px; /* Margin for left sidebar (20px + 280px + 10px gap) */
 	margin-top: 0px;
-	width: calc(100% - 400px);
+	width: calc(100% - 310px);
 	padding: 20px;
-	padding-top: 20px;
+	padding-top: 10px;
 	min-height: calc(100vh - 200px);
 	position: relative;
-	gap: 20px;
+	gap: 10px;
 }
 
 /* Table wrapper base styles */
@@ -1572,13 +1572,13 @@ body.dark-mode .multiple-tables-btn.active:hover {
 	/* Container grid layout */
 	.container {
 		display: grid !important;
-		grid-template-columns: 1fr 350px !important; /* Main table takes remaining space, ranglist fixed 350px */
+		grid-template-columns: 1fr 280px !important; /* Main table takes more space, ranglist reduced to 280px */
 		grid-template-areas: "main ranglist" !important;
 		gap: 30px !important;
 		align-items: start !important;
 		justify-items: center !important;
-		margin-left: 400px !important;
-		width: calc(100% - 400px) !important;
+		margin-left: 310px !important; /* Margin for left sidebar (20px + 280px + 10px gap) */
+		width: calc(100% - 310px) !important;
 		flex-direction: unset !important;
 		padding: 20px !important;
 	}
@@ -1588,8 +1588,9 @@ body.dark-mode .multiple-tables-btn.active:hover {
 		grid-area: main !important;
 		width: 100% !important;
 		display: flex !important;
-		justify-content: center !important;
+		justify-content: center !important; /* Center the records table */
 		align-items: flex-start !important;
+		margin: 0 0 0 140px !important; /* Move records table 45px to the right */
 	}
 
 	.table-wrapper.ranglist-wrapper {
@@ -1598,7 +1599,7 @@ body.dark-mode .multiple-tables-btn.active:hover {
 		display: flex !important;
 		justify-content: center !important;
 		align-items: flex-start !important;
-		margin-right: 70px !important; /* Add right margin to prevent sticking to edge */
+		margin-right: 250px !important; /* Summary table 15px away from right border */
 	}
 
 	/* Ensure tables are properly sized within their grid areas */
