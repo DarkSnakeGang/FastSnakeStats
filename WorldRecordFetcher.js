@@ -1,13 +1,85 @@
 // Simple World Record Fetcher
 class WorldRecordFetcher {
     constructor() {
-        this.gameID = "o1y9pyk6"; // Snake game ID
-        this.lastFailureTime = 0; // Track when the last API failure occurred
-        this.failureDelay = 600; // 0.6 seconds delay after failure
+        // Use the first game ID from the gameIDs array defined in data-management.js
+        this.gameID = gameIDs[0]; // Snake Game ID
+        this.lastFailureTime = 0;
+        this.failureDelay = 5000; // 5 seconds delay after failures
     }
-
-        // Simple API request function with retry logic
+    
+    // Static counter for tracking API calls
+    static apiCallCount = 0;
+    
+    // Static cache for game metadata
+    static gameMetadata = {
+        variables: null,
+        levels: null,
+        categories: null,
+        isInitialized: false
+    };
+    
+    // Static method to reset API call counter
+    static resetApiCallCounter() {
+        WorldRecordFetcher.apiCallCount = 0;
+        console.log('🔄 API Call Counter Reset');
+    }
+    
+    // Static method to get API call summary
+    static getApiCallSummary() {
+        return {
+            totalCalls: WorldRecordFetcher.apiCallCount,
+            summary: `Total API calls made: ${WorldRecordFetcher.apiCallCount}`
+        };
+    }
+    
+    // Static method to initialize game metadata (called once on page load)
+    static async initializeGameMetadata() {
+        if (WorldRecordFetcher.gameMetadata.isInitialized) {
+            console.log('🎮 Game metadata already initialized');
+            return;
+        }
+        
+        console.log('🎮 Initializing game metadata...');
+        
+        try {
+            const fetcher = new WorldRecordFetcher();
+            
+            // Load all metadata in parallel
+            const [variables, levels, categories] = await Promise.all([
+                fetcher.fetchAPI(`https://www.speedrun.com/api/v1/games/${fetcher.gameID}/variables`),
+                fetcher.fetchAPI(`https://www.speedrun.com/api/v1/games/${fetcher.gameID}/levels`),
+                fetcher.fetchAPI(`https://www.speedrun.com/api/v1/games/${fetcher.gameID}/categories`)
+            ]);
+            
+            // Cache the metadata
+            WorldRecordFetcher.gameMetadata.variables = variables;
+            WorldRecordFetcher.gameMetadata.levels = levels;
+            WorldRecordFetcher.gameMetadata.categories = categories;
+            WorldRecordFetcher.gameMetadata.isInitialized = true;
+            
+            console.log('✅ Game metadata initialized successfully');
+        } catch (error) {
+            console.error('❌ Failed to initialize game metadata:', error);
+            throw error;
+        }
+    }
+    
+    // Method to get cached metadata
+    getGameMetadata() {
+        if (!WorldRecordFetcher.gameMetadata.isInitialized) {
+            throw new Error('Game metadata not initialized. Call WorldRecordFetcher.initializeGameMetadata() first.');
+        }
+        return WorldRecordFetcher.gameMetadata;
+    }
+    
+    // Simple API request function with retry logic
     async fetchAPI(url, maxRetries = 10, baseDelay = 1000) {
+        // Increment API call counter
+        WorldRecordFetcher.apiCallCount++;
+        const callNumber = WorldRecordFetcher.apiCallCount;
+        
+        console.log(`🌐 API Call #${callNumber}: ${url}`);
+        
         // Check if we need to wait due to a recent failure
         const now = Date.now();
         const timeSinceLastFailure = now - this.lastFailureTime;
@@ -18,6 +90,10 @@ class WorldRecordFetcher {
 
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
+                if (attempt > 1) {
+                    console.log(`🔄 API Call #${callNumber} Retry ${attempt}/${maxRetries}: ${url}`);
+                }
+                
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: {
@@ -28,7 +104,7 @@ class WorldRecordFetcher {
                 if (!response.ok) {
                     // Special handling for 420 rate limit - wait longer and retry
                     if (response.status === 420) {
-                        console.log(`Rate limited (420) on attempt ${attempt}, waiting before retry...`);
+                        console.log(`⚠️ API Call #${callNumber} Rate limited (420) on attempt ${attempt}, waiting before retry...`);
                         
                         // Update refresh button immediately to show "Rate limited"
                         var refreshButton = document.querySelector('.refresh-btn');
@@ -48,6 +124,7 @@ class WorldRecordFetcher {
                         
                         // If this is the last attempt, throw the error
                         if (attempt === maxRetries) {
+                            console.log(`❌ API Call #${callNumber} Failed after ${maxRetries} attempts: ${response.status} ${response.statusText}`);
                             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                         }
                         continue; // Retry
@@ -57,9 +134,11 @@ class WorldRecordFetcher {
                     if (response.status >= 400 && response.status < 500 && response.status !== 429) {
                         // Record failure time for future API calls
                         this.lastFailureTime = Date.now();
+                        console.log(`❌ API Call #${callNumber} Client error (no retry): ${response.status} ${response.statusText}`);
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
                     // For 5xx server errors and 429 rate limit, retry
+                    console.log(`⚠️ API Call #${callNumber} Server error on attempt ${attempt}: ${response.status} ${response.statusText}`);
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
@@ -69,6 +148,7 @@ class WorldRecordFetcher {
                 }
                 
                 const data = await response.json();
+                console.log(`✅ API Call #${callNumber} Success: ${url}`);
                 return data;
             } catch (error) {
                 // Record failure time for future API calls
@@ -76,11 +156,13 @@ class WorldRecordFetcher {
                 
                 // If this is the last attempt, throw the error
                 if (attempt === maxRetries) {
+                    console.log(`❌ API Call #${callNumber} Failed after ${maxRetries} attempts: ${error.message}`);
                     throw error;
                 }
                 
                 // Calculate delay with exponential backoff
                 const delay = baseDelay * Math.pow(2, attempt - 1);
+                console.log(`⏳ API Call #${callNumber} Waiting ${delay}ms before retry ${attempt + 1}...`);
                 
                 // Wait before retrying
                 await new Promise(resolve => setTimeout(resolve, delay));
@@ -165,7 +247,8 @@ class WorldRecordFetcher {
     // Decode run variables to understand the mapping
     async decodeRunVariables(runValues) {
         try {
-            const variables = await this.fetchAPI(`https://www.speedrun.com/api/v1/games/${this.gameID}/variables`);
+            const metadata = this.getGameMetadata();
+            const variables = metadata.variables;
             
             for (const [varId, valueId] of Object.entries(runValues)) {
                 const variable = variables.data.find(v => v.id === varId);
@@ -173,7 +256,7 @@ class WorldRecordFetcher {
                     if (variable.values && variable.values.values) {
                         const value = variable.values.values[valueId];
                         if (value) {
-                    
+                     
                         }
                     }
                 }
@@ -206,12 +289,13 @@ class WorldRecordFetcher {
                 return cachedData.data;
             }
             
-            // Step 1: Get game data
-            const variables = await this.fetchAPI(`https://www.speedrun.com/api/v1/games/${this.gameID}/variables`);
-            const levels = await this.fetchAPI(`https://www.speedrun.com/api/v1/games/${this.gameID}/levels`);
-            const categories = await this.fetchAPI(`https://www.speedrun.com/api/v1/games/${this.gameID}/categories`);
+            // Step 1: Get cached game metadata
+            const metadata = this.getGameMetadata();
+            const variables = metadata.variables;
+            const levels = metadata.levels;
+            const categories = metadata.categories;
             
-                         // Step 2: Find the level ID for the mode
+            // Step 2: Find the level ID for the mode
             const levelData = levels.data.find(l => l.name.includes(modeName));
             if (!levelData) {
                 throw new Error(`Level not found for mode: ${modeName}`);
@@ -280,8 +364,6 @@ class WorldRecordFetcher {
             if (validParams.length > 0) {
                 leaderboardUrl += "&" + validParams.join("&");
             }
-            
-            // API URL and parameters logged for debugging if needed
             
             // Step 6: Get leaderboard
             const leaderboard = await this.fetchAPI(leaderboardUrl);
@@ -420,10 +502,11 @@ class WorldRecordFetcher {
                 return cachedData.data;
             }
             
-            // Step 1: Get game data
-            const variables = await this.fetchAPI(`https://www.speedrun.com/api/v1/games/${this.gameID}/variables`);
-            const levels = await this.fetchAPI(`https://www.speedrun.com/api/v1/games/${this.gameID}/levels`);
-            const categories = await this.fetchAPI(`https://www.speedrun.com/api/v1/games/${this.gameID}/categories`);
+            // Step 1: Get cached game metadata
+            const metadata = this.getGameMetadata();
+            const variables = metadata.variables;
+            const levels = metadata.levels;
+            const categories = metadata.categories;
             
             // Step 2: Find the level ID for the mode
             const levelData = levels.data.find(l => l.name.includes(modeName));
@@ -794,6 +877,10 @@ class WorldRecordFetcher {
                 console.error('Batch error:', error);
             }
         }
+        
+        // Log API call summary for this batch operation
+        const summary = WorldRecordFetcher.getApiCallSummary();
+        console.log(`📊 Batch Operation Complete: ${summary.summary}`);
         
         return results;
     }

@@ -8,6 +8,13 @@ loadSettings();
 if (typeof WorldRecordFetcher !== 'undefined') {
     window.worldRecordFetcher = new WorldRecordFetcher();
     console.log('WorldRecordFetcher initialized successfully');
+    
+    // Initialize game metadata immediately
+    WorldRecordFetcher.initializeGameMetadata().then(() => {
+        console.log('Game metadata loaded successfully');
+    }).catch(error => {
+        console.error('Failed to load game metadata:', error);
+    });
 } else {
     console.error('WorldRecordFetcher not found');
 }
