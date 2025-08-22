@@ -353,6 +353,12 @@ function loadMobileTableData() {
     const mobileTableContent = document.getElementById('mobileTableContent');
     if (!mobileTableContent) return;
 
+    // Check if we're still on the records section before loading
+    if (mobileState.currentSection !== 'records') {
+        console.log('loadMobileTableData: Skipping table load - not on records section (current:', mobileState.currentSection, ')');
+        return;
+    }
+
     console.log('loadMobileTableData: Starting table load');
     console.log('worldRecords available:', typeof worldRecords !== 'undefined' && Object.keys(worldRecords).length > 0);
     console.log('isMultipleTablesEnabled:', typeof isMultipleTablesEnabled !== 'undefined' ? isMultipleTablesEnabled : 'undefined');
@@ -533,6 +539,41 @@ function showBasicMobileSettingsSection() {
     
     // Ensure settings are synchronized with desktop system
     console.log('Mobile settings section loaded - settings synchronized with desktop');
+    
+    // Update time travel button state to ensure it reflects current settings
+    updateMobileTimeTravelButtonState();
+    
+    // Update date picker state to ensure it reflects current settings
+    updateMobileDatePickerState();
+}
+
+// Update mobile time travel button state
+function updateMobileTimeTravelButtonState() {
+    const timeTravelBtn = document.getElementById('mobileTimeTravelBtn');
+    if (timeTravelBtn) {
+        if (isTimeTravelEnabled) {
+            timeTravelBtn.classList.add('active');
+            timeTravelBtn.setAttribute('title', 'Time travel mode enabled. Click to disable.');
+        } else {
+            timeTravelBtn.classList.remove('active');
+            timeTravelBtn.setAttribute('title', 'Time travel mode disabled. Click to enable.');
+        }
+    }
+    
+    // Also update date picker state
+    updateMobileDatePickerState();
+}
+
+// Update mobile date picker state
+function updateMobileDatePickerState() {
+    const datePicker = document.getElementById('mobileDatePicker');
+    if (datePicker) {
+        // Set the date picker value to the current selected date
+        datePicker.value = selectedTimeTravelDate || '';
+        
+        // Optionally, you could also show/hide the date picker based on time travel state
+        // For now, we'll keep it always visible but ensure it has the correct value
+    }
 }
 
 // Initialize run modes and game modes to be all selected
@@ -653,8 +694,18 @@ function setupMobileSettingsEventListeners() {
     // Date picker
     const datePicker = document.getElementById('mobileDatePicker');
     if (datePicker) {
+        // Set initial value from saved settings
+        datePicker.value = selectedTimeTravelDate || '';
+        
         datePicker.addEventListener('change', function() {
             selectedTimeTravelDate = this.value;
+            
+            // If a date is selected, enable time travel mode
+            if (this.value && !isTimeTravelEnabled) {
+                isTimeTravelEnabled = true;
+                updateMobileTimeTravelButtonState();
+            }
+            
             saveSettings();
         });
     }
@@ -693,6 +744,15 @@ function setupMobileOptionsListeners() {
     // Time travel button
     const timeTravelBtn = document.getElementById('mobileTimeTravelBtn');
     if (timeTravelBtn) {
+        // Set initial state
+        if (isTimeTravelEnabled) {
+            timeTravelBtn.classList.add('active');
+            timeTravelBtn.setAttribute('title', 'Time travel mode enabled. Click to disable.');
+        } else {
+            timeTravelBtn.classList.remove('active');
+            timeTravelBtn.setAttribute('title', 'Time travel mode disabled. Click to enable.');
+        }
+        
         timeTravelBtn.addEventListener('click', function() {
             toggleTimeTravel();
             saveSettings();
@@ -700,10 +760,13 @@ function setupMobileOptionsListeners() {
             if (isTimeTravelEnabled) {
                 this.classList.add('active');
                 this.setAttribute('title', 'Time travel mode enabled. Click to disable.');
-                } else {
+            } else {
                 this.classList.remove('active');
                 this.setAttribute('title', 'Time travel mode disabled. Click to enable.');
             }
+            
+            // Update date picker to reflect time travel state
+            updateMobileDatePickerState();
         });
     }
 
@@ -900,19 +963,25 @@ function resetMobileSettings() {
         value.visible = true;
     }
 
-    // Clear date picker
+    // Clear date picker and disable time travel
     const datePicker = document.getElementById('mobileDatePicker');
     if (datePicker) {
         datePicker.value = '';
         selectedTimeTravelDate = '';
         localStorage.removeItem('selectedTimeTravelDate');
     }
+    
+    // Disable time travel mode
+    isTimeTravelEnabled = false;
 
     // Save settings
     saveSettings();
     
     // Update button states to reflect the reset
     updateMobileButtonStates();
+    
+    // Update time travel button state to reflect the reset
+    updateMobileTimeTravelButtonState();
     
     // Show success message
     const resetButton = document.getElementById('mobileSettingsReset');
