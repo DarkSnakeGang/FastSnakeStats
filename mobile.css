@@ -24,27 +24,27 @@
 
 	/* Dark mode mobile settings overrides */
 	body.dark-mode .mobile-form-input {
-		background: rgba(255, 255, 255, 0.1);
+		background: rgba(255, 255, 255, 0.05);
 		color: #ffffff;
 		border-color: rgba(255, 255, 255, 0.2);
 	}
 
 	body.dark-mode .mobile-form-input:focus {
-		background: rgba(255, 255, 255, 0.15);
+		background: rgba(255, 255, 255, 0.1);
 		border-color: var(--mobile-primary);
 	}
 
 	body.dark-mode .mobile-category-section {
-		background: rgba(255, 255, 255, 0.1);
+		background: rgba(255, 255, 255, 0.05);
 		border-color: rgba(255, 255, 255, 0.2);
 	}
 
 	body.dark-mode .mobile-checkbox-group {
-		background: rgba(255, 255, 255, 0.05);
+		background: rgba(255, 255, 255, 0.02);
 	}
 
 	body.dark-mode .mobile-checkbox-group:hover {
-		background: rgba(255, 255, 255, 0.1);
+		background: rgba(255, 255, 255, 0.05);
 	}
 
 	/* Dark mode mobile header */
@@ -53,34 +53,43 @@
 		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 	}
 
+	/* Dark mode mobile navigation */
+	body.dark-mode .mobile-nav {
+		background: rgba(0, 0, 0, 0.25) !important;
+	}
+
 	/* Dark mode mobile card and table overrides */
 	body.dark-mode .mobile-card {
-		background: rgba(255, 255, 255, 0.1);
+		background: rgba(255, 255, 255, 0.05);
 		border-color: rgba(255, 255, 255, 0.2);
 	}
 
 	body.dark-mode .mobile-mode-btn {
-		background: rgba(255, 255, 255, 0.1);
+		background: rgba(255, 255, 255, 0.05);
 		border-color: rgba(255, 255, 255, 0.2);
 	}
 
 	body.dark-mode .mobile-mode-btn .mode-label {
-		background: rgba(255, 255, 255, 0.1);
+		background: rgba(255, 255, 255, 0.05);
 	}
 
 	body.dark-mode .mobile-table-container {
-		background: rgba(255, 255, 255, 0.1);
+		background: rgba(255, 255, 255, 0.05);
 		border-color: rgba(255, 255, 255, 0.2);
 	}
 
 	/* Dark mode mobile options and data sections */
 	body.dark-mode .mobile-option-btn {
-		background: rgba(255, 255, 255, 0.1);
+		background: rgba(255, 255, 255, 0.05);
 		border-color: rgba(255, 255, 255, 0.2);
 	}
 
-	body.dark-mode .mobile-data-info {
+	body.dark-mode .mobile-option-btn:hover {
 		background: rgba(255, 255, 255, 0.1);
+	}
+
+	body.dark-mode .mobile-data-info {
+		background: rgba(255, 255, 255, 0.05);
 		border-color: rgba(255, 255, 255, 0.2);
 	}
 
@@ -216,7 +225,7 @@
 		left: 0 !important;
 		right: 0 !important;
 		z-index: 1000 !important;
-		background: var(--mobile-surface) !important;
+		background: rgba(0, 0, 0, 0.1) !important;
 		backdrop-filter: blur(20px) !important;
 		border-top: 1px solid var(--mobile-border) !important;
 		padding: 8px 4px calc(8px + env(safe-area-inset-bottom)) !important;
@@ -285,7 +294,7 @@
 
 	/* Mobile Card Design */
 	.mobile-card {
-		background: rgba(0, 0, 0, 0.1);
+		background: transparent;
 		border-radius: var(--mobile-radius);
 		padding: var(--mobile-spacing);
 		margin-bottom: var(--mobile-spacing);
@@ -493,7 +502,7 @@
 		padding: 12px 16px;
 		border: 2px solid var(--mobile-border);
 		border-radius: 12px;
-		background: rgba(0, 0, 0, 0.1);
+		background: transparent !important;
 		color: var(--mobile-text);
 		font-size: 16px;
 		transition: all 0.2s ease;
@@ -504,7 +513,7 @@
 		outline: none;
 		border-color: var(--mobile-primary);
 		box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
-		background: rgba(0, 0, 0, 0.15);
+		background: transparent !important;
 	}
 
 	/* Mobile Category Grid */
@@ -515,7 +524,7 @@
 	}
 
 	.mobile-category-section {
-		background: rgba(0, 0, 0, 0.1);
+		background: transparent;
 		border-radius: 12px;
 		padding: 16px;
 		border: 1px solid var(--mobile-border);
@@ -537,12 +546,12 @@
 		margin-bottom: 12px;
 		padding: 8px 12px;
 		border-radius: 8px;
-		background: rgba(0, 0, 0, 0.05);
+		background: transparent;
 		transition: all 0.2s ease;
 	}
 
 	.mobile-checkbox-group:hover {
-		background: rgba(0, 0, 0, 0.1);
+		background: rgba(0, 0, 0, 0.05);
 	}
 
 	.mobile-checkbox {
@@ -596,7 +605,7 @@
 	}
 
 	.mobile-option-btn {
-		background: rgba(0, 0, 0, 0.1);
+		background: transparent !important;
 		color: var(--mobile-text);
 		border: 2px solid var(--mobile-border);
 		border-radius: 12px;
@@ -614,7 +623,7 @@
 	}
 
 	.mobile-option-btn:hover {
-		background: rgba(0, 0, 0, 0.15);
+		background: rgba(0, 0, 0, 0.05);
 		transform: translateY(-2px);
 	}
 
@@ -630,7 +639,7 @@
 	}
 
 	.mobile-data-info {
-		background: rgba(0, 0, 0, 0.1);
+		background: transparent !important;
 		border-radius: 12px;
 		padding: 16px;
 		border: 1px solid var(--mobile-border);
@@ -2165,7 +2174,7 @@
     }
     
     .mobile-settings-content {
-        background: rgba(255, 255, 255, 0.95);
+        background: transparent !important;
         border-radius: 15px;
         padding: 20px;
         max-width: 90%;
