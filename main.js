@@ -32,7 +32,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Update table selector to reflect loaded settings
     setTimeout(() => {
-        updateTableSelector();
+        if (typeof updateTableSelector === 'function') {
+            updateTableSelector();
+        } else {
+            console.error('updateTableSelector function not found');
+        }
     }, 100);
 });
 
@@ -41,16 +45,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if we're on mobile
     if (window.innerWidth <= 1023) {
         // Mobile: Initialize mobile-specific loading state function
-        initializeMobileLoadingState();
+        if (typeof initializeMobileLoadingState === 'function') {
+            initializeMobileLoadingState();
+        }
         
         // Test API connectivity first
-        testAPIConnectivity(() => {
-            // Start the world records download
-            startWorldRecordsDownload();
-        });
+        if (typeof testAPIConnectivity === 'function') {
+            testAPIConnectivity(() => {
+                // Start the world records download
+                if (typeof startWorldRecordsDownload === 'function') {
+                    startWorldRecordsDownload();
+                }
+            });
+        }
     } else {
         // Desktop: Initialize UI elements IMMEDIATELY
-        initializeUI();
+        if (typeof initializeUI === 'function') {
+            initializeUI();
+        } else {
+            console.error('initializeUI function not found');
+        }
         
         // Scroll to the right on desktop load
         setTimeout(() => {
@@ -58,9 +72,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 100);
         
         // Test API connectivity first
-        testAPIConnectivity(() => {
-            // Start the world records download
-            startWorldRecordsDownload();
-        });
+        if (typeof testAPIConnectivity === 'function') {
+            testAPIConnectivity(() => {
+                // Start the world records download
+                if (typeof startWorldRecordsDownload === 'function') {
+                    startWorldRecordsDownload();
+                }
+            });
+        }
     }
 });
