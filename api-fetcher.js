@@ -989,7 +989,7 @@ async function getAllWorldRecordsForDate(date) {
     let totalRequests = (selectedLevels.length * selectedModes.length + highscoreLevels.length * selectedHighscoreModes.length) * selectedCombinations.length;
     let completedRequests = 0;
     
-    // Clear existing world records
+    // Clear existing world records for time travel (we'll populate with date-specific data)
     worldRecords = {};
     
     // Initialize API call progress tracking
@@ -1101,7 +1101,11 @@ async function getAllWorldRecordsForDate(date) {
             
             if (record.success) {
                 // Create a key for this combination using actual setting names
+                // For time travel, we need to include the date in the key to separate from current date cache
                 let key = `${request.combo[0]}|${request.combo[1]}|${request.combo[2]}|${request.modeName}|${request.levelName}`;
+                if (date) {
+                    key += `|${date}`; // Add date to key for time travel cache separation
+                }
                 
                 // Convert all runs to the expected format
                 let convertedRuns = [];

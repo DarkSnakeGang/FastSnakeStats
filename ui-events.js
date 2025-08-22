@@ -65,7 +65,13 @@ async function toggleTimeTravel() {
     // Only refresh on desktop, not on mobile
     if (window.innerWidth > 1023) {
         if (isLoading) return;
-        await refreshWorldRecordsForSettings();
+        
+        // For time travel, we need to use date-specific cache
+        if (isTimeTravelEnabled && selectedTimeTravelDate) {
+            await getAllWorldRecordsForDate(selectedTimeTravelDate);
+        } else {
+            await refreshWorldRecordsForSettings();
+        }
     }
 }
 

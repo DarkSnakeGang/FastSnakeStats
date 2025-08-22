@@ -74,11 +74,11 @@ async function mobileToggleTimeTravel() {
     // Only refresh data on desktop (not mobile)
     if (window.innerWidth > 1023) {
         // Refresh data based on current state
-        if (isTimeTravelEnabled) {
-            // If time travel is enabled, refresh with current date
-            await refreshWorldRecordsForSettings();
+        if (isTimeTravelEnabled && selectedTimeTravelDate) {
+            // If time travel is enabled with a date, use date-specific cache
+            await getAllWorldRecordsForDate(selectedTimeTravelDate);
         } else {
-            // If time travel is disabled, refresh with current date
+            // If time travel is disabled or no date selected, use current date cache
             await refreshWorldRecordsForSettings();
         }
     }
@@ -922,6 +922,16 @@ function setupMobileSettingsEventListeners() {
             }
             
             saveSettings();
+            
+            // Refresh data with the new date if time travel is enabled
+            if (isTimeTravelEnabled && selectedTimeTravelDate) {
+                // Use date-specific cache for time travel
+                if (typeof getAllWorldRecordsForDate === 'function') {
+                    getAllWorldRecordsForDate(selectedTimeTravelDate);
+                } else if (typeof refreshWorldRecordsForSettings === 'function') {
+                    refreshWorldRecordsForSettings();
+                }
+            }
         });
     }
 
