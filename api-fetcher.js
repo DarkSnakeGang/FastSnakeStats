@@ -245,7 +245,9 @@ async function refreshWorldRecordsForSettings() {
         // Check if it's a 420 error (API overloaded)
         if (error.message && error.message.includes('HTTP 420')) {
             isApiOverloaded = true;
+            window.isApiOverloaded = true;
             console.log('API overloaded (420 error) detected');
+            console.log('isApiOverloaded set to:', isApiOverloaded);
         }
         
         var container = document.querySelector('.container');
@@ -256,6 +258,9 @@ async function refreshWorldRecordsForSettings() {
                 container.innerHTML = '<p style="color: white; font-size: 18px; text-align: center; padding: 20px;">❌ Error refreshing world records. Please try again.</p>';
             }
         }
+        
+        // Update the loading state to show rate limited status
+        setLoadingState(false);
     } finally {
         // Always clear loading state
         setLoadingState(false);
@@ -695,7 +700,9 @@ async function getAllWorldRecordsForCurrentSettings() {
             // Check if it's a 420 error and set the overloaded state
             if (error.message && error.message.includes('HTTP 420')) {
                 isApiOverloaded = true;
+                window.isApiOverloaded = true;
                 console.log('API overloaded (420 error) detected in batch fetch');
+                console.log('isApiOverloaded set to:', isApiOverloaded);
             }
             throw error;
         }
@@ -896,7 +903,7 @@ async function getAllWorldRecordsForDate(date) {
         }
     }
     
-    // Use the WorldRecordFetcher's batch processing (40 concurrent requests)
+    // Use the WorldRecordFetcher's batch processing (50 concurrent requests)
     try {
         const batchResults = await window.worldRecordFetcher.fetchWorldRecordsBatch(allRequests, (completedCount) => {
             apiCallProgress.successful = completedCount;
@@ -960,7 +967,9 @@ async function getAllWorldRecordsForDate(date) {
         // Check if it's a 420 error and set the overloaded state
         if (error.message && error.message.includes('HTTP 420')) {
             isApiOverloaded = true;
+            window.isApiOverloaded = true;
             console.log('API overloaded (420 error) detected in date fetch');
+            console.log('isApiOverloaded set to:', isApiOverloaded);
         }
         throw error;
     }
@@ -1050,44 +1059,88 @@ function startWorldRecordsDownload() {
         
         // Set up a completion check
         var checkCompletion = setInterval(() => {
-            if(Object.keys(worldRecords).length > 0) {
-                clearTimeout(loadingTimeout);
-                clearTimeout(apiTimeout);
-                clearInterval(checkCompletion);
-                
-                // Re-enable category settings after completion
-                setLoadingState(false);
-                
-                calculateBestRuns();
-                calculateRanglist();
-                generateRanglist();
-                // Just update highlighting for existing buttons immediately
-                updateTableSelector();
-                generateSingleTable();
-                
-                var switchButton = document.getElementById("switchButton");
-                if(switchButton) {
-                    switchButton.addEventListener('click', () => {
-                        if(mode == 0){
-                            switchMode(1);
-                        }
-                        else{
-                            switchMode(0);
-                        }
-                    });
+            // For multiple tables mode, wait for all API calls to complete
+            // For single table mode, wait for any records to be loaded
+            if (isMultipleTablesEnabled) {
+                // In multiple tables mode, check if all API calls are completed
+                if (apiCallProgress.total > 0 && apiCallProgress.successful >= apiCallProgress.total) {
+                    clearTimeout(loadingTimeout);
+                    clearTimeout(apiTimeout);
+                    clearInterval(checkCompletion);
+                    
+                    // Re-enable category settings after completion
+                    setLoadingState(false);
+                    
+                    calculateBestRuns();
+                    calculateRanglist();
+                    generateRanglist();
+                    updateTableSelector();
+                    generateSingleTable();
+                    
+                    var switchButton = document.getElementById("switchButton");
+                    if(switchButton) {
+                        switchButton.addEventListener('click', () => {
+                            if(mode == 0){
+                                switchMode(1);
+                            }
+                            else{
+                                switchMode(0);
+                            }
+                        });
+                    }
+                }
+            } else {
+                // In single table mode, check if any records are loaded
+                if(Object.keys(worldRecords).length > 0) {
+                    clearTimeout(loadingTimeout);
+                    clearTimeout(apiTimeout);
+                    clearInterval(checkCompletion);
+                    
+                    // Re-enable category settings after completion
+                    setLoadingState(false);
+                    
+                    calculateBestRuns();
+                    calculateRanglist();
+                    generateRanglist();
+                    updateTableSelector();
+                    generateSingleTable();
+                    
+                    var switchButton = document.getElementById("switchButton");
+                    if(switchButton) {
+                        switchButton.addEventListener('click', () => {
+                            if(mode == 0){
+                                switchMode(1);
+                            }
+                            else{
+                                switchMode(0);
+                            }
+                        });
+                    }
                 }
             }
         }, 1000); // Check every second
         
         // Fallback: if no records after 15 seconds, show error
         setTimeout(() => {
-            if(Object.keys(worldRecords).length === 0) {
-                clearInterval(checkCompletion);
-                if(container) {
-                    container.innerHTML = '<p style="color: white; font-size: 18px;">No world records found. The API might be temporarily unavailable.</p>';
+            if (isMultipleTablesEnabled) {
+                // In multiple tables mode, check if API calls are still in progress
+                if (apiCallProgress.total > 0 && apiCallProgress.successful < apiCallProgress.total) {
+                    clearInterval(checkCompletion);
+                    if(container) {
+                        container.innerHTML = '<p style="color: white; font-size: 18px;">API calls are taking longer than expected. Please wait or try refreshing.</p>';
+                    }
+                    // Don't disable loading state - let it continue
                 }
-                // Re-enable category settings on fallback timeout
-                setLoadingState(false);
+            } else {
+                // In single table mode, check if any records are loaded
+                if(Object.keys(worldRecords).length === 0) {
+                    clearInterval(checkCompletion);
+                    if(container) {
+                        container.innerHTML = '<p style="color: white; font-size: 18px;">No world records found. The API might be temporarily unavailable.</p>';
+                    }
+                    // Re-enable category settings on fallback timeout
+                    setLoadingState(false);
+                }
             }
         }, 15000);
     });
