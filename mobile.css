@@ -334,9 +334,13 @@
 
 	/* Mobile Table Styling - Optimized for 430x932 */
 	.mobile-table-wrapper table,
-	.mobile-multiple-tables-container table {
-		width: 100%;
-		max-width: 410px;
+	.mobile-multiple-tables-container table,
+	.mobile-table-wrapper .multiple-tables-container table,
+	.mobile-multiple-tables-container .multiple-tables-container table,
+	.mobile-table-wrapper .main-table-wrapper table,
+	.mobile-multiple-tables-container .main-table-wrapper table {
+		width: 100% !important;
+		max-width: 410px !important;
 		border-collapse: collapse;
 		font-size: 11px;
 		background: transparent;
@@ -430,6 +434,14 @@
 		max-width: 100%;
 		overflow-x: hidden;
 		overflow-y: hidden;
+	}
+	
+	/* Ensure mobile table content respects viewport width */
+	.mobile-table-content .mobile-table-wrapper,
+	.mobile-table-content .mobile-multiple-tables-container {
+		width: 420px !important;
+		max-width: 420px !important;
+		margin: 0 auto !important;
 	}
 
 	/* Mobile Summary Table Styling */
@@ -544,6 +556,32 @@
 		max-width: 420px;
 		overflow-x: auto;
 	}
+	
+	/* Force all tables inside mobile containers to respect the 410px limit */
+	.mobile-table-wrapper table,
+	.mobile-multiple-tables-container table,
+	.mobile-table-wrapper .multiple-tables-container table,
+	.mobile-multiple-tables-container .multiple-tables-container table {
+		width: 100% !important;
+		max-width: 410px !important;
+		min-width: auto !important;
+		table-layout: fixed !important;
+	}
+	
+	/* Ensure all table cells respect the container width */
+	.mobile-table-wrapper td,
+	.mobile-multiple-tables-container td,
+	.mobile-table-wrapper th,
+	.mobile-multiple-tables-container th,
+	.mobile-table-wrapper .multiple-tables-container td,
+	.mobile-multiple-tables-container .multiple-tables-container td,
+	.mobile-table-wrapper .multiple-tables-container th,
+	.mobile-multiple-tables-container .multiple-tables-container th {
+		max-width: none !important;
+		word-wrap: break-word !important;
+		overflow: hidden !important;
+		text-overflow: ellipsis !important;
+	}
 
 	/* Mobile Time Display */
 	.mobile-table-wrapper .time,
@@ -552,6 +590,27 @@
 		font-weight: 700;
 		color: white !important;
 		margin-bottom: 2px;
+	}
+	
+	/* Comprehensive mobile table size override - catch all tables */
+	.mobile-main table,
+	.mobile-main .mobile-table-wrapper table,
+	.mobile-main .mobile-multiple-tables-container table,
+	.mobile-main .multiple-tables-container table,
+	.mobile-main .main-table-wrapper table {
+		width: 100% !important;
+		max-width: 410px !important;
+		min-width: auto !important;
+		table-layout: fixed !important;
+	}
+	
+	/* Ensure all mobile table containers are properly sized */
+	.mobile-main .mobile-table-wrapper,
+	.mobile-main .mobile-multiple-tables-container,
+	.mobile-main .multiple-tables-container {
+		width: 420px !important;
+		max-width: 420px !important;
+		margin: 0 auto !important;
 	}
 
 	/* Mobile Loading State */
