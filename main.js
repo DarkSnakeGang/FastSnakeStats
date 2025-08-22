@@ -31,12 +31,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize UI elements IMMEDIATELY
-    initializeUI();
-    
-    // Test API connectivity first
-    testAPIConnectivity(() => {
-        // Start the world records download
-        startWorldRecordsDownload();
-    });
+    // Check if we're on mobile
+    if (window.innerWidth <= 1023) {
+        // Mobile: Initialize mobile-specific loading state function
+        initializeMobileLoadingState();
+        
+        // Test API connectivity first
+        testAPIConnectivity(() => {
+            // Start the world records download
+            startWorldRecordsDownload();
+        });
+    } else {
+        // Desktop: Initialize UI elements IMMEDIATELY
+        initializeUI();
+        
+        // Test API connectivity first
+        testAPIConnectivity(() => {
+            // Start the world records download
+            startWorldRecordsDownload();
+        });
+    }
 });

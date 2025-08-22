@@ -1145,6 +1145,90 @@ function getOrdinalSuffix(num) {
     return "th";
 }
 
+// Initialize mobile loading state function (replaces desktop setLoadingState)
+function initializeMobileLoadingState() {
+    // Create a mobile-compatible setLoadingState function
+    window.setLoadingState = function(loading) {
+        isLoading = loading;
+        window.isLoading = isLoading;
+        
+        // Update mobile refresh button
+        const mobileRefreshBtn = document.getElementById('mobileRefreshBtn');
+        if (mobileRefreshBtn) {
+            if (loading) {
+                if (isApiOverloaded) {
+                    mobileRefreshBtn.textContent = '⏳ Rate limited';
+                    mobileRefreshBtn.disabled = true;
+                    mobileRefreshBtn.setAttribute('title', 'API is rate limited. Please wait...');
+                } else {
+                    mobileRefreshBtn.textContent = '⏳ Loading...';
+                    mobileRefreshBtn.disabled = true;
+                    mobileRefreshBtn.setAttribute('title', 'Please wait while world records are being fetched...');
+                }
+            } else if (isApiOverloaded) {
+                mobileRefreshBtn.textContent = '⚠️ SRC API overloaded';
+                mobileRefreshBtn.disabled = false;
+                mobileRefreshBtn.setAttribute('title', 'Speedrun.com API is overloaded. Click to retry.');
+            } else {
+                mobileRefreshBtn.textContent = '🔄 Refresh';
+                mobileRefreshBtn.disabled = false;
+                mobileRefreshBtn.setAttribute('title', 'Refresh world records for current settings');
+            }
+        }
+        
+        // Update mobile time travel button
+        const mobileTimeTravelBtn = document.getElementById('mobileTimeTravelBtn');
+        if (mobileTimeTravelBtn) {
+            mobileTimeTravelBtn.disabled = loading;
+            mobileTimeTravelBtn.title = loading ? 'Loading...' : (isTimeTravelEnabled ? 'Time travel mode enabled. Click to disable.' : 'Time travel mode disabled. Click to enable.');
+        }
+        
+        // Update mobile multiple tables button
+        const mobileMultipleTablesBtn = document.getElementById('mobileMultipleTablesToggle');
+        if (mobileMultipleTablesBtn) {
+            mobileMultipleTablesBtn.disabled = loading;
+            mobileMultipleTablesBtn.title = loading ? 'Loading...' : (isMultipleTablesEnabled ? 'Multiple tables mode enabled. Click to disable.' : 'Multiple tables mode disabled. Click to enable.');
+        }
+        
+        // Update mobile stop/resume button
+        const mobileStopResumeBtn = document.getElementById('mobileStopResumeBtn');
+        if (mobileStopResumeBtn) {
+            if (loading && (apiCallProgress.total > 0 || isApiPaused)) {
+                mobileStopResumeBtn.style.display = 'block';
+                if (isApiPaused) {
+                    mobileStopResumeBtn.textContent = '▶️ Resume';
+                    mobileStopResumeBtn.setAttribute('title', 'Resume API calls');
+                } else {
+                    mobileStopResumeBtn.textContent = '⏸️ Stop';
+                    mobileStopResumeBtn.setAttribute('title', 'Stop API calls');
+                }
+            } else if (isApiPaused && apiCallProgress.total > 0 && apiCallProgress.successful < apiCallProgress.total) {
+                mobileStopResumeBtn.style.display = 'block';
+                mobileStopResumeBtn.textContent = '▶️ Resume';
+                mobileStopResumeBtn.setAttribute('title', 'Resume API calls');
+            } else if (!loading && apiCallProgress.total > 0 && apiCallProgress.successful >= apiCallProgress.total) {
+                mobileStopResumeBtn.style.display = 'none';
+            }
+        }
+        
+        // Disable mobile settings buttons during loading
+        const mobileSettingsButtons = document.querySelectorAll('.mobile-table-option-btn');
+        mobileSettingsButtons.forEach(function(button) {
+            if (loading) {
+                button.disabled = true;
+                button.style.opacity = '0.5';
+                button.style.cursor = 'not-allowed';
+            } else {
+                button.disabled = false;
+                button.style.opacity = '1';
+                button.style.cursor = 'pointer';
+            }
+        });
+    };
+    
+    console.log('Mobile loading state function initialized');
+}
+
 // Export functions for use in other modules
 window.mobileUI = {
     initializeSimpleMobileUI,
@@ -1152,6 +1236,7 @@ window.mobileUI = {
     showBasicMobileSettingsSection,
     showBasicMobileRecordsSection,
     showBasicMobileSummarySection,
-    loadMobileSummaryData
+    loadMobileSummaryData,
+    initializeMobileLoadingState
 };
 
