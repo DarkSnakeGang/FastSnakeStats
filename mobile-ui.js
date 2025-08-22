@@ -9,6 +9,82 @@ let mobileState = {
     isLoading: false
 };
 
+// Mobile-specific toggle functions (in case desktop functions aren't available)
+function mobileToggleDarkMode() {
+    isDarkMode = !isDarkMode;
+    if(isDarkMode) {
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.remove('dark-mode');
+    }
+    saveSettings();
+    
+    // Update desktop toggle button icon and text
+    const toggleBtn = document.querySelector('.dark-mode-toggle');
+    if(toggleBtn) {
+        toggleBtn.innerHTML = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+    }
+    
+    // Update mobile toggle button
+    const mobileToggleBtn = document.getElementById('mobileDarkModeToggle');
+    if(mobileToggleBtn) {
+        mobileToggleBtn.innerHTML = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+        mobileToggleBtn.setAttribute('title', isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode');
+    }
+}
+
+async function mobileToggleTimeTravel() {
+    isTimeTravelEnabled = !isTimeTravelEnabled;
+    saveSettings();
+    
+    // Update desktop toggle button
+    const timeTravelBtn = document.querySelector('.time-travel-btn');
+    if(timeTravelBtn) {
+        if(isTimeTravelEnabled) {
+            timeTravelBtn.innerHTML = '⏰ Time Travel';
+            timeTravelBtn.classList.add('active');
+            timeTravelBtn.setAttribute('title', 'Time travel mode enabled. Click to disable.');
+        } else {
+            timeTravelBtn.innerHTML = '⏰ Time Travel';
+            timeTravelBtn.classList.remove('active');
+            timeTravelBtn.setAttribute('title', 'Time travel mode disabled. Click to enable.');
+        }
+    }
+    
+    // Update mobile toggle button
+    const mobileTimeTravelBtn = document.getElementById('mobileTimeTravelBtn');
+    if(mobileTimeTravelBtn) {
+        if(isTimeTravelEnabled) {
+            mobileTimeTravelBtn.classList.add('active');
+            mobileTimeTravelBtn.setAttribute('title', 'Time travel mode enabled. Click to disable.');
+        } else {
+            mobileTimeTravelBtn.classList.remove('active');
+            mobileTimeTravelBtn.setAttribute('title', 'Time travel mode disabled. Click to enable.');
+        }
+    }
+    
+    // Auto-resume API calls if they were paused
+    if (isApiPaused) {
+        isApiPaused = false;
+        window.isApiPaused = false;
+    }
+    
+    // Only refresh data on desktop (not mobile)
+    if (window.innerWidth > 1023) {
+        // Refresh data based on current state
+        if (isTimeTravelEnabled) {
+            // If time travel is enabled, refresh with current date
+            await refreshWorldRecordsForSettings();
+        } else {
+            // If time travel is disabled, refresh with current date
+            await refreshWorldRecordsForSettings();
+        }
+    }
+    
+    // Update date picker state
+    updateMobileDatePickerState();
+}
+
 // Initialize mobile UI when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     if (window.innerWidth <= 1023) {
@@ -739,11 +815,14 @@ function setupMobileOptionsListeners() {
     const darkModeToggle = document.getElementById('mobileDarkModeToggle');
     if (darkModeToggle) {
         darkModeToggle.addEventListener('click', function() {
-            toggleDarkMode();
-            saveSettings();
-            // Update button text
-            this.textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
-            this.setAttribute('title', isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode');
+            // Use mobile-specific function if available, fallback to desktop function
+            if (typeof mobileToggleDarkMode === 'function') {
+                mobileToggleDarkMode();
+            } else if (typeof toggleDarkMode === 'function') {
+                toggleDarkMode();
+            } else {
+                console.error('toggleDarkMode function not available');
+            }
         });
     }
 
@@ -760,19 +839,14 @@ function setupMobileOptionsListeners() {
         }
         
         timeTravelBtn.addEventListener('click', function() {
-            toggleTimeTravel();
-            saveSettings();
-            // Update button state
-            if (isTimeTravelEnabled) {
-                this.classList.add('active');
-                this.setAttribute('title', 'Time travel mode enabled. Click to disable.');
+            // Use mobile-specific function if available, fallback to desktop function
+            if (typeof mobileToggleTimeTravel === 'function') {
+                mobileToggleTimeTravel();
+            } else if (typeof toggleTimeTravel === 'function') {
+                toggleTimeTravel();
             } else {
-                this.classList.remove('active');
-                this.setAttribute('title', 'Time travel mode disabled. Click to enable.');
+                console.error('toggleTimeTravel function not available');
             }
-            
-            // Update date picker to reflect time travel state
-            updateMobileDatePickerState();
         });
     }
 
