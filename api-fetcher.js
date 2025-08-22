@@ -449,8 +449,25 @@ async function refreshSpecificTable(settings) {
                 }
             }
         } else {
-            // In single table mode, regenerate the single table
-            generateSingleTable();
+            // In single table mode, update only the table content without regenerating the entire UI
+            var mainTable = document.querySelector('.main-table-wrapper table');
+            if (mainTable) {
+                // Clear existing table content
+                mainTable.innerHTML = '';
+                
+                // Generate new table content for the current settings
+                generateTableContent(mainTable, currentTableSettings, null);
+            }
+            
+            // Also update the ranglist if it exists
+            var ranglistTable = document.querySelector('.ranglist-wrapper table');
+            if (ranglistTable) {
+                // Clear existing ranglist content
+                ranglistTable.innerHTML = '';
+                
+                // Regenerate ranglist content
+                generateRanglist();
+            }
         }
         
     } catch (error) {
