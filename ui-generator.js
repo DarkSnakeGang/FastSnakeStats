@@ -64,39 +64,45 @@ function convertSpeedInfoTime(duration) {
 }
 
 function calculateBestRuns(callback){
-    generateRunHolder(bestRuns);
-    
-    // Process world records directly
-    for(var key in worldRecords){
-        var runs = worldRecords[key];
-        var settings = key.split("|");
-        var appleAmount = settings[0];
-        var speed = settings[1];
-        var size = settings[2];
-        var gamemode = settings[3];
-        var runMode = settings[4];
+    try {
+        generateRunHolder(bestRuns);
         
-        try{
-            // Store all runs for this combination
-            bestRuns[appleAmount][speed][size][gamemode][runMode] = runs;
+        // Process world records directly
+        for(var key in worldRecords){
+            var runs = worldRecords[key];
+            var settings = key.split("|");
+            var appleAmount = settings[0];
+            var speed = settings[1];
+            var size = settings[2];
+            var gamemode = settings[3];
+            var runMode = settings[4];
             
-            // Track dates for historical features (use the first run's date)
-            if(runs.length > 0) {
-                var rundate = new Date(runs[0].date);
-                if(firstdate == undefined){
-                    firstdate = rundate;
-                }
-                else if(rundate < firstdate){
-                    firstdate = rundate;
+            try{
+                // Store all runs for this combination
+                bestRuns[appleAmount][speed][size][gamemode][runMode] = runs;
+                
+                // Track dates for historical features (use the first run's date)
+                if(runs.length > 0) {
+                    var rundate = new Date(runs[0].date);
+                    if(firstdate == undefined){
+                        firstdate = rundate;
+                    }
+                    else if(rundate < firstdate){
+                        firstdate = rundate;
+                    }
                 }
             }
+            catch{//non valid combination
+            }
         }
-        catch{//non valid combination
+        
+        if(typeof(callback) != "undefined"){
+            callback();
         }
-    }
-    
-    if(typeof(callback) != "undefined"){
-        callback();
+    } catch (error) {
+        console.error('Error in calculateBestRuns:', error);
+        console.error('Error stack:', error.stack);
+        throw error; // Re-throw the error so it can be caught by the calling function
     }
 }
 
@@ -259,6 +265,134 @@ function createNameElement(user){
 
     a.appendChild(span);
     return a;
+}
+
+// Function to generate table content for a specific combination (used for refresh)
+function generateTableContent(table, settings, specificGamemode = null) {
+    try {
+        // Validate parameters
+        if (!table || !settings || !Array.isArray(settings) || settings.length === 0) {
+            console.error('Invalid parameters for generateTableContent:', { table, settings });
+            return;
+        }
+    
+    // Get the runs for this specific combination
+    var thisBoardRuns = {};
+    var thisBoardRunModes = [];
+    
+    // Get visible run modes for this board
+    for(runMode in runModes){
+        if(runModes[runMode] && runModes[runMode].visible){
+            thisBoardRunModes.push(runMode);
+        }
+    }
+    
+    // Get runs for this specific combination from worldRecords
+    for(gamemode in gamemodes){
+        if(gamemodes[gamemode] && gamemodes[gamemode].visible){
+            thisBoardRuns[gamemode] = {};
+            for(runMode of thisBoardRunModes){
+                var key = settings[0] + "|" + settings[1] + "|" + settings[2] + "|" + gamemode + "|" + runMode;
+                if(typeof(worldRecords[key]) != 'undefined'){
+                    thisBoardRuns[gamemode][runMode] = worldRecords[key];
+                }
+            }
+        }
+    }
+    
+    // Create thead
+    var thead = document.createElement('thead');
+    var row = document.createElement('tr');
+    var firstHeaderCell = document.createElement('th');
+    firstHeaderCell.innerHTML = settings[0] + " " + settings[1] + " " + settings[2];
+    
+    // Add individual refresh button for multiple tables
+    if (isMultipleTablesEnabled) {
+        var refreshButton = document.createElement('button');
+        refreshButton.setAttribute('class', 'table-option-btn refresh-btn individual-refresh-btn');
+        refreshButton.innerHTML = '🔄';
+        refreshButton.setAttribute('title', `Refresh ${settings[0]} ${settings[1]} ${settings[2]} table`);
+        refreshButton.onclick = function(settings) {
+            return async function() {
+                if (isLoading) return; // Prevent clicks while loading
+                await refreshSpecificTable(settings);
+            };
+        }(settings);
+        
+        // Add button to the first header cell
+        firstHeaderCell.appendChild(refreshButton);
+    }
+    
+    row.appendChild(firstHeaderCell);
+    for(runMode of thisBoardRunModes){
+        let th = document.createElement('th');
+        th.appendChild(createIconElement(runModes[runMode]));
+        row.appendChild(th);
+    }
+    thead.appendChild(row);
+    table.appendChild(thead);
+
+    // Create tbody
+    var tbody = document.createElement('tbody');
+    for(gamemode in thisBoardRuns){
+        if(gamemodes[gamemode] && gamemodes[gamemode].visible && (specificGamemode === null || gamemode === specificGamemode)){
+            row = document.createElement('tr');
+            th = document.createElement('th');
+            th.appendChild(createIconElement(gamemodes[gamemode]));
+            row.appendChild(th);
+
+            for(runMode of thisBoardRunModes){
+                td = document.createElement('td');
+                if(typeof(thisBoardRuns[gamemode][runMode]) != 'undefined'){
+                    td.setAttribute('class','result');
+                    if(thisBoardRuns[gamemode][runMode].length != 0){
+                        // Create a container for all runs
+                        var runsContainer = document.createElement('div');
+                        runsContainer.setAttribute('class', 'runs-container');
+                        
+                        // Add time display (same for all tied runs) - link to first run
+                        var timeDisplay = document.createElement('div');
+                        timeDisplay.setAttribute('class', 'time-display');
+                        var timeLink = document.createElement('a');
+                        timeLink.setAttribute('href', thisBoardRuns[gamemode][runMode][0].weblink);
+                        timeLink.setAttribute('target', '_blank');
+                        timeLink.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode][0].times));
+                        timeDisplay.appendChild(timeLink);
+                        runsContainer.appendChild(timeDisplay);
+                        
+                        // Add all player names with their individual links
+                        for(var i = 0; i < thisBoardRuns[gamemode][runMode].length; i++){
+                            var run = thisBoardRuns[gamemode][runMode][i];
+                            var playerLink = document.createElement('a');
+                            playerLink.setAttribute('href', run.weblink);
+                            playerLink.setAttribute('target','_blank');
+                            playerLink.appendChild(createNameElement(run.players.data[0]));
+                            
+                            // Add separator between players (except for the last one)
+                            if(i < thisBoardRuns[gamemode][runMode].length - 1) {
+                                var separator = document.createElement('span');
+                                separator.innerHTML = ' ';
+                                separator.setAttribute('class', 'player-separator');
+                                runsContainer.appendChild(separator);
+                            }
+                            
+                            runsContainer.appendChild(playerLink);
+                        }
+                        
+                        td.appendChild(runsContainer);
+                    }
+                }
+                row.appendChild(td);
+            }
+            tbody.appendChild(row);
+        }
+    }
+    table.appendChild(tbody);
+    } catch (error) {
+        console.error('Error in generateTableContent:', error);
+        console.error('Error stack:', error.stack);
+        throw error; // Re-throw the error so it can be caught by the calling function
+    }
 }
 
 function generateLeaderboard(settings, specificGamemode = null){
@@ -575,25 +709,31 @@ function generateLeaderboardForMultiple(settings, container){
 }
 
 function generateSingleTable(){
-    // Clear existing content
-    removeLeaderboards();
-    
-    // Only generate table if we have data
-    if(Object.keys(worldRecords).length > 0) {
-        if(isMultipleTablesEnabled) {
-            generateMultipleTables();
+    try {
+        // Clear existing content
+        removeLeaderboards();
+        
+        // Only generate table if we have data
+        if(Object.keys(worldRecords).length > 0) {
+            if(isMultipleTablesEnabled) {
+                generateMultipleTables();
+            } else {
+                generateLeaderboard(currentTableSettings);
+                // Also generate the ranglist (summary table)
+                calculateRanglist();
+                generateRanglist();
+            }
         } else {
-            generateLeaderboard(currentTableSettings);
-            // Also generate the ranglist (summary table)
-            calculateRanglist();
-            generateRanglist();
+            // Show a message that data is loading
+            var container = document.querySelector('.container');
+            if(container) {
+                container.innerHTML = '<p style="color: white; font-size: 18px;">Loading world records...</p>';
+            }
         }
-    } else {
-        // Show a message that data is loading
-        var container = document.querySelector('.container');
-        if(container) {
-            container.innerHTML = '<p style="color: white; font-size: 18px;">Loading world records...</p>';
-        }
+    } catch (error) {
+        console.error('Error in generateSingleTable:', error);
+        console.error('Error stack:', error.stack);
+        throw error; // Re-throw the error so it can be caught by the calling function
     }
 }
 

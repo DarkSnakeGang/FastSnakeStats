@@ -559,6 +559,9 @@ function loadMobileTableData() {
                         const clonedContent = multipleTablesElement.cloneNode(true);
                         multipleTablesContainer.appendChild(clonedContent);
                         
+                        // Add individual refresh buttons to mobile multiple tables
+                        addMobileIndividualRefreshButtons();
+                        
                         // Hide the desktop container again
                         desktopContainer.style.display = 'none';
                         console.log('Multiple tables loaded successfully');
@@ -640,6 +643,86 @@ function loadMobileTableData() {
                 <p>Loading world records...</p>
             </div>
         `;
+    }
+    
+    // Function to add individual refresh buttons to mobile multiple tables
+    function addMobileIndividualRefreshButtons() {
+        console.log('Adding individual refresh buttons to mobile multiple tables...');
+        
+        // Find all table wrappers in mobile multiple tables container
+        const mobileTableWrappers = document.querySelectorAll('.mobile-multiple-tables-container .table-wrapper');
+        
+        mobileTableWrappers.forEach(tableWrapper => {
+            // Get the settings from the data-settings attribute
+            const settingsAttr = tableWrapper.getAttribute('data-settings');
+            if (!settingsAttr) {
+                console.log('No data-settings found for table wrapper');
+                return;
+            }
+            
+            const settings = settingsAttr.split('|');
+            if (settings.length < 3) {
+                console.log('Invalid settings format:', settingsAttr);
+                return;
+            }
+            
+            // Find the table header cell (first th in thead)
+            const table = tableWrapper.querySelector('table');
+            if (!table) {
+                console.log('No table found in wrapper');
+                return;
+            }
+            
+            const thead = table.querySelector('thead');
+            if (!thead) {
+                console.log('No thead found in table');
+                return;
+            }
+            
+            // Find the second row (the one with the refresh button)
+            const headerRows = thead.querySelectorAll('tr');
+            if (headerRows.length < 2) {
+                console.log('Not enough header rows found');
+                return;
+            }
+            
+            const secondRow = headerRows[1]; // Second row (index 1)
+            const firstHeaderCell = secondRow.querySelector('th');
+            
+            if (!firstHeaderCell) {
+                console.log('No first header cell found');
+                return;
+            }
+            
+            // Check if refresh button already exists
+            const existingButton = firstHeaderCell.querySelector('.individual-refresh-btn');
+            if (existingButton) {
+                console.log('Refresh button already exists for this table');
+                return;
+            }
+            
+            // Create mobile-specific refresh button
+            const refreshButton = document.createElement('button');
+            refreshButton.setAttribute('class', 'table-option-btn refresh-btn individual-refresh-btn mobile-individual-refresh-btn');
+            refreshButton.innerHTML = '🔄';
+            refreshButton.setAttribute('title', `Refresh ${settings[0]} ${settings[1]} ${settings[2]} table`);
+            refreshButton.onclick = function(settings) {
+                return async function() {
+                    if (isLoading) return; // Prevent clicks while loading
+                    console.log('Mobile individual refresh clicked for settings:', settings);
+                    await refreshSpecificTable(settings);
+                    
+                    // Refresh the mobile display after the data is updated
+                    setTimeout(() => {
+                        loadMobileTableData();
+                    }, 100);
+                };
+            }(settings);
+            
+            // Add button to the first header cell
+            firstHeaderCell.appendChild(refreshButton);
+            console.log('Added mobile individual refresh button for settings:', settings);
+        });
     }
 }
 

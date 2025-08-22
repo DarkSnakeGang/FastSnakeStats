@@ -433,15 +433,21 @@ async function refreshSpecificTable(settings) {
         calculateBestRuns();
         calculateRanglist();
         
-        // Regenerate only the specific table
+        // Update only the specific table data without regenerating the entire table
         if (isMultipleTablesEnabled) {
-            // Remove the old table
-            var oldTableWrapper = document.querySelector(`[data-settings="${settings.join('|')}"]`);
-            if (oldTableWrapper) {
-                oldTableWrapper.remove();
+            // Find the existing table and update its data
+            var tableWrapper = document.querySelector(`[data-settings="${settings.join('|')}"]`);
+            if (tableWrapper) {
+                // Update the table data by regenerating only the content
+                var table = tableWrapper.querySelector('table');
+                if (table) {
+                    // Clear existing table content
+                    table.innerHTML = '';
+                    
+                    // Generate new table content for this specific combination
+                    generateTableContent(table, settings, null);
+                }
             }
-            // Generate the new table
-            generateLeaderboard(settings);
         } else {
             // In single table mode, regenerate the single table
             generateSingleTable();
