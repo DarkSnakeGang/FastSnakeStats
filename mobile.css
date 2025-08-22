@@ -266,7 +266,7 @@
 
 	.mobile-controls-grid {
 		display: grid;
-		grid-template-columns: repeat(2, 1fr);
+		grid-template-columns: 1fr;
 		gap: 12px;
 		margin-bottom: 16px;
 	}
@@ -313,7 +313,7 @@
 	.mobile-table-wrapper table,
 	.mobile-multiple-tables-container table {
 		width: 100%;
-		max-width: 100%;
+		max-width: 410px;
 		border-collapse: collapse;
 		font-size: 11px;
 		background: transparent;
@@ -403,8 +403,8 @@
 
 	/* Mobile Table Content Container */
 	.mobile-table-content {
-		width: calc(100% + 100px);
-		max-width: calc(100% + 100px);
+		width: 420px;
+		max-width: 420px;
 		overflow-x: auto;
 		overflow-y: hidden;
 	}
@@ -412,8 +412,8 @@
 	/* Ensure table fits within mobile viewport with extra scroll space */
 	.mobile-table-wrapper,
 	.mobile-multiple-tables-container {
-		width: calc(100% + 100px);
-		max-width: calc(100% + 100px);
+		width: 420px;
+		max-width: 420px;
 		overflow-x: auto;
 	}
 
@@ -584,39 +584,32 @@
 		background: #218838 !important;
 	}
 
-	/* Mobile Multiple Tables Button - Desktop Style */
-	.mobile-option-btn#mobileMultipleTablesBtn,
+	/* Mobile Multiple Tables Button - Settings Style (matches other settings buttons) */
 	.mobile-option-btn#mobileMultipleTablesToggle {
-		width: auto;
-		min-width: 120px;
-		height: 40px;
-		font-size: 14px;
-		font-weight: 600;
-		background: linear-gradient(135deg, #8B0000, #B22222) !important;
-		color: white !important;
-		border: 1px solid rgba(77, 193, 249, 0.2) !important;
-		border-radius: 8px !important;
-		padding: 10px 15px !important;
-		transition: all 0.3s ease;
+		background: transparent !important;
+		color: var(--mobile-text) !important;
+		border: 2px solid var(--mobile-border) !important;
+		border-radius: 12px !important;
+		padding: 12px 16px !important;
+		font-size: 14px !important;
+		font-weight: 600 !important;
+		transition: all 0.2s ease !important;
 	}
 
-	.mobile-option-btn#mobileMultipleTablesBtn.active,
 	.mobile-option-btn#mobileMultipleTablesToggle.active {
-		background: #28a745 !important;
+		background: var(--mobile-primary) !important;
 		color: white !important;
-		border: 1px solid rgba(77, 193, 249, 0.2) !important;
-		border-radius: 8px !important;
-		padding: 10px 15px !important;
+		border-color: var(--mobile-primary) !important;
 	}
 
-	.mobile-option-btn#mobileMultipleTablesBtn:hover,
 	.mobile-option-btn#mobileMultipleTablesToggle:hover {
-		background: linear-gradient(135deg, #660000, #8B0000) !important;
+		background: rgba(0, 0, 0, 0.05) !important;
+		transform: translateY(-2px) !important;
 	}
 
-	.mobile-option-btn#mobileMultipleTablesBtn.active:hover,
 	.mobile-option-btn#mobileMultipleTablesToggle.active:hover {
-		background: #218838 !important;
+		background: var(--mobile-primary) !important;
+		color: white !important;
 	}
 
 	.mobile-btn-group {
@@ -662,28 +655,24 @@
 		background: #218838 !important;
 	}
 
-	body.dark-mode .mobile-option-btn#mobileMultipleTablesBtn,
 	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle {
-		background: linear-gradient(135deg, #8B0000, #B22222) !important;
-		border: 1px solid rgba(77, 193, 249, 0.2) !important;
+		background: transparent !important;
+		color: var(--mobile-text) !important;
+		border: 2px solid var(--mobile-border) !important;
 	}
 
-	body.dark-mode .mobile-option-btn#mobileMultipleTablesBtn.active,
 	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle.active {
-		background: #28a745 !important;
+		background: var(--mobile-primary) !important;
 		color: white !important;
-		border: 1px solid rgba(77, 193, 249, 0.2) !important;
-		border-radius: 8px !important;
-		padding: 10px 15px !important;
+		border-color: var(--mobile-primary) !important;
 	}
 
-	body.dark-mode .mobile-option-btn#mobileMultipleTablesBtn:hover,
 	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle:hover {
-		background: linear-gradient(135deg, #660000, #8B0000) !important;
+		background: rgba(255, 255, 255, 0.05) !important;
 	}
 
-	body.dark-mode .mobile-option-btn#mobileMultipleTablesBtn.active:hover,
 	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle.active:hover {
-		background: #218838 !important;
+		background: var(--mobile-primary) !important;
+		color: white !important;
 	}
 }

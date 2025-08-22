@@ -230,9 +230,6 @@ function showBasicMobileRecordsSection() {
             <div class="mobile-records-controls">
                 <div class="mobile-controls-grid">
                     <button class="mobile-option-btn" id="mobileRefreshBtn">🔄 Refresh</button>
-                    <button class="mobile-option-btn" id="mobileMultipleTablesBtn" ${isMultipleTablesEnabled ? 'class="mobile-option-btn active"' : 'class="mobile-option-btn"'}>
-                        📊 Multiple Tables
-                    </button>
                 </div>
                 
                 <!-- Data Section -->
@@ -340,36 +337,7 @@ function setupMobileRecordsEventListeners() {
         });
     }
 
-    // Multiple tables button
-    const multipleTablesBtn = document.getElementById('mobileMultipleTablesBtn');
-    if (multipleTablesBtn) {
-        // Set initial state
-        if (isMultipleTablesEnabled) {
-            multipleTablesBtn.classList.add('active');
-            multipleTablesBtn.setAttribute('title', 'Multiple tables mode enabled. Click to disable.');
-        } else {
-            multipleTablesBtn.classList.remove('active');
-            multipleTablesBtn.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
-        }
-        
-        multipleTablesBtn.addEventListener('click', function() {
-            // Toggle the state
-            isMultipleTablesEnabled = !isMultipleTablesEnabled;
-            saveSettings();
-            
-            // Update button state
-            if (isMultipleTablesEnabled) {
-                this.classList.add('active');
-                this.setAttribute('title', 'Multiple tables mode enabled. Click to disable.');
-            } else {
-                this.classList.remove('active');
-                this.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
-            }
-            
-            // Reload table data after toggle
-            loadMobileTableData();
-        });
-    }
+
 
     // Stop/resume button
     const stopResumeBtn = document.getElementById('mobileStopResumeBtn');
@@ -572,6 +540,34 @@ function showBasicMobileSettingsSection() {
     
     // Ensure settings are synchronized with desktop system
     console.log('Mobile settings section loaded - settings synchronized with desktop');
+    
+    // Initialize run modes and game modes to be all selected if they haven't been set before
+    initializeMobileRunAndGameModes();
+}
+
+// Initialize run modes and game modes to be all selected
+function initializeMobileRunAndGameModes() {
+    // Check if run modes have been initialized before
+    const runModesInitialized = localStorage.getItem('mobileRunModesInitialized');
+    if (!runModesInitialized) {
+        // Set all run modes to visible
+        for (const [key, value] of Object.entries(runModes)) {
+            value.visible = true;
+        }
+        localStorage.setItem('mobileRunModesInitialized', 'true');
+        saveSettings();
+    }
+    
+    // Check if game modes have been initialized before
+    const gameModesInitialized = localStorage.getItem('mobileGameModesInitialized');
+    if (!gameModesInitialized) {
+        // Set all game modes to visible
+        for (const [key, value] of Object.entries(gamemodes)) {
+            value.visible = true;
+        }
+        localStorage.setItem('mobileGameModesInitialized', 'true');
+        saveSettings();
+    }
 }
 
 // Generate mobile category checkboxes
@@ -653,7 +649,8 @@ function generateMobileCategoryCheckboxes() {
 function generateMobileRunModeCheckboxes() {
     let html = '';
     for (const [key, value] of Object.entries(runModes)) {
-        const isChecked = isMultipleTablesEnabled ? value.visible : (currentTableSettings[4] === key);
+        // Run modes are always toggle behavior and start all selected
+        const isChecked = value.visible;
         html += `
             <div class="mobile-checkbox-group">
                 <input type="checkbox" id="mobile_${value.id}" class="mobile-checkbox" ${isChecked ? 'checked' : ''}>
@@ -756,11 +753,8 @@ function setupMobileOptionsListeners() {
                 this.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
             }
             
-            // Regenerate mobile settings to show proper radio/toggle behavior
-            showBasicMobileSettingsSection();
-            
-            // Refresh table when switching to records
-            refreshMobileTableAfterSettingsChange();
+            // Update checkbox states to reflect new radio/toggle behavior
+            updateMobileCheckboxStates();
         });
     }
 }
@@ -861,25 +855,9 @@ function setupMobileCheckboxListeners() {
         const checkbox = document.getElementById(`mobile_${value.id}`);
         if (checkbox) {
             checkbox.addEventListener('change', function() {
-                if (isMultipleTablesEnabled) {
-                    // Toggle behavior: toggle the visible state
-                    gamemodes[key].visible = this.checked;
-                } else {
-                    // Radio behavior: set only this one as active
-                    currentTableSettings[3] = key;
-                    // Uncheck all other game modes
-                    for (const [otherKey, otherValue] of Object.entries(gamemodes)) {
-                        if (otherKey !== key) {
-                            const otherCheckbox = document.getElementById(`mobile_${otherValue.id}`);
-                            if (otherCheckbox) {
-                                otherCheckbox.checked = false;
-                            }
-                        }
-                    }
-                }
+                // Game modes are always toggle behavior
+                gamemodes[key].visible = this.checked;
                 saveSettings();
-                // Refresh table when settings change
-                refreshMobileTableAfterSettingsChange();
             });
         }
     }
@@ -889,25 +867,9 @@ function setupMobileCheckboxListeners() {
         const checkbox = document.getElementById(`mobile_${value.id}`);
         if (checkbox) {
             checkbox.addEventListener('change', function() {
-                if (isMultipleTablesEnabled) {
-                    // Toggle behavior: toggle the visible state
-                    runModes[key].visible = this.checked;
-                } else {
-                    // Radio behavior: set only this one as active
-                    currentTableSettings[4] = key;
-                    // Uncheck all other run modes
-                    for (const [otherKey, otherValue] of Object.entries(runModes)) {
-                        if (otherKey !== key) {
-                            const otherCheckbox = document.getElementById(`mobile_${otherValue.id}`);
-                            if (otherCheckbox) {
-                                otherCheckbox.checked = false;
-                            }
-                        }
-                    }
-                }
+                // Run modes are always toggle behavior
+                runModes[key].visible = this.checked;
                 saveSettings();
-                // Refresh table when settings change
-                refreshMobileTableAfterSettingsChange();
             });
         }
     }
@@ -929,6 +891,54 @@ function refreshMobileTableAfterSettingsChange() {
         console.log('Refreshing mobile table after settings change');
         // Reload the table data with new settings
         loadMobileTableData();
+    }
+}
+
+// Update mobile checkbox states to reflect radio/toggle behavior
+function updateMobileCheckboxStates() {
+    // Apple Amounts
+    for (const [key, value] of Object.entries(appleAmounts)) {
+        const checkbox = document.getElementById(`mobile_${value.id}`);
+        if (checkbox) {
+            const isChecked = isMultipleTablesEnabled ? value.visible : (currentTableSettings[0] === key);
+            checkbox.checked = isChecked;
+        }
+    }
+
+    // Speeds
+    for (const [key, value] of Object.entries(speeds)) {
+        const checkbox = document.getElementById(`mobile_${value.id}`);
+        if (checkbox) {
+            const isChecked = isMultipleTablesEnabled ? value.visible : (currentTableSettings[1] === key);
+            checkbox.checked = isChecked;
+        }
+    }
+
+    // Sizes
+    for (const [key, value] of Object.entries(sizes)) {
+        const checkbox = document.getElementById(`mobile_${value.id}`);
+        if (checkbox) {
+            const isChecked = isMultipleTablesEnabled ? value.visible : (currentTableSettings[2] === key);
+            checkbox.checked = isChecked;
+        }
+    }
+
+    // Game Modes
+    for (const [key, value] of Object.entries(gamemodes)) {
+        const checkbox = document.getElementById(`mobile_${value.id}`);
+        if (checkbox) {
+            // Game modes are always toggle behavior
+            checkbox.checked = value.visible;
+        }
+    }
+
+    // Run Modes
+    for (const [key, value] of Object.entries(runModes)) {
+        const checkbox = document.getElementById(`mobile_${value.id}`);
+        if (checkbox) {
+            // Run modes are always toggle behavior
+            checkbox.checked = value.visible;
+        }
     }
 }
 
