@@ -280,21 +280,32 @@ function generateTableContent(table, settings, specificGamemode = null) {
     var thisBoardRuns = {};
     var thisBoardRunModes = [];
     
-    // Get visible run modes for this board
-    for(runMode in runModes){
-        if(runModes[runMode] && runModes[runMode].visible){
-            thisBoardRunModes.push(runMode);
-        }
-    }
-    
     // Get runs for this specific combination from worldRecords
     for(gamemode in gamemodes){
         if(gamemodes[gamemode] && gamemodes[gamemode].visible){
             thisBoardRuns[gamemode] = {};
-            for(runMode of thisBoardRunModes){
-                var key = settings[0] + "|" + settings[1] + "|" + settings[2] + "|" + gamemode + "|" + runMode;
-                if(typeof(worldRecords[key]) != 'undefined'){
-                    thisBoardRuns[gamemode][runMode] = worldRecords[key];
+            for(runMode in runModes){
+                if(runModes[runMode] && runModes[runMode].visible){
+                    // Don't show "100 Apples" for "Small" size
+                    if(runMode === "100 Apples" && settings[2] === "Small"){
+                        continue;
+                    }
+                    
+                    // Only show "High Score" column for highscore modes
+                    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Cheese"];
+                    if(runMode === "High Score" && !highscoreModes.includes(gamemode)){
+                        continue;
+                    }
+                    
+                    var key = settings[0] + "|" + settings[1] + "|" + settings[2] + "|" + gamemode + "|" + runMode;
+                    if(typeof(worldRecords[key]) != 'undefined'){
+                        thisBoardRuns[gamemode][runMode] = worldRecords[key];
+                    }
+                    
+                    // Add to run modes list if not already present
+                    if(thisBoardRunModes.indexOf(runMode) == -1){
+                        thisBoardRunModes.push(runMode);
+                    }
                 }
             }
         }
@@ -317,7 +328,6 @@ function generateTableContent(table, settings, specificGamemode = null) {
     // Second row: Run mode headers with refresh button
     row = document.createElement('tr');
     var firstHeaderCell = document.createElement('th');
-    firstHeaderCell.innerHTML = settings[0] + " " + settings[1] + " " + settings[2];
     
     // Add individual refresh button for multiple tables
     if (isMultipleTablesEnabled) {
