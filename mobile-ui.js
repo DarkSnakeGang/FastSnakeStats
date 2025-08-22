@@ -85,6 +85,29 @@ async function mobileToggleTimeTravel() {
     updateMobileDatePickerState();
 }
 
+// Trigger initial records loading for mobile (equivalent to desktop initializeUI behavior)
+function triggerMobileInitialRecordsLoad() {
+    console.log('Triggering mobile initial records load...');
+    
+    // Check if we need to load initial records
+    if (typeof worldRecords === 'undefined' || Object.keys(worldRecords).length === 0) {
+        console.log('No world records found, triggering initial load...');
+        
+        // Call the same function that desktop uses for initial loading
+        if (typeof startWorldRecordsDownload === 'function') {
+            console.log('Calling startWorldRecordsDownload...');
+            startWorldRecordsDownload();
+        } else if (typeof refreshWorldRecordsForSettings === 'function') {
+            console.log('Calling refreshWorldRecordsForSettings...');
+            refreshWorldRecordsForSettings();
+        } else {
+            console.error('No records loading function available');
+        }
+    } else {
+        console.log('World records already available, no need for initial load');
+    }
+}
+
 // Initialize mobile UI when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     if (window.innerWidth <= 1023) {
@@ -146,6 +169,9 @@ function waitForDesktopSystem() {
             
             // Update API progress display
             updateMobileApiProgress();
+            
+            // Trigger initial records loading for mobile
+            triggerMobileInitialRecordsLoad();
         }
     }, 100);
     
