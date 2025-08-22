@@ -9,6 +9,9 @@ let mobileState = {
     isLoading: false
 };
 
+// Mobile-specific API progress counter
+let mobileApiCallProgress = { successful: 0, total: 0 };
+
 // Mobile-specific toggle functions (in case desktop functions aren't available)
 function mobileToggleDarkMode() {
     isDarkMode = !isDarkMode;
@@ -85,27 +88,77 @@ async function mobileToggleTimeTravel() {
     updateMobileDatePickerState();
 }
 
+// Mobile-specific loading state function (overrides desktop setLoadingState)
+function setMobileLoadingState(loading) {
+    mobileState.isLoading = loading;
+    
+    // Update mobile refresh button state
+    const mobileRefreshBtn = document.getElementById('mobileRefreshBtn');
+    if (mobileRefreshBtn) {
+        if (loading) {
+            mobileRefreshBtn.textContent = '⏳ Loading...';
+            mobileRefreshBtn.disabled = true;
+            mobileRefreshBtn.setAttribute('title', 'Please wait while world records are being fetched...');
+        } else if (isApiOverloaded) {
+            mobileRefreshBtn.textContent = '⚠️ SRC API overloaded';
+            mobileRefreshBtn.disabled = false;
+            mobileRefreshBtn.setAttribute('title', 'Speedrun.com API is overloaded. Click to retry.');
+        } else {
+            mobileRefreshBtn.textContent = '🔄 Refresh';
+            mobileRefreshBtn.disabled = false;
+            mobileRefreshBtn.setAttribute('title', 'Refresh world records for current settings');
+        }
+    }
+    
+    // Update mobile stop/resume button
+    const mobileStopResumeBtn = document.getElementById('mobileStopResumeBtn');
+    if (mobileStopResumeBtn) {
+        if (isApiPaused) {
+            mobileStopResumeBtn.textContent = '▶️ Resume';
+            mobileStopResumeBtn.style.display = 'block';
+        } else if (loading) {
+            mobileStopResumeBtn.textContent = '⏸️ Stop';
+            mobileStopResumeBtn.style.display = 'block';
+        } else {
+            mobileStopResumeBtn.style.display = 'none';
+        }
+    }
+}
+
 // Trigger initial records loading for mobile (equivalent to desktop initializeUI behavior)
 function triggerMobileInitialRecordsLoad() {
     console.log('Triggering mobile initial records load...');
     
-    // Check if we need to load initial records
-    if (typeof worldRecords === 'undefined' || Object.keys(worldRecords).length === 0) {
-        console.log('No world records found, triggering initial load...');
-        
-        // Call the same function that desktop uses for initial loading
-        if (typeof startWorldRecordsDownload === 'function') {
-            console.log('Calling startWorldRecordsDownload...');
-            startWorldRecordsDownload();
-        } else if (typeof refreshWorldRecordsForSettings === 'function') {
-            console.log('Calling refreshWorldRecordsForSettings...');
-            refreshWorldRecordsForSettings();
+    // First, ensure the mobile table structure is created
+    setTimeout(() => {
+        loadMobileTableData();
+    }, 100);
+    
+    // Then trigger the initial data loading
+    setTimeout(() => {
+        // Check if we need to load initial records
+        if (typeof worldRecords === 'undefined' || Object.keys(worldRecords).length === 0) {
+            console.log('No world records found, triggering initial load...');
+            
+            // Call the same function that desktop uses for initial loading
+            if (typeof startWorldRecordsDownload === 'function') {
+                console.log('Calling startWorldRecordsDownload...');
+                startWorldRecordsDownload();
+            } else if (typeof refreshWorldRecordsForSettings === 'function') {
+                console.log('Calling refreshWorldRecordsForSettings...');
+                refreshWorldRecordsForSettings();
+            } else {
+                console.error('No records loading function available');
+            }
         } else {
-            console.error('No records loading function available');
+            console.log('World records already available, no need for initial load');
+            // Even if records exist, refresh to ensure mobile display is updated
+            if (typeof refreshWorldRecordsForSettings === 'function') {
+                console.log('Refreshing existing records for mobile display...');
+                refreshWorldRecordsForSettings();
+            }
         }
-    } else {
-        console.log('World records already available, no need for initial load');
-    }
+    }, 200);
 }
 
 // Initialize mobile UI when DOM is loaded
@@ -165,6 +218,8 @@ function waitForDesktopSystem() {
             // Initialize mobile run and game modes
             initializeMobileRunAndGameModes();
             
+            // Mobile uses its own loading state system - no override needed
+            
             showBasicMobileRecordsSection();
             
             // Update API progress display
@@ -195,25 +250,29 @@ function waitForDesktopSystem() {
 function updateMobileApiProgress() {
     const mobileApiProgress = document.getElementById('mobileApiProgress');
     if (mobileApiProgress) {
-        // Check for API progress from desktop system
-        if (typeof apiProgress !== 'undefined' && apiProgress !== null) {
-            // Handle HTML element objects by extracting text content
-            if (apiProgress instanceof HTMLElement) {
-                mobileApiProgress.textContent = apiProgress.textContent || '0/0';
-            } else {
-                mobileApiProgress.textContent = String(apiProgress);
-            }
-        } else if (typeof window.apiProgress !== 'undefined' && window.apiProgress !== null) {
-            // Handle HTML element objects by extracting text content
-            if (window.apiProgress instanceof HTMLElement) {
-                mobileApiProgress.textContent = window.apiProgress.textContent || '0/0';
-            } else {
-                mobileApiProgress.textContent = String(window.apiProgress);
-            }
-        } else {
-            mobileApiProgress.textContent = '0/0';
-        }
+        // Use mobile-specific API progress counter only
+        mobileApiProgress.textContent = `${mobileApiCallProgress.successful}/${mobileApiCallProgress.total}`;
     }
+}
+
+// Mobile-specific function to update API progress
+function updateMobileApiCallProgress(successful, total) {
+    mobileApiCallProgress.successful = successful;
+    mobileApiCallProgress.total = total;
+    updateMobileApiProgress();
+}
+
+// Mobile-specific function to reset API progress
+function resetMobileApiProgress() {
+    mobileApiCallProgress.successful = 0;
+    mobileApiCallProgress.total = 0;
+    updateMobileApiProgress();
+}
+
+// Mobile-specific function to increment successful API calls
+function incrementMobileApiProgress() {
+    mobileApiCallProgress.successful++;
+    updateMobileApiProgress();
 }
 
 // Setup mobile navigation

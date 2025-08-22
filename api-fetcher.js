@@ -642,6 +642,11 @@ async function getAllWorldRecordsForCurrentSettings() {
     apiCallProgress.total = allRequests.length;
     updateApiProgress();
     
+    // Update mobile API progress if on mobile
+    if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
+        updateMobileApiCallProgress(0, allRequests.length);
+    }
+    
     if (isMultipleTablesEnabled) {
         // Load tables one by one for multiple tables mode
         let totalCompleted = 0;
@@ -659,6 +664,11 @@ async function getAllWorldRecordsForCurrentSettings() {
             const comboResults = await window.worldRecordFetcher.fetchWorldRecordsBatch(comboRequests, (completedCount) => {
                 apiCallProgress.successful = totalCompleted + completedCount;
                 updateApiProgress();
+                
+                // Update mobile API progress if on mobile
+                if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
+                    updateMobileApiCallProgress(totalCompleted + completedCount, apiCallProgress.total);
+                }
             });
             
             totalCompleted += comboRequests.length;
@@ -720,13 +730,37 @@ async function getAllWorldRecordsForCurrentSettings() {
             await new Promise(resolve => setTimeout(resolve, 100));
         }
     } else {
-        // Single table mode - load all at once
-        console.log('About to call fetchWorldRecordsBatch with', allRequests.length, 'requests');
+        // Single table mode - only process current table settings
+        console.log('Single table mode - processing only current settings:', currentTableSettings);
+        
+        // Filter requests to only include current table settings
+        const currentRequests = allRequests.filter(request => 
+            request.combo[0] === currentTableSettings[0] && 
+            request.combo[1] === currentTableSettings[1] && 
+            request.combo[2] === currentTableSettings[2]
+        );
+        
+        console.log('Filtered to', currentRequests.length, 'requests for current settings');
+        
+        // Update total to reflect only current settings
+        apiCallProgress.total = currentRequests.length;
+        updateApiProgress();
+        
+        // Update mobile API progress if on mobile
+        if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
+            updateMobileApiCallProgress(0, currentRequests.length);
+        }
+        
         let batchResults;
         try {
-            batchResults = await window.worldRecordFetcher.fetchWorldRecordsBatch(allRequests, (completedCount) => {
+            batchResults = await window.worldRecordFetcher.fetchWorldRecordsBatch(currentRequests, (completedCount) => {
                 apiCallProgress.successful = completedCount;
                 updateApiProgress();
+                
+                // Update mobile API progress if on mobile
+                if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
+                    updateMobileApiCallProgress(completedCount, apiCallProgress.total);
+                }
             });
             console.log('fetchWorldRecordsBatch completed, got', batchResults.length, 'results');
         } catch (error) {
@@ -746,7 +780,7 @@ async function getAllWorldRecordsForCurrentSettings() {
         // Process batch results
         for (let j = 0; j < batchResults.length; j++) {
             const record = batchResults[j];
-            const request = allRequests[j];
+            const request = currentRequests[j];
             
             if (record.success) {
                 // Create a key for this combination using actual setting names
@@ -799,6 +833,11 @@ async function getAllWorldRecordsForCurrentSettings() {
         // Mark API calls as complete for single table mode
         apiCallProgress.successful = apiCallProgress.total;
         updateApiProgress();
+        
+        // Update mobile API progress if on mobile
+        if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
+            updateMobileApiCallProgress(apiCallProgress.total, apiCallProgress.total);
+        }
     }
 }
 
@@ -976,16 +1015,47 @@ async function getAllWorldRecordsForDate(date) {
     }
     
     // Use the WorldRecordFetcher's batch processing (50 concurrent requests)
+    let requestsToProcess = allRequests;
+    
+    // If multiple tables is disabled, only process current table settings
+    if (!isMultipleTablesEnabled) {
+        console.log('Date fetch - Single table mode - filtering to current settings:', currentTableSettings);
+        requestsToProcess = allRequests.filter(request => 
+            request.combo[0] === currentTableSettings[0] && 
+            request.combo[1] === currentTableSettings[1] && 
+            request.combo[2] === currentTableSettings[2]
+        );
+        
+        // Update total to reflect only current settings
+        apiCallProgress.total = requestsToProcess.length;
+        updateApiProgress();
+        
+        // Update mobile API progress if on mobile
+        if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
+            updateMobileApiCallProgress(0, requestsToProcess.length);
+        }
+    } else {
+        // Update mobile API progress if on mobile
+        if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
+            updateMobileApiCallProgress(0, allRequests.length);
+        }
+    }
+    
     try {
-        const batchResults = await window.worldRecordFetcher.fetchWorldRecordsBatch(allRequests, (completedCount) => {
+        const batchResults = await window.worldRecordFetcher.fetchWorldRecordsBatch(requestsToProcess, (completedCount) => {
             apiCallProgress.successful = completedCount;
             updateApiProgress();
+            
+            // Update mobile API progress if on mobile
+            if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
+                updateMobileApiCallProgress(completedCount, apiCallProgress.total);
+            }
         });
         
         // Process batch results
         for (let j = 0; j < batchResults.length; j++) {
             const record = batchResults[j];
-            const request = allRequests[j];
+            const request = requestsToProcess[j];
             
             if (record.success) {
                 // Create a key for this combination using actual setting names
