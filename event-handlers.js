@@ -11,10 +11,17 @@ function toggleDarkMode() {
     }
     saveSettings();
     
-    // Update toggle button icon and text
+    // Update desktop toggle button icon and text
     const toggleBtn = document.querySelector('.dark-mode-toggle');
     if(toggleBtn) {
         toggleBtn.innerHTML = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+    }
+    
+    // Update mobile toggle button icon and text
+    const mobileToggleBtn = document.getElementById('mobileDarkModeToggle');
+    if(mobileToggleBtn) {
+        mobileToggleBtn.textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+        mobileToggleBtn.setAttribute('title', isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode');
     }
 }
 
@@ -23,7 +30,7 @@ async function toggleTimeTravel() {
     isTimeTravelEnabled = !isTimeTravelEnabled;
     saveSettings();
     
-    // Update toggle button
+    // Update desktop toggle button
     const timeTravelBtn = document.querySelector('.time-travel-btn');
     if(timeTravelBtn) {
         if(isTimeTravelEnabled) {
@@ -37,15 +44,29 @@ async function toggleTimeTravel() {
         }
     }
     
+    // Update mobile toggle button
+    const mobileTimeTravelBtn = document.getElementById('mobileTimeTravelBtn');
+    if(mobileTimeTravelBtn) {
+        if(isTimeTravelEnabled) {
+            mobileTimeTravelBtn.classList.add('active');
+            mobileTimeTravelBtn.setAttribute('title', 'Time travel mode enabled. Click to disable.');
+        } else {
+            mobileTimeTravelBtn.classList.remove('active');
+            mobileTimeTravelBtn.setAttribute('title', 'Time travel mode disabled. Click to enable.');
+        }
+    }
+    
     // Auto-resume API calls if they were paused
     if (isApiPaused) {
         isApiPaused = false;
         window.isApiPaused = false;
     }
     
-    // Refresh data based on current state
-    if (isLoading) return;
-    await refreshWorldRecordsForSettings();
+    // Only refresh on desktop, not on mobile
+    if (window.innerWidth > 1023) {
+        if (isLoading) return;
+        await refreshWorldRecordsForSettings();
+    }
 }
 
 // Toggle multiple tables mode
@@ -53,7 +74,7 @@ async function toggleMultipleTables() {
     isMultipleTablesEnabled = !isMultipleTablesEnabled;
     saveSettings();
     
-    // Update toggle button
+    // Update desktop toggle button
     const multipleTablesBtn = document.querySelector('.multiple-tables-btn');
     if(multipleTablesBtn) {
         if(isMultipleTablesEnabled) {
@@ -64,6 +85,18 @@ async function toggleMultipleTables() {
             multipleTablesBtn.innerHTML = '📊 Multiple Tables';
             multipleTablesBtn.classList.remove('active');
             multipleTablesBtn.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
+        }
+    }
+    
+    // Update mobile toggle button
+    const mobileMultipleTablesBtn = document.getElementById('mobileMultipleTablesToggle');
+    if(mobileMultipleTablesBtn) {
+        if(isMultipleTablesEnabled) {
+            mobileMultipleTablesBtn.classList.add('active');
+            mobileMultipleTablesBtn.setAttribute('title', 'Multiple tables mode enabled. Click to disable.');
+        } else {
+            mobileMultipleTablesBtn.classList.remove('active');
+            mobileMultipleTablesBtn.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
         }
     }
     
