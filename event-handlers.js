@@ -1,0 +1,543 @@
+// Event Handlers Module
+// Handles all button clicks, settings changes, and UI interactions
+
+// Toggle dark mode
+function toggleDarkMode() {
+    isDarkMode = !isDarkMode;
+    if(isDarkMode) {
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.remove('dark-mode');
+    }
+    saveSettings();
+    
+    // Update toggle button icon
+    const toggleBtn = document.querySelector('.dark-mode-toggle');
+    if(toggleBtn) {
+        toggleBtn.innerHTML = isDarkMode ? '☀️' : '🌙';
+    }
+}
+
+// Toggle time travel mode
+async function toggleTimeTravel() {
+    isTimeTravelEnabled = !isTimeTravelEnabled;
+    saveSettings();
+    
+    // Update toggle button
+    const timeTravelBtn = document.querySelector('.time-travel-btn');
+    if(timeTravelBtn) {
+        if(isTimeTravelEnabled) {
+            timeTravelBtn.innerHTML = '⏰ Time Travel';
+            timeTravelBtn.classList.add('active');
+            timeTravelBtn.setAttribute('title', 'Time travel mode enabled. Click to disable.');
+        } else {
+            timeTravelBtn.innerHTML = '⏰ Time Travel';
+            timeTravelBtn.classList.remove('active');
+            timeTravelBtn.setAttribute('title', 'Time travel mode disabled. Click to enable.');
+        }
+    }
+    
+    // Auto-resume API calls if they were paused
+    if (isApiPaused) {
+        isApiPaused = false;
+        window.isApiPaused = false;
+    }
+    
+    // Refresh data based on current state
+    if (isLoading) return;
+    await refreshWorldRecordsForSettings();
+}
+
+// Toggle multiple tables mode
+async function toggleMultipleTables() {
+    isMultipleTablesEnabled = !isMultipleTablesEnabled;
+    saveSettings();
+    
+    // Update toggle button
+    const multipleTablesBtn = document.querySelector('.multiple-tables-btn');
+    if(multipleTablesBtn) {
+        if(isMultipleTablesEnabled) {
+            multipleTablesBtn.innerHTML = '📊 Multiple Tables';
+            multipleTablesBtn.classList.add('active');
+            multipleTablesBtn.setAttribute('title', 'Multiple tables mode enabled. Click to disable.');
+        } else {
+            multipleTablesBtn.innerHTML = '📊 Multiple Tables';
+            multipleTablesBtn.classList.remove('active');
+            multipleTablesBtn.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
+        }
+    }
+    
+    // Regenerate table selector to show/hide count/speed/size options
+    generateTableSelector();
+    
+    // Refresh data based on current state
+    if (isLoading) return;
+    await refreshWorldRecordsForSettings();
+}
+
+// Add loading state management
+function setLoadingState(loading) {
+    isLoading = loading;
+    window.isLoading = isLoading;
+    var buttons = document.querySelectorAll('.table-option-btn');
+    buttons.forEach(function(button) {
+        // Skip the stop/resume button - it should remain enabled during loading
+        if (button.classList.contains('stop-resume-btn')) {
+            return;
+        }
+        if (loading) {
+            button.disabled = true;
+            button.style.opacity = '0.5';
+            button.style.cursor = 'not-allowed';
+            button.setAttribute('title', 'Loading world records...');
+        } else {
+            button.disabled = false;
+            button.style.opacity = '1';
+            button.style.cursor = 'pointer';
+            button.removeAttribute('title');
+        }
+    });
+    
+    // Update refresh button text
+    var refreshButton = document.querySelector('.refresh-btn');
+    if (refreshButton) {
+        if (loading) {
+            if (isApiOverloaded) {
+                refreshButton.innerHTML = '⏳ Rate limited';
+                refreshButton.disabled = true;
+                refreshButton.setAttribute('title', 'API is rate limited. Please wait...');
+            } else {
+                refreshButton.innerHTML = '⏳ Loading...';
+                refreshButton.disabled = true;
+                refreshButton.setAttribute('title', 'Please wait while world records are being fetched...');
+            }
+        } else if (isApiOverloaded) {
+            refreshButton.innerHTML = '⚠️ SRC API overloaded';
+            refreshButton.disabled = false;
+            refreshButton.setAttribute('title', 'Speedrun.com API is overloaded. Click to retry.');
+        } else {
+            refreshButton.innerHTML = '🔄 Refresh';
+            refreshButton.disabled = false;
+            refreshButton.setAttribute('title', 'Refresh world records for current settings');
+        }
+    }
+    
+    // Update time travel button text
+    var timeTravelButton = document.querySelector('.time-travel-btn');
+    if (timeTravelButton) {
+        timeTravelButton.disabled = loading;
+        timeTravelButton.innerHTML = '⏰ Time Travel';
+        timeTravelButton.title = loading ? 'Loading...' : (isTimeTravelEnabled ? 'Time travel mode enabled. Click to disable.' : 'Time travel mode disabled. Click to enable.');
+    }
+    
+    // Update multiple tables button
+    var multipleTablesButton = document.querySelector('.multiple-tables-btn');
+    if (multipleTablesButton) {
+        multipleTablesButton.disabled = loading;
+        multipleTablesButton.innerHTML = '📊 Multiple Tables';
+        multipleTablesButton.title = loading ? 'Loading...' : (isMultipleTablesEnabled ? 'Multiple tables mode enabled. Click to disable.' : 'Multiple tables mode disabled. Click to enable.');
+    }
+    
+    // Update stop/resume button visibility
+    var stopResumeButton = document.querySelector('.stop-resume-btn');
+    if (stopResumeButton) {
+        if (loading && (apiCallProgress.total > 0 || isApiPaused)) {
+            stopResumeButton.style.display = 'block';
+            if (isApiPaused) {
+                stopResumeButton.innerHTML = '▶️ Resume';
+                stopResumeButton.setAttribute('title', 'Resume API calls');
+            } else {
+                stopResumeButton.innerHTML = '⏸️ Stop';
+                stopResumeButton.setAttribute('title', 'Stop API calls');
+            }
+        } else if (isApiPaused && apiCallProgress.total > 0 && apiCallProgress.successful < apiCallProgress.total) {
+            // Show resume button even when not loading but paused
+            stopResumeButton.style.display = 'block';
+            stopResumeButton.innerHTML = '▶️ Resume';
+            stopResumeButton.setAttribute('title', 'Resume API calls');
+        } else if (!loading && apiCallProgress.total > 0 && apiCallProgress.successful >= apiCallProgress.total) {
+            // Hide button when all API calls are completed
+            stopResumeButton.style.display = 'none';
+        }
+    }
+    
+    // Don't show loading message - table will be updated live instead
+}
+
+// Toggle API pause/resume functionality
+function toggleApiPause() {
+    if (isApiPaused) {
+        // Resume API calls
+        isApiPaused = false;
+        window.isApiPaused = false;
+        
+        // Re-enable loading state
+        setLoadingState(true);
+        
+        // Resume from where we left off
+        if (pausedApiState) {
+            resumeApiCalls(pausedApiState);
+        }
+    } else {
+        // Pause API calls
+        isApiPaused = true;
+        window.isApiPaused = true;
+        
+        // Store current state for resuming
+        pausedApiState = {
+            progress: { ...apiCallProgress },
+            timestamp: Date.now()
+        };
+        
+        // Disable loading state but keep buttons enabled
+        setLoadingState(false);
+        
+        // Update refresh button to show paused state
+        var refreshButton = document.querySelector('.refresh-btn');
+        if (refreshButton) {
+            refreshButton.innerHTML = '⏸️ Paused';
+            refreshButton.setAttribute('title', 'API calls are paused. Click Resume to continue.');
+        }
+        
+        // Update stop button to show resume
+        var stopResumeButton = document.querySelector('.stop-resume-btn');
+        if (stopResumeButton) {
+            stopResumeButton.innerHTML = '▶️ Resume';
+            stopResumeButton.setAttribute('title', 'Resume API calls');
+        }
+    }
+}
+
+// Resume API calls from paused state
+function resumeApiCalls(pausedState) {
+    // Update progress to where we left off
+    apiCallProgress = { ...pausedState.progress };
+    updateApiProgress();
+    
+    // Continue with the current API call process
+    // This will be handled by the existing API call functions
+    // which will check isApiPaused and continue from where they left off
+}
+
+function switchMode(newmode){
+    mode = newmode;
+    removeLeaderboards();
+    reset = function(){
+        //turn everything true
+        for(appleAmount in appleAmounts){
+            appleAmounts[appleAmount].visible = true;
+        }
+        for(speed in speeds){
+            speeds[speed].visible = true;
+        }
+        for(size in sizes){
+            sizes[size].visible = true;
+        }
+        for(gamemode in gamemodes){
+            gamemodes[gamemode].visible = true;
+        }
+        for(runMode in runModes){
+            runModes[runMode].visible = true;
+        }
+        //change option buttons
+        for(optionButton of document.getElementsByClassName('optionButtonImage')){
+            optionButton.setAttribute('class','optionButtonImage');
+        }
+        for(runMode in runModes){
+            var optionElement = document.getElementById('option'+runModes[runMode].id);
+            if(optionElement) {
+                optionElement.checked = true;
+            }
+        }
+    }
+    switch(mode){
+        case 0:
+            reset();
+            if(speeds["Slow"]) speeds["Slow"].visible = false;
+            // Safely update option button if it exists
+            var speed01Btn = document.getElementById('optionspeed_01');
+            if(speed01Btn && speed01Btn.firstChild) {
+                speed01Btn.firstChild.setAttribute('class','optionButtonImage optionButtonImageDisabled');
+            }
+            //document.getElementById('optionmode_02').checked = false;
+            var mainText = document.getElementById("mainText");
+            var catText = document.getElementById("catText");
+            var customText = document.getElementById("customText");
+            var switchButton = document.getElementById("switchButton");
+            
+            if(mainText) mainText.setAttribute("style",'');
+            if(catText) catText.setAttribute("style",'display:none');
+            if(customText) customText.setAttribute("style",'display:none');
+            if(switchButton) switchButton.innerHTML = "Click here to go to Category Extensions";
+            break;
+        case 1: //slow mode
+            reset();
+            if(speeds["Fast"]) speeds["Fast"].visible = false;
+            if(speeds["Standard"]) speeds["Standard"].visible = false;
+            // Safely update option buttons if they exist
+            var speed00Btn = document.getElementById('optionspeed_00');
+            var speed02Btn = document.getElementById('optionspeed_02');
+            if(speed00Btn && speed00Btn.firstChild) {
+                speed00Btn.firstChild.setAttribute('class','optionButtonImage optionButtonImageDisabled');
+            }
+            if(speed02Btn && speed02Btn.firstChild) {
+                speed02Btn.firstChild.setAttribute('class','optionButtonImage optionButtonImageDisabled');
+            }
+            
+            var mainText = document.getElementById("mainText");
+            var catText = document.getElementById("catText");
+            var customText = document.getElementById("customText");
+            var switchButton = document.getElementById("switchButton");
+            
+            if(mainText) mainText.setAttribute("style",'display:none');
+            if(catText) catText.setAttribute("style",'');
+            if(customText) customText.setAttribute("style",'display:none');
+            if(switchButton) switchButton.innerHTML = "Click here to go to Main Leaderboard";
+            break;
+        case 2:
+            var mainText = document.getElementById("mainText");
+            var catText = document.getElementById("catText");
+            var customText = document.getElementById("customText");
+            var switchButton = document.getElementById("switchButton");
+            
+            if(mainText) mainText.setAttribute("style",'display:none');
+            if(catText) catText.setAttribute("style",'display:none');
+            if(customText) customText.setAttribute("style",'');
+            if(switchButton) switchButton.innerHTML = "Click here to go to Main Leaderboard";
+
+    }
+    
+    // Only call these functions if we have data
+    if(Object.keys(worldRecords).length > 0) {
+        calculateRanglist();
+        generateRanglist();
+    }
+    // Only generate table selector if it doesn't exist yet
+    if (!document.querySelector('.table-selector')) {
+        generateTableSelector();
+    } else {
+        // Just update highlighting for existing buttons immediately
+        updateTableSelector();
+    }
+    generateSingleTable();
+}
+
+//option buttons
+function createOptionButton(setting){
+    var button = document.createElement('button');
+    button.setAttribute('class','optionButton');
+    button.setAttribute('onclick','optionButtonClick(this.id)');
+    button.setAttribute('id','option'+setting.id);
+    button.setAttribute('type','button');
+    var icon = createIconElement(setting);
+    if(setting.visible){
+        icon.setAttribute('class','optionButtonImage');
+    }
+    else{
+        icon.setAttribute('class','optionButtonImage optionButtonImageDisabled');
+    }
+    button.appendChild(icon);
+    return button;
+}
+
+function optionButtonClick(clicked_id){
+    var element = document.getElementById(clicked_id);
+    image = element.getElementsByClassName("optionButtonImage")[0];
+    setTo = true;
+    if(image.classList.contains("optionButtonImageDisabled")){
+        image.classList.remove("optionButtonImageDisabled");
+    }
+    else{
+        image.classList.add("optionButtonImageDisabled");
+        setTo = false;
+    }
+    for(gamemode in gamemodes){
+        if("option"+gamemodes[gamemode].id == clicked_id){
+            gamemodes[gamemode].visible = setTo;
+        }
+    }
+    for(appleAmount in appleAmounts){
+        if("option"+appleAmounts[appleAmount].id == clicked_id){
+            appleAmounts[appleAmount].visible = setTo;
+        }
+    }
+    for(speed in speeds){
+        if("option"+speeds[speed].id == clicked_id){
+            speeds[speed].visible = setTo;
+        }
+    }
+    for(size in sizes){
+        if("option"+sizes[size].id == clicked_id){
+            sizes[size].visible = setTo;
+        }
+    }
+    saveSettings(); // Save settings when changed
+    switchMode(2);
+}
+
+function initializeUI() {
+    // Initialize modals
+    var modal = document.getElementById("infoModal");
+    var btn = document.getElementById("infoBtn");
+    var span = document.getElementsByClassName("close")[0];
+
+    if(btn && modal) {
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+    }
+    if(span) {
+        span.onclick = function() {
+            if(modal) modal.style.display = "none";
+        }
+    }
+
+    var modal2 = document.getElementById("settingsModal");
+    var btn2 = document.getElementById("settingsBtn");
+    var span2 = document.getElementsByClassName("close")[1];
+
+    if(btn2 && modal2) {
+        btn2.onclick = function() {
+            modal2.style.display = "block";
+        }
+    }
+    if(span2) {
+        span2.onclick = function() {
+            if(modal2) modal2.style.display = "none";
+        }
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal2) {
+            modal2.style.display = "none";
+        }
+        else if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    // Initialize datepicker
+    var datepicker = document.getElementById("datepicker");
+    if(datepicker) {
+        // Set the datepicker value if we have a saved date
+        if(selectedTimeTravelDate) {
+            datepicker.value = selectedTimeTravelDate;
+        }
+        
+        datepicker.onchange = async function(){
+            if (isLoading) return; // Prevent multiple simultaneous requests
+            
+            const selectedDate = datepicker.value;
+            selectedTimeTravelDate = selectedDate; // Save the selected date
+            saveSettings();
+            
+            if (!selectedDate) {
+                selectedTimeTravelDate = "";
+                saveSettings();
+                return;
+            }
+            
+            // Only fetch data if time travel is enabled
+            if (isTimeTravelEnabled) {
+                // Set loading state
+                setLoadingState(true);
+                
+                try {
+                    // Fetch world records for the selected date
+                    await getAllWorldRecordsForDate(selectedDate);
+                    
+                    // Update the display
+                    calculateBestRuns();
+                    calculateRanglist();
+                    generateRanglist();
+                    generateSingleTable();
+                    
+                } catch (error) {
+                    // Check if it's a 420 error (API overloaded)
+                    if (error.message && error.message.includes('HTTP 420')) {
+                        isApiOverloaded = true;
+                    }
+                    
+                    // Fallback to current records
+                    await refreshWorldRecordsForSettings();
+                } finally {
+                    // Clear loading state
+                    setLoadingState(false);
+                }
+            } else {
+            }
+        }
+    }
+
+    //make all optionbuttons
+    var optionButtons = document.getElementById('optionButtons');
+    if(optionButtons) {
+        // Clear existing content
+        optionButtons.innerHTML = '';
+        
+        // Create main row container for top settings
+        var topRowContainer = document.createElement('div');
+        topRowContainer.className = 'top-settings-row';
+        
+        // Create container for category settings (gamemodes) - left column
+        var categoryContainer = document.createElement('div');
+        categoryContainer.className = 'settings-container category-container';
+        categoryContainer.style.display = 'block'; // Force visibility
+        categoryContainer.style.visibility = 'visible'; // Force visibility
+        var categoryTitle = document.createElement('h4');
+        categoryTitle.textContent = 'Category Settings';
+        categoryTitle.className = 'settings-title';
+        categoryContainer.appendChild(categoryTitle);
+        
+        var categoryButtonGroup = document.createElement('div');
+        categoryButtonGroup.className = 'button-group';
+        for(gamemode in gamemodes){
+            categoryButtonGroup.appendChild(createOptionButton(gamemodes[gamemode]));
+        }
+        categoryContainer.appendChild(categoryButtonGroup);
+        
+        topRowContainer.appendChild(categoryContainer);
+        
+        // Create container for run mode settings (checkboxes) - right column
+        var runModeContainer = document.createElement('div');
+        runModeContainer.className = 'settings-container runmode-container';
+        var runModeTitle = document.createElement('h4');
+        runModeTitle.textContent = 'Run Mode Settings';
+        runModeTitle.className = 'settings-title';
+        runModeContainer.appendChild(runModeTitle);
+        
+        // Create a wrapper for checkboxes to align them properly
+        var checkboxWrapper = document.createElement('div');
+        checkboxWrapper.className = 'checkbox-wrapper';
+        
+        for(runMode in runModes){
+            var checkboxItem = document.createElement('div');
+            checkboxItem.className = 'checkbox-item';
+            
+            input = document.createElement('input');
+            input.checked = true;
+            input.setAttribute('type','checkbox');
+            input.setAttribute('id',"option"+runModes[runMode].id);
+            label = document.createElement('label');
+            label.setAttribute('for',"option"+runModes[runMode].id);
+            label.appendChild(document.createTextNode(runModes[runMode].text));
+            
+            input.addEventListener('click', ()=> {
+                for(runMode in runModes){
+                    runModes[runMode].visible = document.getElementById('option'+runModes[runMode].id).checked;
+                }
+                saveSettings(); // Save settings when changed
+                switchMode(2);
+            });
+            
+            checkboxItem.appendChild(input);
+            checkboxItem.appendChild(label);
+            checkboxWrapper.appendChild(checkboxItem);
+        }
+        
+        runModeContainer.appendChild(checkboxWrapper);
+        topRowContainer.appendChild(runModeContainer);
+        optionButtons.appendChild(topRowContainer);
+    } else {
+    }
+}
