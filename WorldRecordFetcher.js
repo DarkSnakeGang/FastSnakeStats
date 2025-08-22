@@ -186,6 +186,25 @@ class WorldRecordFetcher {
     // Get world record for specific parameters
     async getWorldRecord(level, mode = 0, count = 0, speed = 0, size = 0) {
         try {
+            // Check cache first
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
+            const modeName = modeNames[mode];
+            const categoryName = level === "H" ? modeName : `${level} Apples`;
+            
+            const settings = [
+                modeName,
+                categoryName,
+                ["1 Apple", "3 Apples", "5 Apples", "Dice"][count],
+                ["Normal", "Fast", "Slow"][speed],
+                ["Standard", "Small", "Large"][size]
+            ];
+            const cacheKey = window.cacheManager.getCacheKey(settings);
+            const cachedData = window.cacheManager.getCachedData(cacheKey);
+            
+            if (cachedData && window.cacheManager.isCacheValid(cacheKey)) {
+                // Return the cached data directly - it's already in the correct format
+                return cachedData.data;
+            }
             
             // Step 1: Get game data
             const variables = await this.fetchAPI(`https://www.speedrun.com/api/v1/games/${this.gameID}/variables`);
@@ -193,16 +212,12 @@ class WorldRecordFetcher {
             const categories = await this.fetchAPI(`https://www.speedrun.com/api/v1/games/${this.gameID}/categories`);
             
                          // Step 2: Find the level ID for the mode
-             const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
-            const modeName = modeNames[mode];
-            
             const levelData = levels.data.find(l => l.name.includes(modeName));
             if (!levelData) {
                 throw new Error(`Level not found for mode: ${modeName}`);
             }
             
             // Step 3: Find the category ID
-            const categoryName = level === "H" ? modeName : `${level} Apples`;
             const categoryData = categories.data.find(c => c.name.includes(categoryName));
             if (!categoryData) {
                 throw new Error(`Category not found: ${categoryName}`);
@@ -340,7 +355,7 @@ class WorldRecordFetcher {
                 }
             }
             
-            return {
+            const result = {
                 success: true,
                 runs: tiedRuns,
                 category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "Dice"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
@@ -350,6 +365,11 @@ class WorldRecordFetcher {
                     size: ["Standard", "Small", "Large"][size]
                 }
             };
+            
+            // Store in cache using comparison logic
+            const wasUpdated = window.cacheManager.updateCacheIfChanged(cacheKey, result);
+            
+            return result;
             
                          } catch (error) {
             // If it's a 420 error, re-throw it to be caught by the main application
@@ -375,6 +395,25 @@ class WorldRecordFetcher {
     // Get world record for specific parameters and date
     async getWorldRecordForDate(level, mode = 0, count = 0, speed = 0, size = 0, date) {
         try {
+            // Check cache first
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
+            const modeName = modeNames[mode];
+            const categoryName = level === "H" ? modeName : `${level} Apples`;
+            
+            const settings = [
+                modeName,
+                categoryName,
+                ["1 Apple", "3 Apples", "5 Apples", "Dice"][count],
+                ["Normal", "Fast", "Slow"][speed],
+                ["Standard", "Small", "Large"][size]
+            ];
+            const cacheKey = window.cacheManager.getCacheKey(settings, date);
+            const cachedData = window.cacheManager.getCachedData(cacheKey);
+            
+            if (cachedData && window.cacheManager.isCacheValid(cacheKey)) {
+                // Return the cached data directly - it's already in the correct format
+                return cachedData.data;
+            }
             
             // Step 1: Get game data
             const variables = await this.fetchAPI(`https://www.speedrun.com/api/v1/games/${this.gameID}/variables`);
@@ -382,16 +421,12 @@ class WorldRecordFetcher {
             const categories = await this.fetchAPI(`https://www.speedrun.com/api/v1/games/${this.gameID}/categories`);
             
             // Step 2: Find the level ID for the mode
-            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
-            const modeName = modeNames[mode];
-            
             const levelData = levels.data.find(l => l.name.includes(modeName));
             if (!levelData) {
                 throw new Error(`Level not found for mode: ${modeName}`);
             }
             
             // Step 3: Find the category ID
-            const categoryName = level === "H" ? modeName : `${level} Apples`;
             const categoryData = categories.data.find(c => c.name.includes(categoryName));
             if (!categoryData) {
                 throw new Error(`Category not found: ${categoryName}`);
@@ -527,7 +562,7 @@ class WorldRecordFetcher {
                 }
             }
             
-            return {
+            const result = {
                 success: true,
                 runs: tiedRuns,
                 category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "Dice"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
@@ -538,6 +573,11 @@ class WorldRecordFetcher {
                 },
                 date: date
             };
+            
+            // Store in cache using comparison logic
+            const wasUpdated = window.cacheManager.updateCacheIfChanged(cacheKey, result);
+            
+            return result;
             
         } catch (error) {
             // If it's a 420 error, re-throw it to be caught by the main application
@@ -567,13 +607,95 @@ class WorldRecordFetcher {
         const batchSize = (typeof isMultipleTablesEnabled !== 'undefined' && isMultipleTablesEnabled) ? 25 : 50;
         const results = [];
         
-        for (let i = 0; i < requests.length; i += batchSize) {
+        // First, check cache for all requests with 100 concurrency
+        const cacheResults = [];
+        const apiRequests = [];
+        
+        // Process cache checks with 1000 concurrency
+        const cacheBatchSize = 1000;
+        for (let i = 0; i < requests.length; i += cacheBatchSize) {
+            const cacheBatch = requests.slice(i, i + cacheBatchSize);
+            
+            // Process cache batch concurrently
+            const cachePromises = cacheBatch.map(async (request) => {
+                // Generate cache key for this request
+                const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
+                const modeName = modeNames[request.mode];
+                
+                // Check if this is a high score request (either by level or levelName)
+                const isHighScore = request.level === "H" || request.levelName === "High Score";
+                const categoryName = isHighScore ? modeName : `${request.level} Apples`;
+                
+                const settings = [
+                    modeName,
+                    categoryName,
+                    ["1 Apple", "3 Apples", "5 Apples", "Dice"][request.count],
+                    ["Normal", "Fast", "Slow"][request.speed],
+                    ["Standard", "Small", "Large"][request.size]
+                ];
+                
+                const cacheKey = window.cacheManager.getCacheKey(settings, request.date);
+                const cachedData = window.cacheManager.getCachedData(cacheKey);
+                
+                if (cachedData && window.cacheManager.isCacheValid(cacheKey)) {
+                    // Use cached data
+                    return {
+                        type: 'cache',
+                        request: request,
+                        result: cachedData.data
+                    };
+                } else {
+                    // Need to make API call
+                    return {
+                        type: 'api',
+                        request: request
+                    };
+                }
+            });
+            
+            // Wait for cache batch to complete
+            const batchResults = await Promise.all(cachePromises);
+            
+            // Separate cache hits from API requests
+            batchResults.forEach(result => {
+                if (result.type === 'cache') {
+                    cacheResults.push({
+                        request: result.request,
+                        result: result.result
+                    });
+                } else {
+                    apiRequests.push(result.request);
+                }
+            });
+        }
+        
+        // Add cached results to results array
+        results.push(...cacheResults.map(item => item.result));
+        
+        // Update progress for cached results (these are not API calls)
+        if (progressCallback) {
+            progressCallback(0); // Don't count cache hits as API calls
+        }
+        
+        // Show cache loading progress
+        if (cacheResults.length > 0) {
+            console.log(`Loaded ${cacheResults.length} records from cache, ${apiRequests.length} API calls needed`);
+        }
+        
+        // Update the total API calls needed (only actual API calls, not cache)
+        if (progressCallback && apiRequests.length > 0) {
+            // This will update the total to only count actual API calls
+            progressCallback(apiRequests.length, true); // true = update total
+        }
+        
+        // Process API requests in batches
+        for (let i = 0; i < apiRequests.length; i += batchSize) {
             // Check if API calls are paused
             while (window.isApiPaused) {
                 await new Promise(resolve => setTimeout(resolve, 100)); // Wait 100ms before checking again
             }
             
-            const batch = requests.slice(i, i + batchSize);
+            const batch = apiRequests.slice(i, i + batchSize);
             const batchPromises = batch.map(async request => {
                 try {
                     if (request.date) {
@@ -617,9 +739,11 @@ class WorldRecordFetcher {
                 const batchResults = await Promise.all(batchPromises);
                 results.push(...batchResults);
                 
-                // Update progress after each batch
+                // Update progress after each batch (only count actual API calls, not cache)
                 if (progressCallback) {
-                    progressCallback(results.length);
+                    // Only count the API calls from this batch, not cache hits
+                    const apiCallsInBatch = batchResults.filter(result => result.success || result.error).length;
+                    progressCallback(apiCallsInBatch);
                 }
                 
                 // Add delay between batches when multiple tables is enabled

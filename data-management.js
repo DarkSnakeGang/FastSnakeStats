@@ -67,6 +67,19 @@ var isApiPaused = false; // Track if API calls are paused
 var pausedApiState = null; // Store state when API calls are paused
 var isLoading = false; // Loading state management
 
+// Function to update cache info displays
+function updateAllCacheInfo() {
+    // Update desktop cache info
+    if (typeof updateCacheInfo === 'function') {
+        updateCacheInfo();
+    }
+    
+    // Update mobile cache info
+    if (typeof updateMobileCacheInfo === 'function') {
+        updateMobileCacheInfo();
+    }
+}
+
 // Make state accessible globally
 window.isApiPaused = false;
 window.isLoading = isLoading;

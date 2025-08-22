@@ -255,6 +255,45 @@ function updateMobileApiProgress() {
     }
 }
 
+// Update mobile cache info display
+function updateMobileCacheInfo() {
+    if (!window.cacheManager) return;
+    
+    const cacheTimestampElement = document.getElementById('mobileCacheTimestamp');
+    const cacheSizeElement = document.getElementById('mobileCacheSize');
+    
+    if (cacheTimestampElement && cacheSizeElement) {
+        const stats = window.cacheManager.getCacheStats();
+        
+        // Update timestamp (show most recent)
+        if (stats.totalCaches > 0) {
+            // Get the most recent timestamp from all caches
+            const keys = Object.keys(localStorage);
+            const cacheKeys = keys.filter(key => key.startsWith(window.cacheManager.cachePrefix));
+            let mostRecent = 0;
+            
+            cacheKeys.forEach(key => {
+                const cached = window.cacheManager.getCachedData(key);
+                if (cached && cached.timestamp > mostRecent) {
+                    mostRecent = cached.timestamp;
+                }
+            });
+            
+            if (mostRecent > 0) {
+                const date = new Date(mostRecent);
+                cacheTimestampElement.textContent = date.toLocaleString();
+            } else {
+                cacheTimestampElement.textContent = 'Unknown';
+            }
+        } else {
+            cacheTimestampElement.textContent = 'Never';
+        }
+        
+        // Update record count
+        cacheSizeElement.textContent = stats.totalRecords;
+    }
+}
+
 // Mobile-specific function to update API progress
 function updateMobileApiCallProgress(successful, total) {
     mobileApiCallProgress.successful = successful;
@@ -390,6 +429,10 @@ function showBasicMobileRecordsSection() {
                         <div class="mobile-progress-display">
                             API Calls: <span id="mobileApiProgress">0/0</span>
                         </div>
+                        <div class="mobile-cache-info">
+                            Last Updated: <span id="mobileCacheTimestamp">Never</span>
+                            Records: <span id="mobileCacheSize">0</span>
+                        </div>
                     </div>
                     <button class="mobile-option-btn" id="mobileStopResumeBtn" style="display: none;">
                         ⏸️ Stop
@@ -426,6 +469,9 @@ function showBasicMobileRecordsSection() {
 
     // Set up periodic API progress updates
     setInterval(updateMobileApiProgress, 1000);
+    
+    // Set up periodic cache info updates
+    setInterval(updateMobileCacheInfo, 2000);
 }
 
 // Setup mobile records event listeners

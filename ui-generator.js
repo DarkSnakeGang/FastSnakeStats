@@ -26,6 +26,48 @@ function updateApiProgress() {
             stopResumeButton.style.display = 'none';
         }
     }
+    
+    // Update cache info display
+    updateCacheInfo();
+}
+
+// Function to update cache info display
+function updateCacheInfo() {
+    if (!window.cacheManager) return;
+    
+    const cacheTimestampElement = document.getElementById('cacheTimestamp');
+    const cacheSizeElement = document.getElementById('cacheSize');
+    
+    if (cacheTimestampElement && cacheSizeElement) {
+        const stats = window.cacheManager.getCacheStats();
+        
+        // Update timestamp (show most recent)
+        if (stats.totalCaches > 0) {
+            // Get the most recent timestamp from all caches
+            const keys = Object.keys(localStorage);
+            const cacheKeys = keys.filter(key => key.startsWith(window.cacheManager.cachePrefix));
+            let mostRecent = 0;
+            
+            cacheKeys.forEach(key => {
+                const cached = window.cacheManager.getCachedData(key);
+                if (cached && cached.timestamp > mostRecent) {
+                    mostRecent = cached.timestamp;
+                }
+            });
+            
+            if (mostRecent > 0) {
+                const date = new Date(mostRecent);
+                cacheTimestampElement.textContent = date.toLocaleString();
+            } else {
+                cacheTimestampElement.textContent = 'Unknown';
+            }
+        } else {
+            cacheTimestampElement.textContent = 'Never';
+        }
+        
+        // Update record count
+        cacheSizeElement.textContent = stats.totalRecords;
+    }
 }
 
 // SpeedInfo.js time conversion function
@@ -1032,6 +1074,16 @@ function generateTableSelector(){
     progressDisplay.setAttribute('class', 'progress-display');
     progressDisplay.innerHTML = `API Calls: <span id="apiProgress">0/0</span>`;
     dataInfo.appendChild(progressDisplay);
+    
+    // Create cache info display (hidden from user)
+    var cacheInfo = document.createElement('div');
+    cacheInfo.setAttribute('class', 'cache-info');
+    cacheInfo.style.display = 'none'; // Hidden from user
+    cacheInfo.innerHTML = `
+        Last Updated: <span id="cacheTimestamp">Never</span>
+        Records: <span id="cacheSize">0</span>
+    `;
+    dataInfo.appendChild(cacheInfo);
     
     // Create stop/resume button (outside but inline)
     var stopResumeButton = document.createElement('button');

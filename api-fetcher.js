@@ -1,6 +1,17 @@
 // API & Data Fetching Module
 // Handles all API calls, world record fetching, and data processing
 
+// Helper function to safely convert date to ISO string
+function safeDateToISOString(date) {
+    if (typeof date === 'string') {
+        return date;
+    }
+    if (date && typeof date.toISOString === 'function') {
+        return date.toISOString();
+    }
+    return new Date().toISOString(); // fallback
+}
+
 function makeAPIrequest(requestURL, callback){
     // Add id to solve query issue
     hasQuery = requestURL.includes("?")
@@ -212,8 +223,8 @@ async function refreshWorldRecordsForSettings() {
     // Set loading state
     setLoadingState(true);
     
-    // Clear existing records to ensure fresh data
-    worldRecords = {};
+    // Don't clear existing records - let cache manager handle comparison
+    // worldRecords = {};
     
     // Generate empty table immediately to show structure
     generateSingleTable();
@@ -328,7 +339,7 @@ async function refreshSpecificTable(settings) {
                         for (const run of record.runs) {
                             let convertedRun = {
                                 times: { primary: run.time.raw },
-                                date: run.date.toISOString(),
+                                date: safeDateToISOString(run.date),
                                 id: run.runId,
                                 weblink: run.weblink,
                                 players: {
@@ -388,7 +399,7 @@ async function refreshSpecificTable(settings) {
                         for (const run of record.runs) {
                             let convertedRun = {
                                 times: { primary: run.time.raw },
-                                date: run.date.toISOString(),
+                                date: safeDateToISOString(run.date),
                                 id: run.runId,
                                 weblink: run.weblink,
                                 players: {
@@ -628,6 +639,11 @@ async function getAllWorldRecordsForCurrentSettings() {
             for (let levelIndex = 0; levelIndex < selectedLevels.length; levelIndex++) {
                 const level = selectedLevels[levelIndex];
                 
+                // Skip "100 Apples" for "Small" size - this combination doesn't exist
+                if (level === "100" && combo[2] === "Small") {
+                    continue;
+                }
+                
                 allRequests.push({
                     level: level,
                     mode: mode,
@@ -661,18 +677,21 @@ async function getAllWorldRecordsForCurrentSettings() {
         }
     }
     
-    // Set total API calls needed
-    apiCallProgress.total = allRequests.length;
+    // Set total API calls needed (will be updated after cache check)
+    apiCallProgress.total = 0; // Start with 0, will be updated after cache check
+    apiCallProgress.successful = 0;
     updateApiProgress();
     
     // Update mobile API progress if on mobile
     if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
-        updateMobileApiCallProgress(0, allRequests.length);
+        updateMobileApiCallProgress(0, 0);
     }
     
     if (isMultipleTablesEnabled) {
         // Load tables one by one for multiple tables mode
-        let totalCompleted = 0;
+        let totalApiCallsNeeded = 0;
+        let totalApiCallsCompleted = 0;
+        
         for (let comboIndex = 0; comboIndex < selectedCombinations.length; comboIndex++) {
             const combo = selectedCombinations[comboIndex];
             
@@ -684,17 +703,29 @@ async function getAllWorldRecordsForCurrentSettings() {
             );
             
             // Process this combination's requests
-            const comboResults = await window.worldRecordFetcher.fetchWorldRecordsBatch(comboRequests, (completedCount) => {
-                apiCallProgress.successful = totalCompleted + completedCount;
-                updateApiProgress();
-                
-                // Update mobile API progress if on mobile
-                if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
-                    updateMobileApiCallProgress(totalCompleted + completedCount, apiCallProgress.total);
+            const comboResults = await window.worldRecordFetcher.fetchWorldRecordsBatch(comboRequests, (completedCount, updateTotal = false) => {
+                if (updateTotal) {
+                    // Add to total API calls needed (accumulate, don't replace)
+                    totalApiCallsNeeded += completedCount;
+                    apiCallProgress.total = totalApiCallsNeeded;
+                    updateApiProgress();
+                    
+                    // Update mobile API progress if on mobile
+                    if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
+                        updateMobileApiCallProgress(0, totalApiCallsNeeded);
+                    }
+                } else {
+                    // Update successful API calls (only actual API calls, not cache)
+                    totalApiCallsCompleted += completedCount;
+                    apiCallProgress.successful = totalApiCallsCompleted;
+                    updateApiProgress();
+                    
+                    // Update mobile API progress if on mobile
+                    if (window.innerWidth <= 1023 && typeof updateMobileApiCallProgress === 'function') {
+                        updateMobileApiCallProgress(totalApiCallsCompleted, totalApiCallsNeeded);
+                    }
                 }
             });
-            
-            totalCompleted += comboRequests.length;
             
             // Process results for this combination
             for (let j = 0; j < comboResults.length; j++) {
@@ -711,7 +742,7 @@ async function getAllWorldRecordsForCurrentSettings() {
                     for (const run of record.runs) {
                         let convertedRun = {
                             times: { primary: run.time.raw },
-                            date: run.date.toISOString(),
+                            date: safeDateToISOString(run.date),
                             id: run.runId,
                             weblink: run.weblink,
                             players: {
@@ -743,11 +774,16 @@ async function getAllWorldRecordsForCurrentSettings() {
                 }
             }
             
-            // Update the display after each table is loaded
-            calculateBestRuns();
-            calculateRanglist();
-            generateRanglist();
-            generateSingleTable();
+                    // Update the display after each table is loaded
+        calculateBestRuns();
+        calculateRanglist();
+        generateRanglist();
+        generateSingleTable();
+        
+        // Update cache info display
+        if (typeof updateAllCacheInfo === 'function') {
+            updateAllCacheInfo();
+        }
             
             // Small delay to show progress
             await new Promise(resolve => setTimeout(resolve, 100));
@@ -800,23 +836,23 @@ async function getAllWorldRecordsForCurrentSettings() {
             throw error;
         }
         
-        // Process batch results
-        for (let j = 0; j < batchResults.length; j++) {
-            const record = batchResults[j];
-            const request = currentRequests[j];
-            
-            if (record.success) {
-                // Create a key for this combination using actual setting names
-                let key = `${request.combo[0]}|${request.combo[1]}|${request.combo[2]}|${request.modeName}|${request.levelName}`;
-                
-                // Convert all runs to the expected format
-                let convertedRuns = [];
-                
-                for (const run of record.runs) {
-                    let convertedRun = {
-                        times: { primary: run.time.raw },
-                        date: run.date.toISOString(),
-                        id: run.runId,
+                        // Process batch results
+                for (let j = 0; j < batchResults.length; j++) {
+                    const record = batchResults[j];
+                    const request = currentRequests[j];
+                    
+                    if (record.success) {
+                        // Create a key for this combination using actual setting names
+                        let key = `${request.combo[0]}|${request.combo[1]}|${request.combo[2]}|${request.modeName}|${request.levelName}`;
+                        
+                        // Convert all runs to the expected format
+                        let convertedRuns = [];
+                        
+                        for (const run of record.runs) {
+                            let convertedRun = {
+                                times: { primary: run.time.raw },
+                                date: safeDateToISOString(run.date),
+                                id: run.runId,
                         weblink: run.weblink,
                         players: {
                             data: [{
@@ -852,6 +888,11 @@ async function getAllWorldRecordsForCurrentSettings() {
         calculateRanglist();
         generateRanglist();
         generateSingleTable();
+        
+        // Update cache info display
+        if (typeof updateAllCacheInfo === 'function') {
+            updateAllCacheInfo();
+        }
         
         // Mark API calls as complete for single table mode
         apiCallProgress.successful = apiCallProgress.total;
@@ -1002,6 +1043,11 @@ async function getAllWorldRecordsForDate(date) {
             for (let levelIndex = 0; levelIndex < selectedLevels.length; levelIndex++) {
                 const level = selectedLevels[levelIndex];
                 
+                // Skip "100 Apples" for "Small" size - this combination doesn't exist
+                if (level === "100" && combo[2] === "Small") {
+                    continue;
+                }
+                
                 allRequests.push({
                     level: level,
                     mode: mode,
@@ -1090,7 +1136,7 @@ async function getAllWorldRecordsForDate(date) {
                 for (const run of record.runs) {
                     let convertedRun = {
                         times: { primary: run.time.raw },
-                        date: run.date.toISOString(),
+                        date: safeDateToISOString(run.date),
                         id: run.runId,
                         weblink: run.weblink,
                         players: {
@@ -1125,6 +1171,11 @@ async function getAllWorldRecordsForDate(date) {
                 calculateRanglist();
                 generateRanglist();
                 generateSingleTable();
+                
+                // Update cache info display
+                if (typeof updateAllCacheInfo === 'function') {
+                    updateAllCacheInfo();
+                }
             }
         }
     } catch (error) {
@@ -1226,88 +1277,45 @@ function startWorldRecordsDownload() {
         
         // Set up a completion check
         var checkCompletion = setInterval(() => {
-            // For multiple tables mode, wait for all API calls to complete
-            // For single table mode, wait for any records to be loaded
-            if (isMultipleTablesEnabled) {
-                // In multiple tables mode, check if all API calls are completed
-                if (apiCallProgress.total > 0 && apiCallProgress.successful >= apiCallProgress.total) {
-                    clearTimeout(loadingTimeout);
-                    clearTimeout(apiTimeout);
-                    clearInterval(checkCompletion);
-                    
-                    // Re-enable category settings after completion
-                    setLoadingState(false);
-                    
-                    calculateBestRuns();
-                    calculateRanglist();
-                    generateRanglist();
-                    updateTableSelector();
-                    generateSingleTable();
-                    
-                    var switchButton = document.getElementById("switchButton");
-                    if(switchButton) {
-                        switchButton.addEventListener('click', () => {
-                            if(mode == 0){
-                                switchMode(1);
-                            }
-                            else{
-                                switchMode(0);
-                            }
-                        });
-                    }
-                }
-            } else {
-                // In single table mode, check if any records are loaded
-                if(Object.keys(worldRecords).length > 0) {
-                    clearTimeout(loadingTimeout);
-                    clearTimeout(apiTimeout);
-                    clearInterval(checkCompletion);
-                    
-                    // Re-enable category settings after completion
-                    setLoadingState(false);
-                    
-                    calculateBestRuns();
-                    calculateRanglist();
-                    generateRanglist();
-                    updateTableSelector();
-                    generateSingleTable();
-                    
-                    var switchButton = document.getElementById("switchButton");
-                    if(switchButton) {
-                        switchButton.addEventListener('click', () => {
-                            if(mode == 0){
-                                switchMode(1);
-                            }
-                            else{
-                                switchMode(0);
-                            }
-                        });
-                    }
+            // Check if any records are loaded (from cache or API)
+            if(Object.keys(worldRecords).length > 0) {
+                clearTimeout(loadingTimeout);
+                clearTimeout(apiTimeout);
+                clearInterval(checkCompletion);
+                
+                // Re-enable category settings after completion
+                setLoadingState(false);
+                
+                calculateBestRuns();
+                calculateRanglist();
+                generateRanglist();
+                updateTableSelector();
+                generateSingleTable();
+                
+                var switchButton = document.getElementById("switchButton");
+                if(switchButton) {
+                    switchButton.addEventListener('click', () => {
+                        if(mode == 0){
+                            switchMode(1);
+                        }
+                        else{
+                            switchMode(0);
+                        }
+                    });
                 }
             }
         }, 1000); // Check every second
         
         // Fallback: if no records after 15 seconds, show error
         setTimeout(() => {
-            if (isMultipleTablesEnabled) {
-                // In multiple tables mode, check if API calls are still in progress
-                if (apiCallProgress.total > 0 && apiCallProgress.successful < apiCallProgress.total) {
-                    clearInterval(checkCompletion);
-                    if(container) {
-                        container.innerHTML = '<p style="color: white; font-size: 18px;">API calls are taking longer than expected. Please wait or try refreshing.</p>';
-                    }
-                    // Don't disable loading state - let it continue
+            // Check if any records are loaded (from cache or API)
+            if(Object.keys(worldRecords).length === 0) {
+                clearInterval(checkCompletion);
+                if(container) {
+                    container.innerHTML = '<p style="color: white; font-size: 18px;">No world records found. The API might be temporarily unavailable.</p>';
                 }
-            } else {
-                // In single table mode, check if any records are loaded
-                if(Object.keys(worldRecords).length === 0) {
-                    clearInterval(checkCompletion);
-                    if(container) {
-                        container.innerHTML = '<p style="color: white; font-size: 18px;">No world records found. The API might be temporarily unavailable.</p>';
-                    }
-                    // Re-enable category settings on fallback timeout
-                    setLoadingState(false);
-                }
+                // Re-enable category settings on fallback timeout
+                setLoadingState(false);
             }
         }, 15000);
     });

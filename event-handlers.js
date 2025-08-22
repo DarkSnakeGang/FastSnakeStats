@@ -103,9 +103,33 @@ async function toggleMultipleTables() {
     // Regenerate table selector to show/hide count/speed/size options
     generateTableSelector();
     
-    // Refresh data based on current state
+    // Load data from cache instead of refreshing
     if (isLoading) return;
-    await refreshWorldRecordsForSettings();
+    
+    // Set loading state briefly to show progress
+    setLoadingState(true);
+    
+    try {
+        // Ensure settings are saved before proceeding
+        saveSettings();
+        
+        // Load from cache instead of making API calls
+        if (isTimeTravelEnabled && selectedTimeTravelDate) {
+            await getAllWorldRecordsForDate(selectedTimeTravelDate);
+        } else {
+            await getAllWorldRecordsForCurrentSettings();
+        }
+        
+        // Update button highlighting with a small delay to ensure DOM is ready
+        setTimeout(() => {
+            updateTableSelector();
+        }, 50);
+        
+    } catch (error) {
+        console.error('Error loading from cache:', error);
+    } finally {
+        setLoadingState(false);
+    }
 }
 
 // Global function to set API overloaded state (called from WorldRecordFetcher)
