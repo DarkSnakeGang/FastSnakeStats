@@ -31,10 +31,7 @@ if (document.readyState === 'loading') {
 function initializeSimpleMobileUI() {
     console.log('Initializing simple mobile UI...');
     
-    // Load settings immediately to ensure they're available
-    if (typeof loadSettings === 'function') {
-        loadSettings();
-    }
+    // Settings are already loaded by the desktop system (main.js)
     
     // Setup mobile navigation
     setupMobileNavigation();
@@ -68,9 +65,6 @@ function waitForDesktopSystem() {
                 isMultipleTablesEnabled: typeof isMultipleTablesEnabled,
                 loadSettings: typeof loadSettings
             });
-            
-            // Load settings to ensure game modes are properly initialized
-            loadSettings();
             
             // Initialize mobile run and game modes
             initializeMobileRunAndGameModes();
@@ -224,10 +218,10 @@ function showBasicMobileRecordsSection() {
         return;
     }
 
-    // Check if we already have content in the records section
-    const existingContent = mobileTablesContainer.querySelector('.mobile-card');
-    if (existingContent) {
-        // If content exists, update API progress and load table data
+    // Check if we already have records content specifically
+    const existingRecordsContent = mobileTablesContainer.querySelector('.mobile-card .mobile-card-title');
+    if (existingRecordsContent && existingRecordsContent.textContent === 'World Records') {
+        // If records content exists, update API progress and load table data
         console.log('Records content already exists, updating API progress and loading table');
         updateMobileApiProgress();
         loadMobileTableData();
@@ -498,13 +492,7 @@ function showBasicMobileSettingsSection() {
     const mobileTablesContainer = document.getElementById('mobileTablesContainer');
     if (!mobileTablesContainer) return;
 
-    // Ensure settings are loaded before generating checkboxes
-    if (typeof loadSettings === 'function') {
-        loadSettings();
-    }
-    
-    // Initialize run modes and game modes to be all selected if they haven't been set before
-    initializeMobileRunAndGameModes();
+    // Settings are already loaded during initial page load, no need to reload here
 
     mobileTablesContainer.innerHTML = `
         <div class="mobile-settings-content">
@@ -566,6 +554,8 @@ function showBasicMobileSettingsSection() {
 
 // Initialize run modes and game modes to be all selected
 function initializeMobileRunAndGameModes() {
+    let needsSaving = false;
+    
     // Check if run modes have been initialized before
     const runModesInitialized = localStorage.getItem('mobileRunModesInitialized');
     if (!runModesInitialized) {
@@ -574,7 +564,7 @@ function initializeMobileRunAndGameModes() {
             value.visible = true;
         }
         localStorage.setItem('mobileRunModesInitialized', 'true');
-        saveSettings();
+        needsSaving = true;
     }
     
     // Check if game modes have been initialized before
@@ -585,11 +575,13 @@ function initializeMobileRunAndGameModes() {
             value.visible = true;
         }
         localStorage.setItem('mobileGameModesInitialized', 'true');
-        saveSettings();
+        needsSaving = true;
     }
     
-    // Save the initial settings
-    saveSettings();
+    // Only save settings if we actually made changes
+    if (needsSaving) {
+        saveSettings();
+    }
 }
 
 // Generate mobile category checkboxes
@@ -651,7 +643,8 @@ function generateMobileCategoryCheckboxes() {
     html += '<div class="mobile-category-section">';
     html += '<h4 class="mobile-category-title">Game Modes</h4>';
     for (const [key, value] of Object.entries(gamemodes)) {
-        const isChecked = isMultipleTablesEnabled ? value.visible : (currentTableSettings[3] === key);
+        // Game modes are always toggle behavior (always use value.visible)
+        const isChecked = value.visible;
         html += `
             <div class="mobile-checkbox-group">
                 <input type="checkbox" id="mobile_${value.id}" class="mobile-checkbox" ${isChecked ? 'checked' : ''}>
