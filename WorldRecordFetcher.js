@@ -561,9 +561,10 @@ class WorldRecordFetcher {
         }
     }
 
-    // Fetch multiple world records concurrently (batch of 50)
+    // Fetch multiple world records concurrently (batch of 50 or 25 based on multiple tables setting)
     async fetchWorldRecordsBatch(requests, progressCallback = null) {
-        const batchSize = 50;
+        // Determine batch size based on multiple tables setting
+        const batchSize = (typeof isMultipleTablesEnabled !== 'undefined' && isMultipleTablesEnabled) ? 25 : 50;
         const results = [];
         
         for (let i = 0; i < requests.length; i += batchSize) {
@@ -619,6 +620,11 @@ class WorldRecordFetcher {
                 // Update progress after each batch
                 if (progressCallback) {
                     progressCallback(results.length);
+                }
+                
+                // Add delay between batches when multiple tables is enabled
+                if (typeof isMultipleTablesEnabled !== 'undefined' && isMultipleTablesEnabled && i + batchSize < requests.length) {
+                    await new Promise(resolve => setTimeout(resolve, 300)); // 0.3 second delay
                 }
             } catch (error) {
                 // If any request in the batch failed with 420, throw the error
