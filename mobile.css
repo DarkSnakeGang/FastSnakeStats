@@ -133,10 +133,10 @@
 	}
 
 	.mobile-nav-item.active {
-		background: var(--mobile-primary);
+		background: #28a745;
 		color: white !important;
 		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+		box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
 	}
 
 	.mobile-nav-item:hover {
@@ -145,7 +145,7 @@
 	}
 
 	.mobile-nav-item.active:hover {
-		background: var(--mobile-primary);
+		background: #28a745;
 		color: white !important;
 		transform: translateY(-2px);
 	}

@@ -166,8 +166,11 @@ function switchBasicMobileSection(section) {
             showBasicMobileRecordsSection();
             // Refresh table when switching to records to ensure latest settings are applied
             setTimeout(() => {
+                // Double-check we're still on records section before loading
                 if (mobileState.currentSection === 'records') {
                     loadMobileTableData();
+                } else {
+                    console.log('Navigation changed, skipping table load');
                 }
             }, 100);
             break;
@@ -175,8 +178,11 @@ function switchBasicMobileSection(section) {
             showBasicMobileSummarySection();
             // Refresh summary when switching to summary to ensure latest data is shown
             setTimeout(() => {
+                // Double-check we're still on summary section before loading
                 if (mobileState.currentSection === 'summary') {
                     loadMobileSummaryData();
+                } else {
+                    console.log('Navigation changed, skipping summary load');
                 }
             }, 200);
             break;
@@ -1023,6 +1029,12 @@ function showBasicMobileSummarySection() {
 function loadMobileSummaryData() {
     const mobileSummaryContent = document.getElementById('mobileSummaryContent');
     if (!mobileSummaryContent) return;
+
+    // Check if we're still on the summary section before loading
+    if (mobileState.currentSection !== 'summary') {
+        console.log('loadMobileSummaryData: Skipping summary load - not on summary section (current:', mobileState.currentSection, ')');
+        return;
+    }
 
     console.log('loadMobileSummaryData: Starting summary load');
     console.log('worldRecords available:', typeof worldRecords !== 'undefined' && Object.keys(worldRecords).length > 0);
