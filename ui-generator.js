@@ -228,7 +228,7 @@ function createIconElement(setting){
     }
 }
 
-function createTimeElement(times){
+function createTimeElement(times, isHighScore = false){
     ptformatter = function primaryTimeFormatter(pt){
         pt = pt.replace("PT","");
         if(pt.indexOf("M") == -1){
@@ -256,10 +256,27 @@ function createTimeElement(times){
         return pt+ " Apples";
     }
 
+    // Special formatter for high scores - extract milliseconds and show as "X apples"
+    highScoreFormatter = function highScoreFormatter(pt){
+        // Extract the milliseconds part from the time
+        const match = pt.match(/PT(?:(\d+)H)?(?:(\d+)M)?([\d.]+)S/);
+        if (match) {
+            const seconds = parseFloat(match[3]);
+            const milliseconds = Math.round((seconds - Math.floor(seconds)) * 1000);
+            return milliseconds + " apples";
+        }
+        // Fallback to apple formatter if regex doesn't match
+        return atformatter(pt);
+    }
+
     var span = document.createElement('span');
     span.setAttribute('class','time');
     var text;
-    if(times.primary_t < 1){
+    
+    if(isHighScore){
+        text = highScoreFormatter(times.primary);
+    }
+    else if(times.primary_t < 1){
         text = atformatter(times.primary);
     }
     else{
@@ -423,7 +440,7 @@ function generateTableContent(table, settings, specificGamemode = null) {
                         var timeLink = document.createElement('a');
                         timeLink.setAttribute('href', thisBoardRuns[gamemode][runMode][0].weblink);
                         timeLink.setAttribute('target', '_blank');
-                        timeLink.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode][0].times));
+                        timeLink.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode][0].times, runMode === "High Score"));
                         timeDisplay.appendChild(timeLink);
                         runsContainer.appendChild(timeDisplay);
                         
@@ -566,7 +583,7 @@ function generateLeaderboard(settings, specificGamemode = null){
                         var timeLink = document.createElement('a');
                         timeLink.setAttribute('href', thisBoardRuns[gamemode][runMode][0].weblink);
                         timeLink.setAttribute('target', '_blank');
-                        timeLink.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode][0].times));
+                        timeLink.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode][0].times, runMode === "High Score"));
                         timeDisplay.appendChild(timeLink);
                         runsContainer.appendChild(timeDisplay);
                         
@@ -726,7 +743,7 @@ function generateLeaderboardForMultiple(settings, container){
                         var timeLink = document.createElement('a');
                         timeLink.setAttribute('href', thisBoardRuns[gamemode][runMode][0].weblink);
                         timeLink.setAttribute('target', '_blank');
-                        timeLink.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode][0].times));
+                        timeLink.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode][0].times, runMode === "High Score"));
                         timeDisplay.appendChild(timeLink);
                         runsContainer.appendChild(timeDisplay);
                         
