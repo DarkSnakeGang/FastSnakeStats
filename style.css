@@ -259,6 +259,38 @@ body.dark-mode .dark-mode-toggle:hover {
 	border: 3px solid #AB593E;
 }
 
+/* More runners button styling */
+.more-runners-btn {
+	background: linear-gradient(135deg, #4C792D, #578A34);
+	border: 2px solid #578A34;
+	border-radius: 8px;
+	color: white;
+	padding: 10px 20px;
+	margin: 10px auto;
+	display: block;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: bold;
+	text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+	transition: all 0.3s ease;
+	box-shadow: 0 4px 8px var(--shadow);
+}
+
+.more-runners-btn:hover {
+	background: linear-gradient(135deg, #578A34, #4C792D);
+	box-shadow: 0 6px 12px var(--shadow);
+}
+
+/* Dark mode styling for more runners button */
+body.dark-mode .more-runners-btn {
+	background: linear-gradient(135deg, #1e3a15, #2d4a1f);
+	border: 2px solid #2d4a1f;
+}
+
+body.dark-mode .more-runners-btn:hover {
+	background: linear-gradient(135deg, #2d4a1f, #1e3a15);
+}
+
 /* Improve table aesthetics */
 .container table {
 	border-top: none;
@@ -531,17 +563,20 @@ body.dark-mode .stop-resume-btn {
 	gap: 50px; /* Space between tables */
 }
 @media only screen and (max-width: 900px) {
-	.container{
+	/* Mobile container layout */
+	.container {
 		justify-content: center;
 		margin-left: 0;
 		width: 100%;
-		padding: 5px;
-		gap: 10px;
+		padding: 10px;
+		gap: 15px;
 		flex-direction: column;
 		align-items: center;
-		overflow-x: auto;
+		overflow-x: hidden;
+		overflow-y: auto;
 	}
 	
+	/* Mobile table selector */
 	.table-selector {
 		position: relative;
 		left: auto;
@@ -550,57 +585,109 @@ body.dark-mode .stop-resume-btn {
 		max-width: 95%;
 		z-index: 50;
 		padding: 15px;
+		width: 100%;
+		box-sizing: border-box;
 	}
 	
+	/* Mobile table wrappers */
 	.main-table-wrapper,
 	.ranglist-wrapper {
-		width: auto;
-		min-width: 0;
+		width: 100%;
+		max-width: 100%;
 		overflow-x: auto;
+		overflow-y: hidden;
 	}
 	
 	.table-wrapper {
-		width: auto;
+		width: 100%;
+		max-width: 100%;
 		overflow-x: auto;
+		overflow-y: hidden;
 	}
 	
+	/* Mobile table styling */
 	.container table {
-		width: auto;
-		margin: 2px;
-		min-width: auto;
-		font-size: 12px;
+		width: 100%;
+		min-width: 600px; /* Reduced from 800px for better mobile fit */
+		font-size: 10px;
+		table-layout: auto; /* Changed from fixed for better mobile layout */
+		margin: 0;
 	}
 	
 	.ranglist-wrapper table {
-		width: auto;
-		margin: 2px;
-		min-width: auto;
-		font-size: 11px;
+		width: 85%;
+		min-width: 340px;
+		font-size: 10px;
+		margin: 0 auto;
+		table-layout: fixed; /* Fixed layout for summary table */
+		border-collapse: collapse;
 	}
 	
-	.container th,
-	.ranglist-wrapper th {
-		padding: 6px;
-		height: 40px;
-		font-size: 14px;
-	}
-	
-	.container td,
-	.ranglist-wrapper td {
-		padding: 4px;
-		font-size: 12px;
-	}
-	
-	.container th img {
-		width: 30px;
+	/* Mobile table headers and cells */
+	.container th {
 		padding: 2px;
-		padding-right: 8px;
+		height: 30px;
+		font-size: 10px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	
+	.container td {
+		padding: 2px;
+		font-size: 9px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	
+	/* Summary table mobile styling - simplified structure */
+	.ranglist-wrapper table {
+		table-layout: fixed;
+		width: 100%;
+	}
+	
+	.ranglist-wrapper th,
+	.ranglist-wrapper td {
+		text-align: center;
+		vertical-align: middle;
+		padding: 4px;
+		font-size: 10px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	
+	/* Specific column widths for mobile summary table */
+	.ranglist-player-header,
+	.ranglist-player-cell {
+		width: 50% !important;
+	}
+	
+	.ranglist-count-header,
+	.ranglist-count-cell {
+		width: 25% !important;
+	}
+	
+	.ranglist-percentage-header,
+	.ranglist-percentage-cell {
+		width: 25% !important;
+	}
+	
+
+	
+	/* Mobile table images */
+	.container th img {
+		width: 20px;
+		padding: 1px;
+		padding-right: 2px;
 	}
 	
 	.ranglist img {
-		width: 60px;
+		width: 40px;
 	}
 	
+	/* Mobile dark mode toggle */
 	.dark-mode-toggle {
 		position: fixed;
 		left: 10px;
@@ -611,6 +698,7 @@ body.dark-mode .stop-resume-btn {
 		z-index: 1001;
 	}
 	
+	/* Mobile sidebar header */
 	.sidebar-header {
 		flex-direction: column;
 		gap: 10px;
@@ -622,12 +710,32 @@ body.dark-mode .stop-resume-btn {
 		padding: 10px;
 	}
 	
+	/* Mobile table option buttons */
 	.table-option-btn {
-		width: 45px;
-		height: 45px;
-		font-size: 10px;
+		width: 40px;
+		height: 40px;
+		font-size: 9px;
+		margin: 2px;
 	}
 	
+	/* Mobile button groups */
+	.table-selector .button-group {
+		gap: 4px;
+		margin-bottom: 15px;
+	}
+	
+	/* Mobile titles and labels */
+	.table-selector h3 {
+		font-size: 16px;
+		margin-bottom: 15px;
+	}
+	
+	.table-selector label {
+		font-size: 12px;
+		margin-bottom: 6px;
+	}
+	
+	/* Mobile refresh and control buttons */
 	.refresh-btn,
 	.time-travel-btn,
 	.multiple-tables-btn,
@@ -637,17 +745,42 @@ body.dark-mode .stop-resume-btn {
 		height: 35px;
 		font-size: 12px;
 		padding: 8px 12px;
+		margin: 2px;
 	}
 	
-	.settings-container {
-		min-width: 150px;
-		padding: 15px;
+	/* Mobile individual refresh buttons */
+	.individual-refresh-btn {
+		width: 25px;
+		height: 25px;
+		min-width: 25px;
+		font-size: 12px;
+		padding: 4px;
+		margin-left: 5px;
 	}
 	
+	/* Mobile data info section */
+	.data-info {
+		padding: 8px;
+		margin-top: 3px;
+		font-size: 12px;
+	}
+	
+	.progress-display {
+		font-size: 12px;
+	}
+	
+	/* Mobile modal improvements */
 	.modal-content {
 		width: 95%;
 		padding: 15px;
 		margin: 10px;
+		max-height: 90vh;
+		overflow-y: auto;
+	}
+	
+	.settings-container {
+		min-width: 120px;
+		padding: 10px;
 	}
 	
 	.top-settings-row {
@@ -660,48 +793,1112 @@ body.dark-mode .stop-resume-btn {
 		max-width: 100%;
 	}
 	
-	/* Ensure tables can be scrolled horizontally on mobile */
+	/* Mobile settings titles */
+	.settings-title {
+		font-size: 16px;
+		margin-bottom: 8px;
+	}
+	
+	/* Mobile checkbox items */
+	.checkbox-item {
+		gap: 8px;
+	}
+	
+	.checkbox-item label {
+		font-size: 13px;
+	}
+	
+	/* Mobile form elements */
+	.modal-content input[type="date"],
+	.modal-content input[type="input"] {
+		padding: 10px;
+		font-size: 14px;
+	}
+	
+	.modal-content .mybutton {
+		padding: 12px 20px;
+		font-size: 14px;
+	}
+	
+	/* Mobile option buttons */
+	.optionButton {
+		width: 50px;
+	}
+	
+	.optionButtonImage {
+		width: 40px;
+	}
+	
+	/* Mobile table borders and spacing */
 	.container table,
 	.ranglist-wrapper table {
-		table-layout: auto;
-		white-space: nowrap;
-		width: auto;
-		min-width: auto;
+		border: 3px solid #578A34;
+		border-radius: 6px;
+		margin: 3px 0;
 	}
 	
-	/* Make table cells more compact on mobile */
+	.container th,
+	.container td,
+	.ranglist-wrapper th,
+	.ranglist-wrapper td {
+		border: 2px solid #578A34;
+	}
+	
+	/* Mobile result column */
+	.result {
+		width: 60px;
+		min-width: 60px;
+	}
+	
+	/* Mobile time and name display */
+	.time {
+		font-size: 12px;
+		margin: 1px 1px;
+	}
+	
+	.name {
+		font-size: 10px;
+		margin: 1px 2px;
+	}
+	
+	.percentage {
+		font-size: 14px;
+	}
+	
+	/* Mobile gradient text */
+	.gradient-text {
+		font-size: 16px;
+		padding: 1px 1px;
+	}
+	
+	/* Mobile runs container */
+	.runs-container {
+		gap: 2px;
+	}
+	
+	.time-display {
+		margin-bottom: 2px;
+	}
+	
+	/* Mobile player separator */
+	.player-separator {
+		margin: 0 2px;
+	}
+	
+	/* Mobile table hover effects */
+	.container table:hover,
+	.ranglist-wrapper table:hover {
+		box-shadow: 0 6px 12px var(--shadow);
+	}
+	
+	/* Mobile table cell hover */
+	.container td:hover,
+	.ranglist-wrapper td:hover {
+		background-color: rgba(255,255,255,0.15);
+	}
+	
+	/* Mobile result hover */
+	.result:hover {
+		background-color: #578A34;
+	}
+	
+	/* Mobile links */
+	.container td a {
+		font-size: 10px;
+	}
+	
+	/* Mobile table header styling */
+	.container thead,
+	.ranglist-wrapper thead {
+		font-size: 14px;
+	}
+	
+	/* Mobile mode-specific styling */
+	.container table.mode1,
+	.ranglist-wrapper table.mode1 {
+		border: 5px solid #51AD3E;
+	}
+	
+	.container .mode1 th,
+	.container .mode1 td,
+	.ranglist-wrapper .mode1 th,
+	.ranglist-wrapper .mode1 td {
+		border: 2px solid #51AD3E;
+	}
+	
+	.container table.mode2,
+	.ranglist-wrapper table.mode2 {
+		border: 5px solid #AB593E;
+	}
+	
+	.container .mode2 th,
+	.container .mode2 td,
+	.ranglist-wrapper .mode2 th,
+	.ranglist-wrapper .mode2 td {
+		border: 2px solid #AB593E;
+	}
+}
+
+/* Additional mobile styles for very small screens */
+@media only screen and (max-width: 600px) {
+	/* Extra small mobile container */
+	.container {
+		padding: 5px;
+		gap: 10px;
+	}
+	
+	/* Extra small mobile table selector */
+	.table-selector {
+		padding: 10px;
+		margin: 5px auto;
+	}
+	
+	/* Extra small mobile tables */
+	.container table {
+		font-size: 8px;
+		min-width: 550px;
+	}
+	
+	.ranglist-wrapper table {
+		width: 85%;
+		font-size: 8px;
+		min-width: 298px;
+		margin: 0 auto;
+		table-layout: fixed; /* Fixed layout for summary table */
+	}
+	
+	/* Extra small mobile table headers and cells */
+	.container th {
+		padding: 2px;
+		height: 30px;
+		font-size: 10px;
+	}
+	
+	.container td {
+		padding: 2px;
+		font-size: 8px;
+	}
+	
+	.ranglist-wrapper th,
+	.ranglist-wrapper td {
+		padding: 2px;
+		font-size: 8px;
+		text-align: center;
+		vertical-align: middle;
+	}
+	
+	/* Specific column widths for extra small mobile summary table */
+	.ranglist-player-header,
+	.ranglist-player-cell {
+		width: 50% !important;
+	}
+	
+	.ranglist-count-header,
+	.ranglist-count-cell {
+		width: 25% !important;
+	}
+	
+	.ranglist-percentage-header,
+	.ranglist-percentage-cell {
+		width: 25% !important;
+	}
+	
+	/* Extra small mobile table images */
+	.container th img {
+		width: 20px;
+		padding: 0px;
+		padding-right: 2px;
+	}
+	
+	.ranglist img {
+		width: 40px;
+	}
+	
+	/* Extra small mobile buttons */
+	.table-option-btn {
+		width: 35px;
+		height: 35px;
+		font-size: 8px;
+		margin: 1px;
+	}
+	
+	.refresh-btn,
+	.time-travel-btn,
+	.multiple-tables-btn,
+	.stop-resume-btn {
+		min-width: 70px;
+		height: 30px;
+		font-size: 11px;
+		padding: 6px 10px;
+		margin: 1px;
+	}
+	
+	.individual-refresh-btn {
+		width: 20px;
+		height: 20px;
+		min-width: 20px;
+		font-size: 10px;
+		padding: 2px;
+		margin-left: 3px;
+	}
+	
+	/* Extra small mobile titles and labels */
+	.table-selector h3 {
+		font-size: 14px;
+		margin-bottom: 10px;
+	}
+	
+	.table-selector label {
+		font-size: 10px;
+		margin-bottom: 4px;
+	}
+	
+	/* Extra small mobile button groups */
+	.table-selector .button-group {
+		gap: 2px;
+		margin-bottom: 10px;
+	}
+	
+	/* Extra small mobile data info */
+	.data-info {
+		padding: 6px;
+		margin-top: 2px;
+		font-size: 10px;
+	}
+	
+	.progress-display {
+		font-size: 10px;
+	}
+	
+	/* Extra small mobile modal */
+	.modal-content {
+		width: 98%;
+		padding: 10px;
+		margin: 5px;
+		max-height: 95vh;
+	}
+	
+	.settings-container {
+		min-width: 100px;
+		padding: 8px;
+	}
+	
+	/* Extra small mobile settings */
+	.settings-title {
+		font-size: 14px;
+		margin-bottom: 6px;
+	}
+	
+	.checkbox-item label {
+		font-size: 11px;
+	}
+	
+	/* Extra small mobile form elements */
+	.modal-content input[type="date"],
+	.modal-content input[type="input"] {
+		padding: 8px;
+		font-size: 12px;
+	}
+	
+	.modal-content .mybutton {
+		padding: 10px 16px;
+		font-size: 12px;
+	}
+	
+	/* Extra small mobile option buttons */
+	.optionButton {
+		width: 45px;
+	}
+	
+	.optionButtonImage {
+		width: 35px;
+	}
+	
+	/* Extra small mobile table styling */
+	.container table,
+	.ranglist-wrapper table {
+		border: 2px solid #578A34;
+		border-radius: 4px;
+		margin: 2px 0;
+	}
+	
+	.container th,
+	.container td,
+	.ranglist-wrapper th,
+	.ranglist-wrapper td {
+		border: 1px solid #578A34;
+	}
+	
+	/* Extra small mobile result column */
+	.result {
+		width: 50px;
+		min-width: 50px;
+	}
+	
+	/* Extra small mobile text elements */
+	.time {
+		font-size: 12px;
+		margin: 1px 1px;
+	}
+	
+	.name {
+		font-size: 10px;
+		margin: 1px 2px;
+	}
+	
+	.percentage {
+		font-size: 14px;
+	}
+	
+	.gradient-text {
+		font-size: 16px;
+		padding: 1px 1px;
+	}
+	
+	/* Extra small mobile runs container */
+	.runs-container {
+		gap: 1px;
+	}
+	
+	.time-display {
+		margin-bottom: 1px;
+	}
+	
+	.player-separator {
+		margin: 0 1px;
+	}
+	
+	/* Extra small mobile links */
+	.container td a {
+		font-size: 8px;
+	}
+	
+	/* Extra small mobile table headers */
+	.container thead,
+	.ranglist-wrapper thead {
+		font-size: 12px;
+	}
+	
+	/* Extra small mobile mode-specific styling */
+	.container table.mode1,
+	.ranglist-wrapper table.mode1 {
+		border: 3px solid #51AD3E;
+	}
+	
+	.container .mode1 th,
+	.container .mode1 td,
+	.ranglist-wrapper .mode1 th,
+	.ranglist-wrapper .mode1 td {
+		border: 1px solid #51AD3E;
+	}
+	
+	.container table.mode2,
+	.ranglist-wrapper table.mode2 {
+		border: 3px solid #AB593E;
+	}
+	
+	.container .mode2 th,
+	.container .mode2 td,
+	.ranglist-wrapper .mode2 th,
+	.ranglist-wrapper .mode2 td {
+		border: 1px solid #AB593E;
+	}
+	
+	/* Extra small mobile sidebar header */
+	.sidebar-header {
+		gap: 8px;
+	}
+	
+	.sidebar-info-btn,
+	.sidebar-settings-btn {
+		padding: 8px;
+	}
+	
+	/* Extra small mobile dark mode toggle */
+	.dark-mode-toggle {
+		width: 35px;
+		height: 35px;
+		font-size: 14px;
+	}
+}
+
+/* Ultra small mobile devices (iPhone SE, etc.) */
+@media only screen and (max-width: 375px) {
+	/* Ultra small mobile container */
+	.container {
+		padding: 3px;
+		gap: 8px;
+	}
+	
+	/* Ultra small mobile table selector */
+	.table-selector {
+		padding: 8px;
+		margin: 3px auto;
+	}
+	
+	/* Ultra small mobile tables */
+	.container table {
+		font-size: 7px;
+		min-width: 500px;
+	}
+	
+	.ranglist-wrapper table {
+		width: 85%;
+		font-size: 7px;
+		min-width: 255px;
+		margin: 0 auto;
+		table-layout: fixed; /* Fixed layout for summary table */
+	}
+	
+	/* Ultra small mobile table headers and cells */
+	.container th {
+		padding: 1px;
+		height: 25px;
+		font-size: 9px;
+	}
+	
+	.container td {
+		padding: 1px;
+		font-size: 7px;
+	}
+	
+	.ranglist-wrapper th,
+	.ranglist-wrapper td {
+		padding: 1px;
+		font-size: 7px;
+		text-align: center;
+		vertical-align: middle;
+	}
+	
+	/* Specific column widths for ultra small mobile summary table */
+	.ranglist-player-header,
+	.ranglist-player-cell {
+		width: 50% !important;
+	}
+	
+	.ranglist-count-header,
+	.ranglist-count-cell {
+		width: 25% !important;
+	}
+	
+	.ranglist-percentage-header,
+	.ranglist-percentage-cell {
+		width: 25% !important;
+	}
+	
+	/* Ultra small mobile table images */
+	.container th img {
+		width: 18px;
+		padding: 0px;
+		padding-right: 1px;
+	}
+	
+	.ranglist img {
+		width: 35px;
+	}
+	
+	/* Ultra small mobile buttons */
+	.table-option-btn {
+		width: 30px;
+		height: 30px;
+		font-size: 7px;
+		margin: 1px;
+	}
+	
+	.refresh-btn,
+	.time-travel-btn,
+	.multiple-tables-btn,
+	.stop-resume-btn {
+		min-width: 60px;
+		height: 25px;
+		font-size: 10px;
+		padding: 4px 8px;
+		margin: 1px;
+	}
+	
+	.individual-refresh-btn {
+		width: 18px;
+		height: 18px;
+		min-width: 18px;
+		font-size: 9px;
+		padding: 1px;
+		margin-left: 2px;
+	}
+	
+	/* Ultra small mobile titles and labels */
+	.table-selector h3 {
+		font-size: 12px;
+		margin-bottom: 8px;
+	}
+	
+	.table-selector label {
+		font-size: 9px;
+		margin-bottom: 3px;
+	}
+	
+	/* Ultra small mobile button groups */
+	.table-selector .button-group {
+		gap: 1px;
+		margin-bottom: 8px;
+	}
+	
+	/* Ultra small mobile data info */
+	.data-info {
+		padding: 4px;
+		margin-top: 1px;
+		font-size: 9px;
+	}
+	
+	.progress-display {
+		font-size: 9px;
+	}
+	
+	/* Ultra small mobile modal */
+	.modal-content {
+		width: 99%;
+		padding: 8px;
+		margin: 3px;
+		max-height: 98vh;
+	}
+	
+	.settings-container {
+		min-width: 80px;
+		padding: 6px;
+	}
+	
+	/* Ultra small mobile settings */
+	.settings-title {
+		font-size: 12px;
+		margin-bottom: 4px;
+	}
+	
+	.checkbox-item label {
+		font-size: 10px;
+	}
+	
+	/* Ultra small mobile form elements */
+	.modal-content input[type="date"],
+	.modal-content input[type="input"] {
+		padding: 6px;
+		font-size: 11px;
+	}
+	
+	.modal-content .mybutton {
+		padding: 8px 12px;
+		font-size: 11px;
+	}
+	
+	/* Ultra small mobile option buttons */
+	.optionButton {
+		width: 40px;
+	}
+	
+	.optionButtonImage {
+		width: 30px;
+	}
+	
+	/* Ultra small mobile table styling */
+	.container table,
+	.ranglist-wrapper table {
+		border: 1px solid #578A34;
+		border-radius: 3px;
+		margin: 1px 0;
+	}
+	
+	.container th,
+	.container td,
+	.ranglist-wrapper th,
+	.ranglist-wrapper td {
+		border: 1px solid #578A34;
+	}
+	
+	/* Ultra small mobile result column */
+	.result {
+		width: 40px;
+		min-width: 40px;
+	}
+	
+	/* Ultra small mobile text elements */
+	.time {
+		font-size: 10px;
+		margin: 1px 1px;
+	}
+	
+	.name {
+		font-size: 8px;
+		margin: 1px 1px;
+	}
+	
+	.percentage {
+		font-size: 12px;
+	}
+	
+	.gradient-text {
+		font-size: 14px;
+		padding: 1px 1px;
+	}
+	
+	/* Ultra small mobile runs container */
+	.runs-container {
+		gap: 1px;
+	}
+	
+	.time-display {
+		margin-bottom: 1px;
+	}
+	
+	.player-separator {
+		margin: 0 1px;
+	}
+	
+	/* Ultra small mobile links */
+	.container td a {
+		font-size: 7px;
+	}
+	
+	/* Ultra small mobile table headers */
+	.container thead,
+	.ranglist-wrapper thead {
+		font-size: 10px;
+	}
+	
+	/* Ultra small mobile mode-specific styling */
+	.container table.mode1,
+	.ranglist-wrapper table.mode1 {
+		border: 2px solid #51AD3E;
+	}
+	
+	.container .mode1 th,
+	.container .mode1 td,
+	.ranglist-wrapper .mode1 th,
+	.ranglist-wrapper .mode1 td {
+		border: 1px solid #51AD3E;
+	}
+	
+	.container table.mode2,
+	.ranglist-wrapper table.mode2 {
+		border: 2px solid #AB593E;
+	}
+	
+	.container .mode2 th,
+	.container .mode2 td,
+	.ranglist-wrapper .mode2 th,
+	.ranglist-wrapper .mode2 td {
+		border: 1px solid #AB593E;
+	}
+	
+	/* Ultra small mobile sidebar header */
+	.sidebar-header {
+		gap: 6px;
+	}
+	
+	.sidebar-info-btn,
+	.sidebar-settings-btn {
+		padding: 6px;
+	}
+	
+		/* Ultra small mobile dark mode toggle */
+	.dark-mode-toggle {
+		width: 30px;
+		height: 30px;
+		font-size: 12px;
+	}
+}
+
+/* Mobile-specific improvements for all mobile devices */
+@media only screen and (max-width: 900px) {
+	/* Ensure proper viewport handling */
+	body {
+		-webkit-text-size-adjust: 100%;
+		-ms-text-size-adjust: 100%;
+	}
+	
+	/* Improve touch targets */
+	button, 
+	.table-option-btn,
+	.refresh-btn,
+	.time-travel-btn,
+	.multiple-tables-btn,
+	.stop-resume-btn,
+	.individual-refresh-btn,
+	.sidebar-info-btn,
+	.sidebar-settings-btn,
+	.dark-mode-toggle {
+		min-height: 44px;
+		min-width: 44px;
+	}
+	
+	/* Improve table scrolling */
+	.table-wrapper,
+	.main-table-wrapper,
+	.ranglist-wrapper {
+		-webkit-overflow-scrolling: touch;
+		scroll-behavior: smooth;
+	}
+	
+	/* Prevent text selection on buttons */
+	button,
+	.table-option-btn,
+	.refresh-btn,
+	.time-travel-btn,
+	.multiple-tables-btn,
+	.stop-resume-btn,
+	.individual-refresh-btn {
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		-webkit-touch-callout: none;
+		-webkit-tap-highlight-color: transparent;
+	}
+	
+	/* Improve modal scrolling */
+	.modal {
+		-webkit-overflow-scrolling: touch;
+	}
+	
+	.modal-content {
+		-webkit-overflow-scrolling: touch;
+	}
+	
+	/* Improve form elements */
+	.modal-content input[type="date"],
+	.modal-content input[type="input"],
+	.modal-content input[type="checkbox"] {
+		-webkit-appearance: none;
+		appearance: none;
+		border-radius: 4px;
+	}
+	
+	/* Improve table cell touch targets */
 	.container td,
 	.ranglist-wrapper td {
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		max-width: 120px;
+		min-height: 30px;
 	}
 	
-	/* Ensure the result column is visible */
-	.result {
-		width: 80px;
-		min-width: 80px;
+	/* Ensure proper spacing for touch */
+	.table-selector .button-group {
+		touch-action: manipulation;
 	}
 	
-	/* Force horizontal scrolling for table wrappers */
-	.table-wrapper {
-		overflow-x: auto;
-		width: auto;
-		max-width: none;
+	/* Improve sidebar touch targets */
+	.sidebar-header {
+		touch-action: manipulation;
 	}
 	
-	/* Ensure ranglist table is fully scrollable */
-	.ranglist-wrapper {
-		overflow-x: auto;
-		width: auto;
-		max-width: none;
+	/* Ensure proper font rendering */
+	* {
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
 	}
 	
-	/* Remove any width constraints that might cut off content */
+	/* Improve table header readability */
+	.container thead,
+	.ranglist-wrapper thead {
+		position: sticky;
+		top: 0;
+		z-index: 10;
+	}
+	
+	/* Ensure proper table layout */
+	.container table {
+		border-collapse: collapse;
+		table-layout: auto;
+	}
+	
 	.ranglist-wrapper table {
-		width: auto;
-		min-width: auto;
+		border-collapse: collapse;
+	}
+	
+	/* Improve link touch targets */
+	.container td a {
+		display: block;
+		padding: 2px;
+		min-height: 20px;
+	}
+	
+	/* Ensure proper button spacing */
+	.refresh-btn,
+	.time-travel-btn,
+	.multiple-tables-btn,
+	.stop-resume-btn {
+		margin: 3px;
+	}
+	
+	/* Improve modal button spacing */
+	.modal-content .mybutton {
+		margin: 8px 0;
+	}
+	
+	/* Ensure proper checkbox alignment */
+	.checkbox-item {
+		align-items: center;
+		min-height: 30px;
+	}
+	
+	/* Improve settings container spacing */
+	.settings-container {
+		margin: 5px 0;
+	}
+	
+	/* Ensure proper data info display */
+	.data-content-container {
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 5px;
+	}
+	
+	/* Improve progress display */
+	#apiProgress {
+		font-weight: bold;
+		word-break: break-word;
+	}
+	
+	/* Ensure proper table image display */
+	.container th img,
+	.ranglist img {
+		display: inline-block;
+		vertical-align: middle;
+	}
+	
+	/* Improve table cell content */
+	.container td {
+		vertical-align: middle;
+		text-align: center;
+		max-width: 120px; /* Limit cell width on mobile */
+		word-wrap: break-word;
+	}
+	
+	.ranglist-wrapper td {
+		vertical-align: middle;
+		text-align: center;
+		max-width: 120px; /* Limit cell width on mobile */
+		word-wrap: break-word;
+	}
+	
+	/* Ensure proper result column display */
+	.result {
+		text-align: center;
+		vertical-align: middle;
+	}
+	
+	/* Improve time and name display */
+	.time,
+	.name {
+		display: block;
+		text-align: center;
+	}
+	
+	/* Ensure proper percentage display */
+	.percentage {
+		display: block;
+		text-align: center;
+		font-weight: bold;
+	}
+	
+	/* Improve gradient text display */
+	.gradient-text {
+		display: block;
+		text-align: center;
+	}
+	
+	/* Ensure proper runs container */
+	.runs-container {
+		text-align: center;
+	}
+	
+	/* Improve player separator */
+	.player-separator {
+		display: inline-block;
+		text-align: center;
+	}
+	
+	/* Ensure proper table wrapper display */
+	.table-wrapper {
+		display: block;
+		width: 100%;
+	}
+	
+	/* Improve main table wrapper */
+	.main-table-wrapper {
+		display: block;
+		width: 100%;
+	}
+	
+	/* Improve ranglist wrapper */
+	.ranglist-wrapper {
+		display: block;
+		width: 100%;
+	}
+	
+	/* Ensure proper container layout */
+	.container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-start;
+	}
+	
+	/* Improve table selector layout */
+	.table-selector {
+		display: block;
+		width: 100%;
+		max-width: 95%;
+	}
+	
+	/* Ensure proper button group layout */
+	.button-group {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-items: center;
+	}
+	
+	/* Improve individual button layout */
+	.table-option-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Ensure proper refresh button layout */
+	.refresh-btn,
+	.time-travel-btn,
+	.multiple-tables-btn,
+	.stop-resume-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Improve individual refresh button layout */
+	.individual-refresh-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Ensure proper sidebar header layout */
+	.sidebar-header {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Improve sidebar button layout */
+	.sidebar-info-btn,
+	.sidebar-settings-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Ensure proper dark mode toggle layout */
+	.dark-mode-toggle {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Improve modal layout */
+	.modal {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Ensure proper modal content layout */
+	.modal-content {
+		display: block;
+		width: 95%;
+		max-width: 95%;
+	}
+	
+	/* Improve settings container layout */
+	.settings-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Ensure proper top settings row layout */
+	.top-settings-row {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	/* Improve category container layout */
+	.category-container,
+	.other-settings-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+	}
+	
+	/* Ensure proper checkbox wrapper layout */
+	.checkbox-wrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+	}
+	
+	/* Improve checkbox item layout */
+	.checkbox-item {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+	}
+	
+	/* Ensure proper form elements layout */
+	.modal-content input[type="date"],
+	.modal-content input[type="input"] {
+		display: block;
+		width: 100%;
+		box-sizing: border-box;
+	}
+	
+	/* Improve modal button layout */
+	.modal-content .mybutton {
+		display: block;
+		width: 100%;
+		box-sizing: border-box;
+	}
+	
+	/* Ensure proper data info layout */
+	.data-info {
+		display: block;
+		width: 100%;
+		text-align: center;
+	}
+	
+	/* Improve data content container layout */
+	.data-content-container {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+	}
+	
+	/* Ensure proper progress display layout */
+	.progress-display {
+		display: block;
+		width: 100%;
+		text-align: center;
+	}
+	
+	/* Improve API progress layout */
+	#apiProgress {
+		display: inline-block;
+		text-align: center;
 	}
 }
 

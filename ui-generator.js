@@ -850,25 +850,26 @@ function generateRanglist(){
     var table = document.createElement('table');
     table.setAttribute('class', 'ranglist mode'+mode);
     var thead = document.createElement('thead');
-    var row = document.createElement('tr');
-    var th = document.createElement('th');
-    th.setAttribute('colspan', 3);
-    th.appendChild(createIconElement(gamemodes['Classic']));
-    row.appendChild(th);
-    thead.appendChild(row);
     
-    // Add column headers
-    row = document.createElement('tr');
+    // Create a single header row with proper column structure
+    var row = document.createElement('tr');
+    
+    // Player column header
     var nameHeader = document.createElement('th');
     nameHeader.textContent = 'Player';
+    nameHeader.setAttribute('class', 'ranglist-player-header');
     row.appendChild(nameHeader);
     
+    // Count column header
     var countHeader = document.createElement('th');
     countHeader.textContent = 'Count';
+    countHeader.setAttribute('class', 'ranglist-count-header');
     row.appendChild(countHeader);
     
+    // Percentage column header
     var percentageHeader = document.createElement('th');
     percentageHeader.textContent = 'Percentage';
+    percentageHeader.setAttribute('class', 'ranglist-percentage-header');
     row.appendChild(percentageHeader);
     
     thead.appendChild(row);
@@ -899,18 +900,19 @@ function generateRanglist(){
 
                 // Player name column
                 var td = document.createElement('td');
+                td.setAttribute('class', 'ranglist-player-cell');
                 td.appendChild(createNameElement(ranglist[id][1]))
                 row.appendChild(td);
 
                 // Count column
                 td = document.createElement('td');
-                td.setAttribute('class','percentage result');
+                td.setAttribute('class','ranglist-count-cell result');
                 td.appendChild(document.createTextNode(ranglist[id][0]));
                 row.appendChild(td);
 
                 // Percentage column
                 td = document.createElement('td');
-                td.setAttribute('class','percentage result');
+                td.setAttribute('class','ranglist-percentage-cell percentage result');
                 td.appendChild(document.createTextNode(ranglist[id][2]+"%"));
                 row.appendChild(td);
                 if(i >= maxRanglistLength){
@@ -922,22 +924,17 @@ function generateRanglist(){
         }
     }
     if(i >  maxRanglistLength){
-        row = document.createElement('tr');
-        td = document.createElement('td');
-        td.setAttribute('colspan',3);
+        // Create button outside the table structure
         b = document.createElement('button');
         b.setAttribute('id','morebutton');
-        //a.setAttribute('href','');
-        b.appendChild(document.createTextNode("Click here to see all runners.."));
+        b.setAttribute('class', 'more-runners-btn');
+        b.appendChild(document.createTextNode("Click here to see all runners"));
         b.addEventListener('click', () => {
             for(row of document.getElementsByClassName('ranglistRow')){
                 row.setAttribute('style','');
             }
             document.getElementById("morebutton").setAttribute('style','display:none');
         });
-        td.appendChild(b);
-        row.appendChild(td);
-        tbody.appendChild(row);
     }
 
     table.appendChild(tbody);
@@ -946,6 +943,11 @@ function generateRanglist(){
     var ranglistWrapper = document.createElement('div');
     ranglistWrapper.setAttribute('class', 'table-wrapper ranglist-wrapper');
     ranglistWrapper.appendChild(table);
+    
+    // Add the "more runners" button after the table if it exists
+    if(i > maxRanglistLength){
+        ranglistWrapper.appendChild(b);
+    }
     
     // Add speed_01 icon under the summary table
     var speedIcon = document.createElement('img');

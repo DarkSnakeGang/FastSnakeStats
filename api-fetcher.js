@@ -795,6 +795,10 @@ async function getAllWorldRecordsForCurrentSettings() {
         calculateRanglist();
         generateRanglist();
         generateSingleTable();
+        
+        // Mark API calls as complete for single table mode
+        apiCallProgress.successful = apiCallProgress.total;
+        updateApiProgress();
     }
 }
 
