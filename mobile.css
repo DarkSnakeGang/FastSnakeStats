@@ -553,6 +553,72 @@
 		border-color: var(--mobile-primary);
 	}
 
+	/* Mobile Time Travel Button - Desktop Style */
+	.mobile-option-btn#mobileTimeTravelBtn {
+		width: auto;
+		min-width: 120px;
+		height: 40px;
+		font-size: 14px;
+		font-weight: 600;
+		background: linear-gradient(135deg, #8B0000, #B22222) !important;
+		color: white !important;
+		border: 1px solid rgba(77, 193, 249, 0.2) !important;
+		border-radius: 8px !important;
+		padding: 10px 15px !important;
+		transition: all 0.3s ease;
+	}
+
+	.mobile-option-btn#mobileTimeTravelBtn.active {
+		background: #28a745 !important;
+		color: white !important;
+		border: 1px solid rgba(77, 193, 249, 0.2) !important;
+		border-radius: 8px !important;
+		padding: 10px 15px !important;
+	}
+
+	.mobile-option-btn#mobileTimeTravelBtn:hover {
+		background: linear-gradient(135deg, #660000, #8B0000) !important;
+	}
+
+	.mobile-option-btn#mobileTimeTravelBtn.active:hover {
+		background: #218838 !important;
+	}
+
+	/* Mobile Multiple Tables Button - Desktop Style */
+	.mobile-option-btn#mobileMultipleTablesBtn,
+	.mobile-option-btn#mobileMultipleTablesToggle {
+		width: auto;
+		min-width: 120px;
+		height: 40px;
+		font-size: 14px;
+		font-weight: 600;
+		background: linear-gradient(135deg, #8B0000, #B22222) !important;
+		color: white !important;
+		border: 1px solid rgba(77, 193, 249, 0.2) !important;
+		border-radius: 8px !important;
+		padding: 10px 15px !important;
+		transition: all 0.3s ease;
+	}
+
+	.mobile-option-btn#mobileMultipleTablesBtn.active,
+	.mobile-option-btn#mobileMultipleTablesToggle.active {
+		background: #28a745 !important;
+		color: white !important;
+		border: 1px solid rgba(77, 193, 249, 0.2) !important;
+		border-radius: 8px !important;
+		padding: 10px 15px !important;
+	}
+
+	.mobile-option-btn#mobileMultipleTablesBtn:hover,
+	.mobile-option-btn#mobileMultipleTablesToggle:hover {
+		background: linear-gradient(135deg, #660000, #8B0000) !important;
+	}
+
+	.mobile-option-btn#mobileMultipleTablesBtn.active:hover,
+	.mobile-option-btn#mobileMultipleTablesToggle.active:hover {
+		background: #218838 !important;
+	}
+
 	.mobile-btn-group {
 		display: flex;
 		gap: 12px;
@@ -572,5 +638,52 @@
 
 	.mobile-btn-group .mobile-btn {
 		flex: 1;
+	}
+
+	/* Dark mode support for mobile buttons - matching desktop */
+	body.dark-mode .mobile-option-btn#mobileTimeTravelBtn {
+		background: linear-gradient(135deg, #8B0000, #B22222) !important;
+		border: 1px solid rgba(77, 193, 249, 0.2) !important;
+	}
+
+	body.dark-mode .mobile-option-btn#mobileTimeTravelBtn.active {
+		background: #28a745 !important;
+		color: white !important;
+		border: 1px solid rgba(77, 193, 249, 0.2) !important;
+		border-radius: 8px !important;
+		padding: 10px 15px !important;
+	}
+
+	body.dark-mode .mobile-option-btn#mobileTimeTravelBtn:hover {
+		background: linear-gradient(135deg, #660000, #8B0000) !important;
+	}
+
+	body.dark-mode .mobile-option-btn#mobileTimeTravelBtn.active:hover {
+		background: #218838 !important;
+	}
+
+	body.dark-mode .mobile-option-btn#mobileMultipleTablesBtn,
+	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle {
+		background: linear-gradient(135deg, #8B0000, #B22222) !important;
+		border: 1px solid rgba(77, 193, 249, 0.2) !important;
+	}
+
+	body.dark-mode .mobile-option-btn#mobileMultipleTablesBtn.active,
+	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle.active {
+		background: #28a745 !important;
+		color: white !important;
+		border: 1px solid rgba(77, 193, 249, 0.2) !important;
+		border-radius: 8px !important;
+		padding: 10px 15px !important;
+	}
+
+	body.dark-mode .mobile-option-btn#mobileMultipleTablesBtn:hover,
+	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle:hover {
+		background: linear-gradient(135deg, #660000, #8B0000) !important;
+	}
+
+	body.dark-mode .mobile-option-btn#mobileMultipleTablesBtn.active:hover,
+	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle.active:hover {
+		background: #218838 !important;
 	}
 }
