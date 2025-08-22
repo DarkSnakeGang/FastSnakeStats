@@ -1301,7 +1301,7 @@ function generateRanglist(){
     
     // Add speed_01 icon under the summary table
     var speedIcon = document.createElement('img');
-    speedIcon.setAttribute('src', 'https://www.google.com/logos/fnbx/snake_arcade/v3/speed_01.png');
+    speedIcon.setAttribute('src', 'https://i.ibb.co/fzSffpZX/speed-01-png.png');
     speedIcon.setAttribute('alt', 'Bunny!');
     speedIcon.setAttribute('style', 'display: block; margin: 20px auto; max-width: 100px; height: auto;');
     ranglistWrapper.appendChild(speedIcon);
