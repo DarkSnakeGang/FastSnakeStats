@@ -7,7 +7,7 @@ class WorldRecordFetcher {
     }
 
         // Simple API request function with retry logic
-    async fetchAPI(url, maxRetries = 5, baseDelay = 1000) {
+    async fetchAPI(url, maxRetries = 10, baseDelay = 1000) {
         // Check if we need to wait due to a recent failure
         const now = Date.now();
         const timeSinceLastFailure = now - this.lastFailureTime;
@@ -26,7 +26,34 @@ class WorldRecordFetcher {
                 });
                 
                 if (!response.ok) {
-                    // Don't retry on 4xx client errors (except 429 rate limit)
+                    // Special handling for 420 rate limit - wait longer and retry
+                    if (response.status === 420) {
+                        console.log(`Rate limited (420) on attempt ${attempt}, waiting before retry...`);
+                        
+                        // Update refresh button immediately to show "Rate limited"
+                        var refreshButton = document.querySelector('.refresh-btn');
+                        if (refreshButton) {
+                            refreshButton.innerHTML = '⏳ Rate limited';
+                            refreshButton.disabled = true;
+                            refreshButton.setAttribute('title', 'API is rate limited. Please wait...');
+                        }
+                        
+                        // Set global rate limit state
+                        if (window.setApiOverloaded) {
+                            window.setApiOverloaded(true);
+                        }
+                        
+                        // Wait 5 seconds for rate limit
+                        await new Promise(resolve => setTimeout(resolve, 5000));
+                        
+                        // If this is the last attempt, throw the error
+                        if (attempt === maxRetries) {
+                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                        }
+                        continue; // Retry
+                    }
+                    
+                    // Don't retry on other 4xx client errors (except 429 rate limit)
                     if (response.status >= 400 && response.status < 500 && response.status !== 429) {
                         // Record failure time for future API calls
                         this.lastFailureTime = Date.now();
@@ -34,6 +61,11 @@ class WorldRecordFetcher {
                     }
                     // For 5xx server errors and 429 rate limit, retry
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                // Success - clear rate limit state if it was set
+                if (window.setApiOverloaded) {
+                    window.setApiOverloaded(false);
                 }
                 
                 const data = await response.json();
@@ -319,8 +351,13 @@ class WorldRecordFetcher {
                 }
             };
             
-                 } catch (error) {
-             const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
+                         } catch (error) {
+            // If it's a 420 error, re-throw it to be caught by the main application
+            if (error.message && error.message.includes('HTTP 420')) {
+                throw error;
+            }
+            
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
             const categoryName = level === "H" ? modeNames[mode] : level + " Apples";
             return {
                 success: false,
@@ -503,6 +540,11 @@ class WorldRecordFetcher {
             };
             
         } catch (error) {
+            // If it's a 420 error, re-throw it to be caught by the main application
+            if (error.message && error.message.includes('HTTP 420')) {
+                throw error;
+            }
+            
             const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
             const categoryName = level === "H" ? modeNames[mode] : level + " Apples";
             return {
@@ -531,33 +573,60 @@ class WorldRecordFetcher {
             }
             
             const batch = requests.slice(i, i + batchSize);
-            const batchPromises = batch.map(request => {
-                if (request.date) {
-                    return this.getWorldRecordForDate(
-                        request.level, 
-                        request.mode, 
-                        request.count, 
-                        request.speed, 
-                        request.size, 
-                        request.date
-                    );
-                } else {
-                    return this.getWorldRecord(
-                        request.level, 
-                        request.mode, 
-                        request.count, 
-                        request.speed, 
-                        request.size
-                    );
+            const batchPromises = batch.map(async request => {
+                try {
+                    if (request.date) {
+                        return await this.getWorldRecordForDate(
+                            request.level, 
+                            request.mode, 
+                            request.count, 
+                            request.speed, 
+                            request.size, 
+                            request.date
+                        );
+                    } else {
+                        return await this.getWorldRecord(
+                            request.level, 
+                            request.mode, 
+                            request.count, 
+                            request.speed, 
+                            request.size
+                        );
+                    }
+                } catch (error) {
+                    // If it's a 420 error, throw it to be caught by the main application
+                    if (error.message && error.message.includes('HTTP 420')) {
+                        throw error;
+                    }
+                    // For other errors, return a failed result
+                    return {
+                        success: false,
+                        error: error.message,
+                        category: 'Unknown',
+                        settings: {
+                            count: 'Unknown',
+                            speed: 'Unknown',
+                            size: 'Unknown'
+                        }
+                    };
                 }
             });
             
-            const batchResults = await Promise.all(batchPromises);
-            results.push(...batchResults);
-            
-            // Update progress after each batch
-            if (progressCallback) {
-                progressCallback(results.length);
+            try {
+                const batchResults = await Promise.all(batchPromises);
+                results.push(...batchResults);
+                
+                // Update progress after each batch
+                if (progressCallback) {
+                    progressCallback(results.length);
+                }
+            } catch (error) {
+                // If any request in the batch failed with 420, throw the error
+                if (error.message && error.message.includes('HTTP 420')) {
+                    throw error;
+                }
+                // For other errors, continue with partial results
+                console.error('Batch error:', error);
             }
         }
         

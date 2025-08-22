@@ -262,8 +262,10 @@ async function refreshWorldRecordsForSettings() {
         // Update the loading state to show rate limited status
         setLoadingState(false);
     } finally {
-        // Always clear loading state
-        setLoadingState(false);
+        // Only clear loading state if not rate limited
+        if (!isApiOverloaded) {
+            setLoadingState(false);
+        }
     }
 }
 
@@ -530,13 +532,43 @@ async function getAllWorldRecordsForCurrentSettings() {
         }
     }
     
-    // Fetch world records for all game modes and levels
-    // All modes get regular levels (25, 50, 100, All Apples)
-    // Highscore modes also get highscore records
+    // Fetch world records for game modes and levels
+    // When multiple tables is disabled, only fetch for visible modes and levels
     const levels = ["25", "50", "100", "All"];
     const highscoreLevels = ["H"]; // Only for highscore modes
     const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
     const highscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 3]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Cheese
+    
+    // When multiple tables is disabled, only use visible modes and levels
+    let selectedModes = [];
+    let selectedLevels = [];
+    let selectedHighscoreModes = [];
+    
+    if (isMultipleTablesEnabled) {
+        // In multiple tables mode, fetch for all modes and levels
+        selectedModes = modeNames;
+        selectedLevels = levels;
+        selectedHighscoreModes = highscoreModes;
+    } else {
+        // In single table mode, only fetch for visible modes and levels
+        for (let i = 0; i < modeNames.length; i++) {
+            if (gamemodes[modeNames[i]] && gamemodes[modeNames[i]].visible) {
+                selectedModes.push(modeNames[i]);
+            }
+        }
+        
+        for (let i = 0; i < levels.length; i++) {
+            const levelName = levels[i] + " Apples";
+            if (runModes[levelName] && runModes[levelName].visible) {
+                selectedLevels.push(levels[i]);
+            }
+        }
+        
+        // Check if High Score is visible
+        if (runModes["High Score"] && runModes["High Score"].visible) {
+            selectedHighscoreModes = highscoreModes;
+        }
+    }
     
     // Clear existing world records
     worldRecords = {};
@@ -565,11 +597,13 @@ async function getAllWorldRecordsForCurrentSettings() {
         if (speed === -1) speed = 0;
         if (size === -1) size = 0;
         
-        // Add regular level-based requests for all modes
-        for (let modeIndex = 0; modeIndex < modeNames.length; modeIndex++) {
-            for (let levelIndex = 0; levelIndex < levels.length; levelIndex++) {
-                const level = levels[levelIndex];
-                const mode = modeIndex;
+        // Add regular level-based requests for selected modes and levels
+        for (let modeIndex = 0; modeIndex < selectedModes.length; modeIndex++) {
+            const modeName = selectedModes[modeIndex];
+            const mode = modeNames.indexOf(modeName);
+            
+            for (let levelIndex = 0; levelIndex < selectedLevels.length; levelIndex++) {
+                const level = selectedLevels[levelIndex];
                 
                 allRequests.push({
                     level: level,
@@ -578,17 +612,17 @@ async function getAllWorldRecordsForCurrentSettings() {
                     speed: speed,
                     size: size,
                     combo: combo,
-                    modeName: modeNames[mode],
+                    modeName: modeName,
                     levelName: level + " Apples"
                 });
             }
         }
         
-        // Add highscore requests only for highscore modes
+        // Add highscore requests only for selected highscore modes
         for (let levelIndex = 0; levelIndex < highscoreLevels.length; levelIndex++) {
             const level = highscoreLevels[levelIndex];
-            for (let modeIndex = 0; modeIndex < highscoreModes.length; modeIndex++) {
-                const mode = highscoreModes[modeIndex];
+            for (let modeIndex = 0; modeIndex < selectedHighscoreModes.length; modeIndex++) {
+                const mode = selectedHighscoreModes[modeIndex];
                 
                 allRequests.push({
                     level: level,
@@ -703,6 +737,8 @@ async function getAllWorldRecordsForCurrentSettings() {
                 window.isApiOverloaded = true;
                 console.log('API overloaded (420 error) detected in batch fetch');
                 console.log('isApiOverloaded set to:', isApiOverloaded);
+                // Update loading state to show rate limited
+                setLoadingState(false);
             }
             throw error;
         }
@@ -822,16 +858,46 @@ async function getAllWorldRecordsForDate(date) {
         }
     }
     
-    // Fetch world records for all game modes and levels
-    // All modes get regular levels (25, 50, 100, All Apples)
-    // Highscore modes also get highscore records
+    // Fetch world records for game modes and levels
+    // When multiple tables is disabled, only fetch for visible modes and levels
     const levels = ["25", "50", "100", "All"];
     const highscoreLevels = ["H"]; // Only for highscore modes
     const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
     const highscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 3]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Cheese
     
-    // Calculate total requests: (regular levels for all modes + highscore levels for highscore modes) * number of combinations
-    let totalRequests = (levels.length * modeNames.length + highscoreLevels.length * highscoreModes.length) * selectedCombinations.length;
+    // When multiple tables is disabled, only use visible modes and levels
+    let selectedModes = [];
+    let selectedLevels = [];
+    let selectedHighscoreModes = [];
+    
+    if (isMultipleTablesEnabled) {
+        // In multiple tables mode, fetch for all modes and levels
+        selectedModes = modeNames;
+        selectedLevels = levels;
+        selectedHighscoreModes = highscoreModes;
+    } else {
+        // In single table mode, only fetch for visible modes and levels
+        for (let i = 0; i < modeNames.length; i++) {
+            if (gamemodes[modeNames[i]] && gamemodes[modeNames[i]].visible) {
+                selectedModes.push(modeNames[i]);
+            }
+        }
+        
+        for (let i = 0; i < levels.length; i++) {
+            const levelName = levels[i] + " Apples";
+            if (runModes[levelName] && runModes[levelName].visible) {
+                selectedLevels.push(levels[i]);
+            }
+        }
+        
+        // Check if High Score is visible
+        if (runModes["High Score"] && runModes["High Score"].visible) {
+            selectedHighscoreModes = highscoreModes;
+        }
+    }
+    
+    // Calculate total requests: (regular levels for selected modes + highscore levels for selected highscore modes) * number of combinations
+    let totalRequests = (selectedLevels.length * selectedModes.length + highscoreLevels.length * selectedHighscoreModes.length) * selectedCombinations.length;
     let completedRequests = 0;
     
     // Clear existing world records
@@ -862,11 +928,13 @@ async function getAllWorldRecordsForDate(date) {
         if (speed === -1) speed = 0;
         if (size === -1) size = 0;
         
-        // Add regular level-based requests for all modes
-        for (let modeIndex = 0; modeIndex < modeNames.length; modeIndex++) {
-            for (let levelIndex = 0; levelIndex < levels.length; levelIndex++) {
-                const level = levels[levelIndex];
-                const mode = modeIndex;
+        // Add regular level-based requests for selected modes and levels
+        for (let modeIndex = 0; modeIndex < selectedModes.length; modeIndex++) {
+            const modeName = selectedModes[modeIndex];
+            const mode = modeNames.indexOf(modeName);
+            
+            for (let levelIndex = 0; levelIndex < selectedLevels.length; levelIndex++) {
+                const level = selectedLevels[levelIndex];
                 
                 allRequests.push({
                     level: level,
@@ -875,18 +943,18 @@ async function getAllWorldRecordsForDate(date) {
                     speed: speed,
                     size: size,
                     combo: combo,
-                    modeName: modeNames[mode],
+                    modeName: modeName,
                     levelName: level + " Apples",
                     date: date
                 });
             }
         }
         
-        // Add highscore requests only for highscore modes
+        // Add highscore requests only for selected highscore modes
         for (let levelIndex = 0; levelIndex < highscoreLevels.length; levelIndex++) {
             const level = highscoreLevels[levelIndex];
-            for (let modeIndex = 0; modeIndex < highscoreModes.length; modeIndex++) {
-                const mode = highscoreModes[modeIndex];
+            for (let modeIndex = 0; modeIndex < selectedHighscoreModes.length; modeIndex++) {
+                const mode = selectedHighscoreModes[modeIndex];
                 
                 allRequests.push({
                     level: level,
@@ -970,6 +1038,8 @@ async function getAllWorldRecordsForDate(date) {
             window.isApiOverloaded = true;
             console.log('API overloaded (420 error) detected in date fetch');
             console.log('isApiOverloaded set to:', isApiOverloaded);
+            // Update loading state to show rate limited
+            setLoadingState(false);
         }
         throw error;
     }

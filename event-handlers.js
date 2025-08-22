@@ -75,6 +75,16 @@ async function toggleMultipleTables() {
     await refreshWorldRecordsForSettings();
 }
 
+// Global function to set API overloaded state (called from WorldRecordFetcher)
+window.setApiOverloaded = function(overloaded) {
+    isApiOverloaded = overloaded;
+    window.isApiOverloaded = isApiOverloaded;
+    // Update the UI immediately if we're currently loading
+    if (isLoading) {
+        setLoadingState(true); // This will update the refresh button text
+    }
+};
+
 // Add loading state management
 function setLoadingState(loading) {
     isLoading = loading;
