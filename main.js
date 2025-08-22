@@ -45,6 +45,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Desktop: Initialize UI elements IMMEDIATELY
         initializeUI();
         
+        // Scroll to the right on desktop load
+        setTimeout(() => {
+            window.scrollTo(document.body.scrollWidth, 0);
+        }, 100);
+        
         // Test API connectivity first
         testAPIConnectivity(() => {
             // Start the world records download

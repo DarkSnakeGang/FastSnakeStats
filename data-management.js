@@ -74,10 +74,7 @@ function updateAllCacheInfo() {
         updateCacheInfo();
     }
     
-    // Update mobile cache info
-    if (typeof updateMobileCacheInfo === 'function') {
-        updateMobileCacheInfo();
-    }
+
 }
 
 // Make state accessible globally
