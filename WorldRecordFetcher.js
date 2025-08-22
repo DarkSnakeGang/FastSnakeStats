@@ -2,7 +2,8 @@
 class WorldRecordFetcher {
     constructor() {
         // Use the first game ID from the gameIDs array defined in data-management.js
-        this.gameID = gameIDs[0]; // Snake Game ID
+        // Wait for gameIDs to be available, with fallback to the known correct game ID
+        this.gameID = (typeof gameIDs !== 'undefined' && gameIDs.length > 0) ? gameIDs[0] : 'o1y9pyk6';
         this.lastFailureTime = 0;
         this.failureDelay = 5000; // 5 seconds delay after failures
     }
