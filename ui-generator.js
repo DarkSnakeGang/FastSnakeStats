@@ -302,7 +302,20 @@ function generateTableContent(table, settings, specificGamemode = null) {
     
     // Create thead
     var thead = document.createElement('thead');
+    
+    // First row: Category icons (apple amount, speed, size)
     var row = document.createElement('tr');
+    var th = document.createElement('th');
+    th.setAttribute('class', 'settingsRow');
+    th.setAttribute('colspan', thisBoardRunModes.length + 1);
+    th.appendChild(createIconElement(appleAmounts[settings[0]]));
+    th.appendChild(createIconElement(speeds[settings[1]]));
+    th.appendChild(createIconElement(sizes[settings[2]]));
+    row.appendChild(th);
+    thead.appendChild(row);
+    
+    // Second row: Run mode headers with refresh button
+    row = document.createElement('tr');
     var firstHeaderCell = document.createElement('th');
     firstHeaderCell.innerHTML = settings[0] + " " + settings[1] + " " + settings[2];
     
@@ -326,7 +339,9 @@ function generateTableContent(table, settings, specificGamemode = null) {
     row.appendChild(firstHeaderCell);
     for(runMode of thisBoardRunModes){
         let th = document.createElement('th');
-        th.appendChild(createIconElement(runModes[runMode]));
+        if(runModes[runMode]){
+            th.appendChild(createIconElement(runModes[runMode]));
+        }
         row.appendChild(th);
     }
     thead.appendChild(row);
