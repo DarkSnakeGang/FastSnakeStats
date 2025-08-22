@@ -78,8 +78,18 @@ class CacheManager {
     compareRecords(oldData, newData) {
         if (!oldData || !newData) return true; // Consider as changed if either is missing
         
-        // The data structure is { success: true, runs: [...], category: "...", settings: {...} }
-        // We need to compare the runs array
+        // Handle empty results (success: false) - these don't have runs property
+        if (oldData.success === false && newData.success === false) {
+            // Both are empty results - consider them the same (no change)
+            return false;
+        }
+        
+        if (oldData.success === false || newData.success === false) {
+            // One is empty, one is not - consider as changed
+            return true;
+        }
+        
+        // Both are successful results - compare the runs array
         if (!oldData.runs || !newData.runs) return true;
         
         // Simple comparison - check if the number of records changed
@@ -139,9 +149,10 @@ class CacheManager {
             cacheKeys.forEach(key => {
                 const cached = this.getCachedData(key);
                 if (cached) {
-                    if (cached.data && cached.data.runs && Array.isArray(cached.data.runs)) {
+                    if (cached.data && cached.data.success === true && cached.data.runs && Array.isArray(cached.data.runs)) {
                         totalRecords += cached.data.runs.length;
                     }
+                    // Empty results (success: false) count as 0 records
                     
                     if (this.isCacheValid(key)) {
                         validCaches++;

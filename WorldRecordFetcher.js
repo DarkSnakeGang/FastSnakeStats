@@ -289,7 +289,7 @@ class WorldRecordFetcher {
             // Step 7: Process result
             
             if (!leaderboard.data || !leaderboard.data.runs || leaderboard.data.runs.length === 0) {
-                return {
+                const emptyResult = {
                     success: false,
                     message: "No world record found",
                     category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "Dice"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
@@ -299,6 +299,11 @@ class WorldRecordFetcher {
                         size: ["Standard", "Small", "Large"][size]
                     }
                 };
+                
+                // Cache empty results as well - this prevents repeated API calls for non-existent combinations
+                window.cacheManager.updateCacheIfChanged(cacheKey, emptyResult);
+                
+                return emptyResult;
             }
             
             // Get the best time from the first run
@@ -495,7 +500,7 @@ class WorldRecordFetcher {
             
             // Step 7: Process result
             if (!leaderboard.data || !leaderboard.data.runs || leaderboard.data.runs.length === 0) {
-                return {
+                const emptyResult = {
                     success: false,
                     message: "No world record found for this date",
                     category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "Dice"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
@@ -506,6 +511,11 @@ class WorldRecordFetcher {
                     },
                     date: date
                 };
+                
+                // Cache empty results as well - this prevents repeated API calls for non-existent combinations
+                window.cacheManager.updateCacheIfChanged(cacheKey, emptyResult);
+                
+                return emptyResult;
             }
             
             // Get the best time from the first run
@@ -605,11 +615,14 @@ class WorldRecordFetcher {
     async fetchWorldRecordsBatch(requests, progressCallback = null) {
         // Determine batch size based on multiple tables setting
         const batchSize = (typeof isMultipleTablesEnabled !== 'undefined' && isMultipleTablesEnabled) ? 25 : 50;
-        const results = [];
         
-        // First, check cache for all requests with 100 concurrency
+        // Initialize results array with the same length as requests, filled with null
+        const results = new Array(requests.length);
+        
+        // First, check cache for all requests with 1000 concurrency
         const cacheResults = [];
         const apiRequests = [];
+        const apiRequestIndices = []; // Track original indices for API requests
         
         // Process cache checks with 1000 concurrency
         const cacheBatchSize = 1000;
@@ -617,7 +630,9 @@ class WorldRecordFetcher {
             const cacheBatch = requests.slice(i, i + cacheBatchSize);
             
             // Process cache batch concurrently
-            const cachePromises = cacheBatch.map(async (request) => {
+            const cachePromises = cacheBatch.map(async (request, batchIndex) => {
+                const originalIndex = i + batchIndex;
+                
                 // Generate cache key for this request
                 const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
                 const modeName = modeNames[request.mode];
@@ -642,13 +657,15 @@ class WorldRecordFetcher {
                     return {
                         type: 'cache',
                         request: request,
-                        result: cachedData.data
+                        result: cachedData.data,
+                        originalIndex: originalIndex
                     };
                 } else {
                     // Need to make API call
                     return {
                         type: 'api',
-                        request: request
+                        request: request,
+                        originalIndex: originalIndex
                     };
                 }
             });
@@ -656,21 +673,22 @@ class WorldRecordFetcher {
             // Wait for cache batch to complete
             const batchResults = await Promise.all(cachePromises);
             
-            // Separate cache hits from API requests
+            // Separate cache hits from API requests and place results in correct positions
             batchResults.forEach(result => {
                 if (result.type === 'cache') {
+                    // Place cache result in the correct position
+                    results[result.originalIndex] = result.result;
                     cacheResults.push({
                         request: result.request,
                         result: result.result
                     });
                 } else {
+                    // Track API request for later processing
                     apiRequests.push(result.request);
+                    apiRequestIndices.push(result.originalIndex);
                 }
             });
         }
-        
-        // Add cached results to results array
-        results.push(...cacheResults.map(item => item.result));
         
         // Update progress for cached results (these are not API calls)
         if (progressCallback) {
@@ -696,25 +714,35 @@ class WorldRecordFetcher {
             }
             
             const batch = apiRequests.slice(i, i + batchSize);
-            const batchPromises = batch.map(async request => {
+            const batchIndices = apiRequestIndices.slice(i, i + batchSize);
+            
+            const batchPromises = batch.map(async (request, batchIndex) => {
+                const originalIndex = batchIndices[batchIndex];
+                
                 try {
                     if (request.date) {
-                        return await this.getWorldRecordForDate(
-                            request.level, 
-                            request.mode, 
-                            request.count, 
-                            request.speed, 
-                            request.size, 
-                            request.date
-                        );
+                        return {
+                            result: await this.getWorldRecordForDate(
+                                request.level, 
+                                request.mode, 
+                                request.count, 
+                                request.speed, 
+                                request.size, 
+                                request.date
+                            ),
+                            originalIndex: originalIndex
+                        };
                     } else {
-                        return await this.getWorldRecord(
-                            request.level, 
-                            request.mode, 
-                            request.count, 
-                            request.speed, 
-                            request.size
-                        );
+                        return {
+                            result: await this.getWorldRecord(
+                                request.level, 
+                                request.mode, 
+                                request.count, 
+                                request.speed, 
+                                request.size
+                            ),
+                            originalIndex: originalIndex
+                        };
                     }
                 } catch (error) {
                     // If it's a 420 error, throw it to be caught by the main application
@@ -723,31 +751,38 @@ class WorldRecordFetcher {
                     }
                     // For other errors, return a failed result
                     return {
-                        success: false,
-                        error: error.message,
-                        category: 'Unknown',
-                        settings: {
-                            count: 'Unknown',
-                            speed: 'Unknown',
-                            size: 'Unknown'
-                        }
+                        result: {
+                            success: false,
+                            error: error.message,
+                            category: 'Unknown',
+                            settings: {
+                                count: 'Unknown',
+                                speed: 'Unknown',
+                                size: 'Unknown'
+                            }
+                        },
+                        originalIndex: originalIndex
                     };
                 }
             });
             
             try {
                 const batchResults = await Promise.all(batchPromises);
-                results.push(...batchResults);
+                
+                // Place API results in the correct positions
+                batchResults.forEach(item => {
+                    results[item.originalIndex] = item.result;
+                });
                 
                 // Update progress after each batch (only count actual API calls, not cache)
                 if (progressCallback) {
                     // Only count the API calls from this batch, not cache hits
-                    const apiCallsInBatch = batchResults.filter(result => result.success || result.error).length;
+                    const apiCallsInBatch = batchResults.filter(item => item.result.success || item.result.error).length;
                     progressCallback(apiCallsInBatch);
                 }
                 
                 // Add delay between batches when multiple tables is enabled
-                if (typeof isMultipleTablesEnabled !== 'undefined' && isMultipleTablesEnabled && i + batchSize < requests.length) {
+                if (typeof isMultipleTablesEnabled !== 'undefined' && isMultipleTablesEnabled && i + batchSize < apiRequests.length) {
                     await new Promise(resolve => setTimeout(resolve, 300)); // 0.3 second delay
                 }
             } catch (error) {
