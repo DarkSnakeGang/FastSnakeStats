@@ -773,13 +773,11 @@ function showBasicMobileSettingsSection() {
                         <button class="mobile-option-btn" id="mobileMultipleTablesToggle" title="Toggle multiple tables mode">
                             📊 Multiple Tables
                         </button>
+                        <button class="mobile-option-btn" id="mobileResetBtn" title="Reset settings to default">
+                            🔧 Reset
+                        </button>
                     </div>
                 </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="mobile-btn-group">
-                <button class="mobile-btn secondary" id="mobileSettingsReset">Reset to Default</button>
             </div>
         </div>
     `;
@@ -961,7 +959,7 @@ function setupMobileSettingsEventListeners() {
     }
 
     // Reset button
-    const resetBtn = document.getElementById('mobileSettingsReset');
+    const resetBtn = document.getElementById('mobileResetBtn');
     
     if (resetBtn) {
         resetBtn.addEventListener('click', resetMobileSettings);
@@ -1232,11 +1230,11 @@ function resetMobileSettings() {
     updateMobileTimeTravelButtonState();
     
     // Show success message
-    const resetButton = document.getElementById('mobileSettingsReset');
+    const resetButton = document.getElementById('mobileResetBtn');
     if (resetButton) {
-        resetButton.textContent = 'Settings Reset!';
+        resetButton.innerHTML = '🔧 Settings Reset!';
         setTimeout(() => {
-            resetButton.textContent = 'Reset to Default';
+            resetButton.innerHTML = '🔧 Reset';
         }, 2000);
     }
 }

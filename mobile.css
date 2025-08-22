@@ -745,106 +745,152 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-options-section {
-		margin-top: 16px;
+		margin-top: 24px;
+		padding: 20px 16px;
+		background: rgba(0, 0, 0, 0.02);
+		border-radius: 16px;
+		border: 1px solid var(--mobile-border);
+	}
+
+	.mobile-options-title {
+		font-size: 18px;
+		font-weight: 700;
+		color: var(--mobile-text);
+		margin: 0 0 20px 0;
+		text-align: center;
 	}
 
 	.mobile-options-grid {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 12px;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 16px;
+		margin-bottom: 20px;
 	}
 
 	.mobile-option-btn {
-		background: transparent !important;
+		background: rgba(255, 255, 255, 0.05) !important;
 		color: var(--mobile-text);
 		border: 2px solid var(--mobile-border);
-		border-radius: 12px;
-		padding: 10px 12px;
-		font-size: 13px;
+		border-radius: 16px;
+		padding: 16px 12px;
+		font-size: 14px;
 		font-weight: 600;
 		cursor: pointer;
-		transition: all 0.2s ease;
+		transition: all 0.3s ease;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 6px;
-		min-height: 44px;
+		gap: 8px;
+		min-height: 52px;
 		-webkit-tap-highlight-color: transparent;
 		text-align: center;
-		line-height: 1.2;
+		line-height: 1.3;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	}
 
 	.mobile-option-btn:hover {
-		background: rgba(0, 0, 0, 0.05);
-		transform: translateY(-2px);
-	}
-
-	.mobile-option-btn.active {
-		background: var(--mobile-primary);
-		color: white;
+		background: rgba(0, 0, 0, 0.08) !important;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 		border-color: var(--mobile-primary);
 	}
 
-	/* Mobile Time Travel Button - Desktop Style */
+	.mobile-option-btn.active {
+		background: var(--mobile-primary) !important;
+		color: white !important;
+		border-color: var(--mobile-primary) !important;
+		box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+	}
+
+	.mobile-option-btn.active:hover {
+		background: #0b5ed7 !important;
+		box-shadow: 0 6px 16px rgba(13, 110, 253, 0.4);
+	}
+
+	/* Mobile Time Travel Button - Enhanced Mobile Style */
 	.mobile-option-btn#mobileTimeTravelBtn {
-		width: auto;
-		min-width: 120px;
-		height: 40px;
-		font-size: 14px;
-		font-weight: 600;
+		width: 100% !important;
+		min-width: auto !important;
+		height: 56px !important;
+		font-size: 15px !important;
+		font-weight: 700 !important;
 		background: linear-gradient(135deg, #8B0000, #B22222) !important;
 		color: white !important;
-		border: 1px solid rgba(77, 193, 249, 0.2) !important;
-		border-radius: 8px !important;
-		padding: 10px 15px !important;
-		transition: all 0.3s ease;
+		border: 2px solid rgba(139, 0, 0, 0.3) !important;
+		border-radius: 16px !important;
+		padding: 16px 20px !important;
+		transition: all 0.3s ease !important;
+		box-shadow: 0 4px 12px rgba(139, 0, 0, 0.3) !important;
 	}
 
 	.mobile-option-btn#mobileTimeTravelBtn.active {
-		background: #28a745 !important;
+		background: linear-gradient(135deg, #28a745, #20c997) !important;
 		color: white !important;
-		border: 1px solid rgba(77, 193, 249, 0.2) !important;
-		border-radius: 8px !important;
-		padding: 10px 15px !important;
+		border: 2px solid rgba(40, 167, 69, 0.3) !important;
+		box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3) !important;
 	}
 
 	.mobile-option-btn#mobileTimeTravelBtn:hover {
 		background: linear-gradient(135deg, #660000, #8B0000) !important;
+		box-shadow: 0 6px 16px rgba(139, 0, 0, 0.4) !important;
 	}
 
 	.mobile-option-btn#mobileTimeTravelBtn.active:hover {
-		background: #218838 !important;
+		background: linear-gradient(135deg, #218838, #1ea085) !important;
+		box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4) !important;
 	}
 
-	/* Mobile Multiple Tables Button - Desktop Style */
+	/* Mobile Multiple Tables Button - Enhanced Mobile Style */
 	.mobile-option-btn#mobileMultipleTablesToggle {
-		width: auto !important;
-		min-width: 120px !important;
-		height: 40px !important;
-		font-size: 14px !important;
-		font-weight: 600 !important;
+		width: 100% !important;
+		min-width: auto !important;
+		height: 56px !important;
+		font-size: 15px !important;
+		font-weight: 700 !important;
 		background: linear-gradient(135deg, #8B0000, #B22222) !important;
 		color: white !important;
-		border: 1px solid rgba(77, 193, 249, 0.2) !important;
-		border-radius: 8px !important;
-		padding: 10px 15px !important;
+		border: 2px solid rgba(139, 0, 0, 0.3) !important;
+		border-radius: 16px !important;
+		padding: 16px 20px !important;
 		transition: all 0.3s ease !important;
+		box-shadow: 0 4px 12px rgba(139, 0, 0, 0.3) !important;
 	}
 
 	.mobile-option-btn#mobileMultipleTablesToggle.active {
-		background: #28a745 !important;
+		background: linear-gradient(135deg, #28a745, #20c997) !important;
 		color: white !important;
-		border: 1px solid rgba(77, 193, 249, 0.2) !important;
-		border-radius: 8px !important;
-		padding: 10px 15px !important;
+		border: 2px solid rgba(40, 167, 69, 0.3) !important;
+		box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3) !important;
 	}
 
 	.mobile-option-btn#mobileMultipleTablesToggle:hover {
 		background: linear-gradient(135deg, #660000, #8B0000) !important;
+		box-shadow: 0 6px 16px rgba(139, 0, 0, 0.4) !important;
 	}
 
 	.mobile-option-btn#mobileMultipleTablesToggle.active:hover {
-		background: #218838 !important;
+		background: linear-gradient(135deg, #218838, #1ea085) !important;
+		box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4) !important;
+	}
+
+	/* Mobile Reset Button - Enhanced Mobile Style */
+	.mobile-option-btn#mobileResetBtn {
+		width: 100% !important;
+		min-width: auto !important;
+		height: 56px !important;
+		font-size: 15px !important;
+		font-weight: 700 !important;
+		background: linear-gradient(135deg, #6c757d, #495057) !important;
+		color: white !important;
+		border: 2px solid rgba(108, 117, 125, 0.3) !important;
+		border-radius: 16px !important;
+		padding: 16px 20px !important;
+		transition: all 0.3s ease !important;
+		box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3) !important;
+	}
+
+	.mobile-option-btn#mobileResetBtn:hover {
+		background: linear-gradient(135deg, #5a6268, #343a40) !important;
+		box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4) !important;
 	}
 
 	.mobile-btn-group {
@@ -868,46 +914,74 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		flex: 1;
 	}
 
-	/* Dark mode support for mobile buttons - matching desktop */
+	/* Dark mode support for mobile buttons - enhanced */
+	body.dark-mode .mobile-options-section {
+		background: rgba(255, 255, 255, 0.02);
+		border-color: rgba(255, 255, 255, 0.1);
+	}
+
+	body.dark-mode .mobile-option-btn {
+		background: rgba(0, 0, 0, 0.2) !important;
+		border-color: rgba(255, 255, 255, 0.1);
+	}
+
+	body.dark-mode .mobile-option-btn:hover {
+		background: rgba(0, 0, 0, 0.3) !important;
+	}
+
 	body.dark-mode .mobile-option-btn#mobileTimeTravelBtn {
 		background: linear-gradient(135deg, #8B0000, #B22222) !important;
-		border: 1px solid rgba(77, 193, 249, 0.2) !important;
+		border: 2px solid rgba(139, 0, 0, 0.4) !important;
+		box-shadow: 0 4px 12px rgba(139, 0, 0, 0.4) !important;
 	}
 
 	body.dark-mode .mobile-option-btn#mobileTimeTravelBtn.active {
-		background: #28a745 !important;
-		color: white !important;
-		border: 1px solid rgba(77, 193, 249, 0.2) !important;
-		border-radius: 8px !important;
-		padding: 10px 15px !important;
+		background: linear-gradient(135deg, #28a745, #20c997) !important;
+		border: 2px solid rgba(40, 167, 69, 0.4) !important;
+		box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4) !important;
 	}
 
 	body.dark-mode .mobile-option-btn#mobileTimeTravelBtn:hover {
 		background: linear-gradient(135deg, #660000, #8B0000) !important;
+		box-shadow: 0 6px 16px rgba(139, 0, 0, 0.5) !important;
 	}
 
 	body.dark-mode .mobile-option-btn#mobileTimeTravelBtn.active:hover {
-		background: #218838 !important;
+		background: linear-gradient(135deg, #218838, #1ea085) !important;
+		box-shadow: 0 6px 16px rgba(40, 167, 69, 0.5) !important;
 	}
 
 	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle {
 		background: linear-gradient(135deg, #8B0000, #B22222) !important;
-		border: 1px solid rgba(77, 193, 249, 0.2) !important;
+		border: 2px solid rgba(139, 0, 0, 0.4) !important;
+		box-shadow: 0 4px 12px rgba(139, 0, 0, 0.4) !important;
 	}
 
 	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle.active {
-		background: #28a745 !important;
-		color: white !important;
-		border: 1px solid rgba(77, 193, 249, 0.2) !important;
-		border-radius: 8px !important;
-		padding: 10px 15px !important;
+		background: linear-gradient(135deg, #28a745, #20c997) !important;
+		border: 2px solid rgba(40, 167, 69, 0.4) !important;
+		box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4) !important;
 	}
 
 	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle:hover {
 		background: linear-gradient(135deg, #660000, #8B0000) !important;
+		box-shadow: 0 6px 16px rgba(139, 0, 0, 0.5) !important;
 	}
 
 	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle.active:hover {
-		background: #218838 !important;
+		background: linear-gradient(135deg, #218838, #1ea085) !important;
+		box-shadow: 0 6px 16px rgba(40, 167, 69, 0.5) !important;
+	}
+
+	/* Dark mode support for mobile reset button */
+	body.dark-mode .mobile-option-btn#mobileResetBtn {
+		background: linear-gradient(135deg, #6c757d, #495057) !important;
+		border: 2px solid rgba(108, 117, 125, 0.4) !important;
+		box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4) !important;
+	}
+
+	body.dark-mode .mobile-option-btn#mobileResetBtn:hover {
+		background: linear-gradient(135deg, #5a6268, #343a40) !important;
+		box-shadow: 0 6px 16px rgba(108, 117, 125, 0.5) !important;
 	}
 }
