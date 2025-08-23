@@ -708,71 +708,63 @@ class WorldRecordFetcher {
         const apiRequests = [];
         const apiRequestIndices = []; // Track original indices for API requests
         
-        // Process cache checks with 1000 concurrency
-        const cacheBatchSize = 1000;
-        for (let i = 0; i < requests.length; i += cacheBatchSize) {
-            const cacheBatch = requests.slice(i, i + cacheBatchSize);
+        // Process ALL cache checks instantly with maximum concurrency
+        const cachePromises = requests.map(async (request, index) => {
+            // Generate cache key for this request
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
+            const modeName = modeNames[request.mode];
             
-            // Process cache batch concurrently
-            const cachePromises = cacheBatch.map(async (request, batchIndex) => {
-                const originalIndex = i + batchIndex;
-                
-                // Generate cache key for this request
-                const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
-                const modeName = modeNames[request.mode];
-                
-                // Check if this is a high score request (either by level or levelName)
-                const isHighScore = request.level === "H" || request.levelName === "High Score";
-                const categoryName = isHighScore ? modeName : `${request.level} Apples`;
-                
-                const settings = [
-                    modeName,
-                    categoryName,
-                    ["1 Apple", "3 Apples", "5 Apples", "Dice"][request.count],
-                    ["Normal", "Fast", "Slow"][request.speed],
-                    ["Standard", "Small", "Large"][request.size]
-                ];
-                
-                const cacheKey = window.cacheManager.getCacheKey(settings, request.date);
-                const cachedData = window.cacheManager.getCachedData(cacheKey);
-                
-                if (cachedData && window.cacheManager.isCacheValid(cacheKey)) {
-                    // Use cached data
-                    return {
-                        type: 'cache',
-                        request: request,
-                        result: cachedData.data,
-                        originalIndex: originalIndex
-                    };
-                } else {
-                    // Need to make API call
-                    return {
-                        type: 'api',
-                        request: request,
-                        originalIndex: originalIndex
-                    };
-                }
-            });
+            // Check if this is a high score request (either by level or levelName)
+            const isHighScore = request.level === "H" || request.levelName === "High Score";
+            const categoryName = isHighScore ? modeName : `${request.level} Apples`;
             
-            // Wait for cache batch to complete
-            const batchResults = await Promise.all(cachePromises);
+            const settings = [
+                modeName,
+                categoryName,
+                ["1 Apple", "3 Apples", "5 Apples", "Dice"][request.count],
+                ["Normal", "Fast", "Slow"][request.speed],
+                ["Standard", "Small", "Large"][request.size]
+            ];
             
-            // Separate cache hits from API requests and place results in correct positions
-            batchResults.forEach(result => {
-                if (result.type === 'cache') {
-                    // Place cache result in the correct position
-                    results[result.originalIndex] = result.result;
-                    cacheResults.push({
-                        request: result.request,
-                        result: result.result
-                    });
-                } else {
-                    // Track API request for later processing
-                    apiRequests.push(result.request);
-                    apiRequestIndices.push(result.originalIndex);
-                }
-            });
-        }
+            const cacheKey = window.cacheManager.getCacheKey(settings, request.date);
+            const cachedData = window.cacheManager.getCachedData(cacheKey);
+            
+            if (cachedData && window.cacheManager.isCacheValid(cacheKey)) {
+                // Use cached data
+                return {
+                    type: 'cache',
+                    request: request,
+                    result: cachedData.data,
+                    originalIndex: index
+                };
+            } else {
+                // Need to make API call
+                return {
+                    type: 'api',
+                    request: request,
+                    originalIndex: index
+                };
+            }
+        });
+        
+        // Wait for ALL cache checks to complete instantly
+        const allResults = await Promise.all(cachePromises);
+        
+        // Separate cache hits from API requests and place results in correct positions
+        allResults.forEach(result => {
+            if (result.type === 'cache') {
+                // Place cache result in the correct position
+                results[result.originalIndex] = result.result;
+                cacheResults.push({
+                    request: result.request,
+                    result: result.result
+                });
+            } else {
+                // Track API request for later processing
+                apiRequests.push(result.request);
+                apiRequestIndices.push(result.originalIndex);
+            }
+        });
         
         // Update progress for cached results (these are not API calls)
         if (progressCallback) {
