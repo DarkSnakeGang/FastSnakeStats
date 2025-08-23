@@ -113,11 +113,28 @@ function calculateBestRuns(callback){
         for(var key in worldRecords){
             var runs = worldRecords[key];
             var settings = key.split("|");
-            var appleAmount = settings[0];
-            var speed = settings[1];
-            var size = settings[2];
-            var gamemode = settings[3];
-            var runMode = settings[4];
+            
+            // Handle time travel keys that include date (6 parts) vs normal keys (5 parts)
+            var appleAmount, speed, size, gamemode, runMode;
+            if (settings.length === 6) {
+                // Time travel key: "appleAmount|speed|size|gamemode|runMode|date"
+                appleAmount = settings[0];
+                speed = settings[1];
+                size = settings[2];
+                gamemode = settings[3];
+                runMode = settings[4];
+                // settings[5] is the date, which we ignore for processing
+            } else if (settings.length === 5) {
+                // Normal key: "appleAmount|speed|size|gamemode|runMode"
+                appleAmount = settings[0];
+                speed = settings[1];
+                size = settings[2];
+                gamemode = settings[3];
+                runMode = settings[4];
+            } else {
+                console.warn('Invalid key format:', key, 'with', settings.length, 'parts');
+                continue; // Skip invalid keys
+            }
             
             try{
                 // Store all runs for this combination
@@ -162,11 +179,28 @@ function calculateRanglist(){
         var runs = worldRecords[key];
         console.log('Processing key:', key, 'with', runs.length, 'runs');
         var settings = key.split("|");
-        var appleAmount = settings[0];
-        var speed = settings[1];
-        var size = settings[2];
-        var gamemode = settings[3];
-        var runMode = settings[4];
+        
+        // Handle time travel keys that include date (6 parts) vs normal keys (5 parts)
+        var appleAmount, speed, size, gamemode, runMode;
+        if (settings.length === 6) {
+            // Time travel key: "appleAmount|speed|size|gamemode|runMode|date"
+            appleAmount = settings[0];
+            speed = settings[1];
+            size = settings[2];
+            gamemode = settings[3];
+            runMode = settings[4];
+            // settings[5] is the date, which we ignore for processing
+        } else if (settings.length === 5) {
+            // Normal key: "appleAmount|speed|size|gamemode|runMode"
+            appleAmount = settings[0];
+            speed = settings[1];
+            size = settings[2];
+            gamemode = settings[3];
+            runMode = settings[4];
+        } else {
+            console.warn('Invalid key format:', key, 'with', settings.length, 'parts');
+            continue; // Skip invalid keys
+        }
         
         // When multiple tables is disabled, only count the currently selected category
         if(!isMultipleTablesEnabled) {
