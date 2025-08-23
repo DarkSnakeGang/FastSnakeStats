@@ -124,7 +124,7 @@ class HistoricalCacheBackfill {
     }
 
     // Simple API request function with retry logic (same as WorldRecordFetcher)
-    async fetchAPI(url, maxRetries = 10, baseDelay = 500) {
+    async fetchAPI(url, maxRetries = 20, baseDelay = 500) {
         // Only log API calls for debugging specific issues
         // console.log(`🌐 API Call: ${url}`);
         
