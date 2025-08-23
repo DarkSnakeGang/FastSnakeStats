@@ -1,6 +1,17 @@
 // UI Generation Module
 // Handles all table generation, sidebar creation, and UI elements
 
+// Define ordered arrays for consistent table ordering
+const orderedGamemodes = [
+    "Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", 
+    "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", 
+    "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"
+];
+
+const orderedRunModes = [
+    "25 Apples", "50 Apples", "100 Apples", "All Apples", "High Score"
+];
+
 // Function to update API call progress display
 function updateApiProgress() {
     var progressElement = document.getElementById('apiProgress');
@@ -589,19 +600,22 @@ function generateLeaderboard(settings, specificGamemode = null){
     // Find all run modes that have data for this combination
     const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Cheese"];
      
-     for(gamemode in thisBoardRuns){
-         if(gamemodes[gamemode].visible){
-             for(runMode in thisBoardRuns[gamemode]){
-                 // Only show "High Score" column for highscore modes
-                 if(runMode === "High Score" && !highscoreModes.includes(gamemode)){
-                     continue;
-                 }
-                 // Don't show "100 Apples" for "Small" size
-                 if(runMode === "100 Apples" && settings[2] === "Small"){
-                     continue;
-                 }
-                 if(runModes[runMode].visible && thisBoardRunModes.indexOf(runMode) == -1){
-                     thisBoardRunModes.push(runMode);
+     // Use ordered gamemodes for consistent row ordering
+     for(const gamemode of orderedGamemodes){
+         if(thisBoardRuns[gamemode] && gamemodes[gamemode].visible){
+             for(const runMode of orderedRunModes){
+                 if(thisBoardRuns[gamemode][runMode]){
+                     // Only show "High Score" column for highscore modes
+                     if(runMode === "High Score" && !highscoreModes.includes(gamemode)){
+                         continue;
+                     }
+                     // Don't show "100 Apples" for "Small" size
+                     if(runMode === "100 Apples" && settings[2] === "Small"){
+                         continue;
+                     }
+                     if(runModes[runMode].visible && thisBoardRunModes.indexOf(runMode) == -1){
+                         thisBoardRunModes.push(runMode);
+                     }
                  }
              }
          }
@@ -646,8 +660,9 @@ function generateLeaderboard(settings, specificGamemode = null){
 
     //creat tbody
     var tbody = document.createElement('tbody');
-    for(gamemode in thisBoardRuns){
-        if(gamemodes[gamemode].visible && (specificGamemode === null || gamemode === specificGamemode)){
+    // Use ordered gamemodes for consistent row ordering
+    for(const gamemode of orderedGamemodes){
+        if(thisBoardRuns[gamemode] && gamemodes[gamemode].visible && (specificGamemode === null || gamemode === specificGamemode)){
             row = document.createElement('tr');
             th = document.createElement('th');
             th.appendChild(createIconElement(gamemodes[gamemode]));
@@ -740,19 +755,22 @@ function generateLeaderboardForMultiple(settings, container){
     // Find all run modes that have data for this combination
     const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Cheese"];
     
-    for(gamemode in thisBoardRuns){
-        if(gamemodes[gamemode].visible){
-            for(runMode in thisBoardRuns[gamemode]){
-                // Only show "High Score" column for highscore modes
-                if(runMode === "High Score" && !highscoreModes.includes(gamemode)){
-                    continue;
-                }
-                // Don't show "100 Apples" for "Small" size
-                if(runMode === "100 Apples" && settings[2] === "Small"){
-                    continue;
-                }
-                if(runModes[runMode].visible && thisBoardRunModes.indexOf(runMode) == -1){
-                    thisBoardRunModes.push(runMode);
+    // Use ordered gamemodes for consistent row ordering
+    for(const gamemode of orderedGamemodes){
+        if(thisBoardRuns[gamemode] && gamemodes[gamemode].visible){
+            for(const runMode of orderedRunModes){
+                if(thisBoardRuns[gamemode][runMode]){
+                    // Only show "High Score" column for highscore modes
+                    if(runMode === "High Score" && !highscoreModes.includes(gamemode)){
+                        continue;
+                    }
+                    // Don't show "100 Apples" for "Small" size
+                    if(runMode === "100 Apples" && settings[2] === "Small"){
+                        continue;
+                    }
+                    if(runModes[runMode].visible && thisBoardRunModes.indexOf(runMode) == -1){
+                        thisBoardRunModes.push(runMode);
+                    }
                 }
             }
         }
@@ -791,8 +809,9 @@ function generateLeaderboardForMultiple(settings, container){
 
     //creat tbody
     var tbody = document.createElement('tbody');
-    for(gamemode in thisBoardRuns){
-        if(gamemodes[gamemode].visible){
+    // Use ordered gamemodes for consistent row ordering
+    for(const gamemode of orderedGamemodes){
+        if(thisBoardRuns[gamemode] && gamemodes[gamemode].visible){
             row = document.createElement('tr');
             th = document.createElement('th');
             th.appendChild(createIconElement(gamemodes[gamemode]));
