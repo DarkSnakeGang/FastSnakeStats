@@ -652,7 +652,6 @@ body:not(.dark-mode) .container td {
 	border-radius: 8px;
 	cursor: pointer;
 	transition: all 0.3s ease;
-	margin-left: 10px;
 	vertical-align: top;
 }
 
@@ -1393,7 +1392,7 @@ body.dark-mode #infoModal .modal-content a:hover {
 .data-content-container {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	gap: 8px;
 	margin-top: 5px;
 	justify-content: center;
 }
