@@ -397,6 +397,9 @@ function generateTableContent(table, settings, specificGamemode = null) {
         refreshButton.onclick = function(settings) {
             return async function() {
                 if (isLoading) return; // Prevent clicks while loading
+                refreshButton.disabled = true;
+                refreshButton.innerHTML = '⏳';
+                await new Promise(resolve => setTimeout(resolve, 300)); // 300ms delay for better UX
                 await refreshSpecificTable(settings);
             };
         }(settings);
@@ -1081,7 +1084,13 @@ function generateTableSelector(){
     var refreshButton = document.createElement('button');
     refreshButton.setAttribute('class', 'table-option-btn refresh-btn');
     refreshButton.innerHTML = '🔄 Refresh';
-    refreshButton.onclick = refreshWorldRecordsForSettings;
+    refreshButton.onclick = async function() {
+        if (isLoading) return; // Prevent clicks while loading
+        refreshButton.disabled = true;
+        refreshButton.innerHTML = '⏳ Loading...';
+        await new Promise(resolve => setTimeout(resolve, 300)); // 300ms delay for better UX
+        await refreshWorldRecordsForSettings();
+    };
     dataContentContainer.appendChild(refreshButton);
     
     // Create cache info display (hidden from user)
@@ -1289,21 +1298,30 @@ function generateRanglist(){
             }
         }
     }
-    if(i >  maxRanglistLength){
-        // Create button outside the table structure
-        b = document.createElement('button');
-        b.setAttribute('id','morebutton');
-        b.setAttribute('class', 'more-runners-btn');
-        b.appendChild(document.createTextNode("Click here to see all runners"));
-        b.addEventListener('click', () => {
+    table.appendChild(tbody);
+    
+    // Add the "more runners" button as a table row if needed
+    if(i > maxRanglistLength){
+        var buttonRow = document.createElement('tr');
+        var buttonCell = document.createElement('td');
+        buttonCell.setAttribute('colspan', '3'); // Span all 3 columns
+        buttonCell.setAttribute('style', 'text-align: center; padding: 10px;');
+        
+        var button = document.createElement('button');
+        button.setAttribute('id','morebutton');
+        button.setAttribute('class', 'more-runners-btn');
+        button.appendChild(document.createTextNode("Click here to see all runners"));
+        button.addEventListener('click', () => {
             for(row of document.getElementsByClassName('ranglistRow')){
                 row.setAttribute('style','');
             }
-            document.getElementById("morebutton").setAttribute('style','display:none');
+            document.getElementById("morebutton").parentElement.parentElement.setAttribute('style','display:none');
         });
+        
+        buttonCell.appendChild(button);
+        buttonRow.appendChild(buttonCell);
+        tbody.appendChild(buttonRow);
     }
-
-    table.appendChild(tbody);
     
     // Create a wrapper for the ranglist table
     var ranglistWrapper = document.createElement('div');
@@ -1311,17 +1329,7 @@ function generateRanglist(){
     ranglistWrapper.style.gridArea = 'ranglist'; // Ensure grid area is set
     ranglistWrapper.appendChild(table);
     
-    // Add the "more runners" button after the table if it exists
-    if(i > maxRanglistLength){
-        ranglistWrapper.appendChild(b);
-    }
-    
-    // Add speed_01 icon under the summary table
-    var speedIcon = document.createElement('img');
-    speedIcon.setAttribute('src', 'https://i.ibb.co/fzSffpZX/speed-01-png.png');
-    speedIcon.setAttribute('alt', 'Bunny!');
-    speedIcon.setAttribute('style', 'display: block; margin: 20px auto; max-width: 100px; height: auto;');
-    ranglistWrapper.appendChild(speedIcon);
+    // Bunny icon moved to header - no longer needed here
     
     document.getElementsByClassName("container")[0].appendChild(ranglistWrapper);
 }

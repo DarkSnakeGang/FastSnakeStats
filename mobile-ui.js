@@ -413,6 +413,9 @@ function setupMobileRecordsEventListeners() {
                 this.disabled = true;
                 this.setAttribute('title', 'Please wait while world records are being fetched...');
                 
+                // Add delay for better UX
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
                 // Call the refresh function and wait for it to complete
                 await refreshWorldRecordsForSettings();
                 
@@ -676,6 +679,9 @@ function loadMobileTableData() {
             refreshButton.onclick = function(settings) {
                 return async function() {
                     if (isLoading) return; // Prevent clicks while loading
+                    refreshButton.disabled = true;
+                    refreshButton.innerHTML = '⏳';
+                    await new Promise(resolve => setTimeout(resolve, 300)); // 300ms delay for better UX
                     console.log('Mobile individual refresh clicked for settings:', settings);
                     await refreshSpecificTable(settings);
                     

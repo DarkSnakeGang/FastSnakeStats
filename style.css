@@ -164,6 +164,41 @@ body.dark-mode .dark-mode-toggle:hover {
 	background: rgba(255, 255, 255, 0.5);
 }
 
+/* Desktop header styling */
+.desktop-header {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 15px;
+	background: linear-gradient(135deg, #4C792D, #578A34);
+	padding: 8px 20px;
+	border-radius: 0;
+	margin: 0;
+	width: 100%;
+	box-shadow: 0 4px 8px var(--shadow);
+	border: none;
+	border-bottom: 2px solid #578A34;
+}
+
+.desktop-header-icon {
+	width: 50px;
+	height: 50px;
+	object-fit: contain;
+}
+
+.desktop-header h1 {
+	margin: 0;
+	font-size: 40px;
+	color: white;
+	text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Dark mode styling for desktop header */
+body.dark-mode .desktop-header {
+	background: linear-gradient(135deg, #1e3a15, #2d4a1f);
+	border: 2px solid #2d4a1f;
+}
+
 /* Dark mode toggle button when in Options section */
 .button-group .dark-mode-toggle {
 	position: static;
@@ -202,6 +237,21 @@ body.dark-mode .button-group .dark-mode-toggle:hover {
 	align-items: center;
 	margin: 0;
 	width: 100%; /* Ensure full width for grid */
+}
+
+/* Ranglist wrapper specific styling for centering */
+.ranglist-wrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	width: 100%;
+}
+
+/* Ensure the more runners button is centered within table cell */
+.ranglist-wrapper .more-runners-btn {
+	margin: 0;
+	display: inline-block;
 }
 
 /* Main table wrapper - first table */
@@ -315,14 +365,16 @@ body.dark-mode .button-group .dark-mode-toggle:hover {
 	border-radius: 8px;
 	color: white;
 	padding: 10px 20px;
-	margin: 10px auto;
-	display: block;
+	margin: 10px 0;
+	display: inline-block;
 	cursor: pointer;
 	font-size: 14px;
 	font-weight: bold;
 	text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 	transition: all 0.3s ease;
 	box-shadow: 0 4px 8px var(--shadow);
+	text-align: center;
+	width: fit-content;
 }
 
 .more-runners-btn:hover {
