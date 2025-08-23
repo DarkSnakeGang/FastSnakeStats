@@ -9,7 +9,7 @@ class HistoricalCacheBackfill {
         this.baseURL = 'https://www.speedrun.com/api/v1';
         this.cacheDir = 'time-travel-cache/daily';
         this.lastFailureTime = 0;
-        this.failureDelay = 5000; // 5 seconds delay after failures
+        this.failureDelay = 0; // 5 seconds delay after failures
         this.isGitHubActions = process.env.GITHUB_TOKEN !== undefined;
     }
 
@@ -124,7 +124,7 @@ class HistoricalCacheBackfill {
     }
 
     // Simple API request function with retry logic (same as WorldRecordFetcher)
-    async fetchAPI(url, maxRetries = 10, baseDelay = 1000) {
+    async fetchAPI(url, maxRetries = 10, baseDelay = 500) {
         // Only log API calls for debugging specific issues
         // console.log(`🌐 API Call: ${url}`);
         
@@ -350,7 +350,7 @@ class HistoricalCacheBackfill {
             // Small delay between batches to be respectful to the API
             if (i + batchSize < allRequests.length) {
                 console.log(`⏳ Waiting 1 second before next batch...`);
-                await this.delay(1000);
+                await this.delay(0);
             }
         }
 
@@ -793,7 +793,7 @@ class HistoricalCacheBackfill {
                 this.saveCheckpoint(startDate, endDate, date, processedCount, skippedCount, errorCount);
                 
                 // Add delay between dates to be respectful
-                await this.delay(1000);
+                await this.delay(0);
                 
             } catch (error) {
                 console.error(`Error processing ${date}:`, error);
@@ -803,7 +803,7 @@ class HistoricalCacheBackfill {
                 this.saveCheckpoint(startDate, endDate, date, processedCount, skippedCount, errorCount);
                 
                 // Continue with next date even if one fails
-                await this.delay(5000);
+                await this.delay(0);
             }
         }
         
