@@ -1,0 +1,122 @@
+{
+  "date": "2025-08-22",
+  "timestamp": "2025-08-23T13:03:33.701995",
+  "records": {
+    "1 Apple|Normal|Standard|Any%|1 Apples": {
+      "success": true,
+      "runs": [
+        {
+          "place": 1,
+          "run": {
+            "id": "test123",
+            "weblink": "https://www.speedrun.com/test",
+            "times": {
+              "primary": "PT1M30S",
+              "realtime": "PT1M30S"
+            },
+            "players": [
+              {
+                "id": "testplayer",
+                "name": "TestPlayer"
+              }
+            ]
+          }
+        }
+      ],
+      "settings": [
+        "1 Apple",
+        "Normal",
+        "Standard",
+        "Any%",
+        "1"
+      ]
+    },
+    "1 Apple|Normal|Standard|Any%|3 Apples": {
+      "success": true,
+      "runs": [
+        {
+          "place": 1,
+          "run": {
+            "id": "test456",
+            "weblink": "https://www.speedrun.com/test2",
+            "times": {
+              "primary": "PT2M15S",
+              "realtime": "PT2M15S"
+            },
+            "players": [
+              {
+                "id": "testplayer2",
+                "name": "TestPlayer2"
+              }
+            ]
+          }
+        }
+      ],
+      "settings": [
+        "1 Apple",
+        "Normal",
+        "Standard",
+        "Any%",
+        "3"
+      ]
+    },
+    "3 Apples|Fast|Large|100%|25 Apples": {
+      "success": true,
+      "runs": [
+        {
+          "place": 1,
+          "run": {
+            "id": "test789",
+            "weblink": "https://www.speedrun.com/test3",
+            "times": {
+              "primary": "PT5M45S",
+              "realtime": "PT5M45S"
+            },
+            "players": [
+              {
+                "id": "testplayer3",
+                "name": "TestPlayer3"
+              }
+            ]
+          }
+        }
+      ],
+      "settings": [
+        "3 Apples",
+        "Fast",
+        "Large",
+        "100%",
+        "25"
+      ]
+    },
+    "Dice|Normal|Standard|High Score|High Score": {
+      "success": true,
+      "runs": [
+        {
+          "place": 1,
+          "run": {
+            "id": "test101",
+            "weblink": "https://www.speedrun.com/test4",
+            "times": {
+              "primary": "PT3M20S",
+              "realtime": "PT3M20S"
+            },
+            "players": [
+              {
+                "id": "testplayer4",
+                "name": "TestPlayer4"
+              }
+            ]
+          }
+        }
+      ],
+      "settings": [
+        "Dice",
+        "Normal",
+        "Standard",
+        "High Score",
+        "High Score"
+      ]
+    }
+  }
+}
