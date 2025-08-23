@@ -28,10 +28,9 @@ jobs:
     - name: Create cache directories
       run: |
         mkdir -p time-travel-cache/daily/$(date -d "yesterday" +%Y)/$(date -d "yesterday" +%m)
-        mkdir -p time-travel-cache/daily/2018/10
         
-    - name: Fetch test data
-      run: node scripts/historical-cache-backfill.js 2025-04-20
+    - name: Fetch yesterday's data
+      run: node scripts/historical-cache-backfill.js --yesterday
       env:
         GITHUB_TOKEN: ${{ secrets.FSSGSM_TOKEN }}
       continue-on-error: true

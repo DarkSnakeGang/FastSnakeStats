@@ -394,12 +394,32 @@ async function quickFetchWorldRecords() {
             
         } else {
             console.log('Quick Fetch: GitHub cache not available');
+            // Update time travel button status if in time travel mode
+            if (isTimeTravelEnabled && selectedTimeTravelDate) {
+                updateTimeTravelButtonStatus('missing');
+            }
             // No API fallback - only scripts handle API calls now
+        }
+        
+        // Update time travel button status based on cache availability
+        if (isTimeTravelEnabled && selectedTimeTravelDate) {
+            console.log('Quick Fetch: Updating time travel button status. cacheData:', cacheData ? 'exists' : 'null', 'keys:', cacheData ? Object.keys(cacheData).length : 0);
+            if (cacheData && Object.keys(cacheData).length > 0) {
+                console.log('Quick Fetch: Setting button to available');
+                updateTimeTravelButtonStatus('available');
+            } else {
+                console.log('Quick Fetch: Setting button to missing');
+                updateTimeTravelButtonStatus('missing');
+            }
         }
         
     } catch (error) {
         console.error('Error in quickFetchWorldRecords:', error);
         console.log('Quick Fetch failed');
+        // Update time travel button status if in time travel mode
+        if (isTimeTravelEnabled && selectedTimeTravelDate) {
+            updateTimeTravelButtonStatus('missing');
+        }
         // No API fallback - only scripts handle API calls now
     } finally {
         setLoadingState(false);

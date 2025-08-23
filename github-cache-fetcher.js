@@ -56,6 +56,24 @@ class GitHubCacheFetcher {
             
             if (!response.ok) {
                 console.log(`GitHub cache not available for ${date}`);
+                console.log('GitHub cache fetcher debug:', {
+                    isTimeTravelEnabled: window.isTimeTravelEnabled,
+                    selectedTimeTravelDate: window.selectedTimeTravelDate,
+                    requestedDate: date,
+                    datesMatch: window.selectedTimeTravelDate === date,
+                    functionAvailable: !!window.updateTimeTravelButtonStatus
+                });
+                // Update time travel button status if in time travel mode
+                if (window.isTimeTravelEnabled && window.selectedTimeTravelDate === date) {
+                    console.log('GitHub cache fetcher: Setting button to missing');
+                    if (window.updateTimeTravelButtonStatus) {
+                        window.updateTimeTravelButtonStatus('missing');
+                    } else {
+                        console.log('GitHub cache fetcher: updateTimeTravelButtonStatus function not available');
+                    }
+                } else {
+                    console.log('GitHub cache fetcher: Conditions not met for button update');
+                }
                 return null;
             }
             
@@ -65,6 +83,13 @@ class GitHubCacheFetcher {
             
         } catch (error) {
             console.log(`Error fetching GitHub cache for ${date}:`, error);
+            // Update time travel button status if in time travel mode
+            if (window.isTimeTravelEnabled && window.selectedTimeTravelDate === date) {
+                console.log('GitHub cache fetcher: Setting button to missing (error)');
+                if (window.updateTimeTravelButtonStatus) {
+                    window.updateTimeTravelButtonStatus('missing');
+                }
+            }
             return null;
         }
     }

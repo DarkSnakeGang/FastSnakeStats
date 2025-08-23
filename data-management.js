@@ -202,6 +202,10 @@ function saveSettings() {
     }
     
     localStorage.setItem('visibilitySettings', JSON.stringify(visibilitySettings));
+    
+    // Make time travel variables globally available
+    window.isTimeTravelEnabled = isTimeTravelEnabled;
+    window.selectedTimeTravelDate = selectedTimeTravelDate;
 }
 
 // Generate run holder for data organization

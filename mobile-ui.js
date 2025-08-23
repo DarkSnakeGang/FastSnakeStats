@@ -39,30 +39,17 @@ async function mobileToggleTimeTravel() {
     isTimeTravelEnabled = !isTimeTravelEnabled;
     saveSettings();
     
-    // Update desktop toggle button
-    const timeTravelBtn = document.querySelector('.time-travel-btn');
-    if(timeTravelBtn) {
-        if(isTimeTravelEnabled) {
-            timeTravelBtn.innerHTML = '⏰ Time Travel';
-            timeTravelBtn.classList.add('active');
-            timeTravelBtn.setAttribute('title', 'Time travel mode enabled. Click to disable.');
+    // Update button status
+    if (isTimeTravelEnabled && selectedTimeTravelDate) {
+        // Check data availability when enabling
+        const cacheData = await window.githubCacheFetcher.fetchWorldRecordsForDate(selectedTimeTravelDate);
+        if (!cacheData || Object.keys(cacheData).length === 0) {
+            updateTimeTravelButtonStatus('missing');
         } else {
-            timeTravelBtn.innerHTML = '⏰ Time Travel';
-            timeTravelBtn.classList.remove('active');
-            timeTravelBtn.setAttribute('title', 'Time travel mode disabled. Click to enable.');
+            updateTimeTravelButtonStatus('available');
         }
-    }
-    
-    // Update mobile toggle button
-    const mobileTimeTravelBtn = document.getElementById('mobileTimeTravelBtn');
-    if(mobileTimeTravelBtn) {
-        if(isTimeTravelEnabled) {
-            mobileTimeTravelBtn.classList.add('active');
-            mobileTimeTravelBtn.setAttribute('title', 'Time travel mode enabled. Click to disable.');
-        } else {
-            mobileTimeTravelBtn.classList.remove('active');
-            mobileTimeTravelBtn.setAttribute('title', 'Time travel mode disabled. Click to enable.');
-        }
+    } else {
+        updateTimeTravelButtonStatus('disabled');
     }
     
     // Auto-resume API calls if they were paused
@@ -821,7 +808,7 @@ function setupMobileSettingsEventListeners() {
         // Set initial value from saved settings
         datePicker.value = selectedTimeTravelDate || '';
         
-        datePicker.addEventListener('change', function() {
+        datePicker.addEventListener('change', async function() {
             selectedTimeTravelDate = this.value;
             
             // If a date is selected, enable time travel mode
@@ -831,6 +818,18 @@ function setupMobileSettingsEventListeners() {
             }
             
             saveSettings();
+            
+            // Check data availability for the selected date
+            if (this.value) {
+                const cacheData = await window.githubCacheFetcher.fetchWorldRecordsForDate(this.value);
+                if (!cacheData || Object.keys(cacheData).length === 0) {
+                    updateTimeTravelButtonStatus('missing');
+                } else {
+                    updateTimeTravelButtonStatus('available');
+                }
+            } else {
+                updateTimeTravelButtonStatus('disabled');
+            }
             
             // Refresh data with the new date if time travel is enabled
             if (isTimeTravelEnabled && selectedTimeTravelDate) {

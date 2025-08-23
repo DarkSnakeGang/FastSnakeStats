@@ -1286,9 +1286,19 @@ function generateTableSelector(){
     var timeTravelButton = document.createElement('button');
     timeTravelButton.setAttribute('class', 'table-option-btn time-travel-btn');
     if(isTimeTravelEnabled) {
-        timeTravelButton.innerHTML = '⏰ Time Travel';
-        timeTravelButton.classList.add('active');
-        timeTravelButton.setAttribute('title', 'Time travel mode enabled. Click to disable.');
+        // Check if the existing button has missing-data class
+        const existingButton = document.querySelector('.time-travel-btn');
+        const hasMissingData = existingButton && existingButton.classList.contains('missing-data');
+        
+        if (hasMissingData) {
+            timeTravelButton.innerHTML = '⏰ No Data';
+            timeTravelButton.classList.add('active', 'missing-data');
+            timeTravelButton.setAttribute('title', `No data available for ${window.selectedTimeTravelDate}. Click to disable time travel.`);
+        } else {
+            timeTravelButton.innerHTML = '⏰ Time Travel';
+            timeTravelButton.classList.add('active');
+            timeTravelButton.setAttribute('title', `Time travel mode enabled for ${window.selectedTimeTravelDate}. Click to disable.`);
+        }
     } else {
         timeTravelButton.innerHTML = '⏰ Time Travel';
         timeTravelButton.setAttribute('title', 'Time travel mode disabled. Click to enable.');
