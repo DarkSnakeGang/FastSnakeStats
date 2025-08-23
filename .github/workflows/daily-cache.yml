@@ -6,6 +6,10 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch: # Allow manual triggering
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   collect-cache:
     runs-on: ubuntu-latest
@@ -31,14 +35,20 @@ jobs:
     - name: Fetch yesterday's data
       run: node scripts/historical-cache-backfill.js --yesterday
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
-    - name: Fetch oldest date for time travel testing
-      run: node scripts/historical-cache-backfill.js 2018-10-24
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.FSSGSM_TOKEN }}
+      continue-on-error: true
         
     - name: Update metadata
       run: node scripts/update-metadata.js
+      
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "Update daily cache data" || echo "No changes to commit"
+        git push origin main
+      env:
+        GITHUB_TOKEN: ${{ secrets.FSSGSM_TOKEN }}
 
 
