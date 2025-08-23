@@ -138,7 +138,11 @@ async function toggleMultipleTables() {
     
     // Regenerate table selector to show/hide count/speed/size options
     generateTableSelector();
-    
+    if (isMultipleTablesEnabled) {
+        generateMultipleTables();
+    } else {
+        generateSingleTable();
+    }
     // Load data from cache instead of refreshing
     if (isLoading) return;
     
