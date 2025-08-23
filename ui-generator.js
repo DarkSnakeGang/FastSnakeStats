@@ -908,8 +908,27 @@ function generateTableSelector(){
                 saveSettings(); // Save settings when changed
                 // Update highlighting immediately
                 updateTableSelector();
-                // Trigger refresh when Multiple Tables is disabled (radio button behavior)
-                if (!isMultipleTablesEnabled) {
+                
+                if (isMultipleTablesEnabled) {
+                    // When Multiple Tables is enabled, immediately regenerate tables and load from cache
+                    generateMultipleTables();
+                    // Load data from cache for the newly visible tables
+                    if (!isLoading) {
+                        setLoadingState(true);
+                        try {
+                            if (isTimeTravelEnabled && selectedTimeTravelDate) {
+                                await getAllWorldRecordsForDate(selectedTimeTravelDate);
+                            } else {
+                                await getAllWorldRecordsForCurrentSettings();
+                            }
+                        } catch (error) {
+                            console.error('Error loading from cache:', error);
+                        } finally {
+                            setLoadingState(false);
+                        }
+                    }
+                } else {
+                    // Trigger refresh when Multiple Tables is disabled (radio button behavior)
                     refreshWorldRecordsForSettings();
                 }
             };
@@ -959,8 +978,27 @@ function generateTableSelector(){
                 saveSettings(); // Save settings when changed
                 // Update highlighting immediately
                 updateTableSelector();
-                // Trigger refresh when Multiple Tables is disabled (radio button behavior)
-                if (!isMultipleTablesEnabled) {
+                
+                if (isMultipleTablesEnabled) {
+                    // When Multiple Tables is enabled, immediately regenerate tables and load from cache
+                    generateMultipleTables();
+                    // Load data from cache for the newly visible tables
+                    if (!isLoading) {
+                        setLoadingState(true);
+                        try {
+                            if (isTimeTravelEnabled && selectedTimeTravelDate) {
+                                await getAllWorldRecordsForDate(selectedTimeTravelDate);
+                            } else {
+                                await getAllWorldRecordsForCurrentSettings();
+                            }
+                        } catch (error) {
+                            console.error('Error loading from cache:', error);
+                        } finally {
+                            setLoadingState(false);
+                        }
+                    }
+                } else {
+                    // Trigger refresh when Multiple Tables is disabled (radio button behavior)
                     refreshWorldRecordsForSettings();
                 }
             };
@@ -1010,8 +1048,27 @@ function generateTableSelector(){
                 saveSettings(); // Save settings when changed
                 // Update highlighting immediately
                 updateTableSelector();
-                // Trigger refresh when Multiple Tables is disabled (radio button behavior)
-                if (!isMultipleTablesEnabled) {
+                
+                if (isMultipleTablesEnabled) {
+                    // When Multiple Tables is enabled, immediately regenerate tables and load from cache
+                    generateMultipleTables();
+                    // Load data from cache for the newly visible tables
+                    if (!isLoading) {
+                        setLoadingState(true);
+                        try {
+                            if (isTimeTravelEnabled && selectedTimeTravelDate) {
+                                await getAllWorldRecordsForDate(selectedTimeTravelDate);
+                            } else {
+                                await getAllWorldRecordsForCurrentSettings();
+                            }
+                        } catch (error) {
+                            console.error('Error loading from cache:', error);
+                        } finally {
+                            setLoadingState(false);
+                        }
+                    }
+                } else {
+                    // Trigger refresh when Multiple Tables is disabled (radio button behavior)
                     refreshWorldRecordsForSettings();
                 }
             };
