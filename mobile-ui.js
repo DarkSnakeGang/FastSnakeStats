@@ -350,16 +350,11 @@ function showBasicMobileRecordsSection() {
             
             <!-- Mobile Records Controls -->
             <div class="mobile-records-controls">
-                <div class="mobile-controls-grid">
-                </div>
-                
-                <!-- Data Section -->
-                <div class="mobile-data-section">
-                    <button class="mobile-option-btn" id="mobileRefreshBtn">🔄 Refresh</button>
-                    <button class="mobile-option-btn" id="mobileStopResumeBtn" style="display: none;">
-                        ⏸️ Stop
-                    </button>
-                </div>
+                <button class="mobile-option-btn" id="mobileRefreshBtn">🔄 Refresh</button>
+                <button class="mobile-option-btn" id="mobileInfoBtn">ℹ️ Info</button>
+                <button class="mobile-option-btn" id="mobileStopResumeBtn" style="display: none;">
+                    ⏸️ Stop
+                </button>
             </div>
         </div>
         
@@ -373,6 +368,9 @@ function showBasicMobileRecordsSection() {
 
     // Setup mobile records event listeners
     setupMobileRecordsEventListeners();
+    
+    // Setup mobile info modal
+    setupMobileInfoModal();
 
     // Set initial refresh button state
     const refreshBtn = document.getElementById('mobileRefreshBtn');
@@ -1446,6 +1444,47 @@ function initializeMobileLoadingState() {
     };
     
     console.log('Mobile loading state function initialized');
+}
+
+// Setup mobile info modal
+function setupMobileInfoModal() {
+    const infoBtn = document.getElementById('mobileInfoBtn');
+    const modal = document.getElementById('mobileInfoModal');
+    const closeBtn = document.querySelector('.mobile-close');
+    
+    if (infoBtn && modal) {
+        // Update current date
+        const currentDateSpan = document.getElementById('mobileCurrentDate');
+        if (currentDateSpan) {
+            currentDateSpan.textContent = new Date().toLocaleDateString();
+        }
+        
+        // Info button click
+        infoBtn.addEventListener('click', function() {
+            modal.style.display = 'block';
+        });
+        
+        // Close button click
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+        }
+        
+        // Click outside modal to close
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // ESC key to close
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && modal.style.display === 'block') {
+                modal.style.display = 'none';
+            }
+        });
+    }
 }
 
 // Export functions for use in other modules
