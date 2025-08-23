@@ -1,29 +1,14 @@
 {
   "name": "fastsnakestats",
   "version": "1.0.0",
-  "description": "A website that gathers SRC google snake records quickly with automated cache system",
-  "main": "main.js",
+  "description": "FastSnakeStats website with caching system",
+  "main": "index.html",
   "scripts": {
-    "start": "python -m http.server 8000",
-    "daily-cache": "node scripts/daily-cache-collector.js",
-    "update-metadata": "node scripts/update-metadata.js",
-    "backfill": "node scripts/historical-cache-backfill.js"
+    "test": "echo \"No tests specified\""
   },
-  "keywords": [
-    "speedrun",
-    "google-snake",
-    "world-records",
-    "cache",
-    "automation"
-  ],
-  "author": "Yarmiplay",
-  "license": "MIT",
-  "dependencies": {
-    "node-fetch": "^3.3.2"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  }
+  "keywords": ["snake", "speedrun", "stats"],
+  "author": "",
+  "license": "MIT"
 }
 
 
