@@ -30,14 +30,11 @@ jobs:
         mkdir -p time-travel-cache/daily/$(date -d "yesterday" +%Y)/$(date -d "yesterday" +%m)
         mkdir -p time-travel-cache/daily/2018/10
         
-    - name: Fetch yesterday's data
-      run: node scripts/historical-cache-backfill.js --yesterday
+    - name: Fetch test data
+      run: node scripts/historical-cache-backfill.js 2025-04-20
       env:
         GITHUB_TOKEN: ${{ secrets.FSSGSM_TOKEN }}
       continue-on-error: true
-        
-    - name: Update metadata
-      run: node scripts/update-metadata.js
       
     - name: Commit and push changes
       run: |
