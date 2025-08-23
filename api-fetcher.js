@@ -280,6 +280,132 @@ async function refreshWorldRecordsForSettings() {
     }
 }
 
+// Quick Fetch function - fetches from GitHub cache with API fallback
+async function quickFetchWorldRecords() {
+    if (isLoading) return; // Prevent multiple simultaneous fetches
+    
+    console.log('Starting Quick Fetch from GitHub cache...');
+    setLoadingState(true);
+    
+    try {
+        // Ensure settings are saved before proceeding
+        saveSettings();
+        
+        // Check if GitHub cache fetcher is available
+        if (!window.githubCacheFetcher) {
+            console.log('GitHub cache fetcher not available');
+            return;
+        }
+        
+        let cacheData = null;
+        
+        // Try to fetch from GitHub cache based on time travel state
+        if (isTimeTravelEnabled && selectedTimeTravelDate) {
+            console.log(`Quick Fetch: Attempting to fetch ${selectedTimeTravelDate} from GitHub cache`);
+            cacheData = await window.githubCacheFetcher.fetchWorldRecordsForDate(selectedTimeTravelDate);
+        } else {
+            console.log('Quick Fetch: Attempting to fetch most recent data from GitHub cache');
+            cacheData = await window.githubCacheFetcher.fetchCurrentWorldRecords();
+        }
+        
+        if (cacheData) {
+            console.log('Quick Fetch: Successfully loaded from GitHub cache');
+            // Convert GitHub cache data to the format expected by the app
+            // worldRecords needs to be in the old format (arrays) for calculateRanglist()
+            worldRecords = {};
+            for (const [key, record] of Object.entries(cacheData)) {
+                if (Array.isArray(record) && record.length > 0) {
+                    worldRecords[key] = record;
+                } else {
+                    worldRecords[key] = [];
+                }
+            }
+            
+            // Convert GitHub cache format to bestRuns format
+            bestRuns = {};
+            
+            // Initialize the structure
+            const countNames = ["1 Apple", "3 Apples", "5 Apples", "Dice"];
+            const speedNames = ["Normal", "Fast", "Slow"];
+            const sizeNames = ["Standard", "Small", "Large"];
+            
+            for (const count of countNames) {
+                bestRuns[count] = {};
+                for (const speed of speedNames) {
+                    bestRuns[count][speed] = {};
+                    for (const size of sizeNames) {
+                        bestRuns[count][speed][size] = {};
+                    }
+                }
+            }
+            
+            // Convert cache data to bestRuns format
+            for (const [key, record] of Object.entries(cacheData)) {
+                if (Array.isArray(record) && record.length > 0) {
+                    // Parse the key: "1 Apple|Normal|Standard|Classic|25 Apples"
+                    const parts = key.split('|');
+                    if (parts.length === 5) {
+                        const [count, speed, size, gamemode, runMode] = parts;
+                        
+                        // Initialize gamemode if it doesn't exist
+                        if (!bestRuns[count][speed][size][gamemode]) {
+                            bestRuns[count][speed][size][gamemode] = {};
+                        }
+                        
+                        // Store the runs (weblink is handled in createNameElement)
+                        bestRuns[count][speed][size][gamemode][runMode] = {
+                            success: true,
+                            runs: record,
+                            settings: [count, speed, size, gamemode, runMode]
+                        };
+                    }
+                }
+            }
+            
+            console.log('Quick Fetch: Converted GitHub cache to bestRuns format');
+            
+            // Ensure game metadata is loaded before generating tables
+            if (typeof speeds !== 'undefined' && typeof gamemodes !== 'undefined' && typeof runModes !== 'undefined' && typeof appleAmounts !== 'undefined' && typeof sizes !== 'undefined') {
+                // Generate tables with the cached data
+                if (isMultipleTablesEnabled) {
+                    generateMultipleTables();
+                } else {
+                    generateSingleTable();
+                }
+                
+                // Update button highlighting
+                setTimeout(() => {
+                    updateTableSelector();
+                }, 50);
+            } else {
+                console.log('Quick Fetch: Game metadata not yet loaded, waiting...');
+                // Wait for metadata to load and then generate tables
+                setTimeout(() => {
+                    if (isMultipleTablesEnabled) {
+                        generateMultipleTables();
+                    } else {
+                        generateSingleTable();
+                    }
+                    setTimeout(() => {
+                        updateTableSelector();
+                    }, 50);
+                }, 1000);
+            }
+            
+        } else {
+            console.log('Quick Fetch: GitHub cache not available');
+            // No API fallback - only scripts handle API calls now
+        }
+        
+    } catch (error) {
+        console.error('Error in quickFetchWorldRecords:', error);
+        console.log('Quick Fetch failed');
+        // No API fallback - only scripts handle API calls now
+    } finally {
+        setLoadingState(false);
+    }
+}
+
 // Refresh function for a specific table (for individual table refresh buttons)
 async function refreshSpecificTable(settings) {
     if (isLoading) return; // Prevent multiple simultaneous refreshes
@@ -992,6 +1118,9 @@ async function getAllWorldRecordsForDate(date) {
     // Clear existing world records for time travel (we'll populate with date-specific data)
     worldRecords = {};
     
+    // Clear existing bestRuns to ensure old data doesn't persist
+    bestRuns = {};
+    
     // Initialize API call progress tracking
     apiCallProgress.successful = 0;
     apiCallProgress.total = totalRequests;
@@ -1099,14 +1228,14 @@ async function getAllWorldRecordsForDate(date) {
             const record = batchResults[j];
             const request = requestsToProcess[j];
             
+            // Create a key for this combination using actual setting names
+            // For time travel, we need to include the date in the key to separate from current date cache
+            let key = `${request.combo[0]}|${request.combo[1]}|${request.combo[2]}|${request.modeName}|${request.levelName}`;
+            if (date) {
+                key += `|${date}`; // Add date to key for time travel cache separation
+            }
+            
             if (record.success) {
-                // Create a key for this combination using actual setting names
-                // For time travel, we need to include the date in the key to separate from current date cache
-                let key = `${request.combo[0]}|${request.combo[1]}|${request.combo[2]}|${request.modeName}|${request.levelName}`;
-                if (date) {
-                    key += `|${date}`; // Add date to key for time travel cache separation
-                }
-                
                 // Convert all runs to the expected format
                 let convertedRuns = [];
                 
@@ -1142,19 +1271,30 @@ async function getAllWorldRecordsForDate(date) {
                 
                 // Store all the world records (tied runs)
                 worldRecords[key] = convertedRuns;
-                
-                // Update the display immediately for each record
-                calculateBestRuns();
-                calculateRanglist();
-                generateRanglist();
-                generateSingleTable();
-                
-                // Update cache info display
-                if (typeof updateAllCacheInfo === 'function') {
-                    updateAllCacheInfo();
-                }
+            } else {
+                // Store empty result to ensure cells are properly handled
+                worldRecords[key] = [];
             }
+            
+            // Don't update the display immediately - we'll do it once at the end
         }
+        
+        // Now update the display once after all records are processed
+        calculateBestRuns();
+        calculateRanglist();
+        generateRanglist();
+        
+        if (isMultipleTablesEnabled) {
+            generateMultipleTables();
+        } else {
+            generateSingleTable();
+        }
+        
+        // Update cache info display
+        if (typeof updateAllCacheInfo === 'function') {
+            updateAllCacheInfo();
+        }
+        
     } catch (error) {
         console.error('Error in getAllWorldRecordsForDate batch fetch:', error);
         // Check if it's a 420 error and set the overloaded state
@@ -1241,16 +1381,27 @@ function startWorldRecordsDownload() {
                          // Update API progress display to show initial state
         updateApiProgress();
         
-        // Immediately trigger refresh on initial load (like clicking the refresh button)
-        try {
-            refreshWorldRecordsForSettings();
-        } catch (error) {
-            console.error('Error calling refreshWorldRecordsForSettings:', error);
-            if(container) {
-                container.innerHTML = '<p style="color: white; font-size: 18px;">Error during initial load. Please try refreshing the page.</p>';
+            // Wait for metadata to be loaded before triggering Quick Fetch
+    const waitForMetadata = () => {
+        if (typeof speeds !== 'undefined' && typeof gamemodes !== 'undefined' && typeof runModes !== 'undefined' && typeof appleAmounts !== 'undefined' && typeof sizes !== 'undefined') {
+            console.log('Metadata loaded, triggering Quick Fetch');
+            // Immediately trigger Quick Fetch on initial load (GitHub cache with API fallback)
+            try {
+                quickFetchWorldRecords();
+            } catch (error) {
+                console.error('Error calling quickFetchWorldRecords:', error);
+                if(container) {
+                    container.innerHTML = '<p style="color: white; font-size: 18px;">Error during initial load. Please try refreshing the page.</p>';
+                }
+                setLoadingState(false);
             }
-            setLoadingState(false);
+        } else {
+            console.log('Metadata not yet loaded, waiting...');
+            setTimeout(waitForMetadata, 100);
         }
+    };
+        
+        waitForMetadata();
         
         // Set up a completion check
         var checkCompletion = setInterval(() => {

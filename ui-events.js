@@ -66,12 +66,8 @@ async function toggleTimeTravel() {
     if (window.innerWidth > 1023) {
         if (isLoading) return;
         
-        // For time travel, we need to use date-specific cache
-        if (isTimeTravelEnabled && selectedTimeTravelDate) {
-            await getAllWorldRecordsForDate(selectedTimeTravelDate);
-        } else {
-            await refreshWorldRecordsForSettings();
-        }
+        // Use Quick Fetch instead of direct API calls
+        await quickFetchWorldRecords();
     }
 }
 
@@ -119,17 +115,19 @@ async function toggleMultipleTables() {
         // Ensure settings are saved before proceeding
         saveSettings();
         
-        // Load from cache instead of making API calls
-        if (isTimeTravelEnabled && selectedTimeTravelDate) {
-            await getAllWorldRecordsForDate(selectedTimeTravelDate);
-        } else {
-            await getAllWorldRecordsForCurrentSettings();
-        }
+        // Use Quick Fetch instead of direct API calls
+        await quickFetchWorldRecords();
         
         // Update button highlighting with a small delay to ensure DOM is ready
         setTimeout(() => {
             updateTableSelector();
         }, 50);
+        
+        // Ensure summary table is updated to reflect current visibility state
+        if (typeof calculateRanglist === 'function' && typeof generateRanglist === 'function') {
+            calculateRanglist();
+            generateRanglist();
+        }
         
     } catch (error) {
         console.error('Error loading from cache:', error);
@@ -191,7 +189,21 @@ function setLoadingState(loading) {
         } else {
             refreshButton.innerHTML = '🔄 Refresh';
             refreshButton.disabled = false;
-            refreshButton.setAttribute('title', 'Refresh world records for current settings');
+            refreshButton.setAttribute('title', 'Fetch from API (slower but always current)');
+        }
+    }
+    
+    // Update quick fetch button text
+    var quickFetchButton = document.querySelector('.quick-fetch-btn');
+    if (quickFetchButton) {
+        if (loading) {
+            quickFetchButton.innerHTML = '⏳ Loading...';
+            quickFetchButton.disabled = true;
+            quickFetchButton.setAttribute('title', 'Please wait while fetching from cache...');
+        } else {
+            quickFetchButton.innerHTML = '🐰 Quick Fetch';
+            quickFetchButton.disabled = false;
+            quickFetchButton.setAttribute('title', 'Fetch from GitHub cache (fast)');
         }
     }
     
@@ -516,23 +528,11 @@ function initializeUI() {
                 setLoadingState(true);
                 
                 try {
-                    // Fetch world records for the selected date
-                    await getAllWorldRecordsForDate(selectedDate);
-                    
-                    // Update the display
-                    calculateBestRuns();
-                    calculateRanglist();
-                    generateRanglist();
-                    generateSingleTable();
+                    // Use Quick Fetch instead of direct API calls
+                    await quickFetchWorldRecords();
                     
                 } catch (error) {
-                    // Check if it's a 420 error (API overloaded)
-                    if (error.message && error.message.includes('HTTP 420')) {
-                        isApiOverloaded = true;
-                    }
-                    
-                    // Fallback to current records
-                    await refreshWorldRecordsForSettings();
+                    console.error('Error in date picker change:', error);
                 } finally {
                     // Clear loading state
                     setLoadingState(false);

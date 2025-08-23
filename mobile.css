@@ -62,6 +62,9 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	.modal-button2,
 	.container,
 	.desktop-header,
+	.desktop-header-icon,
+	.desktop-header h1,
+	.modal,
 	h1:not(.mobile-header h1),
 	h1 {
 		display: none !important;
@@ -158,6 +161,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		max-width: 100vw !important;
 		visibility: visible !important;
 		opacity: 1 !important;
+		box-sizing: border-box !important;
 	}
 
 	.mobile-nav-item {
@@ -210,11 +214,24 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	/* Mobile Main Content */
 	.mobile-main {
 		margin-top: 60px;
-		margin-bottom: 100px;
+		margin-bottom: 80px;
 		padding: 5px;
 		min-height: 932px;
 		overflow-x: hidden;
 		overflow-y: auto;
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	/* Ensure mobile table containers can scroll horizontally if needed, but content fits properly */
+	.mobile-table-wrapper,
+	.mobile-multiple-tables-container {
+		overflow-x: auto;
+		overflow-y: hidden;
+		-webkit-overflow-scrolling: touch;
+		max-width: 100%;
+		width: 100%;
+		box-sizing: border-box;
 	}
 
 	/* Mobile Form Elements */
@@ -330,16 +347,23 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 
 	/* Mobile Records Controls - Simplified */
 	.mobile-records-controls {
-		margin-bottom: 20px;
-		padding: 12px;
+		margin-bottom: 15px;
+		padding: 8px;
 		background: rgba(255, 255, 255, 0.1);
-		border-radius: 12px;
+		border-radius: 8px;
 		border: 1px solid rgba(255, 255, 255, 0.2);
-		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 		display: flex;
-		align-items: center;
+		flex-wrap: wrap;
+		gap: 6px;
 		justify-content: center;
-		gap: 12px;
+	}
+
+	/* Make buttons take up roughly half the width each */
+	.mobile-records-controls .mobile-option-btn {
+		flex: 1 1 calc(50% - 4px);
+		min-width: 120px;
+		max-width: calc(50% - 4px);
 	}
 
 	/* Dark mode styling for mobile records controls */
@@ -512,7 +536,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	.mobile-table-wrapper .main-table-wrapper table,
 	.mobile-multiple-tables-container .main-table-wrapper table {
 		width: 100% !important;
-		max-width: 410px !important;
+		max-width: 100% !important;
 		border-collapse: collapse;
 		font-size: 11px;
 		background: transparent;
@@ -520,6 +544,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		border-radius: 4px;
 		overflow: hidden;
 		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+		table-layout: fixed;
 	}
 
 	/* Ensure mobile table containers can scroll horizontally */

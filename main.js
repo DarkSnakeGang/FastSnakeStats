@@ -19,6 +19,25 @@ if (typeof WorldRecordFetcher !== 'undefined') {
     console.error('WorldRecordFetcher not found');
 }
 
+// Initialize GitHub Cache Fetcher
+if (typeof GitHubCacheFetcher !== 'undefined') {
+    window.githubCacheFetcher = new GitHubCacheFetcher();
+    console.log('GitHub Cache Fetcher initialized successfully');
+    
+    // Test GitHub cache availability
+    window.githubCacheFetcher.isGitHubCacheAvailable().then(available => {
+        if (available) {
+            console.log('GitHub cache is available');
+        } else {
+            console.log('GitHub cache is not available, will use API fallback');
+        }
+    }).catch(error => {
+        console.error('Error checking GitHub cache availability:', error);
+    });
+} else {
+    console.error('GitHubCacheFetcher not found');
+}
+
 // Update table selector after settings are loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Set current date in info modal

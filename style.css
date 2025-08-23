@@ -507,6 +507,30 @@ body:not(.dark-mode) .container td {
 
 
 
+/* Quick Fetch button specific styling */
+.quick-fetch-btn {
+	width: auto;
+	min-width: 120px;
+	height: 40px;
+	font-size: 14px;
+	font-weight: 600;
+	background: linear-gradient(135deg, #007bff, #0056b3);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 8px;
+	padding: 10px 15px;
+	color: white;
+}
+
+.quick-fetch-btn:hover {
+	background: linear-gradient(135deg, #0056b3, #004085);
+	border-color: rgba(255, 255, 255, 0.3);
+}
+
+.quick-fetch-btn:disabled {
+	background: linear-gradient(135deg, #ccc, #999);
+	cursor: not-allowed;
+}
+
 /* Refresh button specific styling */
 .refresh-btn {
 	width: auto;
@@ -652,7 +676,8 @@ body:not(.dark-mode) .container td {
 	border-radius: 8px;
 	cursor: pointer;
 	transition: all 0.3s ease;
-	vertical-align: top;
+	display: inline-block;
+	margin: 0 4px;
 }
 
 /* Dark mode stop/resume button */
@@ -1395,6 +1420,7 @@ body.dark-mode #infoModal .modal-content a:hover {
 	gap: 8px;
 	margin-top: 5px;
 	justify-content: center;
+	flex-wrap: wrap;
 }
 
 .progress-display {
@@ -1486,6 +1512,23 @@ body.dark-mode .multiple-tables-btn:hover {
 
 body.dark-mode .multiple-tables-btn.active:hover {
 	background: #218838 !important;
+}
+
+/* Dark mode Quick Fetch button */
+body.dark-mode .quick-fetch-btn {
+	background: linear-gradient(135deg, #007bff, #0056b3) !important;
+	border: 1px solid rgba(255, 255, 255, 0.2) !important;
+	color: white !important;
+}
+
+body.dark-mode .quick-fetch-btn:hover {
+	background: linear-gradient(135deg, #0056b3, #004085) !important;
+	border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+body.dark-mode .quick-fetch-btn:disabled {
+	background: linear-gradient(135deg, #666, #444) !important;
+	cursor: not-allowed !important;
 }
 
 

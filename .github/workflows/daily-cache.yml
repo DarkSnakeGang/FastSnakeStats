@@ -1,0 +1,44 @@
+name: Daily Cache Collection
+
+on:
+  schedule:
+    # Run daily at midnight UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  collect-cache:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm install
+        
+    - name: Create cache directories
+      run: |
+        mkdir -p time-travel-cache/daily/$(date -d "yesterday" +%Y)/$(date -d "yesterday" +%m)
+        mkdir -p time-travel-cache/daily/2018/10
+        
+    - name: Fetch yesterday's data
+      run: node scripts/historical-cache-backfill.js --yesterday
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Fetch oldest date for time travel testing
+      run: node scripts/historical-cache-backfill.js 2018-10-24
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Update metadata
+      run: node scripts/update-metadata.js
+
+

@@ -121,7 +121,11 @@ function calculateBestRuns(callback){
             
             try{
                 // Store all runs for this combination
-                bestRuns[appleAmount][speed][size][gamemode][runMode] = runs;
+                bestRuns[appleAmount][speed][size][gamemode][runMode] = {
+                    success: true,
+                    runs: runs,
+                    settings: [appleAmount, speed, size, gamemode, runMode]
+                };
                 
                 // Track dates for historical features (use the first run's date)
                 if(runs.length > 0) {
@@ -149,11 +153,14 @@ function calculateBestRuns(callback){
 }
 
 function calculateRanglist(){
+    console.log('currentTableSettings:', currentTableSettings);
+    
     ranglist = [];
     
     // Count world records per player
     for(var key in worldRecords){
         var runs = worldRecords[key];
+        console.log('Processing key:', key, 'with', runs.length, 'runs');
         var settings = key.split("|");
         var appleAmount = settings[0];
         var speed = settings[1];
@@ -163,9 +170,11 @@ function calculateRanglist(){
         
         // When multiple tables is disabled, only count the currently selected category
         if(!isMultipleTablesEnabled) {
+            console.log('Single table mode - checking if matches current settings');
             if(appleAmount === currentTableSettings[0] && 
                speed === currentTableSettings[1] && 
                size === currentTableSettings[2]) {
+                console.log('Matches current settings, processing runs');
                 // Count each run for each player
                 for(var i = 0; i < runs.length; i++) {
                     var run = runs[i];
@@ -177,15 +186,18 @@ function calculateRanglist(){
                         ranglist[id][0] += 1;
                     }
                 }
+            } else {
+                console.log('Does not match current settings, skipping');
             }
         } else {
+            console.log('Multiple tables mode - checking visibility');
             // When multiple tables is enabled, count all visible categories
             if(appleAmounts[appleAmount].visible && 
                speeds[speed].visible && 
                sizes[size].visible && 
                gamemodes[gamemode].visible && 
                runModes[runMode].visible){
-                
+                console.log('All categories visible, processing runs');
                 // Count each run for each player
                 for(var i = 0; i < runs.length; i++) {
                     var run = runs[i];
@@ -197,6 +209,8 @@ function calculateRanglist(){
                         ranglist[id][0] += 1;
                     }
                 }
+            } else {
+                console.log('Some categories not visible, skipping');
             }
         }
     }
@@ -206,6 +220,7 @@ function calculateRanglist(){
     for(user in ranglist){
         total += ranglist[user][0];
     }
+    
     //calculate percentages
     if(total != 0){
         for(user in ranglist){
@@ -213,7 +228,12 @@ function calculateRanglist(){
         }
     }
 
-    ranglist = ranglist.sort(function(a, b){return b-a});
+    // Convert ranglist object to array and sort by count (descending)
+    var ranglistArray = [];
+    for(user in ranglist){
+        ranglistArray.push([ranglist[user][0], ranglist[user][1], ranglist[user][2]]);
+    }
+    ranglist = ranglistArray.sort(function(a, b){return b[0]-a[0]});
 }
 
 function createIconElement(setting){
@@ -291,9 +311,39 @@ function createNameElement(user){
     var span = document.createElement('span');
     span.setAttribute('class', 'name');
     var a = document.createElement('a');
-    a.setAttribute('href', user.weblink);
+    
+    // Always use player name for weblink
+    const playerName = user.names && user.names.international ? user.names.international : 'unknown';
+    a.setAttribute('href', `https://www.speedrun.com/user/${playerName}`);
     a.setAttribute('target','_blank');
-    if(user.rel == "user"){
+    
+    // Check if this is a user with names.international (GitHub cache format)
+    if(user.names && user.names.international){
+        span.appendChild(document.createTextNode(user.names.international));
+        // Add safety check for name-style property
+        if(user["name-style"] && user["name-style"].style == "gradient"){
+            var colorfrom = user["name-style"]["color-from"].dark;
+            var colorto = user["name-style"]["color-to"].dark;
+            // Apply gradient using CSS - try a more compatible approach
+            span.style.background = `linear-gradient(90deg, ${colorfrom}, ${colorto})`;
+            span.style.webkitBackgroundClip = "text";
+            span.style.webkitTextFillColor = "transparent";
+            span.style.backgroundClip = "text";
+            span.style.color = "transparent";
+            span.style.display = "inline-block"; // Ensure the gradient works
+        }
+        else if(user["name-style"] && user["name-style"]["color"]){
+            var color = user["name-style"]["color"].dark;
+            // Apply solid color
+            span.style.color = color;
+        }
+        else{
+            // Default colors if name-style is missing
+            span.style.color = "#ffffff";
+        }
+    }
+    // Legacy format check (user.rel == "user")
+    else if(user.rel == "user"){
         span.appendChild(document.createTextNode(user.names.international));
         // Add safety check for name-style property
         if(user["name-style"] && user["name-style"].style == "gradient"){
@@ -318,7 +368,8 @@ function createNameElement(user){
         }
     }
     else{
-        span.appendChild(document.createTextNode(user.name))
+        // Fallback for other formats
+        span.appendChild(document.createTextNode(user.name || "Unknown Player"));
         span.style.color = "#000000";
     }
 
@@ -384,29 +435,9 @@ function generateTableContent(table, settings, specificGamemode = null) {
     row.appendChild(th);
     thead.appendChild(row);
     
-    // Second row: Run mode headers with refresh button
+    // Second row: Run mode headers
     row = document.createElement('tr');
     var firstHeaderCell = document.createElement('th');
-    
-    // Add individual refresh button for multiple tables
-    if (isMultipleTablesEnabled) {
-        var refreshButton = document.createElement('button');
-        refreshButton.setAttribute('class', 'table-option-btn refresh-btn individual-refresh-btn');
-        refreshButton.innerHTML = '🔄';
-        refreshButton.setAttribute('title', `Refresh ${settings[0]} ${settings[1]} ${settings[2]} table`);
-        refreshButton.onclick = function(settings) {
-            return async function() {
-                if (isLoading) return; // Prevent clicks while loading
-                refreshButton.disabled = true;
-                refreshButton.innerHTML = '⏳';
-                await new Promise(resolve => setTimeout(resolve, 300)); // 300ms delay for better UX
-                await refreshSpecificTable(settings);
-            };
-        }(settings);
-        
-        // Add button to the first header cell
-        firstHeaderCell.appendChild(refreshButton);
-    }
     
     row.appendChild(firstHeaderCell);
     for(runMode of thisBoardRunModes){
@@ -432,7 +463,7 @@ function generateTableContent(table, settings, specificGamemode = null) {
                 td = document.createElement('td');
                 if(typeof(thisBoardRuns[gamemode][runMode]) != 'undefined'){
                     td.setAttribute('class','result');
-                    if(thisBoardRuns[gamemode][runMode].length != 0){
+                    if(thisBoardRuns[gamemode][runMode].runs && thisBoardRuns[gamemode][runMode].runs.length != 0){
                         // Create a container for all runs
                         var runsContainer = document.createElement('div');
                         runsContainer.setAttribute('class', 'runs-container');
@@ -441,22 +472,23 @@ function generateTableContent(table, settings, specificGamemode = null) {
                         var timeDisplay = document.createElement('div');
                         timeDisplay.setAttribute('class', 'time-display');
                         var timeLink = document.createElement('a');
-                        timeLink.setAttribute('href', thisBoardRuns[gamemode][runMode][0].weblink);
+                        
+                        timeLink.setAttribute('href', thisBoardRuns[gamemode][runMode].runs[0].weblink);
                         timeLink.setAttribute('target', '_blank');
-                        timeLink.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode][0].times, runMode === "High Score"));
+                        timeLink.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode].runs[0].times, runMode === "High Score"));
                         timeDisplay.appendChild(timeLink);
                         runsContainer.appendChild(timeDisplay);
                         
                         // Add all player names with their individual links
-                        for(var i = 0; i < thisBoardRuns[gamemode][runMode].length; i++){
-                            var run = thisBoardRuns[gamemode][runMode][i];
+                        for(var i = 0; i < thisBoardRuns[gamemode][runMode].runs.length; i++){
+                            var run = thisBoardRuns[gamemode][runMode].runs[i];
                             var playerLink = document.createElement('a');
                             playerLink.setAttribute('href', run.weblink);
                             playerLink.setAttribute('target','_blank');
                             playerLink.appendChild(createNameElement(run.players.data[0]));
                             
                             // Add separator between players (except for the last one)
-                            if(i < thisBoardRuns[gamemode][runMode].length - 1) {
+                            if(i < thisBoardRuns[gamemode][runMode].runs.length - 1) {
                                 var separator = document.createElement('span');
                                 separator.innerHTML = ' ';
                                 separator.setAttribute('class', 'player-separator');
@@ -483,6 +515,31 @@ function generateTableContent(table, settings, specificGamemode = null) {
 }
 
 function generateLeaderboard(settings, specificGamemode = null){
+    // Safety check: ensure game metadata is loaded
+    if (typeof speeds === 'undefined' || typeof gamemodes === 'undefined' || typeof runModes === 'undefined' || typeof appleAmounts === 'undefined') {
+        console.log('Game metadata not yet loaded, skipping table generation');
+        return document.createElement('div'); // Return empty div instead of table
+    }
+    
+    // Additional safety check: ensure the specific settings exist
+    console.log('generateLeaderboard called with settings:', settings);
+    console.log('Available speeds:', speeds);
+    console.log('Available appleAmounts:', appleAmounts);
+    console.log('Available sizes:', sizes);
+    
+    if (!speeds || !speeds[settings[1]] || typeof speeds[settings[1]] !== 'object') {
+        console.log('Speeds metadata not available for setting:', settings[1], 'Available speeds:', speeds);
+        return document.createElement('div');
+    }
+    if (!appleAmounts || !appleAmounts[settings[0]] || typeof appleAmounts[settings[0]] !== 'object') {
+        console.log('Apple amounts metadata not available for setting:', settings[0], 'Available amounts:', appleAmounts);
+        return document.createElement('div');
+    }
+    if (!sizes || !sizes[settings[2]] || typeof sizes[settings[2]] !== 'object') {
+        console.log('Sizes metadata not available for setting:', settings[2], 'Available sizes:', sizes);
+        return document.createElement('div');
+    }
+    
     var table = document.createElement('table');
     table.setAttribute('class','leaderboard');
 
@@ -492,11 +549,11 @@ function generateLeaderboard(settings, specificGamemode = null){
     
     // Check if we have data for this combination
     if(!thisBoardRuns){
-        return;
+        return table;
     }
     
-         // Find all run modes that have data for this combination
-     const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Cheese"];
+    // Find all run modes that have data for this combination
+    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Cheese"];
      
      for(gamemode in thisBoardRuns){
          if(gamemodes[gamemode].visible){
@@ -525,9 +582,15 @@ function generateLeaderboard(settings, specificGamemode = null){
     th = document.createElement('th');
     th.setAttribute('class', 'settingsRow');
     th.setAttribute('colspan', thisBoardRunModes.length+1);
-    th.appendChild(createIconElement(appleAmounts[settings[0]]));
-    th.appendChild(createIconElement(speeds[settings[1]]));
-    th.appendChild(createIconElement(sizes[settings[2]]));
+    
+    // Safe icon creation with fallbacks
+    const appleIcon = appleAmounts[settings[0]] ? createIconElement(appleAmounts[settings[0]]) : document.createTextNode(settings[0]);
+    const speedIcon = speeds[settings[1]] ? createIconElement(speeds[settings[1]]) : document.createTextNode(settings[1]);
+    const sizeIcon = sizes[settings[2]] ? createIconElement(sizes[settings[2]]) : document.createTextNode(settings[2]);
+    
+    th.appendChild(appleIcon);
+    th.appendChild(speedIcon);
+    th.appendChild(sizeIcon);
     
     row.appendChild(th);
     thead.appendChild(row);
@@ -536,22 +599,7 @@ function generateLeaderboard(settings, specificGamemode = null){
     // Create the first header cell (to the left of "25 Apples")
     var firstHeaderCell = document.createElement('th');
     
-    // Add individual refresh button to the first header cell when multiple tables mode is enabled
-    if (isMultipleTablesEnabled) {
-        var refreshButton = document.createElement('button');
-        refreshButton.setAttribute('class', 'table-option-btn refresh-btn individual-refresh-btn');
-        refreshButton.innerHTML = '🔄';
-        refreshButton.setAttribute('title', `Refresh ${settings[0]} ${settings[1]} ${settings[2]} table`);
-        refreshButton.onclick = function(settings) {
-            return async function() {
-                if (isLoading) return; // Prevent clicks while loading
-                await refreshSpecificTable(settings);
-            };
-        }(settings);
-        
-        // Add button to the first header cell
-        firstHeaderCell.appendChild(refreshButton);
-    }
+    // Individual refresh button removed - no longer needed
     
     row.appendChild(firstHeaderCell);
     for(runMode of thisBoardRunModes){
@@ -575,7 +623,7 @@ function generateLeaderboard(settings, specificGamemode = null){
                 td = document.createElement('td');
                 if(typeof(thisBoardRuns[gamemode][runMode]) != 'undefined'){
                     td.setAttribute('class','result');
-                    if(thisBoardRuns[gamemode][runMode].length != 0){
+                    if(thisBoardRuns[gamemode][runMode].runs && thisBoardRuns[gamemode][runMode].runs.length != 0){
                         // Create a container for all runs
                         var runsContainer = document.createElement('div');
                         runsContainer.setAttribute('class', 'runs-container');
@@ -584,22 +632,22 @@ function generateLeaderboard(settings, specificGamemode = null){
                         var timeDisplay = document.createElement('div');
                         timeDisplay.setAttribute('class', 'time-display');
                         var timeLink = document.createElement('a');
-                        timeLink.setAttribute('href', thisBoardRuns[gamemode][runMode][0].weblink);
+                        timeLink.setAttribute('href', thisBoardRuns[gamemode][runMode].runs[0].weblink);
                         timeLink.setAttribute('target', '_blank');
-                        timeLink.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode][0].times, runMode === "High Score"));
+                        timeLink.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode].runs[0].times, runMode === "High Score"));
                         timeDisplay.appendChild(timeLink);
                         runsContainer.appendChild(timeDisplay);
                         
                         // Add all player names with their individual links
-                        for(var i = 0; i < thisBoardRuns[gamemode][runMode].length; i++){
-                            var run = thisBoardRuns[gamemode][runMode][i];
+                        for(var i = 0; i < thisBoardRuns[gamemode][runMode].runs.length; i++){
+                            var run = thisBoardRuns[gamemode][runMode].runs[i];
                             var playerLink = document.createElement('a');
                             playerLink.setAttribute('href', run.weblink);
                             playerLink.setAttribute('target','_blank');
                             playerLink.appendChild(createNameElement(run.players.data[0]));
                             
                             // Add separator between players (except for the last one)
-                            if(i < thisBoardRuns[gamemode][runMode].length - 1) {
+                            if(i < thisBoardRuns[gamemode][runMode].runs.length - 1) {
                                 var separator = document.createElement('span');
                                 separator.innerHTML = ' ';
                                 separator.setAttribute('class', 'player-separator');
@@ -696,22 +744,7 @@ function generateLeaderboardForMultiple(settings, container){
     // Create the first header cell (to the left of "25 Apples")
     var firstHeaderCell = document.createElement('th');
     
-    // Add individual refresh button to the first header cell when multiple tables mode is enabled
-    if (isMultipleTablesEnabled) {
-        var refreshButton = document.createElement('button');
-        refreshButton.setAttribute('class', 'table-option-btn refresh-btn individual-refresh-btn');
-        refreshButton.innerHTML = '🔄';
-        refreshButton.setAttribute('title', `Refresh ${settings[0]} ${settings[1]} ${settings[2]} table`);
-        refreshButton.onclick = function(settings) {
-            return async function() {
-                if (isLoading) return; // Prevent clicks while loading
-                await refreshSpecificTable(settings);
-            };
-        }(settings);
-        
-        // Add button to the first header cell
-        firstHeaderCell.appendChild(refreshButton);
-    }
+    // Individual refresh button removed - no longer needed
     
     row.appendChild(firstHeaderCell);
     for(runMode of thisBoardRunModes){
@@ -735,7 +768,7 @@ function generateLeaderboardForMultiple(settings, container){
                 td = document.createElement('td');
                 if(typeof(thisBoardRuns[gamemode][runMode]) != 'undefined'){
                     td.setAttribute('class','result');
-                    if(thisBoardRuns[gamemode][runMode].length != 0){
+                    if(thisBoardRuns[gamemode][runMode].runs && thisBoardRuns[gamemode][runMode].runs.length != 0){
                         // Create a container for all runs
                         var runsContainer = document.createElement('div');
                         runsContainer.setAttribute('class', 'runs-container');
@@ -744,22 +777,22 @@ function generateLeaderboardForMultiple(settings, container){
                         var timeDisplay = document.createElement('div');
                         timeDisplay.setAttribute('class', 'time-display');
                         var timeLink = document.createElement('a');
-                        timeLink.setAttribute('href', thisBoardRuns[gamemode][runMode][0].weblink);
+                        timeLink.setAttribute('href', thisBoardRuns[gamemode][runMode].runs[0].weblink);
                         timeLink.setAttribute('target', '_blank');
-                        timeLink.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode][0].times, runMode === "High Score"));
+                        timeLink.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode].runs[0].times, runMode === "High Score"));
                         timeDisplay.appendChild(timeLink);
                         runsContainer.appendChild(timeDisplay);
                         
                         // Add all player names with their individual links
-                        for(var i = 0; i < thisBoardRuns[gamemode][runMode].length; i++){
-                            var run = thisBoardRuns[gamemode][runMode][i];
+                        for(var i = 0; i < thisBoardRuns[gamemode][runMode].runs.length; i++){
+                            var run = thisBoardRuns[gamemode][runMode].runs[i];
                             var playerLink = document.createElement('a');
                             playerLink.setAttribute('href', run.weblink);
                             playerLink.setAttribute('target','_blank');
                             playerLink.appendChild(createNameElement(run.players.data[0]));
                             
                             // Add separator between players (except for the last one)
-                            if(i < thisBoardRuns[gamemode][runMode].length - 1) {
+                            if(i < thisBoardRuns[gamemode][runMode].runs.length - 1) {
                                 var separator = document.createElement('span');
                                 separator.innerHTML = ' ';
                                 separator.setAttribute('class', 'player-separator');
@@ -795,18 +828,146 @@ function generateLeaderboardForMultiple(settings, container){
     }
 }
 
+function updateTableSelector(){
+    // Get the latest settings from localStorage to ensure we're using the most current values
+    try {
+        var savedSettings = JSON.parse(localStorage.getItem('tableSettings'));
+        if(savedSettings && Array.isArray(savedSettings) && savedSettings.length === 3) {
+            currentTableSettings = savedSettings;
+        }
+    } catch(e) {
+    }
+    
+    // Update active states of buttons
+    var buttons = document.querySelectorAll('.table-option-btn');
+    
+    // First, remove all active classes
+    buttons.forEach(function(button){
+        button.classList.remove('active');
+    });
+    
+    // Then add active class to matching buttons
+    buttons.forEach(function(button, index){
+        // Skip refresh button
+        if(button.classList.contains('refresh-btn')) {
+            return;
+        }
+        
+        // Check if this button corresponds to current settings using data-setting attribute
+        var settingValue = button.getAttribute('data-setting');
+        if(settingValue) {
+            if (isMultipleTablesEnabled) {
+                // Toggle behavior: highlight based on visible state
+                if (settingValue in appleAmounts && appleAmounts[settingValue].visible) {
+                    button.classList.add('active');
+                } else if (settingValue in speeds && speeds[settingValue].visible) {
+                    button.classList.add('active');
+                } else if (settingValue in sizes && sizes[settingValue].visible) {
+                    button.classList.add('active');
+                }
+            } else {
+                // Radio behavior: highlight based on current settings
+                if(settingValue === currentTableSettings[0] || 
+                   settingValue === currentTableSettings[1] || 
+                   settingValue === currentTableSettings[2]){
+                    button.classList.add('active');
+                }
+            }
+        }
+    });
+    
+    // Also update the refresh button state
+    var refreshButton = document.querySelector('.refresh-btn');
+    if (refreshButton && !isLoading) {
+        refreshButton.disabled = false;
+        refreshButton.innerHTML = '🔄 Refresh';
+        refreshButton.setAttribute('title', 'Fetch from API (slower but always current)');
+    }
+    
+    // Also update the quick fetch button state
+    var quickFetchButton = document.querySelector('.quick-fetch-btn');
+    if (quickFetchButton && !isLoading) {
+        quickFetchButton.disabled = false;
+        quickFetchButton.innerHTML = '🐰 Quick Fetch';
+        quickFetchButton.setAttribute('title', 'Fetch from GitHub cache (fast)');
+    }
+    
+    // Update stop/resume button state (should remain enabled)
+    var stopResumeButton = document.querySelector('.stop-resume-btn');
+    if (stopResumeButton) {
+        stopResumeButton.disabled = false;
+        stopResumeButton.style.opacity = '1';
+        stopResumeButton.style.cursor = 'pointer';
+    }
+    
+    // Also update the time travel button state
+    var timeTravelButton = document.querySelector('.time-travel-btn');
+    if (timeTravelButton) {
+        if(isTimeTravelEnabled) {
+            timeTravelButton.innerHTML = '⏰ Time Travel';
+            timeTravelButton.classList.add('active');
+            timeTravelButton.setAttribute('title', 'Time travel mode enabled. Click to disable.');
+        } else {
+            timeTravelButton.innerHTML = '⏰ Time Travel';
+            timeTravelButton.classList.remove('active');
+            timeTravelButton.setAttribute('title', 'Time travel mode disabled. Click to enable.');
+        }
+    }
+    
+    // Also update the multiple tables button state
+    var multipleTablesButton = document.querySelector('.multiple-tables-btn');
+    if (multipleTablesButton) {
+        if(isMultipleTablesEnabled) {
+            multipleTablesButton.innerHTML = '📊 Multiple Tables';
+            multipleTablesButton.classList.add('active');
+            multipleTablesButton.setAttribute('title', 'Multiple tables mode enabled. Click to disable.');
+        } else {
+            multipleTablesButton.innerHTML = '📊 Multiple Tables';
+            multipleTablesButton.classList.remove('active');
+            multipleTablesButton.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
+        }
+    }
+    
+    // Double-check that we have the right number of active buttons (should be 3: count, speed, size)
+    var activeButtons = document.querySelectorAll('.table-option-btn.active');
+}
+
 function generateSingleTable(){
     try {
         // Clear existing content
         removeLeaderboards();
         
         // Only generate table if we have data
-        if(Object.keys(worldRecords).length > 0) {
+        if(Object.keys(worldRecords).length > 0 || (bestRuns && Object.keys(bestRuns).length > 0)) {
+            // Ensure worldRecords is populated for summary table
+            if(Object.keys(worldRecords).length === 0 && bestRuns && Object.keys(bestRuns).length > 0) {
+                // Populate worldRecords from bestRuns for summary table
+                worldRecords = {};
+                for (const count in bestRuns) {
+                    for (const speed in bestRuns[count]) {
+                        for (const size in bestRuns[count][speed]) {
+                            for (const gamemode in bestRuns[count][speed][size]) {
+                                for (const runMode in bestRuns[count][speed][size][gamemode]) {
+                                    const key = `${count}|${speed}|${size}|${gamemode}|${runMode}`;
+                                    const data = bestRuns[count][speed][size][gamemode][runMode];
+                                    if (data && data.success && data.runs && data.runs.length > 0) {
+                                        worldRecords[key] = data.runs;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
             if(isMultipleTablesEnabled) {
                 generateMultipleTables();
             } else {
                 generateLeaderboard(currentTableSettings);
                 // Also generate the ranglist (summary table)
+                console.log('=== BEFORE CALCULATE RANGLIST ===');
+                console.log('worldRecords keys:', Object.keys(worldRecords));
+                console.log('worldRecords sample:', Object.keys(worldRecords).slice(0, 3).map(key => ({key, runs: worldRecords[key].length})));
                 calculateRanglist();
                 generateRanglist();
             }
@@ -853,6 +1014,7 @@ function generateTableSelector(){
     sidebarSettingsBtn.setAttribute('class', 'sidebar-settings-btn');
     sidebarSettingsBtn.innerHTML = '⚙️';
     sidebarSettingsBtn.setAttribute('title', 'Settings');
+    sidebarSettingsBtn.style.marginLeft = '8px'; // Add spacing between info and settings buttons
     sidebarHeader.appendChild(sidebarSettingsBtn);
     
     sidebar.appendChild(sidebarHeader);
@@ -912,24 +1074,31 @@ function generateTableSelector(){
                 if (isMultipleTablesEnabled) {
                     // When Multiple Tables is enabled, immediately regenerate tables and load from cache
                     generateMultipleTables();
-                    // Load data from cache for the newly visible tables
+                    // Load data from cache for the newly visible tables using Quick Fetch
                     if (!isLoading) {
                         setLoadingState(true);
                         try {
-                            if (isTimeTravelEnabled && selectedTimeTravelDate) {
-                                await getAllWorldRecordsForDate(selectedTimeTravelDate);
-                            } else {
-                                await getAllWorldRecordsForCurrentSettings();
-                            }
+                            await quickFetchWorldRecords();
                         } catch (error) {
-                            console.error('Error loading from cache:', error);
+                            console.error('Error in Quick Fetch:', error);
                         } finally {
                             setLoadingState(false);
                         }
                     }
                 } else {
-                    // Trigger refresh when Multiple Tables is disabled (radio button behavior)
-                    refreshWorldRecordsForSettings();
+                    // Trigger Quick Fetch when Multiple Tables is disabled (radio button behavior)
+                    if (!isLoading) {
+                        setLoadingState(true);
+                        try {
+                            await quickFetchWorldRecords();
+                            // Regenerate single table with new settings
+                            generateSingleTable();
+                        } catch (error) {
+                            console.error('Error in Quick Fetch:', error);
+                        } finally {
+                            setLoadingState(false);
+                        }
+                    }
                 }
             };
         }(appleAmount);
@@ -982,24 +1151,31 @@ function generateTableSelector(){
                 if (isMultipleTablesEnabled) {
                     // When Multiple Tables is enabled, immediately regenerate tables and load from cache
                     generateMultipleTables();
-                    // Load data from cache for the newly visible tables
+                    // Load data from cache for the newly visible tables using Quick Fetch
                     if (!isLoading) {
                         setLoadingState(true);
                         try {
-                            if (isTimeTravelEnabled && selectedTimeTravelDate) {
-                                await getAllWorldRecordsForDate(selectedTimeTravelDate);
-                            } else {
-                                await getAllWorldRecordsForCurrentSettings();
-                            }
+                            await quickFetchWorldRecords();
                         } catch (error) {
-                            console.error('Error loading from cache:', error);
+                            console.error('Error in Quick Fetch:', error);
                         } finally {
                             setLoadingState(false);
                         }
                     }
                 } else {
-                    // Trigger refresh when Multiple Tables is disabled (radio button behavior)
-                    refreshWorldRecordsForSettings();
+                    // Trigger Quick Fetch when Multiple Tables is disabled (radio button behavior)
+                    if (!isLoading) {
+                        setLoadingState(true);
+                        try {
+                            await quickFetchWorldRecords();
+                            // Regenerate single table with new settings
+                            generateSingleTable();
+                        } catch (error) {
+                            console.error('Error in Quick Fetch:', error);
+                        } finally {
+                            setLoadingState(false);
+                        }
+                    }
                 }
             };
         }(speed);
@@ -1052,24 +1228,31 @@ function generateTableSelector(){
                 if (isMultipleTablesEnabled) {
                     // When Multiple Tables is enabled, immediately regenerate tables and load from cache
                     generateMultipleTables();
-                    // Load data from cache for the newly visible tables
+                    // Load data from cache for the newly visible tables using Quick Fetch
                     if (!isLoading) {
                         setLoadingState(true);
                         try {
-                            if (isTimeTravelEnabled && selectedTimeTravelDate) {
-                                await getAllWorldRecordsForDate(selectedTimeTravelDate);
-                            } else {
-                                await getAllWorldRecordsForCurrentSettings();
-                            }
+                            await quickFetchWorldRecords();
                         } catch (error) {
-                            console.error('Error loading from cache:', error);
+                            console.error('Error in Quick Fetch:', error);
                         } finally {
                             setLoadingState(false);
                         }
                     }
                 } else {
-                    // Trigger refresh when Multiple Tables is disabled (radio button behavior)
-                    refreshWorldRecordsForSettings();
+                    // Trigger Quick Fetch when Multiple Tables is disabled (radio button behavior)
+                    if (!isLoading) {
+                        setLoadingState(true);
+                        try {
+                            await quickFetchWorldRecords();
+                            // Regenerate single table with new settings
+                            generateSingleTable();
+                        } catch (error) {
+                            console.error('Error in Quick Fetch:', error);
+                        } finally {
+                            setLoadingState(false);
+                        }
+                    }
                 }
             };
         }(size);
@@ -1129,50 +1312,7 @@ function generateTableSelector(){
     optionsSelector.appendChild(optionsButtonGroup);
     sidebar.appendChild(optionsSelector);
     
-    // Add data section (Refresh button and stop button)
-    var dataSelector = document.createElement('div');
-    dataSelector.innerHTML = '<label>Data</label>';
-    
-    // Create a container for the data content
-    var dataContentContainer = document.createElement('div');
-    dataContentContainer.setAttribute('class', 'data-content-container');
-    
-    // Create refresh button in data section
-    var refreshButton = document.createElement('button');
-    refreshButton.setAttribute('class', 'table-option-btn refresh-btn');
-    refreshButton.innerHTML = '🔄 Refresh';
-    refreshButton.onclick = async function() {
-        if (isLoading) return; // Prevent clicks while loading
-        refreshButton.disabled = true;
-        refreshButton.innerHTML = '⏳ Loading...';
-        await new Promise(resolve => setTimeout(resolve, 300)); // 300ms delay for better UX
-        await refreshWorldRecordsForSettings();
-    };
-    dataContentContainer.appendChild(refreshButton);
-    
-    // Create cache info display (hidden from user)
-    var cacheInfo = document.createElement('div');
-    cacheInfo.setAttribute('class', 'cache-info');
-    cacheInfo.style.display = 'none'; // Hidden from user
-    cacheInfo.innerHTML = `
-        Last Updated: <span id="cacheTimestamp">Never</span>
-        Records: <span id="cacheSize">0</span>
-    `;
-    dataContentContainer.appendChild(cacheInfo);
-    
-    // Create stop/resume button (outside but inline)
-    var stopResumeButton = document.createElement('button');
-    stopResumeButton.setAttribute('class', 'stop-resume-btn');
-    stopResumeButton.setAttribute('id', 'stopResumeBtn');
-    stopResumeButton.innerHTML = '⏸️ Stop';
-    stopResumeButton.setAttribute('title', 'Stop API calls');
-    stopResumeButton.style.display = 'none'; // Hidden by default
-    stopResumeButton.onclick = toggleApiPause;
-    
-    // Add stop button to the content container
-    dataContentContainer.appendChild(stopResumeButton);
-    dataSelector.appendChild(dataContentContainer);
-    sidebar.appendChild(dataSelector);
+    // Data section removed - no longer needed since only scripts handle API calls
     
     // Add sidebar to page
     var existingSidebar = document.querySelector('.table-selector');
@@ -1182,103 +1322,13 @@ function generateTableSelector(){
     document.body.insertBefore(sidebar, document.querySelector('.container'));
 }
 
-function updateTableSelector(){
-    // Get the latest settings from localStorage to ensure we're using the most current values
-    try {
-        var savedSettings = JSON.parse(localStorage.getItem('tableSettings'));
-        if(savedSettings && Array.isArray(savedSettings) && savedSettings.length === 3) {
-            currentTableSettings = savedSettings;
-        }
-    } catch(e) {
-    }
-    
-    // Update active states of buttons
-    var buttons = document.querySelectorAll('.table-option-btn');
-    
-    // First, remove all active classes
-    buttons.forEach(function(button){
-        button.classList.remove('active');
-    });
-    
-    // Then add active class to matching buttons
-    buttons.forEach(function(button, index){
-        // Skip refresh button
-        if(button.classList.contains('refresh-btn')) {
-            return;
-        }
-        
-        // Check if this button corresponds to current settings using data-setting attribute
-        var settingValue = button.getAttribute('data-setting');
-        if(settingValue) {
-            if (isMultipleTablesEnabled) {
-                // Toggle behavior: highlight based on visible state
-                if (settingValue in appleAmounts && appleAmounts[settingValue].visible) {
-                    button.classList.add('active');
-                } else if (settingValue in speeds && speeds[settingValue].visible) {
-                    button.classList.add('active');
-                } else if (settingValue in sizes && sizes[settingValue].visible) {
-                    button.classList.add('active');
-                }
-            } else {
-                // Radio behavior: highlight based on current settings
-                if(settingValue === currentTableSettings[0] || 
-                   settingValue === currentTableSettings[1] || 
-                   settingValue === currentTableSettings[2]){
-                    button.classList.add('active');
-                }
-            }
-        }
-    });
-    
-    // Also update the refresh button state
-    var refreshButton = document.querySelector('.refresh-btn');
-    if (refreshButton && !isLoading) {
-        refreshButton.disabled = false;
-        refreshButton.innerHTML = '🔄 Refresh';
-        refreshButton.setAttribute('title', 'Refresh world records for current settings');
-    }
-    
-    // Update stop/resume button state (should remain enabled)
-    var stopResumeButton = document.querySelector('.stop-resume-btn');
-    if (stopResumeButton) {
-        stopResumeButton.disabled = false;
-        stopResumeButton.style.opacity = '1';
-        stopResumeButton.style.cursor = 'pointer';
-    }
-    
-    // Also update the time travel button state
-    var timeTravelButton = document.querySelector('.time-travel-btn');
-    if (timeTravelButton) {
-        if(isTimeTravelEnabled) {
-            timeTravelButton.innerHTML = '⏰ Time Travel';
-            timeTravelButton.classList.add('active');
-            timeTravelButton.setAttribute('title', 'Time travel mode enabled. Click to disable.');
-        } else {
-            timeTravelButton.innerHTML = '⏰ Time Travel';
-            timeTravelButton.classList.remove('active');
-            timeTravelButton.setAttribute('title', 'Time travel mode disabled. Click to enable.');
-        }
-    }
-    
-    // Also update the multiple tables button state
-    var multipleTablesButton = document.querySelector('.multiple-tables-btn');
-    if (multipleTablesButton) {
-        if(isMultipleTablesEnabled) {
-            multipleTablesButton.innerHTML = '📊 Multiple Tables';
-            multipleTablesButton.classList.add('active');
-            multipleTablesButton.setAttribute('title', 'Multiple tables mode enabled. Click to disable.');
-        } else {
-            multipleTablesButton.innerHTML = '📊 Multiple Tables';
-            multipleTablesButton.classList.remove('active');
-            multipleTablesButton.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
-        }
-    }
-    
-    // Double-check that we have the right number of active buttons (should be 3: count, speed, size)
-    var activeButtons = document.querySelectorAll('.table-option-btn.active');
-}
-
 function generateRanglist(){
+    // Remove any existing summary table first
+    var existingRanglist = document.querySelector('.ranglist-wrapper');
+    if (existingRanglist) {
+        existingRanglist.remove();
+    }
+    
     var table = document.createElement('table');
     table.setAttribute('class', 'ranglist mode'+mode);
     var thead = document.createElement('thead');
@@ -1311,41 +1361,40 @@ function generateRanglist(){
     var tbody = document.createElement('tbody');
     var values = []
 
-    for(id in ranglist){
-        if(values.indexOf(ranglist[id][0]) == -1){
-            values.push(ranglist[id][0]);
+    // Get unique count values for sorting
+    for(var j = 0; j < ranglist.length; j++){
+        console.log('Processing ranglist item', j, ':', ranglist[j]);
+        if(values.indexOf(ranglist[j][0]) == -1){
+            values.push(ranglist[j][0]);
         }
     }
+    console.log('Unique values:', values);
     values = values.sort(function(a, b){return b-a});
     
     for(value of values){
-        for(id in ranglist){
-            if(ranglist[id][0] == value){
-
-                //delete anonymous
-                if(ranglist[id][1].rel != "user"){
-                    continue;
-                }
-                
+        console.log('Processing value:', value);
+        for(var j = 0; j < ranglist.length; j++){
+            if(ranglist[j][0] == value){
+                // All users in the data have proper names, no need to filter anonymous users
                 row = document.createElement('tr');
                 row.setAttribute('class','ranglistRow result');
 
                 // Player name column
                 var td = document.createElement('td');
                 td.setAttribute('class', 'ranglist-player-cell');
-                td.appendChild(createNameElement(ranglist[id][1]))
+                td.appendChild(createNameElement(ranglist[j][1]))
                 row.appendChild(td);
 
                 // Count column
                 td = document.createElement('td');
                 td.setAttribute('class','ranglist-count-cell percentage result');
-                td.appendChild(document.createTextNode(ranglist[id][0]));
+                td.appendChild(document.createTextNode(ranglist[j][0]));
                 row.appendChild(td);
 
                 // Percentage column
                 td = document.createElement('td');
                 td.setAttribute('class','ranglist-percentage-cell percentage result');
-                td.appendChild(document.createTextNode(ranglist[id][2]+"%"));
+                td.appendChild(document.createTextNode(ranglist[j][2]+"%"));
                 row.appendChild(td);
                 if(i >= maxRanglistLength){
                     row.setAttribute('style','display:none');
@@ -1355,6 +1404,8 @@ function generateRanglist(){
             }
         }
     }
+    
+
     table.appendChild(tbody);
     
     // Add the "more runners" button as a table row if needed
@@ -1367,7 +1418,7 @@ function generateRanglist(){
         var button = document.createElement('button');
         button.setAttribute('id','morebutton');
         button.setAttribute('class', 'more-runners-btn');
-        button.appendChild(document.createTextNode("Click here to see all runners"));
+        button.appendChild(document.createTextNode("👥 Show all runners"));
         button.addEventListener('click', () => {
             for(row of document.getElementsByClassName('ranglistRow')){
                 row.setAttribute('style','');
@@ -1386,8 +1437,6 @@ function generateRanglist(){
     ranglistWrapper.style.gridArea = 'ranglist'; // Ensure grid area is set
     ranglistWrapper.appendChild(table);
     
-    // Bunny icon moved to header - no longer needed here
-    
     document.getElementsByClassName("container")[0].appendChild(ranglistWrapper);
 }
 
@@ -1403,7 +1452,28 @@ function generateMultipleTables(){
     removeLeaderboards();
     
     // Only generate tables if we have data
-    if(Object.keys(worldRecords).length > 0) {
+    if(Object.keys(worldRecords).length > 0 || (bestRuns && Object.keys(bestRuns).length > 0)) {
+        // Ensure worldRecords is populated for summary table
+        if(Object.keys(worldRecords).length === 0 && bestRuns && Object.keys(bestRuns).length > 0) {
+            // Populate worldRecords from bestRuns for summary table
+            worldRecords = {};
+            for (const count in bestRuns) {
+                for (const speed in bestRuns[count]) {
+                    for (const size in bestRuns[count][speed]) {
+                        for (const gamemode in bestRuns[count][speed][size]) {
+                            for (const runMode in bestRuns[count][speed][size][gamemode]) {
+                                const key = `${count}|${speed}|${size}|${gamemode}|${runMode}`;
+                                const data = bestRuns[count][speed][size][gamemode][runMode];
+                                if (data && data.success && data.runs && data.runs.length > 0) {
+                                    worldRecords[key] = data.runs;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
         // Get all selected combinations from the settings popup
         var selectedCombinations = [];
         

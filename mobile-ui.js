@@ -73,14 +73,8 @@ async function mobileToggleTimeTravel() {
     
     // Only refresh data on desktop (not mobile)
     if (window.innerWidth > 1023) {
-        // Refresh data based on current state
-        if (isTimeTravelEnabled && selectedTimeTravelDate) {
-            // If time travel is enabled with a date, use date-specific cache
-            await getAllWorldRecordsForDate(selectedTimeTravelDate);
-        } else {
-            // If time travel is disabled or no date selected, use current date cache
-            await refreshWorldRecordsForSettings();
-        }
+        // Use Quick Fetch instead of direct API calls
+        await quickFetchWorldRecords();
     }
     
     // Update date picker state
@@ -143,18 +137,18 @@ function triggerMobileInitialRecordsLoad() {
             if (typeof startWorldRecordsDownload === 'function') {
                 console.log('Calling startWorldRecordsDownload...');
                 startWorldRecordsDownload();
-            } else if (typeof refreshWorldRecordsForSettings === 'function') {
-                console.log('Calling refreshWorldRecordsForSettings...');
-                refreshWorldRecordsForSettings();
+            } else if (typeof quickFetchWorldRecords === 'function') {
+                console.log('Calling quickFetchWorldRecords...');
+                quickFetchWorldRecords();
             } else {
                 console.error('No records loading function available');
             }
         } else {
             console.log('World records already available, no need for initial load');
             // Even if records exist, refresh to ensure mobile display is updated
-            if (typeof refreshWorldRecordsForSettings === 'function') {
+            if (typeof quickFetchWorldRecords === 'function') {
                 console.log('Refreshing existing records for mobile display...');
-                refreshWorldRecordsForSettings();
+                quickFetchWorldRecords();
             }
         }
     }, 200);
@@ -350,11 +344,7 @@ function showBasicMobileRecordsSection() {
             
             <!-- Mobile Records Controls -->
             <div class="mobile-records-controls">
-                <button class="mobile-option-btn" id="mobileRefreshBtn">🔄 Refresh</button>
                 <button class="mobile-option-btn" id="mobileInfoBtn">ℹ️ Info</button>
-                <button class="mobile-option-btn" id="mobileStopResumeBtn" style="display: none;">
-                    ⏸️ Stop
-                </button>
             </div>
         </div>
         
@@ -395,92 +385,7 @@ function showBasicMobileRecordsSection() {
 
 // Setup mobile records event listeners
 function setupMobileRecordsEventListeners() {
-    // Refresh button
-    const refreshBtn = document.getElementById('mobileRefreshBtn');
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', async function() {
-            // Prevent multiple clicks while loading
-            if (isLoading) {
-                console.log('Already loading, ignoring refresh click');
-                return;
-            }
-            
-            try {
-                // Update button to show loading state
-                this.textContent = '⏳ Loading...';
-                this.disabled = true;
-                this.setAttribute('title', 'Please wait while world records are being fetched...');
-                
-                // Add delay for better UX
-                await new Promise(resolve => setTimeout(resolve, 300));
-                
-                // Call the refresh function and wait for it to complete
-                await refreshWorldRecordsForSettings();
-                
-                            // Wait a bit for the desktop table to be generated
-            setTimeout(() => {
-                // Load the mobile table data after refresh is complete
-                loadMobileTableData();
-                
-                // Also refresh the summary table if we're on the summary tab
-                if (mobileState.currentSection === 'summary') {
-                    setTimeout(() => {
-                        loadMobileSummaryData();
-                    }, 200);
-                }
-            }, 100);
-                
-            } catch (error) {
-                console.error('Error refreshing mobile table:', error);
-                // Show error message in mobile container
-                const mobileTableContent = document.getElementById('mobileTableContent');
-                if (mobileTableContent) {
-                    if (isApiOverloaded) {
-                        mobileTableContent.innerHTML = `
-                            <div class="mobile-loading">
-                                <p>⚠️ Speedrun.com API is overloaded. Please try again later.</p>
-                            </div>
-                        `;
-                    } else {
-                        mobileTableContent.innerHTML = `
-                            <div class="mobile-loading">
-                                <p>❌ Error refreshing world records. Please try again.</p>
-                            </div>
-                        `;
-                    }
-                }
-            } finally {
-                // Restore button state
-                if (isApiOverloaded) {
-                    this.textContent = '⚠️ SRC API overloaded';
-                    this.disabled = false;
-                    this.setAttribute('title', 'Speedrun.com API is overloaded. Click to retry.');
-                } else {
-                    this.textContent = '🔄 Refresh';
-                    this.disabled = false;
-                    this.setAttribute('title', 'Refresh world records for current settings');
-                }
-            }
-        });
-    }
-
-
-
-    // Stop/resume button
-    const stopResumeBtn = document.getElementById('mobileStopResumeBtn');
-    if (stopResumeBtn) {
-        stopResumeBtn.addEventListener('click', function() {
-            toggleApiPause();
-            // Update button text
-            if (isApiPaused) {
-                this.textContent = '▶️ Resume';
-                this.setAttribute('title', 'Resume API calls');
-            } else {
-                this.textContent = '⏸️ Stop';
-                this.setAttribute('title', 'Stop API calls');
-            }
-        });
-    }
+    // Quick Fetch, Refresh, and Stop buttons removed - no longer needed
 }
 
 // Load mobile table data
@@ -929,11 +834,9 @@ function setupMobileSettingsEventListeners() {
             
             // Refresh data with the new date if time travel is enabled
             if (isTimeTravelEnabled && selectedTimeTravelDate) {
-                // Use date-specific cache for time travel
-                if (typeof getAllWorldRecordsForDate === 'function') {
-                    getAllWorldRecordsForDate(selectedTimeTravelDate);
-                } else if (typeof refreshWorldRecordsForSettings === 'function') {
-                    refreshWorldRecordsForSettings();
+                // Use Quick Fetch instead of direct API calls
+                if (typeof quickFetchWorldRecords === 'function') {
+                    quickFetchWorldRecords();
                 }
             }
         });
@@ -1009,22 +912,39 @@ function setupMobileOptionsListeners() {
             multipleTablesToggle.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
         }
         
-        multipleTablesToggle.addEventListener('click', function() {
-            // Toggle the state
-            isMultipleTablesEnabled = !isMultipleTablesEnabled;
-            saveSettings();
-            
-            // Update button state
-            if (isMultipleTablesEnabled) {
-                this.classList.add('active');
-                this.setAttribute('title', 'Multiple tables mode enabled. Click to disable.');
+        multipleTablesToggle.addEventListener('click', async function() {
+            // Use the main toggle function to ensure consistency
+            if (typeof toggleMultipleTables === 'function') {
+                await toggleMultipleTables();
             } else {
-                this.classList.remove('active');
-                this.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
+                // Fallback if main function is not available
+                isMultipleTablesEnabled = !isMultipleTablesEnabled;
+                saveSettings();
+                
+                // Update button state
+                if (isMultipleTablesEnabled) {
+                    this.classList.add('active');
+                    this.setAttribute('title', 'Multiple tables mode enabled. Click to disable.');
+                } else {
+                    this.classList.remove('active');
+                    this.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
+                }
+                
+                // Update button states to reflect new radio/toggle behavior
+                updateMobileButtonStates();
+                
+                // Trigger Quick Fetch to load data with new settings
+                if (!isLoading) {
+                    setLoadingState(true);
+                    try {
+                        await quickFetchWorldRecords();
+                    } catch (error) {
+                        console.error('Error in Quick Fetch after mobile multiple tables toggle:', error);
+                    } finally {
+                        setLoadingState(false);
+                    }
+                }
             }
-            
-            // Update button states to reflect new radio/toggle behavior
-            updateMobileButtonStates();
         });
     }
 }
@@ -1080,6 +1000,18 @@ function setupMobileCheckboxListeners() {
             saveSettings();
             // Update button states immediately
             updateMobileButtonStates();
+            
+            // Trigger Quick Fetch to load data with new settings
+            if (!isLoading) {
+                setLoadingState(true);
+                try {
+                    quickFetchWorldRecords();
+                } catch (error) {
+                    console.error('Error in Quick Fetch after mobile settings change:', error);
+                } finally {
+                    setLoadingState(false);
+                }
+            }
         });
     });
 }
@@ -1258,8 +1190,6 @@ function loadMobileSummaryData() {
     }
 
     console.log('loadMobileSummaryData: Starting summary load');
-    console.log('worldRecords available:', typeof worldRecords !== 'undefined' && Object.keys(worldRecords).length > 0);
-    console.log('ranglist available:', typeof ranglist !== 'undefined' && ranglist.length > 0);
 
     // Check if we have world records data first
     if (typeof worldRecords !== 'undefined' && Object.keys(worldRecords).length > 0) {
@@ -1273,20 +1203,13 @@ function loadMobileSummaryData() {
         
         // Call the same functions desktop uses for summary table
         if (typeof calculateRanglist === 'function' && typeof generateRanglist === 'function') {
-            console.log('Calling calculateRanglist...');
             calculateRanglist();
             
-            console.log('Ranglist calculated:', ranglist);
-            console.log('Ranglist keys:', Object.keys(ranglist));
-            console.log('Ranglist entries count:', Object.keys(ranglist).length);
-            
             if (Object.keys(ranglist).length > 0) {
-                console.log('Generating ranglist table...');
                 generateRanglist();
                 
                 // Find the generated ranglist element
                 const ranglistElement = document.querySelector('.ranglist-wrapper');
-                console.log('Found ranglist element:', ranglistElement);
                 
                 if (ranglistElement) {
                     // Clone the content and move it to mobile
@@ -1312,7 +1235,7 @@ function loadMobileSummaryData() {
                     // Remove the original from desktop (since we cloned it)
                     ranglistElement.remove();
                     
-                    console.log('Summary table loaded successfully');
+
                 } else {
                     console.log('ERROR: Could not find .ranglist-wrapper after generation');
                     mobileSummaryContent.innerHTML = `
