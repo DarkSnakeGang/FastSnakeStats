@@ -1384,37 +1384,13 @@ function startWorldRecordsDownload() {
             setLoadingState(false);
         }
         
-        // Set up a completion check - check more frequently since we're using cache
-        var checkCompletion = setInterval(() => {
-            // Check if any records are loaded (from cache or API)
-            if(Object.keys(worldRecords).length > 0) {
-                clearTimeout(loadingTimeout);
-                clearTimeout(apiTimeout);
-                clearInterval(checkCompletion);
-                
-                // Re-enable category settings after completion
-                setLoadingState(false);
-                
-                // Update the UI with the loaded data
-                calculateBestRuns();
-                calculateRanglist();
-                generateRanglist();
-                updateTableSelector();
-                
-                // Regenerate table with data
-                if (isMultipleTablesEnabled) {
-                    generateMultipleTables();
-                } else {
-                    generateSingleTable();
-                }
-            }
-        }, 50); // Check every 50ms for faster response
+        // No completion check interval - data should be available immediately from cache
+        // The UI is already generated and data will be populated when quickFetchWorldRecords completes
         
         // Fallback: if no records after 5 seconds, show error (reduced from 15s since we're using cache)
         setTimeout(() => {
             // Check if any records are loaded (from cache or API)
             if(Object.keys(worldRecords).length === 0) {
-                clearInterval(checkCompletion);
                 if(container) {
                     container.innerHTML = '<p style="color: white; font-size: 18px;">No world records found. The API might be temporarily unavailable.</p>';
                 }
