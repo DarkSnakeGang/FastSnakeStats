@@ -1714,9 +1714,12 @@ body.dark-mode .quick-fetch-btn:disabled {
 	
 	/* Individual multiple table wrapper */
 	.multiple-table-wrapper {
+		grid-area: main !important;
 		width: 100% !important;
-		max-width: 800px !important;
-		margin-bottom: 20px !important;
+		display: flex !important;
+		justify-content: center !important; /* Center the records table */
+		align-items: flex-start !important;
+		margin: 0 0 0 140px !important; /* Move records table 45px to the right */
 	}
 }
 
