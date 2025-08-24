@@ -53,6 +53,75 @@ If installation fails:
 4. Temporarily disable antivirus software
 5. Check your internet connection
 
+## generate-available-dates.js
+
+A script that scans the local cache directory structure and generates the `available-dates.json` metadata file. This file is used by the calendar feature to show which dates have cached data available.
+
+### Features
+
+- **Automatic Directory Scanning**: Scans the `time-travel-cache/daily/` directory structure
+- **Date Extraction**: Finds all available dates from the cache files
+- **Metadata Generation**: Creates a structured JSON file with date information
+- **Error Handling**: Handles missing directories and invalid files gracefully
+- **Progress Reporting**: Shows detailed progress during scanning
+
+### Usage
+
+```bash
+node scripts/generate-available-dates.js
+```
+
+### What it does
+
+1. Scans the `time-travel-cache/daily/` directory structure
+2. Finds all year/month subdirectories
+3. Extracts dates from JSON filenames (YYYY-MM-DD.json format)
+4. Generates metadata with:
+   - Total number of available dates
+   - List of all available dates (sorted)
+   - Date range (earliest to latest)
+   - Last updated timestamp
+5. Saves the metadata to `time-travel-cache/metadata/available-dates.json`
+
+### Output
+
+The script will display:
+- Directory scanning progress
+- Number of dates found per year/month
+- Summary of total dates and date range
+- File save confirmation
+
+### Notes
+
+- Creates the metadata directory if it doesn't exist
+- Sorts dates chronologically
+- Handles empty cache directories gracefully
+- Generates valid JSON even with no dates found
+- Should be run after adding new cache files
+
+### GitHub Actions Integration
+
+The script is designed to work in both local development and GitHub Actions environments:
+
+- **Local Development**: Uses relative paths from the script location
+- **GitHub Actions**: Uses `GITHUB_WORKSPACE` environment variable for correct path resolution
+
+A GitHub Actions workflow (`.github/workflows/update-available-dates.yml`) is included that will:
+
+- **Automatically run** when cache files are added to the repository
+- **Run on schedule** daily at 2 AM UTC
+- **Run manually** via workflow dispatch
+- **Commit and push** updated metadata files automatically
+
+### Next Steps
+
+After running this script:
+1. Commit the updated metadata file to your repository
+2. Push to GitHub to update the GitHub Pages version
+3. The calendar feature will now show the correct available dates
+
+**Note**: If using GitHub Actions, the metadata will be updated automatically when cache files are added to the repository.
+
 ## monthly-backfill.js
 
 A script that runs the historical cache backfill for an entire month, automatically calculating the number of days in the specified month and year.

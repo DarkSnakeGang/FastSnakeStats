@@ -1,0 +1,65 @@
+name: Update Available Dates Metadata
+
+on:
+  # Run on push to main branch
+  push:
+    branches: [ main ]
+    paths:
+      - 'time-travel-cache/daily/**'
+      - 'scripts/generate-available-dates.js'
+  
+  # Run manually
+  workflow_dispatch:
+  
+  # Run on schedule (daily at 2 AM UTC)
+  schedule:
+    - cron: '0 2 * * *'
+
+jobs:
+  update-metadata:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for git operations
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Run available dates generation
+      run: |
+        echo "🔧 Environment: ${{ github.workspace }}"
+        echo "📁 Repository: ${{ github.repository }}"
+        echo "📁 Working directory: $(pwd)"
+        echo ""
+        node scripts/generate-available-dates.js
+    
+    - name: Check for changes
+      id: check-changes
+      run: |
+        if git diff --quiet time-travel-cache/metadata/available-dates.json; then
+          echo "No changes detected in metadata file"
+          echo "has-changes=false" >> $GITHUB_OUTPUT
+        else
+          echo "Changes detected in metadata file"
+          echo "has-changes=true" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Commit and push changes
+      if: steps.check-changes.outputs.has-changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add time-travel-cache/metadata/available-dates.json
+        git commit -m "Update available dates metadata [skip ci]"
+        git push
+    
+    - name: No changes message
+      if: steps.check-changes.outputs.has-changes == 'false'
+      run: |
+        echo "✅ No changes to commit - metadata is up to date"
