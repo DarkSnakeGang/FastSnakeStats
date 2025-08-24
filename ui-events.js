@@ -38,13 +38,19 @@ function updateTimeTravelButtonStatus(status) {
             //console.log('updateTimeTravelButtonStatus: Setting desktop button to missing');
             timeTravelBtn.innerHTML = '⏰ No Data';
             timeTravelBtn.classList.add('active', 'missing-data');
-            timeTravelBtn.setAttribute('title', `No data available for ${selectedTimeTravelDate}. Click to disable time travel.`);
+            timeTravelBtn.setAttribute('title', `No data available for ${selectedTimeTravelDate}. Click to enable time travel.`);
             //console.log('updateTimeTravelButtonStatus: Desktop button text after update:', timeTravelBtn.innerHTML);
         } else if(status === 'available') {
-            timeTravelBtn.innerHTML = '⏰ Time Travel';
-            timeTravelBtn.classList.add('active');
-            timeTravelBtn.classList.remove('missing-data');
-            timeTravelBtn.setAttribute('title', `Time travel mode enabled for ${selectedTimeTravelDate}. Click to disable.`);
+            if (isTimeTravelEnabled) {
+                timeTravelBtn.innerHTML = '⏰ Time Travel';
+                timeTravelBtn.classList.add('active');
+                timeTravelBtn.classList.remove('missing-data');
+                timeTravelBtn.setAttribute('title', `Time travel mode enabled for ${selectedTimeTravelDate}. Click to disable.`);
+            } else {
+                timeTravelBtn.innerHTML = '⏰ Time Travel';
+                timeTravelBtn.classList.remove('active', 'missing-data');
+                timeTravelBtn.setAttribute('title', `Data available for ${selectedTimeTravelDate}. Click to enable time travel.`);
+            }
         } else {
             timeTravelBtn.innerHTML = '⏰ Time Travel';
             timeTravelBtn.classList.remove('active', 'missing-data');
@@ -57,11 +63,16 @@ function updateTimeTravelButtonStatus(status) {
     if(mobileTimeTravelBtn) {
         if(status === 'missing') {
             mobileTimeTravelBtn.classList.add('active', 'missing-data');
-            mobileTimeTravelBtn.setAttribute('title', `No data available for ${selectedTimeTravelDate}. Click to disable time travel.`);
+            mobileTimeTravelBtn.setAttribute('title', `No data available for ${selectedTimeTravelDate}. Click to enable time travel.`);
         } else if(status === 'available') {
-            mobileTimeTravelBtn.classList.add('active');
-            mobileTimeTravelBtn.classList.remove('missing-data');
-            mobileTimeTravelBtn.setAttribute('title', `Time travel mode enabled for ${selectedTimeTravelDate}. Click to disable.`);
+            if (isTimeTravelEnabled) {
+                mobileTimeTravelBtn.classList.add('active');
+                mobileTimeTravelBtn.classList.remove('missing-data');
+                mobileTimeTravelBtn.setAttribute('title', `Time travel mode enabled for ${selectedTimeTravelDate}. Click to disable.`);
+            } else {
+                mobileTimeTravelBtn.classList.remove('active', 'missing-data');
+                mobileTimeTravelBtn.setAttribute('title', `Data available for ${selectedTimeTravelDate}. Click to enable time travel.`);
+            }
         } else {
             mobileTimeTravelBtn.classList.remove('active', 'missing-data');
             mobileTimeTravelBtn.setAttribute('title', 'Time travel mode disabled. Click to enable.');
@@ -77,9 +88,9 @@ async function toggleTimeTravel() {
     isTimeTravelEnabled = !isTimeTravelEnabled;
     saveSettings();
     
-    // Update button status
-    if (isTimeTravelEnabled && selectedTimeTravelDate) {
-        // Check data availability when enabling
+    // Update button status based on data availability, not just enabled state
+    if (selectedTimeTravelDate) {
+        // Check data availability regardless of enabled state
         const cacheData = await window.githubCacheFetcher.fetchWorldRecordsForDate(selectedTimeTravelDate);
         if (!cacheData || Object.keys(cacheData).length === 0) {
             updateTimeTravelButtonStatus('missing');
@@ -249,8 +260,25 @@ function setLoadingState(loading) {
     var timeTravelButton = document.querySelector('.time-travel-btn');
     if (timeTravelButton) {
         timeTravelButton.disabled = loading;
-        timeTravelButton.innerHTML = '⏰ Time Travel';
-        timeTravelButton.title = loading ? 'Loading...' : (isTimeTravelEnabled ? 'Time travel mode enabled. Click to disable.' : 'Time travel mode disabled. Click to enable.');
+        if (loading) {
+            timeTravelButton.title = 'Loading...';
+        } else {
+            // Restore the correct button state after loading
+            if (selectedTimeTravelDate) {
+                // Check data availability and update button accordingly
+                window.githubCacheFetcher.fetchWorldRecordsForDate(selectedTimeTravelDate).then(cacheData => {
+                    if (!cacheData || Object.keys(cacheData).length === 0) {
+                        updateTimeTravelButtonStatus('missing');
+                    } else {
+                        updateTimeTravelButtonStatus('available');
+                    }
+                }).catch(() => {
+                    updateTimeTravelButtonStatus('missing');
+                });
+            } else {
+                updateTimeTravelButtonStatus('disabled');
+            }
+        }
     }
     
     // Update multiple tables button

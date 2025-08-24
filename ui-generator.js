@@ -1336,6 +1336,19 @@ function generateTableSelector(){
     darkModeToggle.setAttribute('title', isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode');
     optionsButtonGroup.appendChild(darkModeToggle);
     
+    var multipleTablesButton = document.createElement('button');
+    multipleTablesButton.setAttribute('class', 'table-option-btn multiple-tables-btn');
+    if(isMultipleTablesEnabled) {
+        multipleTablesButton.innerHTML = '📊 Multiple Tables';
+        multipleTablesButton.classList.add('active');
+        multipleTablesButton.setAttribute('title', 'Multiple tables mode enabled. Click to disable.');
+    } else {
+        multipleTablesButton.innerHTML = '📊 Multiple Tables';
+        multipleTablesButton.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
+    }
+    multipleTablesButton.onclick = toggleMultipleTables;
+    optionsButtonGroup.appendChild(multipleTablesButton);
+    
     var timeTravelButton = document.createElement('button');
     timeTravelButton.setAttribute('class', 'table-option-btn time-travel-btn');
     if(isTimeTravelEnabled) {
@@ -1358,19 +1371,6 @@ function generateTableSelector(){
     }
     timeTravelButton.onclick = toggleTimeTravel;
     optionsButtonGroup.appendChild(timeTravelButton);
-    
-    var multipleTablesButton = document.createElement('button');
-    multipleTablesButton.setAttribute('class', 'table-option-btn multiple-tables-btn');
-    if(isMultipleTablesEnabled) {
-        multipleTablesButton.innerHTML = '📊 Multiple Tables';
-        multipleTablesButton.classList.add('active');
-        multipleTablesButton.setAttribute('title', 'Multiple tables mode enabled. Click to disable.');
-    } else {
-        multipleTablesButton.innerHTML = '📊 Multiple Tables';
-        multipleTablesButton.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
-    }
-    multipleTablesButton.onclick = toggleMultipleTables;
-    optionsButtonGroup.appendChild(multipleTablesButton);
     
     optionsSelector.appendChild(optionsButtonGroup);
     sidebar.appendChild(optionsSelector);
