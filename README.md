@@ -35,7 +35,6 @@ A comprehensive web application that displays Google Snake world records from Sp
 
 #### Prerequisites
 - Node.js 18+ 
-- Python 3.7+ (for local development server)
 
 #### Local Development
 ```bash
@@ -44,8 +43,7 @@ git clone https://github.com/darkSnakeGang/FastSnakeStats.git
 cd FastSnakeStats
 
 # Start local development server
-python -m http.server 8000
-# or use any local web server
+# Use any local web server of your choice
 ```
 
 #### Cache Management Scripts
@@ -61,64 +59,6 @@ node scripts/generate-available-dates.js
 
 # Install Node.js unattended on Windows
 scripts/install-nodejs.bat
-```
-
-## Project Structure
-
-```
-FastSnakeStats/
-├── .github/workflows/          # GitHub Actions automation
-│   ├── daily-cache.yml        # Daily cache collection workflow
-│   └── update-available-dates.yml # Metadata update workflow
-├── scripts/                   # Node.js automation scripts
-│   ├── historical-cache-backfill.js # Historical data backfill
-│   ├── monthly-backfill.js    # Monthly backfill automation
-│   ├── generate-available-dates.js # Metadata generation
-│   ├── install-nodejs.bat     # Windows Node.js installer
-│   └── README.md              # Scripts documentation
-├── time-travel-cache/         # GitHub-hosted cache data
-│   ├── daily/                 # Organized by year/month/day
-│   └── metadata/              # Cache indexes and statistics
-├── metadata/                  # Available dates and statistics
-├── index.html                 # Main HTML file
-├── main.js                    # Application entry point
-├── api-fetcher.js             # API integration and data fetching
-├── github-cache-fetcher.js    # GitHub cache integration
-├── cache-manager.js           # Local cache management
-├── WorldRecordFetcher.js      # Speedrun.com API client
-├── data-management.js         # Data structures and settings
-├── ui-generator.js            # UI generation and table creation
-├── ui-events.js               # Event handlers and interactions
-├── mobile-ui.js               # Mobile-specific UI components
-├── style.css                  # Desktop and general styles
-├── mobile.css                 # Mobile-specific styles
-├── package.json               # Project configuration
-├── CNAME                      # Custom domain configuration
-└── README.md                  # This file
-```
-
-## Technical Architecture
-
-### Frontend
-- **Vanilla JavaScript**: No frameworks, pure JS for maximum performance
-- **Responsive CSS**: Mobile-first design with CSS Grid and Flexbox
-- **Progressive Enhancement**: Works without JavaScript for basic functionality
-
-### Backend Integration
-- **GitHub Raw**: Data source for cached historical data
-- **Local Storage**: Client-side caching for immediate access
-
-### Caching Strategy
-1. **GitHub Actions**: Daily automated collection of yesterday's data
-2. **Local Scripts**: Manual backfill of historical data
-3. **Client Cache**: Browser-based caching for immediate access
-4. **Smart Updates**: Only update when data changes
-
-### Data Flow
-```
-GitHub Actions → GitHub Repository → FastSnakeStats → User
-     ↓
-Local Cache (Browser) ← GitHub Cache
 ```
 
 ## Key Components
