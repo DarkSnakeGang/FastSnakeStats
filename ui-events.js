@@ -27,19 +27,19 @@ function toggleDarkMode() {
 
 // Update time travel button status (available, missing, disabled)
 function updateTimeTravelButtonStatus(status) {
-    console.log('updateTimeTravelButtonStatus called with status:', status);
+    //console.log('updateTimeTravelButtonStatus called with status:', status);
     // Set global variable for missing data state
     window.timeTravelDataMissing = (status === 'missing');
     // Update desktop toggle button
     const timeTravelBtn = document.querySelector('.time-travel-btn');
-    console.log('updateTimeTravelButtonStatus: Found desktop button:', !!timeTravelBtn);
+    //console.log('updateTimeTravelButtonStatus: Found desktop button:', !!timeTravelBtn);
     if(timeTravelBtn) {
         if(status === 'missing') {
-            console.log('updateTimeTravelButtonStatus: Setting desktop button to missing');
+            //console.log('updateTimeTravelButtonStatus: Setting desktop button to missing');
             timeTravelBtn.innerHTML = '⏰ No Data';
             timeTravelBtn.classList.add('active', 'missing-data');
             timeTravelBtn.setAttribute('title', `No data available for ${selectedTimeTravelDate}. Click to disable time travel.`);
-            console.log('updateTimeTravelButtonStatus: Desktop button text after update:', timeTravelBtn.innerHTML);
+            //console.log('updateTimeTravelButtonStatus: Desktop button text after update:', timeTravelBtn.innerHTML);
         } else if(status === 'available') {
             timeTravelBtn.innerHTML = '⏰ Time Travel';
             timeTravelBtn.classList.add('active');

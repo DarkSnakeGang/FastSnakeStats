@@ -107,7 +107,7 @@ function setMobileLoadingState(loading) {
 
 // Trigger initial records loading for mobile (equivalent to desktop initializeUI behavior)
 function triggerMobileInitialRecordsLoad() {
-    console.log('Triggering mobile initial records load...');
+    //console.log('Triggering mobile initial records load...');
     
     // First, ensure the mobile table structure is created
     setTimeout(() => {
@@ -118,23 +118,23 @@ function triggerMobileInitialRecordsLoad() {
     setTimeout(() => {
         // Check if we need to load initial records
         if (typeof worldRecords === 'undefined' || Object.keys(worldRecords).length === 0) {
-            console.log('No world records found, triggering initial load...');
+            //console.log('No world records found, triggering initial load...');
             
             // Call the same function that desktop uses for initial loading
             if (typeof startWorldRecordsDownload === 'function') {
-                console.log('Calling startWorldRecordsDownload...');
+                //console.log('Calling startWorldRecordsDownload...');
                 startWorldRecordsDownload();
             } else if (typeof quickFetchWorldRecords === 'function') {
-                console.log('Calling quickFetchWorldRecords...');
+                //console.log('Calling quickFetchWorldRecords...');
                 quickFetchWorldRecords();
             } else {
                 console.error('No records loading function available');
             }
         } else {
-            console.log('World records already available, no need for initial load');
+            //console.log('World records already available, no need for initial load');
             // Even if records exist, refresh to ensure mobile display is updated
             if (typeof quickFetchWorldRecords === 'function') {
-                console.log('Refreshing existing records for mobile display...');
+                //console.log('Refreshing existing records for mobile display...');
                 quickFetchWorldRecords();
             }
         }
@@ -161,7 +161,7 @@ if (document.readyState === 'loading') {
 
 // Initialize simple mobile UI
 function initializeSimpleMobileUI() {
-    console.log('Initializing simple mobile UI...');
+    //console.log('Initializing simple mobile UI...');
     
     // Settings are already loaded by the desktop system (main.js)
     
@@ -171,7 +171,7 @@ function initializeSimpleMobileUI() {
     // Wait for desktop system to be ready, then show initial section
     waitForDesktopSystem();
     
-    console.log('Simple mobile UI initialized successfully');
+    //console.log('Simple mobile UI initialized successfully');
 }
 
 // Wait for desktop system to be ready
@@ -185,15 +185,7 @@ function waitForDesktopSystem() {
             typeof isMultipleTablesEnabled !== 'undefined' &&
             typeof loadSettings === 'function') {
             clearInterval(checkInterval);
-            console.log('Desktop system ready, showing mobile records...');
-            console.log('Available functions:', {
-                worldRecords: typeof worldRecords,
-                generateLeaderboard: typeof generateLeaderboard,
-                generateMultipleTables: typeof generateMultipleTables,
-                currentTableSettings: typeof currentTableSettings,
-                isMultipleTablesEnabled: typeof isMultipleTablesEnabled,
-                loadSettings: typeof loadSettings
-            });
+            //console.log('Desktop system ready, showing mobile records...');
             
             // Initialize mobile run and game modes
             initializeMobileRunAndGameModes();
@@ -213,15 +205,8 @@ function waitForDesktopSystem() {
     // Timeout after 10 seconds
     setTimeout(() => {
         clearInterval(checkInterval);
-        console.log('Desktop system not ready after timeout, showing loading state...');
-        console.log('Available functions:', {
-            worldRecords: typeof worldRecords,
-            generateLeaderboard: typeof generateLeaderboard,
-            generateMultipleTables: typeof generateMultipleTables,
-            currentTableSettings: typeof currentTableSettings,
-            isMultipleTablesEnabled: typeof isMultipleTablesEnabled,
-            loadSettings: typeof loadSettings
-        });
+        //console.log('Desktop system not ready after timeout, showing loading state...');
+        
         showBasicMobileRecordsSection();
     }, 10000);
 }
@@ -229,33 +214,33 @@ function waitForDesktopSystem() {
 // Setup mobile navigation
 function setupMobileNavigation() {
     const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
-    console.log('Setting up mobile navigation with', mobileNavItems.length, 'items');
+    //console.log('Setting up mobile navigation with', mobileNavItems.length, 'items');
     
     if (mobileNavItems.length === 0) {
         console.error('No mobile navigation items found!');
-        console.log('Available elements with mobile-nav-item class:', document.querySelectorAll('.mobile-nav-item'));
+        //console.log('Available elements with mobile-nav-item class:', document.querySelectorAll('.mobile-nav-item'));
         return;
     }
     
     mobileNavItems.forEach((item, index) => {
         const section = item.getAttribute('data-section');
-        console.log(`Setting up nav item ${index}:`, section);
+        //console.log(`Setting up nav item ${index}:`, section);
         
         item.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('Mobile nav clicked:', section);
+            //console.log('Mobile nav clicked:', section);
             switchBasicMobileSection(section);
         });
     });
 
-    console.log('Mobile navigation setup complete');
+    //console.log('Mobile navigation setup complete');
 }
 
 
 
 // Switch basic mobile section
 function switchBasicMobileSection(section) {
-    console.log('Switching to mobile section:', section);
+    //console.log('Switching to mobile section:', section);
     
     // Update navigation
     const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
@@ -282,7 +267,7 @@ function switchBasicMobileSection(section) {
                 if (mobileState.currentSection === 'records') {
                     loadMobileTableData();
                 } else {
-                    console.log('Navigation changed, skipping table load');
+                    //console.log('Navigation changed, skipping table load');
                 }
             }, 100);
             break;
@@ -294,18 +279,18 @@ function switchBasicMobileSection(section) {
                 if (mobileState.currentSection === 'summary') {
                     loadMobileSummaryData();
                 } else {
-                    console.log('Navigation changed, skipping summary load');
+                    //console.log('Navigation changed, skipping summary load');
                 }
             }, 200);
             break;
         default:
-            console.log('Unknown mobile section:', section);
+            //console.log('Unknown mobile section:', section);
     }
 }
 
 // Show basic mobile records section
 function showBasicMobileRecordsSection() {
-    console.log('Showing mobile records section');
+    //console.log('Showing mobile records section');
     const mobileTablesContainer = document.getElementById('mobileTablesContainer');
     if (!mobileTablesContainer) {
         console.error('Mobile tables container not found!');
@@ -316,7 +301,7 @@ function showBasicMobileRecordsSection() {
     const existingRecordsContent = mobileTablesContainer.querySelector('.mobile-card .mobile-card-title');
     if (existingRecordsContent && existingRecordsContent.textContent === 'World Records') {
         // If records content exists, update API progress and load table data
-        console.log('Records content already exists, updating API progress and loading table');
+        //console.log('Records content already exists, updating API progress and loading table');
         // updateMobileApiProgress(); // This function is removed
         loadMobileTableData();
         return;
@@ -382,18 +367,18 @@ function loadMobileTableData() {
 
     // Check if we're still on the records section before loading
     if (mobileState.currentSection !== 'records') {
-        console.log('loadMobileTableData: Skipping table load - not on records section (current:', mobileState.currentSection, ')');
+        //console.log('loadMobileTableData: Skipping table load - not on records section (current:', mobileState.currentSection, ')');
         return;
     }
 
-    console.log('loadMobileTableData: Starting table load');
-    console.log('worldRecords available:', typeof worldRecords !== 'undefined' && Object.keys(worldRecords).length > 0);
-    console.log('isMultipleTablesEnabled:', typeof isMultipleTablesEnabled !== 'undefined' ? isMultipleTablesEnabled : 'undefined');
+    //console.log('loadMobileTableData: Starting table load');
+    //console.log('worldRecords available:', typeof worldRecords !== 'undefined' && Object.keys(worldRecords).length > 0);
+    //console.log('isMultipleTablesEnabled:', typeof isMultipleTablesEnabled !== 'undefined' ? isMultipleTablesEnabled : 'undefined');
 
     // Check if we have world records data
     if (typeof worldRecords !== 'undefined' && Object.keys(worldRecords).length > 0) {
         if (typeof isMultipleTablesEnabled !== 'undefined' && isMultipleTablesEnabled) {
-            console.log('Loading multiple tables...');
+            //console.log('Loading multiple tables...');
             // For multiple tables, create a mobile-specific container
             const multipleTablesContainer = document.createElement('div');
             multipleTablesContainer.setAttribute('class', 'mobile-multiple-tables-container');
@@ -407,12 +392,12 @@ function loadMobileTableData() {
                 
                 // Call the same function desktop uses for multiple tables
                 if (typeof generateMultipleTables === 'function') {
-                    console.log('Calling generateMultipleTables...');
+                    //console.log('Calling generateMultipleTables...');
                     generateMultipleTables();
                     
                     // Find and move the content immediately
                     const multipleTablesElement = document.querySelector('.multiple-tables-container');
-                    console.log('Found multiple tables element:', multipleTablesElement);
+                    //console.log('Found multiple tables element:', multipleTablesElement);
                     
                     if (multipleTablesElement) {
                         // Clone the content and move it to mobile
@@ -424,9 +409,9 @@ function loadMobileTableData() {
                         
                         // Hide the desktop container again
                         desktopContainer.style.display = 'none';
-                        console.log('Multiple tables loaded successfully');
+                        //console.log('Multiple tables loaded successfully');
                     } else {
-                        console.log('ERROR: Could not find .multiple-tables-container');
+                        //console.log('ERROR: Could not find .multiple-tables-container');
                         mobileTableContent.innerHTML = `
                             <div class="mobile-loading">
                                 <p>Error: Could not load multiple tables</p>
@@ -436,7 +421,7 @@ function loadMobileTableData() {
                     }
                 }
             } else {
-                console.log('ERROR: Could not find .container');
+                //console.log('ERROR: Could not find .container');
                 mobileTableContent.innerHTML = `
                     <div class="mobile-loading">
                         <p>Error: Could not find desktop container</p>
@@ -444,7 +429,7 @@ function loadMobileTableData() {
                 `;
             }
         } else {
-            console.log('Loading single table...');
+            //console.log('Loading single table...');
             // For single table, create a mobile-specific wrapper
             const tableWrapper = document.createElement('div');
             tableWrapper.setAttribute('class', 'mobile-table-wrapper');
@@ -458,12 +443,12 @@ function loadMobileTableData() {
                 
                 // Call the same function desktop uses for single table
                 if (typeof generateLeaderboard === 'function' && typeof currentTableSettings !== 'undefined') {
-                    console.log('Calling generateLeaderboard with settings:', currentTableSettings);
+                    //console.log('Calling generateLeaderboard with settings:', currentTableSettings);
                     generateLeaderboard(currentTableSettings);
                     
                     // Find and move the content immediately
                     const mainTableElement = document.querySelector('.main-table-wrapper');
-                    console.log('Found main table element:', mainTableElement);
+                    //console.log('Found main table element:', mainTableElement);
                     
                     if (mainTableElement) {
                         // Clone the content and move it to mobile
@@ -472,9 +457,9 @@ function loadMobileTableData() {
                         
                         // Hide the desktop container again
                         desktopContainer.style.display = 'none';
-                        console.log('Single table loaded successfully');
+                        //console.log('Single table loaded successfully');
                     } else {
-                        console.log('ERROR: Could not find .main-table-wrapper');
+                        //console.log('ERROR: Could not find .main-table-wrapper');
                         mobileTableContent.innerHTML = `
                             <div class="mobile-loading">
                                 <p>Error: Could not load table</p>
@@ -484,7 +469,7 @@ function loadMobileTableData() {
                     }
                 }
             } else {
-                console.log('ERROR: Could not find .container');
+                //console.log('ERROR: Could not find .container');
                 mobileTableContent.innerHTML = `
                     <div class="mobile-loading">
                         <p>Error: Could not find desktop container</p>
@@ -496,7 +481,7 @@ function loadMobileTableData() {
         // Update API progress after loading
         // updateMobileApiProgress(); // This function is removed
     } else {
-        console.log('No world records data available, showing loading message');
+        //console.log('No world records data available, showing loading message');
         // Show loading message
         mobileTableContent.innerHTML = `
             <div class="mobile-loading">
@@ -507,7 +492,7 @@ function loadMobileTableData() {
     
     // Function to add individual refresh buttons to mobile multiple tables
     function addMobileIndividualRefreshButtons() {
-        console.log('Adding individual refresh buttons to mobile multiple tables...');
+        //console.log('Adding individual refresh buttons to mobile multiple tables...');
         
         // Find all table wrappers in mobile multiple tables container
         const mobileTableWrappers = document.querySelectorAll('.mobile-multiple-tables-container .table-wrapper');
@@ -516,33 +501,33 @@ function loadMobileTableData() {
             // Get the settings from the data-settings attribute
             const settingsAttr = tableWrapper.getAttribute('data-settings');
             if (!settingsAttr) {
-                console.log('No data-settings found for table wrapper');
+                //console.log('No data-settings found for table wrapper');
                 return;
             }
             
             const settings = settingsAttr.split('|');
             if (settings.length < 3) {
-                console.log('Invalid settings format:', settingsAttr);
+                //console.log('Invalid settings format:', settingsAttr);
                 return;
             }
             
             // Find the table header cell (first th in thead)
             const table = tableWrapper.querySelector('table');
             if (!table) {
-                console.log('No table found in wrapper');
+                //console.log('No table found in wrapper');
                 return;
             }
             
             const thead = table.querySelector('thead');
             if (!thead) {
-                console.log('No thead found in table');
+                //console.log('No thead found in table');
                 return;
             }
             
             // Find the second row (the one with the refresh button)
             const headerRows = thead.querySelectorAll('tr');
             if (headerRows.length < 2) {
-                console.log('Not enough header rows found');
+                //console.log('Not enough header rows found');
                 return;
             }
             
@@ -550,14 +535,14 @@ function loadMobileTableData() {
             const firstHeaderCell = secondRow.querySelector('th');
             
             if (!firstHeaderCell) {
-                console.log('No first header cell found');
+                //console.log('No first header cell found');
                 return;
             }
             
             // Check if refresh button already exists
             const existingButton = firstHeaderCell.querySelector('.individual-refresh-btn');
             if (existingButton) {
-                console.log('Refresh button already exists for this table');
+                //console.log('Refresh button already exists for this table');
                 return;
             }
             
@@ -572,7 +557,7 @@ function loadMobileTableData() {
                     refreshButton.disabled = true;
                     refreshButton.innerHTML = '⏳';
                     await new Promise(resolve => setTimeout(resolve, 300)); // 300ms delay for better UX
-                    console.log('Mobile individual refresh clicked for settings:', settings);
+                    //console.log('Mobile individual refresh clicked for settings:', settings);
                     await refreshSpecificTable(settings);
                     
                     // Refresh the mobile display after the data is updated
@@ -584,7 +569,7 @@ function loadMobileTableData() {
             
             // Add button to the first header cell
             firstHeaderCell.appendChild(refreshButton);
-            console.log('Added mobile individual refresh button for settings:', settings);
+            //console.log('Added mobile individual refresh button for settings:', settings);
         });
     }
 }
@@ -649,7 +634,7 @@ function showBasicMobileSettingsSection() {
     setupMobileSettingsEventListeners();
     
     // Ensure settings are synchronized with desktop system
-    console.log('Mobile settings section loaded - settings synchronized with desktop');
+    //console.log('Mobile settings section loaded - settings synchronized with desktop');
     
     // Update time travel button state to ensure it reflects current settings
     updateMobileTimeTravelButtonState();
@@ -1019,14 +1004,14 @@ function setupMobileCheckboxListeners() {
 function saveMobileSettings() {
     // Settings are already saved via checkbox listeners
     // This function can be used for additional mobile-specific settings
-    console.log('Mobile settings saved');
+    //console.log('Mobile settings saved');
 }
 
 // Refresh mobile table after settings change
 function refreshMobileTableAfterSettingsChange() {
     // Only refresh if we're currently on the records tab
     if (mobileState.currentSection === 'records') {
-        console.log('Refreshing mobile table after settings change');
+        //console.log('Refreshing mobile table after settings change');
         // Reload the table data with new settings
         showBasicMobileRecordsSection();
     }
@@ -1184,15 +1169,15 @@ function loadMobileSummaryData() {
 
     // Check if we're still on the summary section before loading
     if (mobileState.currentSection !== 'summary') {
-        console.log('loadMobileSummaryData: Skipping summary load - not on summary section (current:', mobileState.currentSection, ')');
+        //console.log('loadMobileSummaryData: Skipping summary load - not on summary section (current:', mobileState.currentSection, ')');
         return;
     }
 
-    console.log('loadMobileSummaryData: Starting summary load');
+    //console.log('loadMobileSummaryData: Starting summary load');
 
     // Check if we have world records data first
     if (typeof worldRecords !== 'undefined' && Object.keys(worldRecords).length > 0) {
-        console.log('World records data available, generating summary table...');
+        //console.log('World records data available, generating summary table...');
         
         // Create a mobile-specific wrapper for the summary table
         const summaryWrapper = document.createElement('div');
@@ -1218,9 +1203,9 @@ function loadMobileSummaryData() {
                     // Fix the "more runners" button in the cloned content
                     const moreButton = clonedContent.querySelector('#morebutton');
                     if (moreButton) {
-                        console.log('Found more button, adding mobile event listener');
+                        //console.log('Found more button, adding mobile event listener');
                         moreButton.addEventListener('click', () => {
-                            console.log('More button clicked, showing all runners');
+                            //console.log('More button clicked, showing all runners');
                             // Show all hidden rows in this specific table
                             const hiddenRows = clonedContent.querySelectorAll('.ranglistRow[style*="display:none"]');
                             hiddenRows.forEach(row => {
@@ -1236,7 +1221,7 @@ function loadMobileSummaryData() {
                     
 
                 } else {
-                    console.log('ERROR: Could not find .ranglist-wrapper after generation');
+                    //console.log('ERROR: Could not find .ranglist-wrapper after generation');
                     mobileSummaryContent.innerHTML = `
                         <div class="mobile-loading">
                             <p>Error: Could not generate summary table</p>
@@ -1244,7 +1229,7 @@ function loadMobileSummaryData() {
                     `;
                 }
             } else {
-                console.log('No ranglist data after calculation');
+                //console.log('No ranglist data after calculation');
                 mobileSummaryContent.innerHTML = `
                     <div class="mobile-loading">
                         <p>No summary data available for current settings.</p>
@@ -1253,7 +1238,7 @@ function loadMobileSummaryData() {
                 `;
             }
         } else {
-            console.log('ERROR: calculateRanglist or generateRanglist functions not found');
+            //console.log('ERROR: calculateRanglist or generateRanglist functions not found');
             mobileSummaryContent.innerHTML = `
                 <div class="mobile-loading">
                     <p>Error: Summary functions not available</p>
@@ -1261,7 +1246,7 @@ function loadMobileSummaryData() {
             `;
         }
     } else {
-        console.log('No world records data available, showing message to load records first');
+        //console.log('No world records data available, showing message to load records first');
         // Show message to load records first
         mobileSummaryContent.innerHTML = `
             <div class="mobile-loading">
@@ -1365,7 +1350,7 @@ function initializeMobileLoadingState() {
         });
     };
     
-    console.log('Mobile loading state function initialized');
+    //console.log('Mobile loading state function initialized');
 }
 
 // Setup mobile info modal

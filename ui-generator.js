@@ -181,14 +181,14 @@ function calculateBestRuns(callback){
 }
 
 function calculateRanglist(){
-    console.log('currentTableSettings:', currentTableSettings);
+    //console.log('currentTableSettings:', currentTableSettings);
     
     ranglist = [];
     
     // Count world records per player
     for(var key in worldRecords){
         var runs = worldRecords[key];
-        console.log('Processing key:', key, 'with', runs.length, 'runs');
+        //console.log('Processing key:', key, 'with', runs.length, 'runs');
         var settings = key.split("|");
         
         // Handle time travel keys that include date (6 parts) vs normal keys (5 parts)
@@ -215,11 +215,11 @@ function calculateRanglist(){
         
         // When multiple tables is disabled, only count the currently selected category
         if(!isMultipleTablesEnabled) {
-            console.log('Single table mode - checking if matches current settings');
+            //console.log('Single table mode - checking if matches current settings');
             if(appleAmount === currentTableSettings[0] && 
                speed === currentTableSettings[1] && 
                size === currentTableSettings[2]) {
-                console.log('Matches current settings, processing runs');
+                //console.log('Matches current settings, processing runs');
                 // Count each run for each player
                 for(var i = 0; i < runs.length; i++) {
                     var run = runs[i];
@@ -232,17 +232,17 @@ function calculateRanglist(){
                     }
                 }
             } else {
-                console.log('Does not match current settings, skipping');
+                //console.log('Does not match current settings, skipping');
             }
         } else {
-            console.log('Multiple tables mode - checking visibility');
+            //console.log('Multiple tables mode - checking visibility');
             // When multiple tables is enabled, count all visible categories
             if(appleAmounts[appleAmount].visible && 
                speeds[speed].visible && 
                sizes[size].visible && 
                gamemodes[gamemode].visible && 
                runModes[runMode].visible){
-                console.log('All categories visible, processing runs');
+                //console.log('All categories visible, processing runs');
                 // Count each run for each player
                 for(var i = 0; i < runs.length; i++) {
                     var run = runs[i];
@@ -255,7 +255,7 @@ function calculateRanglist(){
                     }
                 }
             } else {
-                console.log('Some categories not visible, skipping');
+                //console.log('Some categories not visible, skipping');
             }
         }
     }
@@ -562,26 +562,26 @@ function generateTableContent(table, settings, specificGamemode = null) {
 function generateLeaderboard(settings, specificGamemode = null){
     // Safety check: ensure game metadata is loaded
     if (typeof speeds === 'undefined' || typeof gamemodes === 'undefined' || typeof runModes === 'undefined' || typeof appleAmounts === 'undefined') {
-        console.log('Game metadata not yet loaded, skipping table generation');
+        //console.log('Game metadata not yet loaded, skipping table generation');
         return document.createElement('div'); // Return empty div instead of table
     }
     
     // Additional safety check: ensure the specific settings exist
-    console.log('generateLeaderboard called with settings:', settings);
-    console.log('Available speeds:', speeds);
-    console.log('Available appleAmounts:', appleAmounts);
-    console.log('Available sizes:', sizes);
+    //console.log('generateLeaderboard called with settings:', settings);
+    //console.log('Available speeds:', speeds);
+    //console.log('Available appleAmounts:', appleAmounts);
+    //console.log('Available sizes:', sizes);
     
     if (!speeds || !speeds[settings[1]] || typeof speeds[settings[1]] !== 'object') {
-        console.log('Speeds metadata not available for setting:', settings[1], 'Available speeds:', speeds);
+        //console.log('Speeds metadata not available for setting:', settings[1], 'Available speeds:', speeds);
         return document.createElement('div');
     }
     if (!appleAmounts || !appleAmounts[settings[0]] || typeof appleAmounts[settings[0]] !== 'object') {
-        console.log('Apple amounts metadata not available for setting:', settings[0], 'Available amounts:', appleAmounts);
+        //console.log('Apple amounts metadata not available for setting:', settings[0], 'Available amounts:', appleAmounts);
         return document.createElement('div');
     }
     if (!sizes || !sizes[settings[2]] || typeof sizes[settings[2]] !== 'object') {
-        console.log('Sizes metadata not available for setting:', settings[2], 'Available sizes:', sizes);
+        //console.log('Sizes metadata not available for setting:', settings[2], 'Available sizes:', sizes);
         return document.createElement('div');
     }
     
@@ -1018,9 +1018,9 @@ function generateSingleTable(){
             } else {
                 generateLeaderboard(currentTableSettings);
                 // Also generate the ranglist (summary table)
-                console.log('=== BEFORE CALCULATE RANGLIST ===');
-                console.log('worldRecords keys:', Object.keys(worldRecords));
-                console.log('worldRecords sample:', Object.keys(worldRecords).slice(0, 3).map(key => ({key, runs: worldRecords[key].length})));
+                //console.log('=== BEFORE CALCULATE RANGLIST ===');
+                //console.log('worldRecords keys:', Object.keys(worldRecords));
+                //console.log('worldRecords sample:', Object.keys(worldRecords).slice(0, 3).map(key => ({key, runs: worldRecords[key].length})));
                 calculateRanglist();
                 generateRanglist();
             }
@@ -1426,16 +1426,16 @@ function generateRanglist(){
 
     // Get unique count values for sorting
     for(var j = 0; j < ranglist.length; j++){
-        console.log('Processing ranglist item', j, ':', ranglist[j]);
+        //console.log('Processing ranglist item', j, ':', ranglist[j]);
         if(values.indexOf(ranglist[j][0]) == -1){
             values.push(ranglist[j][0]);
         }
     }
-    console.log('Unique values:', values);
+    //console.log('Unique values:', values);
     values = values.sort(function(a, b){return b-a});
     
     for(value of values){
-        console.log('Processing value:', value);
+        //console.log('Processing value:', value);
         for(var j = 0; j < ranglist.length; j++){
             if(ranglist[j][0] == value){
                 // All users in the data have proper names, no need to filter anonymous users
