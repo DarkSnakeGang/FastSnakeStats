@@ -349,10 +349,7 @@ async function quickFetchWorldRecords() {
             // Update button highlighting
             updateTableSelector();
             
-            // Clear the loading timeout since data loaded successfully
-            if (typeof loadingTimeout !== 'undefined') {
-                clearTimeout(loadingTimeout);
-            }
+            // Data loaded successfully
             
         } else {
             console.log('Quick Fetch: GitHub cache not available');
@@ -1308,14 +1305,7 @@ function startWorldRecordsDownload() {
         return;
     }
 
-    // Add timeout to prevent infinite loading
-    var loadingTimeout = setTimeout(function() {
-        if(container) {
-            container.innerHTML = '<p style="color: white; font-size: 18px;">API connection issues. Please check your internet connection and try again.</p>';
-        }
-        // Re-enable category settings on timeout
-        setLoadingState(false);
-    }, 10000); // 10 second timeout (reduced from 30s since we're using cache)
+    // No timeout needed - let the page load naturally
 
     // Add a shorter timeout for API failures
     var apiTimeout = setTimeout(function() {
