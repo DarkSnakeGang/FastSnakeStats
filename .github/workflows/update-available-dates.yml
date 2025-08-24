@@ -18,18 +18,15 @@ on:
 jobs:
   update-metadata:
     runs-on: ubuntu-latest
-    
+        
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Fetch full history for git operations
-    
+      
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
-        cache: 'npm'
+        node-version: '18'
     
     - name: Run available dates generation
       run: |
