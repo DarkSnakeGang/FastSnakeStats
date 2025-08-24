@@ -1719,7 +1719,7 @@ body.dark-mode .quick-fetch-btn:disabled {
 		display: flex !important;
 		justify-content: center !important; /* Center the records table */
 		align-items: flex-start !important;
-		margin: 0 0 0 150px !important; /* Move records table 45px to the right */
+		margin: 0 0 0 140px !important; /* Move records table 45px to the right */
 	}
 }
 
