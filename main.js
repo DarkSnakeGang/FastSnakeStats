@@ -52,13 +52,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Update table selector to reflect loaded settings
-    setTimeout(() => {
-        if (typeof updateTableSelector === 'function') {
-            updateTableSelector();
-        } else {
-            console.error('updateTableSelector function not found');
-        }
-    }, 100);
+    if (typeof updateTableSelector === 'function') {
+        updateTableSelector();
+    } else {
+        console.error('updateTableSelector function not found');
+    }
 });
 
 // Wait for DOM to be fully loaded
@@ -88,9 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Scroll to the right on desktop load
-        setTimeout(() => {
-            window.scrollTo(document.body.scrollWidth, 0);
-        }, 100);
+        window.scrollTo(document.body.scrollWidth, 0);
         
         // Test API connectivity first
         if (typeof testAPIConnectivity === 'function') {

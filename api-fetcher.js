@@ -221,10 +221,8 @@ async function refreshWorldRecordsForSettings() {
             isApiOverloaded = false;
         }
         
-        // Update button highlighting with a small delay to ensure DOM is ready
-        setTimeout(() => {
-            updateTableSelector();
-        }, 50);
+        // Update button highlighting
+        updateTableSelector();
         
     } catch (error) {
         console.error('Error in refreshWorldRecordsForSettings:', error);
@@ -340,33 +338,16 @@ async function quickFetchWorldRecords() {
             
             console.log('Quick Fetch: Converted GitHub cache to bestRuns format');
             
-            // Ensure game metadata is loaded before generating tables
-            if (typeof speeds !== 'undefined' && typeof gamemodes !== 'undefined' && typeof runModes !== 'undefined' && typeof appleAmounts !== 'undefined' && typeof sizes !== 'undefined') {
-                // Generate tables with the cached data
-                if (isMultipleTablesEnabled) {
-                    generateMultipleTables();
-                } else {
-                    generateSingleTable();
-                }
-                
-                // Update button highlighting
-                setTimeout(() => {
-                    updateTableSelector();
-                }, 50);
+            // Metadata is hardcoded in data-management.js, so it should always be available
+            // Generate tables with the cached data
+            if (isMultipleTablesEnabled) {
+                generateMultipleTables();
             } else {
-                console.log('Quick Fetch: Game metadata not yet loaded, waiting...');
-                // Wait for metadata to load and then generate tables
-                setTimeout(() => {
-                    if (isMultipleTablesEnabled) {
-                        generateMultipleTables();
-                    } else {
-                        generateSingleTable();
-                    }
-                    setTimeout(() => {
-                        updateTableSelector();
-                    }, 50);
-                }, 1000);
+                generateSingleTable();
             }
+            
+            // Update button highlighting
+            updateTableSelector();
             
         } else {
             console.log('Quick Fetch: GitHub cache not available');
@@ -898,8 +879,7 @@ async function getAllWorldRecordsForCurrentSettings() {
             updateAllCacheInfo();
         }
             
-            // Small delay to show progress
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // No delay needed - process immediately
         }
     } else {
         // Single table mode - only process current table settings
@@ -1330,7 +1310,7 @@ function startWorldRecordsDownload() {
         }
         // Re-enable category settings on timeout
         setLoadingState(false);
-    }, 30000); // 30 second timeout
+    }, 10000); // 10 second timeout (reduced from 30s since we're using cache)
 
     // Add a shorter timeout for API failures
     var apiTimeout = setTimeout(function() {
@@ -1354,7 +1334,7 @@ function startWorldRecordsDownload() {
         }
         // Re-enable category settings on API timeout
         setLoadingState(false);
-    }, 10000); // 10 second timeout for API
+    }, 5000); // 5 second timeout for API (reduced from 10s since we're using cache)
 
     getGameDetails(
     () => {
@@ -1363,8 +1343,22 @@ function startWorldRecordsDownload() {
         // Clear any existing world records to ensure fresh data
         worldRecords = {};
         
-        // Generate table selector first so the API progress element exists
+        // Generate table selector and UI immediately (don't wait for data)
         generateTableSelector();
+        generateSingleTable();
+        
+        // Set up switch button immediately
+        var switchButton = document.getElementById("switchButton");
+        if(switchButton) {
+            switchButton.addEventListener('click', () => {
+                if(mode == 0){
+                    switchMode(1);
+                }
+                else{
+                    switchMode(0);
+                }
+            });
+        }
         
         // Show stop button immediately for initial load
         var stopResumeButton = document.querySelector('.stop-resume-btn');
@@ -1374,32 +1368,23 @@ function startWorldRecordsDownload() {
             stopResumeButton.setAttribute('title', 'Stop API calls');
         }
         
-                         // Update API progress display to show initial state
+        // Update API progress display to show initial state
         updateApiProgress();
         
-            // Wait for metadata to be loaded before triggering Quick Fetch
-    const waitForMetadata = () => {
-        if (typeof speeds !== 'undefined' && typeof gamemodes !== 'undefined' && typeof runModes !== 'undefined' && typeof appleAmounts !== 'undefined' && typeof sizes !== 'undefined') {
-            console.log('Metadata loaded, triggering Quick Fetch');
-            // Immediately trigger Quick Fetch on initial load (GitHub cache with API fallback)
-            try {
-                quickFetchWorldRecords();
-            } catch (error) {
-                console.error('Error calling quickFetchWorldRecords:', error);
-                if(container) {
-                    container.innerHTML = '<p style="color: white; font-size: 18px;">Error during initial load. Please try refreshing the page.</p>';
-                }
-                setLoadingState(false);
+        // Metadata is hardcoded in data-management.js, so it should be available immediately
+        console.log('Game details loaded, triggering Quick Fetch');
+        // Immediately trigger Quick Fetch on initial load (GitHub cache with API fallback)
+        try {
+            quickFetchWorldRecords();
+        } catch (error) {
+            console.error('Error calling quickFetchWorldRecords:', error);
+            if(container) {
+                container.innerHTML = '<p style="color: white; font-size: 18px;">Error during initial load. Please try refreshing the page.</p>';
             }
-        } else {
-            console.log('Metadata not yet loaded, waiting...');
-            setTimeout(waitForMetadata, 100);
+            setLoadingState(false);
         }
-    };
         
-        waitForMetadata();
-        
-        // Set up a completion check
+        // Set up a completion check - check more frequently since we're using cache
         var checkCompletion = setInterval(() => {
             // Check if any records are loaded (from cache or API)
             if(Object.keys(worldRecords).length > 0) {
@@ -1410,27 +1395,22 @@ function startWorldRecordsDownload() {
                 // Re-enable category settings after completion
                 setLoadingState(false);
                 
+                // Update the UI with the loaded data
                 calculateBestRuns();
                 calculateRanglist();
                 generateRanglist();
                 updateTableSelector();
-                generateSingleTable();
                 
-                var switchButton = document.getElementById("switchButton");
-                if(switchButton) {
-                    switchButton.addEventListener('click', () => {
-                        if(mode == 0){
-                            switchMode(1);
-                        }
-                        else{
-                            switchMode(0);
-                        }
-                    });
+                // Regenerate table with data
+                if (isMultipleTablesEnabled) {
+                    generateMultipleTables();
+                } else {
+                    generateSingleTable();
                 }
             }
-        }, 1000); // Check every second
+        }, 50); // Check every 50ms for faster response
         
-        // Fallback: if no records after 15 seconds, show error
+        // Fallback: if no records after 5 seconds, show error (reduced from 15s since we're using cache)
         setTimeout(() => {
             // Check if any records are loaded (from cache or API)
             if(Object.keys(worldRecords).length === 0) {
@@ -1441,6 +1421,6 @@ function startWorldRecordsDownload() {
                 // Re-enable category settings on fallback timeout
                 setLoadingState(false);
             }
-        }, 15000);
+        }, 5000);
     });
 }
