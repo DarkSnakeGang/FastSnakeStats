@@ -254,10 +254,6 @@ Local Cache (Browser) ← Quick Fetch ← GitHub Cache ← Fallback
 - **Advanced Caching**: More sophisticated cache strategies
 - **API Optimization**: Further reduce API calls
 
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## 🙏 Acknowledgments
 
 - **Speedrun.com**: For providing the API and data
