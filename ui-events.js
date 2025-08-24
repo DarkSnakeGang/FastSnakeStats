@@ -88,15 +88,18 @@ async function toggleTimeTravel() {
     isTimeTravelEnabled = !isTimeTravelEnabled;
     saveSettings();
     
-    // Update button status based on data availability, not just enabled state
-    if (selectedTimeTravelDate) {
-        // Check data availability regardless of enabled state
+    // Update button status based on data availability, but only if time travel is enabled
+    if (isTimeTravelEnabled && selectedTimeTravelDate) {
+        // Check data availability only when time travel is enabled
         const cacheData = await window.githubCacheFetcher.fetchWorldRecordsForDate(selectedTimeTravelDate);
         if (!cacheData || Object.keys(cacheData).length === 0) {
             updateTimeTravelButtonStatus('missing');
         } else {
             updateTimeTravelButtonStatus('available');
         }
+    } else if (selectedTimeTravelDate) {
+        // When time travel is disabled but date is selected, show as available without checking
+        updateTimeTravelButtonStatus('available');
     } else {
         updateTimeTravelButtonStatus('disabled');
     }
@@ -264,8 +267,8 @@ function setLoadingState(loading) {
             timeTravelButton.title = 'Loading...';
         } else {
             // Restore the correct button state after loading
-            if (selectedTimeTravelDate) {
-                // Check data availability and update button accordingly
+            if (isTimeTravelEnabled && selectedTimeTravelDate) {
+                // Check data availability only when time travel is enabled
                 window.githubCacheFetcher.fetchWorldRecordsForDate(selectedTimeTravelDate).then(cacheData => {
                     if (!cacheData || Object.keys(cacheData).length === 0) {
                         updateTimeTravelButtonStatus('missing');
@@ -275,6 +278,9 @@ function setLoadingState(loading) {
                 }).catch(() => {
                     updateTimeTravelButtonStatus('missing');
                 });
+            } else if (selectedTimeTravelDate) {
+                // When time travel is disabled but date is selected, show as available without checking
+                updateTimeTravelButtonStatus('available');
             } else {
                 updateTimeTravelButtonStatus('disabled');
             }

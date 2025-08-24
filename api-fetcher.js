@@ -87,37 +87,13 @@ function makeAPIrequest(requestURL, callback){
 }
 
 function getGameDetails(callback){
-    var amount = 3 * gameIDs.length;
-    var i = 0
-    var ifDone = function(){
-        i+=1;
-        if(i == amount){
-            callback();
-        }
-    }
+    // DISABLED: API calls for game metadata
+    // The game settings are hardcoded in data-management.js, so we don't need to fetch them
+    console.log('getGameDetails: Skipping API calls for game metadata (disabled)');
     
-    // Test the API first to see what's working
-    
-    for(gameID of gameIDs){
-        // Try the new API structure
-        makeAPIrequest("https://www.speedrun.com/api/v1/games/"+gameID+"/variables", (x) => {
-            if(x.data) {
-                variables.push.apply(variables, x.data);
-            }
-            ifDone();
-        });
-        makeAPIrequest("https://www.speedrun.com/api/v1/games/"+gameID+"/categories?embed=game", (x) => {
-            if(x.data) {
-                categories.push.apply(categories, x.data);
-            }
-            ifDone();
-        });
-        makeAPIrequest("https://www.speedrun.com/api/v1/games/"+gameID+"/levels", (x) => {
-            if(x.data) {
-                levels.push.apply(levels, x.data);
-            }
-            ifDone();
-        });
+    // Immediately call the callback since we're not making any API requests
+    if (callback) {
+        callback();
     }
 }
 

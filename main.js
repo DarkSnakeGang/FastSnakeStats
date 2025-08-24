@@ -7,6 +7,8 @@ loadSettings();
 // Initialize WorldRecordFetcher
 if (typeof WorldRecordFetcher !== 'undefined') {
     window.worldRecordFetcher = new WorldRecordFetcher();
+}
+/*
     console.log('WorldRecordFetcher initialized successfully');
     
     // Initialize game metadata immediately
@@ -17,7 +19,7 @@ if (typeof WorldRecordFetcher !== 'undefined') {
     });
 } else {
     console.error('WorldRecordFetcher not found');
-}
+}*/
 
 // Initialize GitHub Cache Fetcher
 if (typeof GitHubCacheFetcher !== 'undefined') {

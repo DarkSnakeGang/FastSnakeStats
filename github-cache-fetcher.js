@@ -173,10 +173,8 @@ class GitHubCacheFetcher {
         try {
             const response = await fetch(this.metadataURL);
             if (response.ok) {
-                console.log('GitHub cache is available');
                 return true;
             } else {
-                console.log('GitHub cache not available (404), repository not set up yet');
                 return false;
             }
         } catch (error) {
