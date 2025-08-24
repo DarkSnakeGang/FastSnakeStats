@@ -349,6 +349,11 @@ async function quickFetchWorldRecords() {
             // Update button highlighting
             updateTableSelector();
             
+            // Clear the loading timeout since data loaded successfully
+            if (typeof loadingTimeout !== 'undefined') {
+                clearTimeout(loadingTimeout);
+            }
+            
         } else {
             console.log('Quick Fetch: GitHub cache not available');
             // Update time travel button status if in time travel mode
