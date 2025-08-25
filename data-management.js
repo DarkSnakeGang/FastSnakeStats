@@ -17,7 +17,7 @@ var appleAmounts = {"1 Apple":{visible:true,icon:"https://i.ibb.co/rGZV12Ym/coun
                     "5 Apples":{visible:true,icon:"https://i.ibb.co/SSc8jww/count-02-png.png",id:"count_02"},
 		    "Dice":{visible:true,icon:"https://i.ibb.co/8DzSj9hV/count-03-png.png",id:"count_03"}};
 var speeds =       {"Normal":{visible:true,icon:"https://i.ibb.co/p6rmphY3/speed-00-png.png",id:"speed_00"},
-                    "Slow":{visible:true,icon:"https://i.ibb.co/hJz9cv8B/speed-02-png.png",id:"speed_01"},
+                    "Slow":{visible:false,icon:"https://i.ibb.co/hJz9cv8B/speed-02-png.png",id:"speed_01"},
                     "Fast":{visible:true,icon:"https://i.ibb.co/fzSffpZX/speed-01-png.png",id:"speed_02"}};
 var sizes =        {"Standard":{visible:true,icon:"https://i.ibb.co/wTygmfr/size-00-png.png",id:"size_00"},
                     "Small":{visible:true,icon:"https://i.ibb.co/JRC52RRx/size-01-png.png",id:"size_01"},
