@@ -596,7 +596,7 @@ function showBasicMobileSettingsSection() {
                          <div class="mobile-username-search-group">
                              <label class="mobile-form-label" for="mobileUsernameSearch">Search Player Peak Dates</label>
                              <div class="mobile-username-search-container">
-                                 <input type="text" id="mobileUsernameSearch" class="mobile-form-input" placeholder="Enter username...">
+                                 <input type="text" id="mobileUsernameSearch" class="mobile-form-input" placeholder="Enter username..." autocomplete="off">
                                  <button id="mobileSearchPlayerBtn" class="mobile-search-btn">🔍</button>
                              </div>
                          </div>

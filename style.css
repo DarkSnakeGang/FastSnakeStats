@@ -157,7 +157,7 @@ h2{
 	position: fixed;
 	left: 20px;
 	top: 20px;
-	background: rgba(0, 0, 0, 0.3);
+	background: #007bff;
 	color: white;
 	border: none;
 	border-radius: 50%;
@@ -171,7 +171,7 @@ h2{
 }
 
 .dark-mode-toggle:hover {
-	background: rgba(0, 0, 0, 0.5);
+	background: #0056b3;
 }
 
 /* Light mode toggle button (sun icon) */
@@ -462,7 +462,7 @@ body:not(.dark-mode) .container td {
 }
 
 .table-selector h3 {
-	color: var(--sidebar-text);
+	color: white;
 	margin: 0 0 20px 0;
 	font-size: 20px;
 	font-weight: 600;
@@ -471,7 +471,7 @@ body:not(.dark-mode) .container td {
 }
 
 .table-selector label {
-	color: var(--sidebar-text);
+	color: white;
 	font-weight: 600;
 	font-size: 14px;
 	margin-bottom: 8px;
@@ -519,8 +519,8 @@ body:not(.dark-mode) .container td {
 }
 
 .table-option-btn.active {
-	background: var(--button-active);
-	color: var(--button-active-text);
+	background: #007bff;
+	color: white;
 	border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
@@ -1014,7 +1014,7 @@ button:focus {outline:0;}
 }
 
 #infoModal .modal-content a:hover {
-  color: #333;
+  color: white;
   background: linear-gradient(135deg, var(--title-color), #D4C700);
   border-color: var(--title-color);
 }
@@ -1068,11 +1068,11 @@ button:focus {outline:0;}
 .modal-content input[type="date"],
 .modal-content input[type="input"] {
   width: 100%;
-  padding: 15px;
+  padding: 14px;
   border: 2px solid rgba(77, 193, 249, 0.2);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.8);
-  color: #333;
+  background: #007bff !important;
+  color: white !important;
   font-size: 15px;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
@@ -1083,9 +1083,8 @@ button:focus {outline:0;}
 .modal-content input[type="input"]:focus {
   outline: none;
   border-color: var(--button-bg);
-  background: rgba(255, 255, 255, 0.95);
+  background: #0056b3;
   box-shadow: 0 0 0 4px rgba(77, 193, 249, 0.15);
-  transform: translateY(-2px);
 }
 
 /* Inline search container styles */
@@ -1110,7 +1109,7 @@ button:focus {outline:0;}
   display: block;
   margin-bottom: 5px;
   font-weight: 500;
-  color: #333;
+  color: white;
 }
 
 /* Username search container */
@@ -1123,27 +1122,133 @@ button:focus {outline:0;}
 .username-search-container input[type="text"] {
   flex: 1;
   padding: 15px;
-  border: 2px solid rgba(77, 193, 249, 0.2);
+  border: 2px solid rgba(77, 193, 249, 0.2) !important;
+  border-color: rgba(77, 193, 249, 0.2) !important;
+  border-style: solid !important;
+  border-width: 2px !important;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.8);
-  color: #333;
+  background: #007bff !important;
+  color: white !important;
   font-size: 15px;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   box-sizing: border-box;
 }
 
+/* Force input styling with higher specificity */
+.username-search-group input[type="text"],
+.username-search-container input[type="text"],
+.modal-content .username-search-container input[type="text"],
+.modal-content input[type="text"],
+#usernameSearch {
+  background: #007bff !important;
+  color: white !important;
+  border: 2px solid rgba(77, 193, 249, 0.2) !important;
+  border-color: rgba(77, 193, 249, 0.2) !important;
+  border-style: solid !important;
+  border-width: 2px !important;
+}
+
+/* Additional targeting for all text inputs in modal */
+.modal-content input[type="text"] {
+  background: #007bff !important;
+  color: white !important;
+  border: 2px solid rgba(77, 193, 249, 0.2) !important;
+  border-color: rgba(77, 193, 249, 0.2) !important;
+  border-style: solid !important;
+  border-width: 2px !important;
+  -webkit-border-image: none !important;
+  border-image: none !important;
+}
+
+/* Ultimate override for search field border */
+input[type="text"]#usernameSearch,
+.username-search-container input[type="text"],
+.modal-content .username-search-container input[type="text"] {
+  border: 2px solid rgba(77, 193, 249, 0.2) !important;
+  border-color: rgba(77, 193, 249, 0.2) !important;
+  border-style: solid !important;
+  border-width: 2px !important;
+  -webkit-border-image: none !important;
+  border-image: none !important;
+  background: #007bff !important;
+  color: white !important;
+}
+
+/* Force text color for input values and placeholders */
+.username-search-group input[type="text"]::placeholder,
+.username-search-container input[type="text"]::placeholder,
+.modal-content input[type="text"]::placeholder,
+#usernameSearch::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Override any browser default styling for input text */
+.username-search-group input[type="text"]:not(:placeholder-shown),
+.username-search-container input[type="text"]:not(:placeholder-shown),
+.modal-content input[type="text"]:not(:placeholder-shown),
+#usernameSearch:not(:placeholder-shown) {
+  color: white !important;
+  background: #007bff !important;
+  border: 2px solid rgba(77, 193, 249, 0.2) !important;
+  border-color: rgba(77, 193, 249, 0.2) !important;
+  border-style: solid !important;
+  border-width: 2px !important;
+  -webkit-border-image: none !important;
+  border-image: none !important;
+}
+
+/* Override browser autofill styling */
+.username-search-group input[type="text"]:-webkit-autofill,
+.username-search-container input[type="text"]:-webkit-autofill,
+.modal-content input[type="text"]:-webkit-autofill,
+#usernameSearch:-webkit-autofill {
+  -webkit-text-fill-color: white !important;
+  -webkit-box-shadow: 0 0 0px 1000px #007bff inset !important;
+  background: #007bff !important;
+  color: white !important;
+  border: 2px solid rgba(77, 193, 249, 0.2) !important;
+  border-color: rgba(77, 193, 249, 0.2) !important;
+  border-style: solid !important;
+  border-width: 2px !important;
+  -webkit-border-image: none !important;
+  border-image: none !important;
+}
+
+/* Override autofill on focus */
+.username-search-group input[type="text"]:-webkit-autofill:focus,
+.username-search-container input[type="text"]:-webkit-autofill:focus,
+.modal-content input[type="text"]:-webkit-autofill:focus,
+#usernameSearch:-webkit-autofill:focus {
+  -webkit-text-fill-color: white !important;
+  -webkit-box-shadow: 0 0 0px 1000px #0056b3 inset !important;
+  background: #0056b3 !important;
+  color: white !important;
+  border: 2px solid rgba(77, 193, 249, 0.2) !important;
+  border-color: rgba(77, 193, 249, 0.2) !important;
+  border-style: solid !important;
+  border-width: 2px !important;
+  -webkit-border-image: none !important;
+  border-image: none !important;
+}
+
 .username-search-container input[type="text"]:focus {
   outline: none;
   border-color: var(--button-bg);
-  background: rgba(255, 255, 255, 0.95);
+  background: #0056b3 !important;
+  color: white !important;
   box-shadow: 0 0 0 4px rgba(77, 193, 249, 0.15);
-  transform: translateY(-2px);
+  border: 2px solid rgba(77, 193, 249, 0.2) !important;
+  border-color: rgba(77, 193, 249, 0.2) !important;
+  border-style: solid !important;
+  border-width: 2px !important;
+  -webkit-border-image: none !important;
+  border-image: none !important;
 }
 
 .search-btn {
-  background: linear-gradient(135deg, #E9DC00, #D4C700);
-  color: #333;
+  background: #007bff;
+  color: white;
   border: none;
   padding: 15px;
   border-radius: 12px;
@@ -1151,13 +1256,23 @@ button:focus {outline:0;}
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 6px 15px rgba(233, 220, 0, 0.3);
+  box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
   min-width: 50px;
 }
 
 .search-btn:hover {
-  background: linear-gradient(135deg, #FF6B6B, #FF5252);
-  transform: translateY(-2px);
+  background: #0056b3;
+}
+
+/* Dark mode styles for search button */
+body.dark-mode .search-btn {
+  background: linear-gradient(135deg, #4a5568, #2d3748);
+  color: #e0e0e0;
+  box-shadow: 0 6px 15px rgba(45, 55, 72, 0.3);
+}
+
+body.dark-mode .search-btn:hover {
+  background: linear-gradient(135deg, #5a6578, #3d4758);
 }
 
 /* Peak dates container */
@@ -1193,7 +1308,6 @@ button:focus {outline:0;}
 
 .peak-date-btn:hover {
   background: #0056b3;
-  transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
 }
 
@@ -1214,7 +1328,7 @@ body.dark-mode .peak-date-btn:hover {
 /* Modal button styling */
 .modal-content .mybutton {
   background: linear-gradient(135deg, #E9DC00, #D4C700);
-  color: #333;
+  color: white;
   border: none;
   padding: 15px 30px;
   border-radius: 12px;
@@ -1510,8 +1624,8 @@ body.dark-mode .table-option-btn:hover {
 }
 
 body.dark-mode .table-option-btn.active {
-	background: var(--button-active);
-	color: var(--button-active-text);
+	background: #007bff;
+	color: white;
 	border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
