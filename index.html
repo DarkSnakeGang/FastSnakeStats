@@ -118,10 +118,30 @@
                   <div class="modal-content">
                         <p><strong>Settings</strong></p>
 
-                                <div class="settings-form-item">
-            <label for="date">Pick a date to travel back in time</label>
-            <input type="date" id="datepicker">
-        </div>
+                                      <div class="settings-form-item">
+                  <div class="inline-search-container">
+                      <div class="date-search-row">
+                          <div class="date-picker-group">
+                              <label for="datepicker">Time Travel Date</label>
+                              <input type="date" id="datepicker">
+                          </div>
+                          <div class="username-search-group">
+                              <label for="usernameSearch">Search Player Peak Dates</label>
+                              <div class="username-search-container">
+                                  <input type="text" id="usernameSearch" placeholder="Enter username...">
+                                  <button id="searchPlayerBtn" class="search-btn">🔍</button>
+                              </div>
+                          </div>
+                      </div>
+                      <div id="playerPeakDates" class="peak-dates-container" style="display: none;">
+                          <div class="peak-dates-buttons">
+                              <button id="peakRecordsBtn" class="peak-date-btn">📊 Peak Records: <span id="peakRecordsDate">-</span></button>
+                              <button id="peakPercentageBtn" class="peak-date-btn">📈 Peak Percentage: <span id="peakPercentageDate">-</span></button>
+                              <button id="latestDataBtn" class="peak-date-btn">🕒 Latest Data</button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
         
                         <div id="optionButtons">
                         </div>

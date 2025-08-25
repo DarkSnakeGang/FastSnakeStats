@@ -585,11 +585,31 @@ function showBasicMobileSettingsSection() {
         <div class="mobile-settings-content">
             <h2 style="font-size: 24px; font-weight: 700; color: var(--mobile-text); margin-bottom: 20px; text-align: center;">Settings</h2>
             
-            <!-- Time Travel Date Picker -->
-            <div class="mobile-form-group">
-                <label class="mobile-form-label" for="mobileDatePicker">Pick a date to travel back in time</label>
-                <input type="date" id="mobileDatePicker" class="mobile-form-input" value="${selectedTimeTravelDate || ''}">
-            </div>
+                         <!-- Time Travel Date Picker and Player Search -->
+             <div class="mobile-form-group">
+                 <div class="mobile-inline-search-container">
+                     <div class="mobile-date-search-row">
+                         <div class="mobile-date-picker-group">
+                             <label class="mobile-form-label" for="mobileDatePicker">Time Travel Date</label>
+                             <input type="date" id="mobileDatePicker" class="mobile-form-input" value="${selectedTimeTravelDate || ''}">
+                         </div>
+                         <div class="mobile-username-search-group">
+                             <label class="mobile-form-label" for="mobileUsernameSearch">Search Player Peak Dates</label>
+                             <div class="mobile-username-search-container">
+                                 <input type="text" id="mobileUsernameSearch" class="mobile-form-input" placeholder="Enter username...">
+                                 <button id="mobileSearchPlayerBtn" class="mobile-search-btn">🔍</button>
+                             </div>
+                         </div>
+                     </div>
+                     <div id="mobilePlayerPeakDates" class="mobile-peak-dates-container" style="display: none;">
+                         <div class="mobile-peak-dates-buttons">
+                             <button id="mobilePeakRecordsBtn" class="mobile-peak-date-btn">📊 Peak Records: <span id="mobilePeakRecordsDate">-</span></button>
+                             <button id="mobilePeakPercentageBtn" class="mobile-peak-date-btn">📈 Peak Percentage: <span id="mobilePeakPercentageDate">-</span></button>
+                             <button id="mobileLatestDataBtn" class="mobile-peak-date-btn">🕒 Latest Data</button>
+                         </div>
+                     </div>
+                 </div>
+             </div>
 
             <!-- Category Settings -->
             <div class="mobile-form-group">
@@ -841,6 +861,9 @@ function setupMobileSettingsEventListeners() {
 
     // Setup data section listeners (from desktop table-selector)
     setupMobileDataListeners();
+
+    // Setup username search listeners
+    setupMobileUsernameSearchListeners();
 }
 
 // Setup mobile options listeners
@@ -1392,6 +1415,141 @@ function setupMobileInfoModal() {
             }
         });
     }
+}
+
+// Setup mobile username search listeners
+function setupMobileUsernameSearchListeners() {
+    const searchBtn = document.getElementById('mobileSearchPlayerBtn');
+    const usernameInput = document.getElementById('mobileUsernameSearch');
+    const peakDatesContainer = document.getElementById('mobilePlayerPeakDates');
+    const peakRecordsBtn = document.getElementById('mobilePeakRecordsBtn');
+    const peakPercentageBtn = document.getElementById('mobilePeakPercentageBtn');
+    const latestDataBtn = document.getElementById('mobileLatestDataBtn');
+    const peakRecordsDate = document.getElementById('mobilePeakRecordsDate');
+    const peakPercentageDate = document.getElementById('mobilePeakPercentageDate');
+
+    if (!searchBtn || !usernameInput || !peakDatesContainer) return;
+
+    // Search button click handler
+    searchBtn.addEventListener('click', async function() {
+        const username = usernameInput.value.trim();
+        if (!username) {
+            alert('Please enter a username to search');
+            return;
+        }
+
+        try {
+            const playerData = await searchPlayerStats(username);
+            if (playerData) {
+                displayMobilePlayerPeakDates(playerData);
+            } else {
+                alert(`Player "${username}" not found in the database`);
+                peakDatesContainer.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Error searching for player:', error);
+            alert('Error searching for player. Please try again.');
+        }
+    });
+
+    // Enter key handler for input
+    usernameInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchBtn.click();
+        }
+    });
+
+    // Peak records button click handler
+    if (peakRecordsBtn) {
+        peakRecordsBtn.addEventListener('click', async function() {
+            const dateSpan = document.getElementById('mobilePeakRecordsDate');
+            const date = dateSpan ? dateSpan.textContent : null;
+            if (date && date !== '-') {
+                await setMobileTimeTravelDate(date);
+            }
+        });
+    }
+
+    // Peak percentage button click handler
+    if (peakPercentageBtn) {
+        peakPercentageBtn.addEventListener('click', async function() {
+            const dateSpan = document.getElementById('mobilePeakPercentageDate');
+            const date = dateSpan ? dateSpan.textContent : null;
+            if (date && date !== '-') {
+                await setMobileTimeTravelDate(date);
+            }
+        });
+    }
+
+    // Latest data button click handler
+    if (latestDataBtn) {
+        latestDataBtn.addEventListener('click', async function() {
+            await setMobileTimeTravelDate(''); // Clear date to use latest data
+        });
+    }
+}
+
+// Display mobile player peak dates
+function displayMobilePlayerPeakDates(playerData) {
+    const peakDatesContainer = document.getElementById('mobilePlayerPeakDates');
+    const peakRecordsDate = document.getElementById('mobilePeakRecordsDate');
+    const peakPercentageDate = document.getElementById('mobilePeakPercentageDate');
+    const peakRecordsBtn = document.getElementById('mobilePeakRecordsBtn');
+    const peakPercentageBtn = document.getElementById('mobilePeakPercentageBtn');
+
+    if (!peakDatesContainer || !peakRecordsDate || !peakPercentageDate) return;
+
+    // Update the date spans
+    peakRecordsDate.textContent = playerData.peakRecords.date || '-';
+    peakPercentageDate.textContent = playerData.peakPercentage.date || '-';
+
+    // Update button text with counts/percentages
+    if (peakRecordsBtn) {
+        peakRecordsBtn.innerHTML = `📊 Peak Records: <span id="mobilePeakRecordsDate">${playerData.peakRecords.date || '-'}</span> (${playerData.peakRecords.count} records)`;
+    }
+    if (peakPercentageBtn) {
+        peakPercentageBtn.innerHTML = `📈 Peak Percentage: <span id="mobilePeakPercentageDate">${playerData.peakPercentage.date || '-'}</span> (${playerData.peakPercentage.percentage}%)`;
+    }
+
+    // Show the container
+    peakDatesContainer.style.display = 'block';
+}
+
+// Set mobile time travel date and enable time travel
+async function setMobileTimeTravelDate(date) {
+    const datepicker = document.getElementById('mobileDatePicker');
+    if (datepicker) {
+        // Clear any existing loading state to ensure the change event can be processed
+        if (isLoading) {
+            setLoadingState(false);
+        }
+        
+        datepicker.value = date;
+        selectedTimeTravelDate = date;
+        
+        // Enable time travel if a date is set
+        if (date && !isTimeTravelEnabled) {
+            isTimeTravelEnabled = true;
+        }
+        
+        saveSettings();
+        
+        // Update the mobile time travel button state
+        updateMobileTimeTravelButtonState();
+        
+        // Explicitly call quickFetchWorldRecords to ensure data is loaded
+        if (typeof quickFetchWorldRecords === 'function') {
+            await quickFetchWorldRecords();
+        }
+    }
+    
+    // Switch back to records section and refresh the table
+    switchBasicMobileSection('records');
+    
+    // Refresh the mobile table display after data is loaded
+    setTimeout(() => {
+        loadMobileTableData();
+    }, 100);
 }
 
 // Export functions for use in other modules

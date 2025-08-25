@@ -582,9 +582,15 @@ function initializeUI() {
         }
         
         datepicker.onchange = async function(){
-            if (isLoading) return; // Prevent multiple simultaneous requests
+            console.log('datepicker.onchange triggered');
+            console.log('isLoading:', isLoading);
+            if (isLoading) {
+                console.log('Loading state active, returning early');
+                return; // Prevent multiple simultaneous requests
+            }
             
             const selectedDate = datepicker.value;
+            console.log('Selected date:', selectedDate);
             selectedTimeTravelDate = selectedDate; // Save the selected date
             saveSettings();
             
@@ -597,6 +603,7 @@ function initializeUI() {
             
             // Only fetch data if time travel is enabled
             if (isTimeTravelEnabled) {
+                console.log('Time travel is enabled, fetching data');
                 // Set loading state
                 setLoadingState(true);
                 
@@ -610,6 +617,7 @@ function initializeUI() {
                     }
                     
                     // Use Quick Fetch instead of direct API calls
+                    console.log('Calling quickFetchWorldRecords');
                     await quickFetchWorldRecords();
                     
                 } catch (error) {
@@ -630,6 +638,9 @@ function initializeUI() {
             }
         }
     }
+
+    // Initialize username search functionality
+    initializeUsernameSearch();
 
     //make all optionbuttons
     var optionButtons = document.getElementById('optionButtons');
@@ -701,5 +712,172 @@ function initializeUI() {
         topRowContainer.appendChild(runModeContainer);
         optionButtons.appendChild(topRowContainer);
     } else {
+    }
+}
+
+// Username search functionality
+function initializeUsernameSearch() {
+    const searchBtn = document.getElementById('searchPlayerBtn');
+    const usernameInput = document.getElementById('usernameSearch');
+    const peakDatesContainer = document.getElementById('playerPeakDates');
+    const peakRecordsBtn = document.getElementById('peakRecordsBtn');
+    const peakPercentageBtn = document.getElementById('peakPercentageBtn');
+    const latestDataBtn = document.getElementById('latestDataBtn');
+    const peakRecordsDate = document.getElementById('peakRecordsDate');
+    const peakPercentageDate = document.getElementById('peakPercentageDate');
+
+    if (!searchBtn || !usernameInput || !peakDatesContainer) return;
+
+    // Search button click handler
+    searchBtn.addEventListener('click', async function() {
+        const username = usernameInput.value.trim();
+        if (!username) {
+            alert('Please enter a username to search');
+            return;
+        }
+
+        try {
+            const playerData = await searchPlayerStats(username);
+            if (playerData) {
+                displayPlayerPeakDates(playerData);
+            } else {
+                alert(`Player "${username}" not found in the database`);
+                peakDatesContainer.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Error searching for player:', error);
+            alert('Error searching for player. Please try again.');
+        }
+    });
+
+    // Enter key handler for input
+    usernameInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchBtn.click();
+        }
+    });
+
+    // Peak records button click handler
+    if (peakRecordsBtn) {
+        peakRecordsBtn.addEventListener('click', async function() {
+            const dateSpan = document.getElementById('peakRecordsDate');
+            const date = dateSpan ? dateSpan.textContent : null;
+            if (date && date !== '-') {
+                await setTimeTravelDate(date);
+            }
+        });
+    }
+
+    // Peak percentage button click handler
+    if (peakPercentageBtn) {
+        peakPercentageBtn.addEventListener('click', async function() {
+            const dateSpan = document.getElementById('peakPercentageDate');
+            const date = dateSpan ? dateSpan.textContent : null;
+            if (date && date !== '-') {
+                await setTimeTravelDate(date);
+            }
+        });
+    }
+
+    // Latest data button click handler
+    if (latestDataBtn) {
+        latestDataBtn.addEventListener('click', async function() {
+            await setTimeTravelDate(''); // Clear date to use latest data
+        });
+    }
+}
+
+// Search for player in the stats database
+async function searchPlayerStats(username) {
+    try {
+        const response = await fetch('time-travel-cache/metadata/player-stats.json');
+        if (!response.ok) {
+            throw new Error('Failed to load player stats');
+        }
+        
+        const data = await response.json();
+        const players = data.players || [];
+        
+        // Case-insensitive search
+        const player = players.find(p => 
+            p.name.toLowerCase() === username.toLowerCase()
+        );
+        
+        return player || null;
+    } catch (error) {
+        console.error('Error loading player stats:', error);
+        throw error;
+    }
+}
+
+// Display player peak dates
+function displayPlayerPeakDates(playerData) {
+    const peakDatesContainer = document.getElementById('playerPeakDates');
+    const peakRecordsDate = document.getElementById('peakRecordsDate');
+    const peakPercentageDate = document.getElementById('peakPercentageDate');
+    const peakRecordsBtn = document.getElementById('peakRecordsBtn');
+    const peakPercentageBtn = document.getElementById('peakPercentageBtn');
+
+    if (!peakDatesContainer || !peakRecordsDate || !peakPercentageDate) return;
+
+    // Update the date spans
+    peakRecordsDate.textContent = playerData.peakRecords.date || '-';
+    peakPercentageDate.textContent = playerData.peakPercentage.date || '-';
+
+    // Update button text with counts/percentages
+    if (peakRecordsBtn) {
+        peakRecordsBtn.innerHTML = `📊 Peak Records: <span id="peakRecordsDate">${playerData.peakRecords.date || '-'}</span> (${playerData.peakRecords.count} records)`;
+    }
+    if (peakPercentageBtn) {
+        peakPercentageBtn.innerHTML = `📈 Peak Percentage: <span id="peakPercentageDate">${playerData.peakPercentage.date || '-'}</span> (${playerData.peakPercentage.percentage}%)`;
+    }
+
+    // Show the container
+    peakDatesContainer.style.display = 'block';
+}
+
+// Set time travel date and enable time travel
+async function setTimeTravelDate(date) {
+    console.log('setTimeTravelDate called with date:', date);
+    const datepicker = document.getElementById('datepicker');
+    if (datepicker) {
+        // Clear any existing loading state to ensure the change event can be processed
+        if (isLoading) {
+            console.log('Clearing loading state');
+            setLoadingState(false);
+        }
+        
+        datepicker.value = date;
+        selectedTimeTravelDate = date;
+        console.log('Set datepicker value to:', date);
+        console.log('Set selectedTimeTravelDate to:', selectedTimeTravelDate);
+        
+        // Enable time travel if a date is set
+        if (date && !isTimeTravelEnabled) {
+            isTimeTravelEnabled = true;
+            console.log('Enabled time travel');
+        }
+        
+        saveSettings();
+        console.log('Settings saved');
+        
+        // Update time travel button status
+        if (date) {
+            updateTimeTravelButtonStatus('available');
+        } else {
+            updateTimeTravelButtonStatus('disabled');
+        }
+        
+        // Explicitly call quickFetchWorldRecords to ensure data is loaded
+        if (typeof quickFetchWorldRecords === 'function') {
+            console.log('Calling quickFetchWorldRecords explicitly');
+            await quickFetchWorldRecords();
+        }
+    }
+    
+    // Close the settings modal
+    const settingsModal = document.getElementById('settingsModal');
+    if (settingsModal) {
+        settingsModal.style.display = 'none';
     }
 }
