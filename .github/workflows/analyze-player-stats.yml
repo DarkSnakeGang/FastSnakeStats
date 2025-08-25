@@ -1,0 +1,59 @@
+name: Analyze Player Statistics
+
+on:
+  # Run after update-available-dates workflow completes
+  workflow_run:
+    workflows: ["Update Available Dates Metadata"]
+    types: [completed]
+    branches: [main]
+  
+  # Run manually
+  workflow_dispatch:
+
+jobs:
+  analyze-player-stats:
+    runs-on: ubuntu-latest
+    
+    # Only run if the triggering workflow succeeded
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Run player statistics analysis
+      run: |
+        echo "🔍 Starting player statistics analysis..."
+        echo "📁 Working directory: $(pwd)"
+        echo ""
+        node scripts/player-stats-analyzer.js
+    
+    - name: Check for changes
+      id: check-changes
+      run: |
+        if git diff --quiet time-travel-cache/metadata/player-stats.json; then
+          echo "No changes detected in player stats file"
+          echo "has-changes=false" >> $GITHUB_OUTPUT
+        else
+          echo "Changes detected in player stats file"
+          echo "has-changes=true" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Commit and push changes
+      if: steps.check-changes.outputs.has-changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add time-travel-cache/metadata/player-stats.json
+        git commit -m "Update player statistics [skip ci]"
+        git push
+    
+    - name: No changes message
+      if: steps.check-changes.outputs.has-changes == 'false'
+      run: |
+        echo "✅ No changes to commit - player statistics are up to date"

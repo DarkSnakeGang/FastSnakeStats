@@ -191,3 +191,94 @@ If a day fails to process, the script will:
 - Continue with the next day
 - Include the failure in the final statistics
 - Not stop the entire process
+
+## player-stats-analyzer.js
+
+A script that analyzes all available cached world record data to generate comprehensive player statistics, including peak performance metrics for each player.
+
+### Features
+
+- **Comprehensive Analysis**: Scans all available cached dates to find every player who ever submitted a world record
+- **Peak Performance Tracking**: Identifies each player's best day in terms of record count and percentage
+- **Efficient Processing**: Uses memory-efficient data structures to handle large datasets
+- **Progress Reporting**: Shows real-time progress during analysis
+- **Error Handling**: Continues processing even if individual cache files are corrupted
+- **GitHub Actions Integration**: Designed to run automatically in CI/CD pipelines
+
+### Usage
+
+```bash
+node scripts/player-stats-analyzer.js
+```
+
+### What it does
+
+1. Loads the list of available dates from `time-travel-cache/metadata/available-dates.json`
+2. Processes each cached date file to extract player information
+3. Tracks for each player:
+   - Total number of world records across all time
+   - Number of different dates they had records
+   - Date with the most records (count and date)
+   - Date with the highest percentage of total records (percentage and date)
+4. Generates a comprehensive JSON report with all player statistics
+5. Saves results to `time-travel-cache/metadata/player-stats.json`
+
+### Output Structure
+
+The generated `player-stats.json` file contains:
+
+```json
+{
+  "lastUpdated": "2025-08-25T20:21:34.154Z",
+  "totalPlayers": 193,
+  "players": [
+    {
+      "id": "8r7zeqqj",
+      "name": "moterstorm",
+      "totalRecords": 63293,
+      "totalDates": 197,
+      "peakRecords": {
+        "date": "2025-05-29",
+        "count": 331
+      },
+      "peakPercentage": {
+        "date": "2025-01-22",
+        "percentage": 11.17
+      }
+    }
+  ]
+}
+```
+
+### Statistics Explained
+
+For each player, the script calculates:
+
+- **totalRecords**: Total number of world records across all dates
+- **totalDates**: Number of different dates they had at least one record
+- **peakRecords**: The date they had the most records and how many
+- **peakPercentage**: The date they had the highest percentage of total records for that day
+
+### GitHub Actions Integration
+
+The script is integrated with GitHub Actions via `.github/workflows/analyze-player-stats.yml`:
+
+- **Automatic Execution**: Runs after the `update-available-dates` workflow completes
+- **Manual Trigger**: Can be run manually via workflow dispatch
+- **Conditional Execution**: Only runs if the triggering workflow succeeded
+- **Automatic Commits**: Commits and pushes updated statistics automatically
+
+### Performance
+
+- **Memory Efficient**: Uses Maps and Sets for optimal memory usage
+- **Progress Tracking**: Shows progress every 50 dates processed
+- **Error Resilience**: Continues processing even if individual files fail
+- **Large Dataset Support**: Successfully processes 258+ dates with 193+ players
+
+### Notes
+
+- The script processes all available cached data, so runtime depends on the number of dates
+- Results are sorted by total records (descending) for easy identification of top players
+- Percentages are rounded to 2 decimal places for readability
+- The script handles missing or corrupted cache files gracefully
+- Player names are extracted from the international name field when available
