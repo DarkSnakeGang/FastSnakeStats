@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2025-08-27T13:44:43.911Z",
+  "lastUpdated": "2025-08-27T14:24:33.940Z",
   "totalPlayers": 294,
   "players": [
     {
@@ -2467,6 +2467,20 @@
       }
     },
     {
+      "id": "kj9pprvx",
+      "name": "Franzcorr",
+      "totalRecords": 220,
+      "totalDates": 220,
+      "peakRecords": {
+        "date": "2018-10-24",
+        "count": 1
+      },
+      "peakPercentage": {
+        "date": "2018-10-24",
+        "percentage": 100
+      }
+    },
+    {
       "id": "j2ye5y78",
       "name": "flaggyflaggy",
       "totalRecords": 219,
@@ -2478,20 +2492,6 @@
       "peakPercentage": {
         "date": "2023-10-01",
         "percentage": 0.09
-      }
-    },
-    {
-      "id": "kj9pprvx",
-      "name": "Franzcorr",
-      "totalRecords": 218,
-      "totalDates": 218,
-      "peakRecords": {
-        "date": "2018-10-24",
-        "count": 1
-      },
-      "peakPercentage": {
-        "date": "2018-10-24",
-        "percentage": 100
       }
     },
     {
@@ -3867,6 +3867,20 @@
       }
     },
     {
+      "id": "68wrm4vj",
+      "name": "Conquerr",
+      "totalRecords": 5,
+      "totalDates": 5,
+      "peakRecords": {
+        "date": "2019-05-27",
+        "count": 1
+      },
+      "peakPercentage": {
+        "date": "2019-05-27",
+        "percentage": 50
+      }
+    },
+    {
       "id": "8gr5p91x",
       "name": "miconore",
       "totalRecords": 5,
@@ -3892,20 +3906,6 @@
       "peakPercentage": {
         "date": "2020-01-21",
         "percentage": 7.69
-      }
-    },
-    {
-      "id": "68wrm4vj",
-      "name": "Conquerr",
-      "totalRecords": 3,
-      "totalDates": 3,
-      "peakRecords": {
-        "date": "2019-05-27",
-        "count": 1
-      },
-      "peakPercentage": {
-        "date": "2019-05-27",
-        "percentage": 50
       }
     },
     {
