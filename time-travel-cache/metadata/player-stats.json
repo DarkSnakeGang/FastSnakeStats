@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2025-08-27T14:24:33.940Z",
+  "lastUpdated": "2025-08-27T14:49:05.675Z",
   "totalPlayers": 294,
   "players": [
     {
@@ -2075,6 +2075,20 @@
       }
     },
     {
+      "id": "kj9pprvx",
+      "name": "Franzcorr",
+      "totalRecords": 370,
+      "totalDates": 370,
+      "peakRecords": {
+        "date": "2018-10-24",
+        "count": 1
+      },
+      "peakPercentage": {
+        "date": "2018-10-24",
+        "percentage": 100
+      }
+    },
+    {
       "id": "jmlv63e8",
       "name": "NoahBoa123",
       "totalRecords": 360,
@@ -2467,20 +2481,6 @@
       }
     },
     {
-      "id": "kj9pprvx",
-      "name": "Franzcorr",
-      "totalRecords": 220,
-      "totalDates": 220,
-      "peakRecords": {
-        "date": "2018-10-24",
-        "count": 1
-      },
-      "peakPercentage": {
-        "date": "2018-10-24",
-        "percentage": 100
-      }
-    },
-    {
       "id": "j2ye5y78",
       "name": "flaggyflaggy",
       "totalRecords": 219,
@@ -2562,6 +2562,20 @@
       "peakPercentage": {
         "date": "2022-01-01",
         "percentage": 0.18
+      }
+    },
+    {
+      "id": "68wrm4vj",
+      "name": "Conquerr",
+      "totalRecords": 155,
+      "totalDates": 155,
+      "peakRecords": {
+        "date": "2019-05-27",
+        "count": 1
+      },
+      "peakPercentage": {
+        "date": "2019-05-27",
+        "percentage": 50
       }
     },
     {
@@ -3864,20 +3878,6 @@
       "peakPercentage": {
         "date": "2025-03-08",
         "percentage": 0.03
-      }
-    },
-    {
-      "id": "68wrm4vj",
-      "name": "Conquerr",
-      "totalRecords": 5,
-      "totalDates": 5,
-      "peakRecords": {
-        "date": "2019-05-27",
-        "count": 1
-      },
-      "peakPercentage": {
-        "date": "2019-05-27",
-        "percentage": 50
       }
     },
     {
