@@ -204,8 +204,15 @@ class HistoricalCacheBackfill {
         // Initialize game metadata first
         await this.initializeGameMetadata();
         
+        // Check if date is 2021 or earlier (for mode exclusions)
+        const dateYear = parseInt(date.split('-')[0]);
+        const is2021OrEarlier = dateYear <= 2021;
+        
+        // Check if date is before 2023-06-13 (for dice exclusion)
+        const isBefore2023June13 = new Date(date) < new Date('2023-06-13');
+        
         // Define all possible combinations
-        const combinations = [
+        let combinations = [
             ['1 Apple', 'Normal', 'Standard'],
             ['1 Apple', 'Normal', 'Small'],
             ['1 Apple', 'Normal', 'Large'],
@@ -232,23 +239,44 @@ class HistoricalCacheBackfill {
             ['5 Apples', 'Fast', 'Large'],
             ['5 Apples', 'Slow', 'Standard'],
             ['5 Apples', 'Slow', 'Small'],
-            ['5 Apples', 'Slow', 'Large'],
-            ['Dice', 'Normal', 'Standard'],
-            ['Dice', 'Normal', 'Small'],
-            ['Dice', 'Normal', 'Large'],
-            ['Dice', 'Fast', 'Standard'],
-            ['Dice', 'Fast', 'Small'],
-            ['Dice', 'Fast', 'Large'],
-            ['Dice', 'Slow', 'Standard'],
-            ['Dice', 'Slow', 'Small'],
-            ['Dice', 'Slow', 'Large']
+            ['5 Apples', 'Slow', 'Large']
         ];
+        
+        // Add Dice combinations only if not before 2023-06-13
+        if (!isBefore2023June13) {
+            combinations = combinations.concat([
+                ['Dice', 'Normal', 'Standard'],
+                ['Dice', 'Normal', 'Small'],
+                ['Dice', 'Normal', 'Large'],
+                ['Dice', 'Fast', 'Standard'],
+                ['Dice', 'Fast', 'Small'],
+                ['Dice', 'Fast', 'Large'],
+                ['Dice', 'Slow', 'Standard'],
+                ['Dice', 'Slow', 'Small'],
+                ['Dice', 'Slow', 'Large']
+            ]);
+        }
 
         // Use the same modes and levels as the website
-        const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
+        const allModeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
+        
+        // Filter out excluded modes for 2021 and earlier
+        const excludedModes = ["Dimension", "Minesweeper", "Statue", "Shield", "Arrow", "Hotdog", "Magnet", "Gate"];
+        const modeNames = is2021OrEarlier 
+            ? allModeNames.filter(mode => !excludedModes.includes(mode))
+            : allModeNames;
+            
         const levels = ["25", "50", "100", "All"];
         const highscoreLevels = ["H"]; // Only for highscore modes
-        const highscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 3]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Cheese
+        
+        // Filter highscore modes to exclude the ones that shouldn't be fetched for 2021 and earlier
+        const allHighscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 3]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Cheese
+        const highscoreModes = is2021OrEarlier 
+            ? allHighscoreModes.filter((mode, index) => {
+                const modeName = allModeNames[mode];
+                return !excludedModes.includes(modeName);
+            })
+            : allHighscoreModes;
         
         const cacheData = {
             date: date,
@@ -324,7 +352,51 @@ class HistoricalCacheBackfill {
             }
         }
         
-                 // Process all requests concurrently with batching
+        // Add empty records for excluded modes (for 2021 and earlier)
+        if (is2021OrEarlier) {
+            const excludedModes = ["Dimension", "Minesweeper", "Statue", "Shield", "Arrow", "Hotdog", "Magnet", "Gate"];
+            
+            for (const combo of combinations) {
+                const [count, speed, size] = combo;
+                
+                for (const excludedMode of excludedModes) {
+                    const modeIndex = allModeNames.indexOf(excludedMode);
+                    if (modeIndex !== -1) {
+                        // Regular level-based records for excluded modes
+                        for (let levelIndex = 0; levelIndex < levels.length; levelIndex++) {
+                            const level = levels[levelIndex];
+                            
+                            // Skip "100 Apples" for "Small" size - this combination doesn't exist
+                            if (level === "100" && size === "Small") {
+                                continue;
+                            }
+                            
+                            allRequests.push({
+                                count, speed, size, mode: modeIndex, level, date,
+                                key: `${count}|${speed}|${size}|${excludedMode}|${level} Apples`,
+                                shouldSkip: true // Mark for empty record
+                            });
+                        }
+                        
+                        // Highscore records for excluded modes (if they have highscore variants)
+                        const excludedHighscoreModes = [12, 13, 15, 17, 19]; // Minesweeper, Statue, Shield, Hotdog, Gate
+                        if (excludedHighscoreModes.includes(modeIndex)) {
+                            for (let levelIndex = 0; levelIndex < highscoreLevels.length; levelIndex++) {
+                                const level = highscoreLevels[levelIndex];
+                                
+                                allRequests.push({
+                                    count, speed, size, mode: modeIndex, level, date,
+                                    key: `${count}|${speed}|${size}|${excludedMode}|High Score`,
+                                    shouldSkip: true // Mark for empty record
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Process all requests concurrently with batching
          const batchSize = 100; // Process 100 requests concurrently
          console.log(`🚀 Processing ${allRequests.length} requests in batches of ${batchSize} for ${date}`);
          
@@ -340,6 +412,26 @@ class HistoricalCacheBackfill {
              
              const batchPromises = batch.map(async (request, batchIndex) => {
                  try {
+                     // Handle excluded modes (shouldSkip flag)
+                     if (request.shouldSkip) {
+                         const record = {
+                             success: false,
+                             runs: [],
+                             settings: [request.count, request.speed, request.size, request.mode, request.level]
+                         };
+                         cacheData.records[request.key] = record;
+                         completedRequests++;
+                         globalCompletedCount++;
+                         
+                         // Show progress every 10 completed requests or at the end, in order
+                         if (globalCompletedCount % 10 === 0 || globalCompletedCount === allRequests.length) {
+                             const percentage = Math.round((globalCompletedCount / allRequests.length) * 100);
+                             console.log(`📊 Progress: ${globalCompletedCount}/${allRequests.length} (${percentage}%) for ${date}`);
+                         }
+                         
+                         return { success: true, key: request.key };
+                     }
+                     
                      const record = await this.fetchWorldRecord(
                          request.count, request.speed, request.size, 
                          request.mode, request.level, request.date
@@ -389,6 +481,16 @@ class HistoricalCacheBackfill {
     // Fetch a single world record (using WorldRecordFetcher's approach)
     async fetchWorldRecord(count, speed, size, mode, level, date) {
         try {
+            // Check if date is too early (before or equal to 2018-10-23)
+            if (date && new Date(date) <= new Date('2018-10-23')) {
+                return {
+                    success: false,
+                    runs: [],
+                    settings: [count, speed, size, mode, level],
+                    message: "no submissions for this date or prior"
+                };
+            }
+            
             // Step 1: Get cached game metadata
             const metadata = this.getGameMetadata();
             const variables = metadata.variables;
