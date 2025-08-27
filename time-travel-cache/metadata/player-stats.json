@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2025-08-27T11:19:36.135Z",
-  "totalPlayers": 293,
+  "lastUpdated": "2025-08-27T13:44:43.911Z",
+  "totalPlayers": 294,
   "players": [
     {
       "id": "8r7zeqqj",
@@ -2483,8 +2483,8 @@
     {
       "id": "kj9pprvx",
       "name": "Franzcorr",
-      "totalRecords": 214,
-      "totalDates": 214,
+      "totalRecords": 218,
+      "totalDates": 218,
       "peakRecords": {
         "date": "2018-10-24",
         "count": 1
@@ -3892,6 +3892,20 @@
       "peakPercentage": {
         "date": "2020-01-21",
         "percentage": 7.69
+      }
+    },
+    {
+      "id": "68wrm4vj",
+      "name": "Conquerr",
+      "totalRecords": 3,
+      "totalDates": 3,
+      "peakRecords": {
+        "date": "2019-05-27",
+        "count": 1
+      },
+      "peakPercentage": {
+        "date": "2019-05-27",
+        "percentage": 50
       }
     },
     {
