@@ -2009,7 +2009,7 @@ body.dark-mode .quick-fetch-btn:disabled {
 	box-shadow: 0 8px 32px rgba(255, 107, 107, 0.3);
 	border: 2px solid rgba(255, 255, 255, 0.1);
 	backdrop-filter: blur(10px);
-	animation: fadeInUp 0.5s ease-out;
+
 	position: relative;
 	z-index: 1000;
 }
@@ -2135,15 +2135,5 @@ body.dark-mode .time-travel-message {
 	}
 }
 
-/* Animation for the message */
-@keyframes fadeInUp {
-	from {
-		opacity: 0;
-		transform: translateY(20px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
+
 

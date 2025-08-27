@@ -101,32 +101,30 @@ function updateTimeTravelMessage() {
         if (shouldShow) {
             desktopMessage.classList.add('show');
             
-            // Generate and display records tables when time travel message is shown
+            // Hide records tables and summary table when time travel message is shown
             if (window.innerWidth > 1023) { // Desktop only
-                // Generate records tables first
-                if (typeof generateSingleTable === 'function') {
-                    generateSingleTable();
-                }
-                
-                // Center the records tables
                 const container = document.querySelector('.container');
                 if (container) {
-                    const recordsTables = container.querySelectorAll('.table-wrapper, .multiple-tables-container');
+                    const recordsTables = container.querySelectorAll('.leaderboard, .ranglist');
                     recordsTables.forEach(table => {
-                        table.style.display = 'flex';
-                        table.style.justifyContent = 'center';
-                        table.style.alignItems = 'center';
-                        table.style.margin = '0 auto';
-                        table.style.width = '100%';
+                        table.style.display = 'none';
                     });
                 }
             }
         } else {
             desktopMessage.classList.remove('show');
             
-            // Restore normal layout when time travel message is hidden
+            // Redisplay records tables and summary table when time travel message is hidden
             if (window.innerWidth > 1023) { // Desktop only
-                // Regenerate tables with normal layout
+                const container = document.querySelector('.container');
+                if (container) {
+                    const recordsTables = container.querySelectorAll('.leaderboard, .ranglist');
+                    recordsTables.forEach(table => {
+                        table.style.display = '';
+                    });
+                }
+                
+                // Regenerate tables if they don't exist
                 if (typeof generateSingleTable === 'function') {
                     generateSingleTable();
                 }
