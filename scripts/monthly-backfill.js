@@ -38,7 +38,8 @@ class MonthlyBackfill {
     async runBackfillForDate(date) {
         try {
             console.log(`\n🔄 Running backfill for ${date}...`);
-            execSync(`node "${this.scriptPath}" ${date}`, { 
+            const nodePath = process.platform === 'win32' ? 'C:\\Program Files\\nodejs\\node.exe' : 'node';
+            execSync(`"${nodePath}" "${this.scriptPath}" ${date}`, { 
                 stdio: 'inherit',
                 cwd: path.dirname(path.dirname(this.scriptPath)) // Go to project root
             });

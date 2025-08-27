@@ -32,7 +32,7 @@ if %errorlevel% equ 0 (
 )
 
 :: Set variables
-set "NODE_VERSION=20.11.1"
+set "NODE_VERSION=20.10.0"
 set "NODE_ARCH=x64"
 set "DOWNLOAD_URL=https://nodejs.org/dist/v%NODE_VERSION%/node-v%NODE_VERSION%-win-%NODE_ARCH%.msi"
 set "INSTALLER_PATH=%TEMP%\nodejs-installer.msi"
@@ -55,20 +55,29 @@ if %errorlevel% neq 0 (
 
 :: Download Node.js installer using PowerShell with bypass execution policy
 echo Downloading Node.js installer...
-powershell -ExecutionPolicy Bypass -Command "& {[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; try { Invoke-WebRequest -Uri '%DOWNLOAD_URL%' -OutFile '%INSTALLER_PATH%' -UseBasicParsing -TimeoutSec 300; Write-Host 'Download completed successfully' } catch { Write-Host 'Download failed: ' + $_.Exception.Message; exit 1 }}"
+echo Trying primary URL: %DOWNLOAD_URL%
+powershell -ExecutionPolicy Bypass -Command "& {[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; try { Invoke-WebRequest -Uri '%DOWNLOAD_URL%' -OutFile '%INSTALLER_PATH%' -UseBasicParsing -TimeoutSec 300; Write-Host 'Download completed successfully' } catch { Write-Host 'Primary download failed: ' + $_.Exception.Message; Write-Host 'Trying alternative download method...'; try { $webClient = New-Object System.Net.WebClient; $webClient.DownloadFile('%DOWNLOAD_URL%', '%INSTALLER_PATH%'); Write-Host 'Alternative download completed successfully' } catch { Write-Host 'Alternative download also failed: ' + $_.Exception.Message; exit 1 } }}"
 
 if not exist "%INSTALLER_PATH%" (
-    echo ERROR: Failed to download Node.js installer.
-    echo.
-    echo Possible solutions:
-    echo 1. Check your internet connection
-    echo 2. Try running as Administrator
-    echo 3. Disable antivirus temporarily
-    echo 4. Use a different network
-    echo.
-    echo You can also download manually from: %DOWNLOAD_URL%
-    pause
-    exit /b 1
+    echo Primary download failed, trying latest LTS version...
+    set "NODE_VERSION=20.9.0"
+    set "DOWNLOAD_URL=https://nodejs.org/dist/v%NODE_VERSION%/node-v%NODE_VERSION%-win-%NODE_ARCH%.msi"
+    echo Trying fallback URL: %DOWNLOAD_URL%
+    powershell -ExecutionPolicy Bypass -Command "& {[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; try { Invoke-WebRequest -Uri '%DOWNLOAD_URL%' -OutFile '%INSTALLER_PATH%' -UseBasicParsing -TimeoutSec 300; Write-Host 'Fallback download completed successfully' } catch { Write-Host 'Fallback download failed: ' + $_.Exception.Message; Write-Host 'Trying alternative download method...'; try { $webClient = New-Object System.Net.WebClient; $webClient.DownloadFile('%DOWNLOAD_URL%', '%INSTALLER_PATH%'); Write-Host 'Alternative fallback download completed successfully' } catch { Write-Host 'All download methods failed: ' + $_.Exception.Message; exit 1 } }}"
+    
+    if not exist "%INSTALLER_PATH%" (
+        echo ERROR: Failed to download Node.js installer with all methods.
+        echo.
+        echo Possible solutions:
+        echo 1. Check your internet connection
+        echo 2. Try running as Administrator
+        echo 3. Disable antivirus temporarily
+        echo 4. Use a different network
+        echo.
+        echo You can also download manually from: https://nodejs.org/
+        pause
+        exit /b 1
+    )
 )
 
 echo Download completed: %INSTALLER_PATH%

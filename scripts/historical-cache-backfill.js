@@ -123,8 +123,8 @@ class HistoricalCacheBackfill {
         }
     }
 
-    // Simple API request function with retry logic (same as WorldRecordFetcher)
-    async fetchAPI(url, maxRetries = 20, baseDelay = 500) {
+    // Simple API request function with infinite retry logic and 2-second cooldown
+    async fetchAPI(url) {
         // Only log API calls for debugging specific issues
         // console.log(`🌐 API Call: ${url}`);
         
@@ -136,10 +136,11 @@ class HistoricalCacheBackfill {
             await new Promise(resolve => setTimeout(resolve, waitTime));
         }
 
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        let attempt = 1;
+        while (true) {
             try {
                 if (attempt > 1) {
-                    console.log(`🔄 API Call Retry ${attempt}/${maxRetries}: ${url}`);
+                    console.log(`🔄 API Call Retry ${attempt}: ${url}`);
                 }
                 
                 const response = await fetch(url, {
@@ -151,18 +152,19 @@ class HistoricalCacheBackfill {
                 });
 
                 if (response.status === 429) {
-                    // Rate limited - wait longer
-                    const retryAfter = response.headers.get('Retry-After');
-                    const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : baseDelay * Math.pow(2, attempt);
-                    console.log(`⏳ Rate limited, waiting ${waitTime}ms...`);
-                    await new Promise(resolve => setTimeout(resolve, waitTime));
+                    // Rate limited - wait 2 seconds
+                    console.log(`⏳ Rate limited, waiting 2000ms...`);
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    attempt++;
                     continue;
                 }
 
                 if (response.status === 420) {
-                    // API overloaded
-                    this.lastFailureTime = Date.now();
-                    throw new Error(`HTTP 420: API overloaded`);
+                    // API overloaded - wait 2 seconds
+                    console.log(`⏳ API overloaded, waiting 2000ms...`);
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    attempt++;
+                    continue;
                 }
 
                 if (!response.ok) {
@@ -178,14 +180,10 @@ class HistoricalCacheBackfill {
             } catch (error) {
                 console.error(`❌ API Call attempt ${attempt} failed:`, error.message);
                 
-                if (attempt === maxRetries) {
-                    this.lastFailureTime = Date.now();
-                    throw error;
-                }
-                
-                // Exponential backoff
-                const delay = baseDelay * Math.pow(2, attempt - 1);
-                await new Promise(resolve => setTimeout(resolve, delay));
+                // Wait 2 seconds before retry
+                console.log(`⏳ Waiting 2000ms before retry...`);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                attempt++;
             }
         }
     }
@@ -318,7 +316,7 @@ class HistoricalCacheBackfill {
         }
         
         // Process all requests concurrently with batching
-        const batchSize = 10; // Process 10 requests concurrently
+        const batchSize = 100; // Process 100 requests concurrently
         console.log(`🚀 Processing ${allRequests.length} requests with ${batchSize} concurrent batches`);
         
         for (let i = 0; i < allRequests.length; i += batchSize) {
@@ -349,7 +347,7 @@ class HistoricalCacheBackfill {
             
             // Small delay between batches to be respectful to the API
             if (i + batchSize < allRequests.length) {
-                console.log(`⏳ Waiting 1 second before next batch...`);
+                console.log(`⏳ Waiting 0 seconds before next batch...`);
                 await this.delay(0);
             }
         }
