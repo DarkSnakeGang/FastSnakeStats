@@ -45,11 +45,11 @@ class HistoricalCacheBackfill {
     // Initialize game metadata (same as WorldRecordFetcher)
     async initializeGameMetadata() {
         if (this.gameMetadata.isInitialized) {
-            console.log('🎮 Game metadata already initialized');
+            // console.log('🎮 Game metadata already initialized');
             return;
         }
         
-        console.log('🎮 Initializing game metadata...');
+        // console.log('🎮 Initializing game metadata...');
         
         try {
             // Load all metadata in parallel
@@ -65,7 +65,7 @@ class HistoricalCacheBackfill {
             this.gameMetadata.categories = categories;
             this.gameMetadata.isInitialized = true;
             
-            console.log('✅ Game metadata initialized successfully');
+            // console.log('✅ Game metadata initialized successfully');
         } catch (error) {
             console.error('❌ Failed to initialize game metadata:', error);
             throw error;
@@ -137,10 +137,13 @@ class HistoricalCacheBackfill {
         }
 
         let attempt = 1;
+        let rateLimitShown = false;
+        let apiOverloadShown = false;
+        
         while (true) {
             try {
                 if (attempt > 1) {
-                    console.log(`🔄 API Call Retry ${attempt}: ${url}`);
+                    // console.log(`🔄 API Call Retry ${attempt}: ${url}`);
                 }
                 
                 const response = await fetch(url, {
@@ -153,7 +156,10 @@ class HistoricalCacheBackfill {
 
                 if (response.status === 429) {
                     // Rate limited - wait 2 seconds
-                    console.log(`⏳ Rate limited, waiting 2000ms...`);
+                    if (!rateLimitShown) {
+                        console.log(`⏳ API rate limiting detected, waiting...`);
+                        rateLimitShown = true;
+                    }
                     await new Promise(resolve => setTimeout(resolve, 2000));
                     attempt++;
                     continue;
@@ -161,7 +167,10 @@ class HistoricalCacheBackfill {
 
                 if (response.status === 420) {
                     // API overloaded - wait 2 seconds
-                    console.log(`⏳ API overloaded, waiting 2000ms...`);
+                    if (!apiOverloadShown) {
+                        console.log(`⏳ API overloaded, waiting...`);
+                        apiOverloadShown = true;
+                    }
                     await new Promise(resolve => setTimeout(resolve, 2000));
                     attempt++;
                     continue;
@@ -181,7 +190,7 @@ class HistoricalCacheBackfill {
                 console.error(`❌ API Call attempt ${attempt} failed:`, error.message);
                 
                 // Wait 2 seconds before retry
-                console.log(`⏳ Waiting 2000ms before retry...`);
+                // console.log(`⏳ Waiting 2000ms before retry...`);
                 await new Promise(resolve => setTimeout(resolve, 2000));
                 attempt++;
             }
@@ -190,7 +199,7 @@ class HistoricalCacheBackfill {
 
     // Fetch world records for a specific date (using WorldRecordFetcher's approach)
     async fetchWorldRecordsForDate(date) {
-        console.log(`Fetching world records for ${date}...`);
+        // console.log(`Fetching world records for ${date}...`);
         
         // Initialize game metadata first
         await this.initializeGameMetadata();
@@ -272,7 +281,7 @@ class HistoricalCacheBackfill {
             }
         }
 
-        console.log(`Total requests to process: ${totalRequests}`);
+        // console.log(`Total requests to process: ${totalRequests}`);
 
         // Process combinations concurrently with batching
         const allRequests = [];
@@ -315,41 +324,63 @@ class HistoricalCacheBackfill {
             }
         }
         
-        // Process all requests concurrently with batching
-        const batchSize = 100; // Process 100 requests concurrently
-        console.log(`🚀 Processing ${allRequests.length} requests with ${batchSize} concurrent batches`);
-        
-        for (let i = 0; i < allRequests.length; i += batchSize) {
-            const batch = allRequests.slice(i, i + batchSize);
-            console.log(`\n--- Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(allRequests.length/batchSize)} (requests ${i + 1}-${Math.min(i + batchSize, allRequests.length)}) ---`);
-            
-            const batchPromises = batch.map(async (request, batchIndex) => {
-                try {
-                    const record = await this.fetchWorldRecord(
-                        request.count, request.speed, request.size, 
-                        request.mode, request.level, request.date
-                    );
-                    
-                    cacheData.records[request.key] = record;
-                    completedRequests++;
-                    
-                    console.log(`✅ [${i + batchIndex + 1}/${allRequests.length}] Completed: ${request.key}`);
-                    
-                    return { success: true, key: request.key };
-                } catch (error) {
-                    console.error(`❌ [${i + batchIndex + 1}/${allRequests.length}] Error: ${request.key}`, error.message);
-                    return { success: false, key: request.key, error: error.message };
-                }
-            });
+                 // Process all requests concurrently with batching
+         const batchSize = 100; // Process 100 requests concurrently
+         console.log(`🚀 Processing ${allRequests.length} requests in batches of ${batchSize} for ${date}`);
+         
+         // Shared progress counter for ordered tracking
+         let globalCompletedCount = 0;
+         
+         for (let i = 0; i < allRequests.length; i += batchSize) {
+             const batch = allRequests.slice(i, i + batchSize);
+             const batchNumber = Math.floor(i/batchSize) + 1;
+             const totalBatches = Math.ceil(allRequests.length/batchSize);
+             
+             console.log(`📦 Batch ${batchNumber}/${totalBatches} (${i + 1}-${Math.min(i + batchSize, allRequests.length)} of ${allRequests.length}) for ${date}`);
+             
+             const batchPromises = batch.map(async (request, batchIndex) => {
+                 try {
+                     const record = await this.fetchWorldRecord(
+                         request.count, request.speed, request.size, 
+                         request.mode, request.level, request.date
+                     );
+                     
+                     cacheData.records[request.key] = record;
+                     completedRequests++;
+                     
+                     // Use atomic increment for ordered progress tracking
+                     globalCompletedCount++;
+                     
+                     // Show progress every 10 completed requests or at the end, in order
+                     if (globalCompletedCount % 10 === 0 || globalCompletedCount === allRequests.length) {
+                         const percentage = Math.round((globalCompletedCount / allRequests.length) * 100);
+                         console.log(`📊 Progress: ${globalCompletedCount}/${allRequests.length} (${percentage}%) for ${date}`);
+                     }
+                     
+                     return { success: true, key: request.key };
+                 } catch (error) {
+                     console.error(`❌ Error: ${request.key}`, error.message);
+                     
+                     // Still increment counter even on error to maintain order
+                     globalCompletedCount++;
+                     
+                     return { success: false, key: request.key, error: error.message };
+                 }
+             });
             
             // Wait for all requests in this batch to complete
             const batchResults = await Promise.all(batchPromises);
             
-            // Small delay between batches to be respectful to the API
-            if (i + batchSize < allRequests.length) {
-                console.log(`⏳ Waiting 0 seconds before next batch...`);
-                await this.delay(0);
-            }
+                         // Show batch completion status
+             const successfulInBatch = batchResults.filter(r => r.success).length;
+             const failedInBatch = batchResults.filter(r => !r.success).length;
+             console.log(`✅ Batch ${batchNumber} complete: ${successfulInBatch} success, ${failedInBatch} failed for ${date}`);
+             
+             // Small delay between batches to be respectful to the API
+             if (i + batchSize < allRequests.length) {
+                 console.log(`⏳ Preparing next batch for ${date}...`);
+                 await this.delay(0);
+             }
         }
 
         return cacheData;
@@ -392,8 +423,8 @@ class HistoricalCacheBackfill {
                 };
             }
             
-            console.log(`✅ Found level: ${levelData.name} (ID: ${levelData.id})`);
-            console.log(`✅ Found category: ${categoryData.name} (ID: ${categoryData.id})`);
+            // console.log(`✅ Found level: ${levelData.name} (ID: ${levelData.id})`);
+            // console.log(`✅ Found category: ${categoryData.name} (ID: ${categoryData.id})`);
             
             // Step 4: Build variable parameters (exactly like WorldRecordFetcher)
             const params = [];
@@ -431,7 +462,7 @@ class HistoricalCacheBackfill {
                 }
             }
             
-            console.log(`🔧 Variable parameters: ${params.join(', ')}`);
+            // console.log(`🔧 Variable parameters: ${params.join(', ')}`);
             
             // Step 5: Build leaderboard URL
             let leaderboardUrl;
@@ -453,14 +484,14 @@ class HistoricalCacheBackfill {
             }
             
             // Step 6: Get leaderboard
-            console.log(`🔍 Fetching: ${leaderboardUrl}`);
+            // console.log(`🔍 Fetching: ${leaderboardUrl}`);
             const leaderboardData = await this.fetchAPI(leaderboardUrl);
-            console.log(`📊 Response structure:`, {
-                hasData: !!leaderboardData.data,
-                hasRuns: !!leaderboardData.data?.runs,
-                runsLength: leaderboardData.data?.runs?.length || 0,
-                firstRun: leaderboardData.data?.runs?.[0] ? 'exists' : 'missing'
-            });
+            // console.log(`📊 Response structure:`, {
+            //     hasData: !!leaderboardData.data,
+            //     hasRuns: !!leaderboardData.data?.runs,
+            //     runsLength: leaderboardData.data?.runs?.length || 0,
+            //     firstRun: leaderboardData.data?.runs?.[0] ? 'exists' : 'missing'
+            // });
             
             // Check if we got a successful response with runs
             if (leaderboardData && leaderboardData.data && leaderboardData.data.runs && leaderboardData.data.runs.length > 0) {
@@ -564,7 +595,7 @@ class HistoricalCacheBackfill {
     async saveCacheData(date, data) {
         const filePath = this.createDateDirectory(date);
         fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-        console.log(`Saved cache for ${date}`);
+        console.log(`💾 Cache saved for ${date}`);
         
         // Upload to GitHub if running in GitHub Actions
         await this.uploadToGitHub(date);
@@ -730,24 +761,24 @@ class HistoricalCacheBackfill {
             
             try {
                 if (this.cacheExists(date) && !forceOverwrite) {
-                    console.log(`Cache already exists for ${date}, skipping...`);
-                    console.log('Use --force to overwrite existing cache');
+                    console.log(`📁 Cache already exists for ${date}, skipping...`);
+                    console.log('💡 Use --force to overwrite existing cache');
                     process.exit(0);
                 }
                 
-                console.log(`\n--- Processing ${date} ---`);
+                console.log(`\n🎯 Processing single date: ${date}`);
                 const cacheData = await this.fetchWorldRecordsForDate(date);
                 await this.saveCacheData(date, cacheData);
                 processedCount++;
                 
-                console.log(`\n--- Single Date Complete ---`);
-                console.log(`Processed: ${processedCount} dates`);
-                console.log(`Skipped: ${skippedCount} dates`);
-                console.log(`Errors: ${errorCount} dates`);
+                console.log(`\n🎉 Single Date Complete!`);
+                console.log(`✅ Processed: ${processedCount} dates`);
+                console.log(`⏭️  Skipped: ${skippedCount} dates`);
+                console.log(`❌ Errors: ${errorCount} dates`);
                 
                 process.exit(0);
             } catch (error) {
-                console.error(`Error processing ${date}:`, error);
+                console.error(`💥 Error processing ${date}:`, error);
                 process.exit(1);
             }
         }
@@ -776,13 +807,13 @@ class HistoricalCacheBackfill {
             
             try {
                 if (this.cacheExists(date) && !forceOverwrite) {
-                    console.log(`Cache already exists for ${date}, skipping...`);
+                    console.log(`📁 Cache already exists for ${date}, skipping...`);
                     skippedCount++;
                     this.saveCheckpoint(startDate, endDate, date, processedCount, skippedCount, errorCount);
                     continue;
                 }
                 
-                console.log(`\n--- Processing ${date} (${globalIndex + 1}/${dates.length}) ---`);
+                console.log(`\n📅 Processing ${date} (${globalIndex + 1}/${dates.length})`);
                 const cacheData = await this.fetchWorldRecordsForDate(date);
                 await this.saveCacheData(date, cacheData);
                 processedCount++;
@@ -794,7 +825,7 @@ class HistoricalCacheBackfill {
                 await this.delay(0);
                 
             } catch (error) {
-                console.error(`Error processing ${date}:`, error);
+                console.error(`💥 Error processing ${date}:`, error);
                 errorCount++;
                 
                 // Save checkpoint even on error
@@ -808,10 +839,10 @@ class HistoricalCacheBackfill {
         // Clear checkpoint on successful completion
         this.clearCheckpoint();
         
-        console.log(`\n--- Backfill Complete ---`);
-        console.log(`Processed: ${processedCount} dates`);
-        console.log(`Skipped: ${skippedCount} dates`);
-        console.log(`Errors: ${errorCount} dates`);
+        console.log(`\n🎉 Backfill Complete!`);
+        console.log(`✅ Processed: ${processedCount} dates`);
+        console.log(`⏭️  Skipped: ${skippedCount} dates`);
+        console.log(`❌ Errors: ${errorCount} dates`);
         
         process.exit(0);
     }
