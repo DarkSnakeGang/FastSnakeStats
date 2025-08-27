@@ -57,6 +57,11 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.error('updateTableSelector function not found');
     }
+    
+    // Update time travel message after DOM is loaded
+    if (typeof updateTimeTravelMessage === 'function') {
+        updateTimeTravelMessage();
+    }
 });
 
 // Wait for DOM to be fully loaded

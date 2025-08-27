@@ -39,6 +39,11 @@ async function mobileToggleTimeTravel() {
     isTimeTravelEnabled = !isTimeTravelEnabled;
     saveSettings();
     
+    // Update time travel message
+    if (typeof updateTimeTravelMessage === 'function') {
+        updateTimeTravelMessage();
+    }
+    
     // Update button status
     if (isTimeTravelEnabled && selectedTimeTravelDate) {
         // Check data availability when enabling
@@ -199,6 +204,11 @@ function waitForDesktopSystem() {
             
             // Trigger initial records loading for mobile
             triggerMobileInitialRecordsLoad();
+            
+            // Update time travel message after mobile initialization
+            if (typeof updateTimeTravelMessage === 'function') {
+                updateTimeTravelMessage();
+            }
         }
     }, 100);
     
@@ -823,6 +833,11 @@ function setupMobileSettingsEventListeners() {
             }
             
             saveSettings();
+            
+            // Update time travel message
+            if (typeof updateTimeTravelMessage === 'function') {
+                updateTimeTravelMessage();
+            }
             
             // Check data availability for the selected date
             if (this.value) {

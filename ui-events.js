@@ -83,10 +83,50 @@ function updateTimeTravelButtonStatus(status) {
 // Make function globally available
 window.updateTimeTravelButtonStatus = updateTimeTravelButtonStatus;
 
+// Function to check if date is too early (before or equal to 2018-10-23)
+function isDateTooEarly(dateString) {
+    if (!dateString) return false;
+    const selectedDate = new Date(dateString);
+    const cutoffDate = new Date('2018-10-23');
+    return selectedDate <= cutoffDate;
+}
+
+// Function to show/hide time travel message
+function updateTimeTravelMessage() {
+    const shouldShow = isTimeTravelEnabled && selectedTimeTravelDate && isDateTooEarly(selectedTimeTravelDate);
+    
+    // Update desktop message
+    const desktopMessage = document.getElementById('timeTravelMessage');
+    if (desktopMessage) {
+        if (shouldShow) {
+            desktopMessage.classList.add('show');
+        } else {
+            desktopMessage.classList.remove('show');
+        }
+    }
+    
+    // Update mobile message
+    const mobileMessage = document.getElementById('mobileTimeTravelMessage');
+    if (mobileMessage) {
+        if (shouldShow) {
+            mobileMessage.classList.add('show');
+        } else {
+            mobileMessage.classList.remove('show');
+        }
+    }
+}
+
+// Make functions globally available
+window.isDateTooEarly = isDateTooEarly;
+window.updateTimeTravelMessage = updateTimeTravelMessage;
+
 // Toggle time travel mode
 async function toggleTimeTravel() {
     isTimeTravelEnabled = !isTimeTravelEnabled;
     saveSettings();
+    
+    // Update time travel message
+    updateTimeTravelMessage();
     
     // Update button status based on data availability, but only if time travel is enabled
     if (isTimeTravelEnabled && selectedTimeTravelDate) {
@@ -594,10 +634,14 @@ function initializeUI() {
             selectedTimeTravelDate = selectedDate; // Save the selected date
             saveSettings();
             
+            // Update time travel message
+            updateTimeTravelMessage();
+            
             if (!selectedDate) {
                 selectedTimeTravelDate = "";
                 saveSettings();
                 updateTimeTravelButtonStatus('disabled');
+                updateTimeTravelMessage();
                 return;
             }
             

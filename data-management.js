@@ -166,6 +166,11 @@ function loadSettings() {
         } catch(e) {
         }
     }
+    
+    // Update time travel message after loading settings
+    if (typeof updateTimeTravelMessage === 'function') {
+        updateTimeTravelMessage();
+    }
 }
 
 // Save settings to localStorage

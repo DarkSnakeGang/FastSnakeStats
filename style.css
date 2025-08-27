@@ -1996,3 +1996,95 @@ body.dark-mode .quick-fetch-btn:disabled {
 	}
 }
 
+/* Time Travel Message Styles */
+.time-travel-message {
+	display: none;
+	background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+	color: white;
+	padding: 20px;
+	border-radius: 12px;
+	margin: 20px auto;
+	max-width: 600px;
+	text-align: center;
+	box-shadow: 0 8px 32px rgba(255, 107, 107, 0.3);
+	border: 2px solid rgba(255, 255, 255, 0.1);
+	backdrop-filter: blur(10px);
+	animation: fadeInUp 0.5s ease-out;
+}
+
+/* Hide mobile message on desktop */
+#mobileTimeTravelMessage {
+	display: none !important;
+}
+
+/* Hide desktop message on mobile */
+@media (max-width: 1023px) {
+	#timeTravelMessage {
+		display: none !important;
+	}
+}
+
+.time-travel-message.show {
+	display: block;
+}
+
+.time-travel-message .message-icon {
+	font-size: 3em;
+	margin-bottom: 15px;
+	display: block;
+}
+
+.time-travel-message .message-title {
+	font-size: 1.5em;
+	font-weight: bold;
+	margin-bottom: 10px;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.time-travel-message .message-text {
+	font-size: 1.1em;
+	line-height: 1.4;
+	opacity: 0.9;
+}
+
+/* Dark mode styles for time travel message */
+body.dark-mode .time-travel-message {
+	background: linear-gradient(135deg, #2c3e50, #34495e);
+	box-shadow: 0 8px 32px rgba(44, 62, 80, 0.4);
+	border: 2px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Mobile styles for time travel message */
+@media (max-width: 1023px) {
+	.time-travel-message {
+		margin: 15px;
+		padding: 15px;
+		border-radius: 8px;
+	}
+	
+	.time-travel-message .message-icon {
+		font-size: 2.5em;
+		margin-bottom: 10px;
+	}
+	
+	.time-travel-message .message-title {
+		font-size: 1.3em;
+	}
+	
+	.time-travel-message .message-text {
+		font-size: 1em;
+	}
+}
+
+/* Animation for the message */
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
