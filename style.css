@@ -2010,6 +2010,65 @@ body.dark-mode .quick-fetch-btn:disabled {
 	border: 2px solid rgba(255, 255, 255, 0.1);
 	backdrop-filter: blur(10px);
 	animation: fadeInUp 0.5s ease-out;
+	position: relative;
+	z-index: 1000;
+}
+
+/* Center records tables when time travel message is shown */
+.time-travel-message.show ~ .container .table-wrapper,
+.time-travel-message.show ~ .container .multiple-tables-container {
+	display: flex !important;
+	justify-content: center !important;
+	align-items: center !important;
+	margin: 0 auto !important;
+	width: 100% !important;
+}
+
+/* Ensure container is centered when time travel message is shown */
+.container:has(.time-travel-message.show) {
+	display: flex !important;
+	flex-direction: column !important;
+	align-items: center !important;
+	justify-content: flex-start !important;
+}
+
+/* Override grid layout when time travel message is shown */
+.time-travel-message.show ~ .container {
+	display: flex !important;
+	flex-direction: column !important;
+	align-items: center !important;
+	justify-content: flex-start !important;
+	grid-template-columns: 1fr !important;
+	grid-template-areas: "main" !important;
+	margin: 0 auto !important;
+	width: 100% !important;
+}
+
+/* Ensure the time travel message is visible and properly positioned */
+.time-travel-message.show {
+	display: block !important;
+	position: relative !important;
+	z-index: 1000 !important;
+}
+
+/* Additional centering for records tables when time travel message is visible */
+.time-travel-message.show + .container .table-wrapper,
+.time-travel-message.show + .container .multiple-tables-container {
+	display: flex !important;
+	justify-content: center !important;
+	align-items: center !important;
+	margin: 0 auto !important;
+	width: 100% !important;
+}
+
+/* Override specific margin styles when time travel message is shown */
+.time-travel-message.show ~ .container .table-wrapper.main-table-wrapper,
+.time-travel-message.show ~ .container .multiple-table-wrapper {
+	margin: 0 auto !important;
+}
+
+.time-travel-message.show ~ .container .table-wrapper.ranglist-wrapper {
+	margin: 0 auto !important;
 }
 
 /* Hide mobile message on desktop */
