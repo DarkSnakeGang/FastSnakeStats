@@ -436,9 +436,9 @@ class HistoricalCacheBackfill {
             // Step 5: Build leaderboard URL
             let leaderboardUrl;
             if (level === "H") {
-                leaderboardUrl = `${this.baseURL}/leaderboards/${this.gameID}/category/${categoryData.id}?top=10`;
+                leaderboardUrl = `${this.baseURL}/leaderboards/${this.gameID}/category/${categoryData.id}?top=1`;
             } else {
-                leaderboardUrl = `${this.baseURL}/leaderboards/${this.gameID}/level/${levelData.id}/${categoryData.id}?top=10`;
+                leaderboardUrl = `${this.baseURL}/leaderboards/${this.gameID}/level/${levelData.id}/${categoryData.id}?top=1`;
             }
             
             // Only add parameters if they have valid values (not undefined)
