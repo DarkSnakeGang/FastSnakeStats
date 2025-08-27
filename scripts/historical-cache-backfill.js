@@ -11,6 +11,8 @@ class HistoricalCacheBackfill {
         this.lastFailureTime = 0;
         this.failureDelay = 0; // 5 seconds delay after failures
         this.isGitHubActions = process.env.GITHUB_TOKEN !== undefined;
+        this.rateLimitShown = false;
+        this.apiOverloadShown = false;
     }
 
     // Create directory structure for the date
@@ -137,8 +139,6 @@ class HistoricalCacheBackfill {
         }
 
         let attempt = 1;
-        let rateLimitShown = false;
-        let apiOverloadShown = false;
         
         while (true) {
             try {
@@ -156,9 +156,9 @@ class HistoricalCacheBackfill {
 
                 if (response.status === 429) {
                     // Rate limited - wait 2 seconds
-                    if (!rateLimitShown) {
+                    if (!this.rateLimitShown) {
                         console.log(`⏳ API rate limiting detected, waiting...`);
-                        rateLimitShown = true;
+                        this.rateLimitShown = true;
                     }
                     await new Promise(resolve => setTimeout(resolve, 2000));
                     attempt++;
@@ -167,9 +167,9 @@ class HistoricalCacheBackfill {
 
                 if (response.status === 420) {
                     // API overloaded - wait 2 seconds
-                    if (!apiOverloadShown) {
+                    if (!this.apiOverloadShown) {
                         console.log(`⏳ API overloaded, waiting...`);
-                        apiOverloadShown = true;
+                        this.apiOverloadShown = true;
                     }
                     await new Promise(resolve => setTimeout(resolve, 2000));
                     attempt++;
