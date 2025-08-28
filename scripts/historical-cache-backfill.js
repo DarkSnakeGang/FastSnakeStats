@@ -923,8 +923,7 @@ class HistoricalCacheBackfill {
                 // Save checkpoint after each successful date
                 this.saveCheckpoint(startDate, endDate, date, processedCount, skippedCount, errorCount);
                 
-                // Add delay between dates to be respectful
-                await this.delay(0);
+                                 // No delay between dates
                 
             } catch (error) {
                 console.error(`💥 Error processing ${date}:`, error);
@@ -933,8 +932,7 @@ class HistoricalCacheBackfill {
                 // Save checkpoint even on error
                 this.saveCheckpoint(startDate, endDate, date, processedCount, skippedCount, errorCount);
                 
-                // Continue with next date even if one fails
-                await this.delay(0);
+                                 // Continue with next date even if one fails
             }
         }
         

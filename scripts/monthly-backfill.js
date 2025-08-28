@@ -96,11 +96,7 @@ class MonthlyBackfill {
                     failureCount++;
                 }
                 
-                // Add a small delay between days to be respectful to the API
-                if (day < daysInMonth) {
-                    console.log('⏳ Waiting 2 seconds before next day...');
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                }
+                // No delay between days
             }
             
             console.log(`\n🎉 Monthly backfill complete!`);
