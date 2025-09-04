@@ -296,9 +296,6 @@ function createIconElement(setting){
 function createTimeElement(times, isHighScore = false){
     ptformatter = function primaryTimeFormatter(pt){
         pt = pt.replace("PT","");
-        if(pt.indexOf("M") == -1){
-            pt = "0M"+pt;
-        }
         if(pt.indexOf("S") == -1){
             pt = pt+"0.000S";
         }
