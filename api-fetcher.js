@@ -299,7 +299,7 @@ async function quickFetchWorldRecords() {
             bestRuns = {};
             
             // Initialize the structure
-            const countNames = ["1 Apple", "3 Apples", "5 Apples", "Dice"];
+            const countNames = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"];
             const speedNames = ["Normal", "Fast", "Slow"];
             const sizeNames = ["Standard", "Small", "Large"];
             
@@ -402,7 +402,7 @@ async function refreshSpecificTable(settings) {
         }
         
         // Map combination to indices
-        const countNames = ["1 Apple", "3 Apples", "5 Apples", "Dice"];
+        const countNames = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"];
         const speedNames = ["Normal", "Fast", "Slow"];
         const sizeNames = ["Standard", "Small", "Large"];
         
@@ -724,7 +724,7 @@ async function getAllWorldRecordsForCurrentSettings() {
         const combo = selectedCombinations[comboIndex];
         
         // Map combination to indices
-        const countNames = ["1 Apple", "3 Apples", "5 Apples", "Dice"];
+        const countNames = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"];
         const speedNames = ["Normal", "Fast", "Slow"];
         const sizeNames = ["Standard", "Small", "Large"];
         
@@ -1112,7 +1112,7 @@ async function getAllWorldRecordsForDate(date) {
         const combo = selectedCombinations[comboIndex];
         
         // Map combination to indices
-        const countNames = ["1 Apple", "3 Apples", "5 Apples", "Dice"];
+        const countNames = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"];
         const speedNames = ["Normal", "Fast", "Slow"];
         const sizeNames = ["Standard", "Small", "Large"];
         

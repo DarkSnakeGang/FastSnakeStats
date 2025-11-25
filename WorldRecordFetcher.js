@@ -278,7 +278,7 @@ class WorldRecordFetcher {
             const settings = [
                 modeName,
                 categoryName,
-                ["1 Apple", "3 Apples", "5 Apples", "Dice"][count],
+                ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count],
                 ["Normal", "Fast", "Slow"][speed],
                 ["Standard", "Small", "Large"][size]
             ];
@@ -314,7 +314,7 @@ class WorldRecordFetcher {
             // Count variable - "Multi Apple Amount"
             const countVar = variables.data.find(v => v.name === "Multi Apple Amount");
             if (countVar && countVar.values && countVar.values.values) {
-                const countNames = ["1 Apple", "3 Apples", "5 Apples", "Dice"];
+                const countNames = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"];
                 const countValueEntry = Object.entries(countVar.values.values).find(([key, value]) => value.label === countNames[count]);
                 if (countValueEntry) {
                     const [valueId, valueObj] = countValueEntry;
@@ -375,9 +375,9 @@ class WorldRecordFetcher {
                 const emptyResult = {
                     success: false,
                     message: "No world record found",
-                    category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "Dice"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
+                    category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
                     settings: {
-                        count: ["1 Apple", "3 Apples", "5 Apples", "Dice"][count],
+                        count: ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count],
                         speed: ["Normal", "Fast", "Slow"][speed],
                         size: ["Standard", "Small", "Large"][size]
                     }
@@ -446,9 +446,9 @@ class WorldRecordFetcher {
             const result = {
                 success: true,
                 runs: tiedRuns,
-                category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "Dice"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
+                category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
                 settings: {
-                    count: ["1 Apple", "3 Apples", "5 Apples", "Dice"][count],
+                    count: ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count],
                     speed: ["Normal", "Fast", "Slow"][speed],
                     size: ["Standard", "Small", "Large"][size]
                 }
@@ -470,9 +470,9 @@ class WorldRecordFetcher {
             return {
                 success: false,
                 error: error.message,
-                category: `${modeNames[mode]} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "Dice"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
+                category: `${modeNames[mode]} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
                 settings: {
-                    count: ["1 Apple", "3 Apples", "5 Apples", "Dice"][count],
+                    count: ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count],
                     speed: ["Normal", "Fast", "Slow"][speed],
                     size: ["Standard", "Small", "Large"][size]
                 }
@@ -491,7 +491,7 @@ class WorldRecordFetcher {
             const settings = [
                 modeName,
                 categoryName,
-                ["1 Apple", "3 Apples", "5 Apples", "Dice"][count],
+                ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count],
                 ["Normal", "Fast", "Slow"][speed],
                 ["Standard", "Small", "Large"][size]
             ];
@@ -527,7 +527,7 @@ class WorldRecordFetcher {
             // Count variable - "Multi Apple Amount"
             const countVar = variables.data.find(v => v.name === "Multi Apple Amount");
             if (countVar && countVar.values && countVar.values.values) {
-                const countNames = ["1 Apple", "3 Apples", "5 Apples", "Dice"];
+                const countNames = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"];
                 const countValueEntry = Object.entries(countVar.values.values).find(([key, value]) => value.label === countNames[count]);
                 if (countValueEntry) {
                     const [valueId, valueObj] = countValueEntry;
@@ -587,9 +587,9 @@ class WorldRecordFetcher {
                 const emptyResult = {
                     success: false,
                     message: "No world record found for this date",
-                    category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "Dice"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
+                    category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
                     settings: {
-                        count: ["1 Apple", "3 Apples", "5 Apples", "Dice"][count],
+                        count: ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count],
                         speed: ["Normal", "Fast", "Slow"][speed],
                         size: ["Standard", "Small", "Large"][size]
                     },
@@ -659,9 +659,9 @@ class WorldRecordFetcher {
             const result = {
                 success: true,
                 runs: tiedRuns,
-                category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "Dice"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
+                category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
                 settings: {
-                    count: ["1 Apple", "3 Apples", "5 Apples", "Dice"][count],
+                    count: ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count],
                     speed: ["Normal", "Fast", "Slow"][speed],
                     size: ["Standard", "Small", "Large"][size]
                 },
@@ -684,9 +684,9 @@ class WorldRecordFetcher {
             return {
                 success: false,
                 error: error.message,
-                category: `${modeNames[mode]} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "Dice"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
+                category: `${modeNames[mode]} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
                 settings: {
-                    count: ["1 Apple", "3 Apples", "5 Apples", "Dice"][count],
+                    count: ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count],
                     speed: ["Normal", "Fast", "Slow"][speed],
                     size: ["Standard", "Small", "Large"][size]
                 },
@@ -721,7 +721,7 @@ class WorldRecordFetcher {
             const settings = [
                 modeName,
                 categoryName,
-                ["1 Apple", "3 Apples", "5 Apples", "Dice"][request.count],
+                ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][request.count],
                 ["Normal", "Fast", "Slow"][request.speed],
                 ["Standard", "Small", "Large"][request.size]
             ];

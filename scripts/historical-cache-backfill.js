@@ -211,6 +211,13 @@ class HistoricalCacheBackfill {
         // Check if date is before 2023-06-13 (for dice exclusion)
         const isBefore2023June13 = new Date(date) < new Date('2023-06-13');
         
+        // Check if date is 2025-11-24 or later (for 10 Apples and Bomb inclusion)
+        const dateObj = new Date(date);
+        dateObj.setHours(0, 0, 0, 0);
+        const date20251124 = new Date('2025-11-24');
+        date20251124.setHours(0, 0, 0, 0);
+        const is20251124OrLater = dateObj >= date20251124;
+        
         // Define all possible combinations
         let combinations = [
             ['1 Apple', 'Normal', 'Standard'],
@@ -254,6 +261,30 @@ class HistoricalCacheBackfill {
                 ['Dice', 'Slow', 'Standard'],
                 ['Dice', 'Slow', 'Small'],
                 ['Dice', 'Slow', 'Large']
+            ]);
+        }
+        
+        // Add 10 Apples and Bomb combinations only for 2025-11-24 or later
+        if (is20251124OrLater) {
+            combinations = combinations.concat([
+                ['10 Apples', 'Normal', 'Standard'],
+                ['10 Apples', 'Normal', 'Small'],
+                ['10 Apples', 'Normal', 'Large'],
+                ['10 Apples', 'Fast', 'Standard'],
+                ['10 Apples', 'Fast', 'Small'],
+                ['10 Apples', 'Fast', 'Large'],
+                ['10 Apples', 'Slow', 'Standard'],
+                ['10 Apples', 'Slow', 'Small'],
+                ['10 Apples', 'Slow', 'Large'],
+                ['Bomb', 'Normal', 'Standard'],
+                ['Bomb', 'Normal', 'Small'],
+                ['Bomb', 'Normal', 'Large'],
+                ['Bomb', 'Fast', 'Standard'],
+                ['Bomb', 'Fast', 'Small'],
+                ['Bomb', 'Fast', 'Large'],
+                ['Bomb', 'Slow', 'Standard'],
+                ['Bomb', 'Slow', 'Small'],
+                ['Bomb', 'Slow', 'Large']
             ]);
         }
 
@@ -531,18 +562,24 @@ class HistoricalCacheBackfill {
             // Step 4: Build variable parameters (exactly like WorldRecordFetcher)
             const params = [];
             
-            // Count variable - "Multi Apple Amount"
+            // Count variable - "Multi Apple Amount" (matching WorldRecordFetcher.js approach)
             const countVar = variables.data.find(v => v.name === "Multi Apple Amount");
             if (countVar && countVar.values && countVar.values.values) {
+                const countNames = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"];
                 const countValueEntry = Object.entries(countVar.values.values).find(([key, value]) => value.label === count);
                 if (countValueEntry) {
                     const [valueId, valueObj] = countValueEntry;
                     params.push(`var-${countVar.id}=${valueId}`);
+                } else {
+                    // Log available labels if lookup fails
+                    const availableLabels = Object.values(countVar.values.values).map(v => v.label);
+                    console.error(`❌ Count variable lookup failed for "${count}". Available labels: ${availableLabels.join(', ')}`);
                 }
             }
             
-            // Speed variables - add all Speed variables
+            // Speed variables - add all Speed variables (matching WorldRecordFetcher.js approach)
             const speedVars = variables.data.filter(v => v.name === "Speed");
+            const speedNames = ["Normal", "Fast", "Slow"];
             for (let i = 0; i < speedVars.length; i++) {
                 const sv = speedVars[i];
                 if (sv.values && sv.values.values) {
@@ -550,17 +587,26 @@ class HistoricalCacheBackfill {
                     if (speedValueEntry) {
                         const [valueId, valueObj] = speedValueEntry;
                         params.push(`var-${sv.id}=${valueId}`);
+                    } else {
+                        // Log available labels if lookup fails
+                        const availableLabels = Object.values(sv.values.values).map(v => v.label);
+                        console.error(`❌ Speed variable lookup failed for "${speed}". Available labels: ${availableLabels.join(', ')}`);
                     }
                 }
             }
             
-            // Size variable - "Board Size"
+            // Size variable - "Board Size" (matching WorldRecordFetcher.js approach)
             const sizeVar = variables.data.find(v => v.name === "Board Size");
             if (sizeVar && sizeVar.values && sizeVar.values.values) {
+                const sizeNames = ["Standard", "Small", "Large"];
                 const sizeValueEntry = Object.entries(sizeVar.values.values).find(([key, value]) => value.label === size);
                 if (sizeValueEntry) {
                     const [valueId, valueObj] = sizeValueEntry;
                     params.push(`var-${sizeVar.id}=${valueId}`);
+                } else {
+                    // Log available labels if lookup fails
+                    const availableLabels = Object.values(sizeVar.values.values).map(v => v.label);
+                    console.error(`❌ Size variable lookup failed for "${size}". Available labels: ${availableLabels.join(', ')}`);
                 }
             }
             
@@ -948,6 +994,13 @@ class HistoricalCacheBackfill {
     }
 }
 
-// Run the backfill
-const backfill = new HistoricalCacheBackfill();
-backfill.run();
+// Export the class for testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = HistoricalCacheBackfill;
+}
+
+// Run the backfill if this script is executed directly (not imported)
+if (require.main === module) {
+    const backfill = new HistoricalCacheBackfill();
+    backfill.run();
+}
