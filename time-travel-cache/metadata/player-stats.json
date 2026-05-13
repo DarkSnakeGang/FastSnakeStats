@@ -1,12 +1,12 @@
 {
-  "lastUpdated": "2026-05-12T05:36:12.676Z",
+  "lastUpdated": "2026-05-13T05:45:38.911Z",
   "totalPlayers": 904,
   "players": [
     {
       "id": "18qw9908",
       "name": "Yarmiplay",
-      "totalRecords": 300767,
-      "totalDates": 2348,
+      "totalRecords": 300843,
+      "totalDates": 2349,
       "peakRecords": {
         "date": "2023-08-01",
         "count": 301
@@ -19,8 +19,8 @@
     {
       "id": "8r7zeqqj",
       "name": "moterstorm",
-      "totalRecords": 294465,
-      "totalDates": 1370,
+      "totalRecords": 294750,
+      "totalDates": 1371,
       "peakRecords": {
         "date": "2025-05-29",
         "count": 331
@@ -33,8 +33,8 @@
     {
       "id": "18qdq9qx",
       "name": "M4xD",
-      "totalRecords": 246361,
-      "totalDates": 2105,
+      "totalRecords": 246512,
+      "totalDates": 2106,
       "peakRecords": {
         "date": "2023-04-17",
         "count": 242
@@ -47,8 +47,8 @@
     {
       "id": "8r7pv0gj",
       "name": "DAIH",
-      "totalRecords": 227524,
-      "totalDates": 1943,
+      "totalRecords": 227887,
+      "totalDates": 1944,
       "peakRecords": {
         "date": "2026-03-09",
         "count": 370
@@ -61,8 +61,8 @@
     {
       "id": "jopgy97x",
       "name": "Frost20",
-      "totalRecords": 198738,
-      "totalDates": 1879,
+      "totalRecords": 198775,
+      "totalDates": 1880,
       "peakRecords": {
         "date": "2022-01-22",
         "count": 238
@@ -75,22 +75,22 @@
     {
       "id": "xk11ey6j",
       "name": "Snakeabake",
-      "totalRecords": 164197,
-      "totalDates": 1298,
+      "totalRecords": 164704,
+      "totalDates": 1299,
       "peakRecords": {
-        "date": "2026-05-11",
-        "count": 498
+        "date": "2026-05-12",
+        "count": 507
       },
       "peakPercentage": {
-        "date": "2026-05-11",
-        "percentage": 10.75
+        "date": "2026-05-12",
+        "percentage": 10.94
       }
     },
     {
       "id": "qjoyy73x",
       "name": "JBC",
-      "totalRecords": 152051,
-      "totalDates": 1039,
+      "totalRecords": 152146,
+      "totalDates": 1040,
       "peakRecords": {
         "date": "2024-01-01",
         "count": 290
@@ -103,8 +103,8 @@
     {
       "id": "8qz33108",
       "name": "GhostLJK",
-      "totalRecords": 148145,
-      "totalDates": 2088,
+      "totalRecords": 148177,
+      "totalDates": 2089,
       "peakRecords": {
         "date": "2021-10-16",
         "count": 138
@@ -117,8 +117,8 @@
     {
       "id": "j5w7zlqj",
       "name": "SpaceDoge",
-      "totalRecords": 138986,
-      "totalDates": 2149,
+      "totalRecords": 139371,
+      "totalDates": 2150,
       "peakRecords": {
         "date": "2026-02-08",
         "count": 505
@@ -131,8 +131,8 @@
     {
       "id": "98rl53w8",
       "name": "eldiab",
-      "totalRecords": 135378,
-      "totalDates": 1934,
+      "totalRecords": 135414,
+      "totalDates": 1935,
       "peakRecords": {
         "date": "2022-01-18",
         "count": 123
@@ -145,8 +145,8 @@
     {
       "id": "86vqeppj",
       "name": "HooverHoover5",
-      "totalRecords": 110633,
-      "totalDates": 1897,
+      "totalRecords": 110672,
+      "totalDates": 1898,
       "peakRecords": {
         "date": "2022-12-25",
         "count": 112
@@ -159,8 +159,8 @@
     {
       "id": "8w0gqnqj",
       "name": "SnakeAce",
-      "totalRecords": 104267,
-      "totalDates": 1294,
+      "totalRecords": 104330,
+      "totalDates": 1295,
       "peakRecords": {
         "date": "2025-03-06",
         "count": 144
@@ -173,8 +173,8 @@
     {
       "id": "e8e3yrdj",
       "name": "fibyq",
-      "totalRecords": 103009,
-      "totalDates": 1570,
+      "totalRecords": 103052,
+      "totalDates": 1571,
       "peakRecords": {
         "date": "2024-01-07",
         "count": 121
@@ -187,8 +187,8 @@
     {
       "id": "jn9qrewx",
       "name": "m0nument",
-      "totalRecords": 87190,
-      "totalDates": 1356,
+      "totalRecords": 87357,
+      "totalDates": 1357,
       "peakRecords": {
         "date": "2026-03-21",
         "count": 176
@@ -201,8 +201,8 @@
     {
       "id": "8g5pp31j",
       "name": "Withered",
-      "totalRecords": 85826,
-      "totalDates": 1276,
+      "totalRecords": 85913,
+      "totalDates": 1277,
       "peakRecords": {
         "date": "2024-12-28",
         "count": 156
@@ -215,8 +215,8 @@
     {
       "id": "v81ng2qj",
       "name": "SUNNYblue",
-      "totalRecords": 71260,
-      "totalDates": 1638,
+      "totalRecords": 71310,
+      "totalDates": 1639,
       "peakRecords": {
         "date": "2024-01-28",
         "count": 70
@@ -229,8 +229,8 @@
     {
       "id": "8gr192yx",
       "name": "kkthebeast",
-      "totalRecords": 67192,
-      "totalDates": 1592,
+      "totalRecords": 67219,
+      "totalDates": 1593,
       "peakRecords": {
         "date": "2023-09-04",
         "count": 58
@@ -241,24 +241,10 @@
       }
     },
     {
-      "id": "86n0dm3x",
-      "name": "SpeedyEthan",
-      "totalRecords": 61993,
-      "totalDates": 1869,
-      "peakRecords": {
-        "date": "2023-08-22",
-        "count": 106
-      },
-      "peakPercentage": {
-        "date": "2021-11-08",
-        "percentage": 7.24
-      }
-    },
-    {
       "id": "8greko7x",
       "name": "Nat_Cat",
-      "totalRecords": 61590,
-      "totalDates": 884,
+      "totalRecords": 62027,
+      "totalDates": 885,
       "peakRecords": {
         "date": "2026-05-03",
         "count": 466
@@ -269,10 +255,24 @@
       }
     },
     {
+      "id": "86n0dm3x",
+      "name": "SpeedyEthan",
+      "totalRecords": 62008,
+      "totalDates": 1870,
+      "peakRecords": {
+        "date": "2023-08-22",
+        "count": 106
+      },
+      "peakPercentage": {
+        "date": "2021-11-08",
+        "percentage": 7.24
+      }
+    },
+    {
       "id": "8169r9px",
       "name": "Isakfan1",
-      "totalRecords": 58465,
-      "totalDates": 576,
+      "totalRecords": 58711,
+      "totalDates": 577,
       "peakRecords": {
         "date": "2026-05-09",
         "count": 246
@@ -285,8 +285,8 @@
     {
       "id": "j5qn00nj",
       "name": "Never_Always",
-      "totalRecords": 55570,
-      "totalDates": 1048,
+      "totalRecords": 55605,
+      "totalDates": 1049,
       "peakRecords": {
         "date": "2025-11-29",
         "count": 74
@@ -299,8 +299,8 @@
     {
       "id": "81q32zrj",
       "name": "Tunkerz",
-      "totalRecords": 52185,
-      "totalDates": 1632,
+      "totalRecords": 52208,
+      "totalDates": 1633,
       "peakRecords": {
         "date": "2023-08-10",
         "count": 77
@@ -313,8 +313,8 @@
     {
       "id": "kj9m4pox",
       "name": "ScienceCrafter",
-      "totalRecords": 52152,
-      "totalDates": 1797,
+      "totalRecords": 52188,
+      "totalDates": 1798,
       "peakRecords": {
         "date": "2025-12-12",
         "count": 63
@@ -327,8 +327,8 @@
     {
       "id": "8l07vk78",
       "name": "Hoever",
-      "totalRecords": 51978,
-      "totalDates": 1995,
+      "totalRecords": 51989,
+      "totalDates": 1996,
       "peakRecords": {
         "date": "2021-07-31",
         "count": 50
@@ -341,8 +341,8 @@
     {
       "id": "j96zv1vj",
       "name": "Segmentum",
-      "totalRecords": 45793,
-      "totalDates": 857,
+      "totalRecords": 45845,
+      "totalDates": 858,
       "peakRecords": {
         "date": "2026-01-01",
         "count": 141
@@ -355,8 +355,8 @@
     {
       "id": "xylynenj",
       "name": "BlazeKing_",
-      "totalRecords": 45598,
-      "totalDates": 1696,
+      "totalRecords": 45622,
+      "totalDates": 1697,
       "peakRecords": {
         "date": "2022-08-06",
         "count": 58
@@ -369,8 +369,8 @@
     {
       "id": "j2wryplj",
       "name": "bruhman223",
-      "totalRecords": 43391,
-      "totalDates": 1794,
+      "totalRecords": 43425,
+      "totalDates": 1795,
       "peakRecords": {
         "date": "2024-07-23",
         "count": 42
@@ -383,8 +383,8 @@
     {
       "id": "8q645mdj",
       "name": "CyGnyte",
-      "totalRecords": 40951,
-      "totalDates": 1067,
+      "totalRecords": 41005,
+      "totalDates": 1068,
       "peakRecords": {
         "date": "2026-02-23",
         "count": 66
@@ -397,8 +397,8 @@
     {
       "id": "81p760l8",
       "name": "Unachievium",
-      "totalRecords": 33422,
-      "totalDates": 375,
+      "totalRecords": 33669,
+      "totalDates": 376,
       "peakRecords": {
         "date": "2026-04-09",
         "count": 284
@@ -409,24 +409,10 @@
       }
     },
     {
-      "id": "8dwoqmgj",
-      "name": "theepiccarrot7",
-      "totalRecords": 33029,
-      "totalDates": 1971,
-      "peakRecords": {
-        "date": "2021-05-06",
-        "count": 90
-      },
-      "peakPercentage": {
-        "date": "2021-05-07",
-        "percentage": 10.56
-      }
-    },
-    {
       "id": "jpyw14kj",
       "name": "yIsThisMyName",
-      "totalRecords": 33019,
-      "totalDates": 716,
+      "totalRecords": 33168,
+      "totalDates": 717,
       "peakRecords": {
         "date": "2026-04-09",
         "count": 189
@@ -437,10 +423,24 @@
       }
     },
     {
+      "id": "8dwoqmgj",
+      "name": "theepiccarrot7",
+      "totalRecords": 33033,
+      "totalDates": 1972,
+      "peakRecords": {
+        "date": "2021-05-06",
+        "count": 90
+      },
+      "peakPercentage": {
+        "date": "2021-05-07",
+        "percentage": 10.56
+      }
+    },
+    {
       "id": "xyo2g7vj",
       "name": "goldenrod",
-      "totalRecords": 31042,
-      "totalDates": 935,
+      "totalRecords": 31184,
+      "totalDates": 936,
       "peakRecords": {
         "date": "2026-05-07",
         "count": 146
@@ -453,8 +453,8 @@
     {
       "id": "8qp34dox",
       "name": "mithril1",
-      "totalRecords": 27560,
-      "totalDates": 623,
+      "totalRecords": 27600,
+      "totalDates": 624,
       "peakRecords": {
         "date": "2024-10-15",
         "count": 60
@@ -467,8 +467,8 @@
     {
       "id": "8qrmlqdj",
       "name": "Nitsua",
-      "totalRecords": 26681,
-      "totalDates": 1512,
+      "totalRecords": 26694,
+      "totalDates": 1513,
       "peakRecords": {
         "date": "2022-12-27",
         "count": 24
@@ -481,8 +481,8 @@
     {
       "id": "jmpmp4oj",
       "name": "Gaming_64",
-      "totalRecords": 26449,
-      "totalDates": 934,
+      "totalRecords": 26462,
+      "totalDates": 935,
       "peakRecords": {
         "date": "2025-11-24",
         "count": 92
@@ -495,8 +495,8 @@
     {
       "id": "y8d16wm8",
       "name": "Babick",
-      "totalRecords": 23025,
-      "totalDates": 769,
+      "totalRecords": 23040,
+      "totalDates": 770,
       "peakRecords": {
         "date": "2024-05-12",
         "count": 48
@@ -509,8 +509,8 @@
     {
       "id": "8vkkrgyj",
       "name": "Nickolish",
-      "totalRecords": 22767,
-      "totalDates": 1646,
+      "totalRecords": 22777,
+      "totalDates": 1647,
       "peakRecords": {
         "date": "2021-02-05",
         "count": 44
@@ -523,8 +523,8 @@
     {
       "id": "8wke49v8",
       "name": "Spance",
-      "totalRecords": 22729,
-      "totalDates": 2033,
+      "totalRecords": 22732,
+      "totalDates": 2034,
       "peakRecords": {
         "date": "2021-01-01",
         "count": 69
@@ -537,8 +537,8 @@
     {
       "id": "jnzq06qj",
       "name": "donahana",
-      "totalRecords": 20940,
-      "totalDates": 1894,
+      "totalRecords": 20941,
+      "totalDates": 1895,
       "peakRecords": {
         "date": "2021-04-03",
         "count": 37
@@ -551,8 +551,8 @@
     {
       "id": "jng7l3w8",
       "name": "errorpaint",
-      "totalRecords": 17829,
-      "totalDates": 825,
+      "totalRecords": 17845,
+      "totalDates": 826,
       "peakRecords": {
         "date": "2024-05-14",
         "count": 32
@@ -565,8 +565,8 @@
     {
       "id": "jokv9908",
       "name": "Gajapa",
-      "totalRecords": 17276,
-      "totalDates": 801,
+      "totalRecords": 17284,
+      "totalDates": 802,
       "peakRecords": {
         "date": "2024-11-12",
         "count": 76
@@ -579,8 +579,8 @@
     {
       "id": "x7q4n3r8",
       "name": "logerator",
-      "totalRecords": 16916,
-      "totalDates": 1999,
+      "totalRecords": 16918,
+      "totalDates": 2000,
       "peakRecords": {
         "date": "2021-04-14",
         "count": 31
@@ -593,8 +593,8 @@
     {
       "id": "7j496kd8",
       "name": "jjw_26",
-      "totalRecords": 16804,
-      "totalDates": 1626,
+      "totalRecords": 16810,
+      "totalDates": 1627,
       "peakRecords": {
         "date": "2022-07-23",
         "count": 29
@@ -607,8 +607,8 @@
     {
       "id": "jn34egwx",
       "name": "ImSchnippi",
-      "totalRecords": 13432,
-      "totalDates": 2030,
+      "totalRecords": 13435,
+      "totalDates": 2031,
       "peakRecords": {
         "date": "2021-11-23",
         "count": 27
@@ -621,8 +621,8 @@
     {
       "id": "xko2g798",
       "name": "Akuretaki",
-      "totalRecords": 12874,
-      "totalDates": 1021,
+      "totalRecords": 12891,
+      "totalDates": 1022,
       "peakRecords": {
         "date": "2024-09-20",
         "count": 67
@@ -635,8 +635,8 @@
     {
       "id": "8gr2vdyx",
       "name": "SchuppAdoop",
-      "totalRecords": 12063,
-      "totalDates": 1935,
+      "totalRecords": 12069,
+      "totalDates": 1936,
       "peakRecords": {
         "date": "2022-03-23",
         "count": 16
@@ -649,8 +649,8 @@
     {
       "id": "814or4q8",
       "name": "FridgeMagnet",
-      "totalRecords": 11726,
-      "totalDates": 1235,
+      "totalRecords": 11731,
+      "totalDates": 1236,
       "peakRecords": {
         "date": "2023-02-24",
         "count": 17
@@ -663,8 +663,8 @@
     {
       "id": "81040y5x",
       "name": "raynet0",
-      "totalRecords": 10957,
-      "totalDates": 1010,
+      "totalRecords": 10964,
+      "totalDates": 1011,
       "peakRecords": {
         "date": "2024-01-14",
         "count": 16
@@ -677,8 +677,8 @@
     {
       "id": "j2ynzqp8",
       "name": "MrTMVP",
-      "totalRecords": 10758,
-      "totalDates": 1920,
+      "totalRecords": 10762,
+      "totalDates": 1921,
       "peakRecords": {
         "date": "2026-01-10",
         "count": 102
@@ -691,8 +691,8 @@
     {
       "id": "j425o1mx",
       "name": "TheRealNoahL",
-      "totalRecords": 10724,
-      "totalDates": 1092,
+      "totalRecords": 10735,
+      "totalDates": 1093,
       "peakRecords": {
         "date": "2025-11-25",
         "count": 21
@@ -705,8 +705,8 @@
     {
       "id": "8l030748",
       "name": "fishes",
-      "totalRecords": 10302,
-      "totalDates": 1850,
+      "totalRecords": 10307,
+      "totalDates": 1851,
       "peakRecords": {
         "date": "2022-06-18",
         "count": 8
@@ -719,8 +719,8 @@
     {
       "id": "xy554zw8",
       "name": "AzaCat",
-      "totalRecords": 10156,
-      "totalDates": 809,
+      "totalRecords": 10165,
+      "totalDates": 810,
       "peakRecords": {
         "date": "2024-04-07",
         "count": 26
@@ -733,8 +733,8 @@
     {
       "id": "8gek471j",
       "name": "thisguy455",
-      "totalRecords": 10097,
-      "totalDates": 1711,
+      "totalRecords": 10102,
+      "totalDates": 1712,
       "peakRecords": {
         "date": "2022-01-01",
         "count": 10
@@ -747,8 +747,8 @@
     {
       "id": "8gr6grrx",
       "name": "ProjectRun",
-      "totalRecords": 9412,
-      "totalDates": 1688,
+      "totalRecords": 9416,
+      "totalDates": 1689,
       "peakRecords": {
         "date": "2022-12-05",
         "count": 36
@@ -761,8 +761,8 @@
     {
       "id": "x3557mqj",
       "name": "Ben_eXceL",
-      "totalRecords": 9202,
-      "totalDates": 672,
+      "totalRecords": 9214,
+      "totalDates": 673,
       "peakRecords": {
         "date": "2024-10-10",
         "count": 25
@@ -775,8 +775,8 @@
     {
       "id": "j2pq5k68",
       "name": "KlopFlopPop",
-      "totalRecords": 8854,
-      "totalDates": 600,
+      "totalRecords": 8867,
+      "totalDates": 601,
       "peakRecords": {
         "date": "2025-04-10",
         "count": 30
@@ -789,8 +789,8 @@
     {
       "id": "8wken9v8",
       "name": "soepie",
-      "totalRecords": 8579,
-      "totalDates": 2016,
+      "totalRecords": 8582,
+      "totalDates": 2017,
       "peakRecords": {
         "date": "2021-08-17",
         "count": 10
@@ -803,8 +803,8 @@
     {
       "id": "xz0ypze8",
       "name": "Rynchia",
-      "totalRecords": 8067,
-      "totalDates": 1254,
+      "totalRecords": 8073,
+      "totalDates": 1255,
       "peakRecords": {
         "date": "2023-03-21",
         "count": 8
@@ -831,8 +831,8 @@
     {
       "id": "814zr4p8",
       "name": "GreatDayJay",
-      "totalRecords": 7287,
-      "totalDates": 1085,
+      "totalRecords": 7293,
+      "totalDates": 1086,
       "peakRecords": {
         "date": "2023-07-28",
         "count": 29
@@ -845,8 +845,8 @@
     {
       "id": "j5p972q8",
       "name": "DavHlav",
-      "totalRecords": 6940,
-      "totalDates": 594,
+      "totalRecords": 6949,
+      "totalDates": 595,
       "peakRecords": {
         "date": "2025-12-03",
         "count": 36
@@ -859,8 +859,8 @@
     {
       "id": "5j53z4qx",
       "name": "Joshuathebeast9",
-      "totalRecords": 6584,
-      "totalDates": 535,
+      "totalRecords": 6614,
+      "totalDates": 536,
       "peakRecords": {
         "date": "2025-12-21",
         "count": 34
@@ -873,8 +873,8 @@
     {
       "id": "xyrm30wj",
       "name": "Sleeper_Cell",
-      "totalRecords": 6481,
-      "totalDates": 1940,
+      "totalRecords": 6482,
+      "totalDates": 1941,
       "peakRecords": {
         "date": "2021-02-08",
         "count": 62
@@ -887,8 +887,8 @@
     {
       "id": "xk3oo3m8",
       "name": "Hawk_51_",
-      "totalRecords": 6139,
-      "totalDates": 1430,
+      "totalRecords": 6140,
+      "totalDates": 1431,
       "peakRecords": {
         "date": "2022-04-17",
         "count": 9
@@ -901,8 +901,8 @@
     {
       "id": "j0n55mr8",
       "name": "praxis",
-      "totalRecords": 6119,
-      "totalDates": 1680,
+      "totalRecords": 6120,
+      "totalDates": 1681,
       "peakRecords": {
         "date": "2021-11-04",
         "count": 15
@@ -915,8 +915,8 @@
     {
       "id": "j42g6ovx",
       "name": "emerz34",
-      "totalRecords": 5934,
-      "totalDates": 1627,
+      "totalRecords": 5937,
+      "totalDates": 1628,
       "peakRecords": {
         "date": "2021-12-15",
         "count": 5
@@ -929,8 +929,8 @@
     {
       "id": "xyqv4wm8",
       "name": "benzanol",
-      "totalRecords": 5851,
-      "totalDates": 845,
+      "totalRecords": 5854,
+      "totalDates": 846,
       "peakRecords": {
         "date": "2024-01-29",
         "count": 12
@@ -943,8 +943,8 @@
     {
       "id": "8e9r6ypj",
       "name": "OddCasual",
-      "totalRecords": 5661,
-      "totalDates": 1591,
+      "totalRecords": 5664,
+      "totalDates": 1592,
       "peakRecords": {
         "date": "2024-07-26",
         "count": 7
@@ -957,8 +957,8 @@
     {
       "id": "866nznq8",
       "name": "Klap",
-      "totalRecords": 5435,
-      "totalDates": 1473,
+      "totalRecords": 5437,
+      "totalDates": 1474,
       "peakRecords": {
         "date": "2024-10-22",
         "count": 6
@@ -971,8 +971,8 @@
     {
       "id": "x3qrrq7j",
       "name": "Monchi",
-      "totalRecords": 5423,
-      "totalDates": 1915,
+      "totalRecords": 5424,
+      "totalDates": 1916,
       "peakRecords": {
         "date": "2021-02-27",
         "count": 8
@@ -999,8 +999,8 @@
     {
       "id": "j26rqv6x",
       "name": "Sergio14",
-      "totalRecords": 5147,
-      "totalDates": 1611,
+      "totalRecords": 5148,
+      "totalDates": 1612,
       "peakRecords": {
         "date": "2022-04-07",
         "count": 16
@@ -1013,8 +1013,8 @@
     {
       "id": "x3qly2qj",
       "name": "Special",
-      "totalRecords": 5119,
-      "totalDates": 1431,
+      "totalRecords": 5121,
+      "totalDates": 1432,
       "peakRecords": {
         "date": "2024-10-09",
         "count": 8
@@ -1027,8 +1027,8 @@
     {
       "id": "8qooqroj",
       "name": "BriGuy",
-      "totalRecords": 4943,
-      "totalDates": 1414,
+      "totalRecords": 4944,
+      "totalDates": 1415,
       "peakRecords": {
         "date": "2022-07-06",
         "count": 15
@@ -1041,8 +1041,8 @@
     {
       "id": "jm74o6nj",
       "name": "HenkDeSteen",
-      "totalRecords": 4824,
-      "totalDates": 727,
+      "totalRecords": 4831,
+      "totalDates": 728,
       "peakRecords": {
         "date": "2024-09-30",
         "count": 11
@@ -1055,8 +1055,8 @@
     {
       "id": "816l4zlx",
       "name": "Josephone",
-      "totalRecords": 4760,
-      "totalDates": 1612,
+      "totalRecords": 4763,
+      "totalDates": 1613,
       "peakRecords": {
         "date": "2022-01-20",
         "count": 3
@@ -1069,11 +1069,11 @@
     {
       "id": "zx7no5v8",
       "name": "ShawnnorCaw",
-      "totalRecords": 4658,
-      "totalDates": 1993,
+      "totalRecords": 4680,
+      "totalDates": 1994,
       "peakRecords": {
-        "date": "2026-05-09",
-        "count": 20
+        "date": "2026-05-12",
+        "count": 22
       },
       "peakPercentage": {
         "date": "2020-11-25",
@@ -1081,24 +1081,10 @@
       }
     },
     {
-      "id": "jmoqklo8",
-      "name": "CreepingThunder",
-      "totalRecords": 4636,
-      "totalDates": 1944,
-      "peakRecords": {
-        "date": "2021-03-26",
-        "count": 27
-      },
-      "peakPercentage": {
-        "date": "2021-03-26",
-        "percentage": 3.83
-      }
-    },
-    {
       "id": "pj03my9j",
       "name": "J0E",
-      "totalRecords": 4636,
-      "totalDates": 510,
+      "totalRecords": 4654,
+      "totalDates": 511,
       "peakRecords": {
         "date": "2026-05-06",
         "count": 18
@@ -1109,10 +1095,24 @@
       }
     },
     {
+      "id": "jmoqklo8",
+      "name": "CreepingThunder",
+      "totalRecords": 4637,
+      "totalDates": 1945,
+      "peakRecords": {
+        "date": "2021-03-26",
+        "count": 27
+      },
+      "peakPercentage": {
+        "date": "2021-03-26",
+        "percentage": 3.83
+      }
+    },
+    {
       "id": "jpp2wykj",
       "name": "MehuMaTTi",
-      "totalRecords": 4427,
-      "totalDates": 222,
+      "totalRecords": 4457,
+      "totalDates": 223,
       "peakRecords": {
         "date": "2026-01-21",
         "count": 30
@@ -1125,8 +1125,8 @@
     {
       "id": "8qr1dvoj",
       "name": "SnakeMain",
-      "totalRecords": 4225,
-      "totalDates": 1693,
+      "totalRecords": 4227,
+      "totalDates": 1694,
       "peakRecords": {
         "date": "2021-05-13",
         "count": 9
@@ -1139,8 +1139,8 @@
     {
       "id": "8qrrq7oj",
       "name": "Lucia",
-      "totalRecords": 3998,
-      "totalDates": 1716,
+      "totalRecords": 4000,
+      "totalDates": 1717,
       "peakRecords": {
         "date": "2024-05-31",
         "count": 6
@@ -1167,8 +1167,8 @@
     {
       "id": "x76475rj",
       "name": "JKT2017",
-      "totalRecords": 3872,
-      "totalDates": 1075,
+      "totalRecords": 3877,
+      "totalDates": 1076,
       "peakRecords": {
         "date": "2025-10-30",
         "count": 6
@@ -1181,8 +1181,8 @@
     {
       "id": "qj2lrynx",
       "name": "cookielun4",
-      "totalRecords": 3585,
-      "totalDates": 1608,
+      "totalRecords": 3587,
+      "totalDates": 1609,
       "peakRecords": {
         "date": "2024-03-31",
         "count": 4
@@ -1195,8 +1195,8 @@
     {
       "id": "jn99491x",
       "name": "w_d_s_",
-      "totalRecords": 3578,
-      "totalDates": 1765,
+      "totalRecords": 3579,
+      "totalDates": 1766,
       "peakRecords": {
         "date": "2021-07-20",
         "count": 7
@@ -1237,8 +1237,8 @@
     {
       "id": "x357mdej",
       "name": "maeveroni",
-      "totalRecords": 3375,
-      "totalDates": 2003,
+      "totalRecords": 3376,
+      "totalDates": 2004,
       "peakRecords": {
         "date": "2021-03-27",
         "count": 35
@@ -1251,8 +1251,8 @@
     {
       "id": "jo3gv2lj",
       "name": "DeJoyes",
-      "totalRecords": 3339,
-      "totalDates": 1336,
+      "totalRecords": 3340,
+      "totalDates": 1337,
       "peakRecords": {
         "date": "2022-10-23",
         "count": 5
@@ -1265,8 +1265,8 @@
     {
       "id": "j23wwd6x",
       "name": "Poivron_Telescopique",
-      "totalRecords": 3330,
-      "totalDates": 1454,
+      "totalRecords": 3332,
+      "totalDates": 1455,
       "peakRecords": {
         "date": "2022-05-26",
         "count": 4
@@ -1293,8 +1293,8 @@
     {
       "id": "81p5lr58",
       "name": "almost_",
-      "totalRecords": 3206,
-      "totalDates": 499,
+      "totalRecords": 3216,
+      "totalDates": 500,
       "peakRecords": {
         "date": "2025-11-27",
         "count": 13
@@ -1307,8 +1307,8 @@
     {
       "id": "8dwdnpgj",
       "name": "Verror",
-      "totalRecords": 3204,
-      "totalDates": 1989,
+      "totalRecords": 3205,
+      "totalDates": 1990,
       "peakRecords": {
         "date": "2021-03-08",
         "count": 4
@@ -1321,8 +1321,8 @@
     {
       "id": "jmogk4n8",
       "name": "SFB7",
-      "totalRecords": 3071,
-      "totalDates": 938,
+      "totalRecords": 3072,
+      "totalDates": 939,
       "peakRecords": {
         "date": "2023-10-19",
         "count": 4
@@ -1349,8 +1349,8 @@
     {
       "id": "o86d94wj",
       "name": "31percent",
-      "totalRecords": 2912,
-      "totalDates": 1843,
+      "totalRecords": 2913,
+      "totalDates": 1844,
       "peakRecords": {
         "date": "2021-05-03",
         "count": 7
@@ -1363,8 +1363,8 @@
     {
       "id": "j9rqgznj",
       "name": "Ape_Lord",
-      "totalRecords": 2767,
-      "totalDates": 1542,
+      "totalRecords": 2768,
+      "totalDates": 1543,
       "peakRecords": {
         "date": "2022-02-21",
         "count": 7
@@ -1377,8 +1377,8 @@
     {
       "id": "e8em1ldx",
       "name": "Hermes",
-      "totalRecords": 2765,
-      "totalDates": 1597,
+      "totalRecords": 2766,
+      "totalDates": 1598,
       "peakRecords": {
         "date": "2021-12-29",
         "count": 4
@@ -1391,8 +1391,8 @@
     {
       "id": "x3pdqeq8",
       "name": "turtle12speed",
-      "totalRecords": 2718,
-      "totalDates": 323,
+      "totalRecords": 2728,
+      "totalDates": 324,
       "peakRecords": {
         "date": "2025-12-17",
         "count": 21
@@ -1403,10 +1403,24 @@
       }
     },
     {
+      "id": "xylmg1nj",
+      "name": "Jjosephh",
+      "totalRecords": 2677,
+      "totalDates": 129,
+      "peakRecords": {
+        "date": "2026-01-16",
+        "count": 38
+      },
+      "peakPercentage": {
+        "date": "2026-01-16",
+        "percentage": 0.88
+      }
+    },
+    {
       "id": "joo4d3ej",
       "name": "ohSkipper",
-      "totalRecords": 2673,
-      "totalDates": 1206,
+      "totalRecords": 2675,
+      "totalDates": 1207,
       "peakRecords": {
         "date": "2023-03-25",
         "count": 4
@@ -1431,24 +1445,10 @@
       }
     },
     {
-      "id": "xylmg1nj",
-      "name": "Jjosephh",
-      "totalRecords": 2665,
-      "totalDates": 128,
-      "peakRecords": {
-        "date": "2026-01-16",
-        "count": 38
-      },
-      "peakPercentage": {
-        "date": "2026-01-16",
-        "percentage": 0.88
-      }
-    },
-    {
       "id": "jokqnz08",
       "name": "strawberrysqueeze",
-      "totalRecords": 2606,
-      "totalDates": 762,
+      "totalRecords": 2611,
+      "totalDates": 763,
       "peakRecords": {
         "date": "2024-05-03",
         "count": 5
@@ -1461,8 +1461,8 @@
     {
       "id": "8en0d178",
       "name": "DonkeyDude",
-      "totalRecords": 2591,
-      "totalDates": 1677,
+      "totalRecords": 2592,
+      "totalDates": 1678,
       "peakRecords": {
         "date": "2023-10-01",
         "count": 3
@@ -1475,8 +1475,8 @@
     {
       "id": "8v6krrnx",
       "name": "JJjoker57",
-      "totalRecords": 2540,
-      "totalDates": 967,
+      "totalRecords": 2541,
+      "totalDates": 968,
       "peakRecords": {
         "date": "2023-09-21",
         "count": 5
@@ -1489,8 +1489,8 @@
     {
       "id": "jo2gd508",
       "name": "Ecchou",
-      "totalRecords": 2398,
-      "totalDates": 903,
+      "totalRecords": 2401,
+      "totalDates": 904,
       "peakRecords": {
         "date": "2023-12-19",
         "count": 6
@@ -1517,8 +1517,8 @@
     {
       "id": "864610wj",
       "name": "nothing2",
-      "totalRecords": 2244,
-      "totalDates": 1080,
+      "totalRecords": 2245,
+      "totalDates": 1081,
       "peakRecords": {
         "date": "2023-06-30",
         "count": 3
@@ -1545,8 +1545,8 @@
     {
       "id": "8rm9rvwj",
       "name": "horribledisgusting",
-      "totalRecords": 2129,
-      "totalDates": 540,
+      "totalRecords": 2130,
+      "totalDates": 541,
       "peakRecords": {
         "date": "2024-12-23",
         "count": 7
@@ -1559,8 +1559,8 @@
     {
       "id": "j01reymx",
       "name": "hyphaempty",
-      "totalRecords": 2116,
-      "totalDates": 169,
+      "totalRecords": 2129,
+      "totalDates": 170,
       "peakRecords": {
         "date": "2025-12-05",
         "count": 14
@@ -1573,8 +1573,8 @@
     {
       "id": "8qro32oj",
       "name": "BrighterIons",
-      "totalRecords": 2073,
-      "totalDates": 1875,
+      "totalRecords": 2074,
+      "totalDates": 1876,
       "peakRecords": {
         "date": "2021-04-10",
         "count": 2
@@ -1587,8 +1587,8 @@
     {
       "id": "j96o02wj",
       "name": "TheMonkeyFunk",
-      "totalRecords": 2066,
-      "totalDates": 1591,
+      "totalRecords": 2068,
+      "totalDates": 1592,
       "peakRecords": {
         "date": "2023-07-20",
         "count": 3
@@ -1615,8 +1615,8 @@
     {
       "id": "8lop21r8",
       "name": "_TheUnknownGamer",
-      "totalRecords": 2028,
-      "totalDates": 1311,
+      "totalRecords": 2029,
+      "totalDates": 1312,
       "peakRecords": {
         "date": "2022-10-25",
         "count": 3
@@ -1629,8 +1629,8 @@
     {
       "id": "8rm5k1gj",
       "name": "quasisemigroup",
-      "totalRecords": 2022,
-      "totalDates": 561,
+      "totalRecords": 2026,
+      "totalDates": 562,
       "peakRecords": {
         "date": "2025-04-09",
         "count": 4
@@ -1643,8 +1643,8 @@
     {
       "id": "xko4m228",
       "name": "K.Liam",
-      "totalRecords": 2014,
-      "totalDates": 480,
+      "totalRecords": 2018,
+      "totalDates": 481,
       "peakRecords": {
         "date": "2025-01-26",
         "count": 5
@@ -1685,8 +1685,8 @@
     {
       "id": "8g29yg1j",
       "name": "henryislazy",
-      "totalRecords": 1900,
-      "totalDates": 903,
+      "totalRecords": 1902,
+      "totalDates": 904,
       "peakRecords": {
         "date": "2023-11-26",
         "count": 3
@@ -1741,8 +1741,8 @@
     {
       "id": "8vk3wrej",
       "name": "RarmeMC",
-      "totalRecords": 1820,
-      "totalDates": 1820,
+      "totalRecords": 1821,
+      "totalDates": 1821,
       "peakRecords": {
         "date": "2021-05-17",
         "count": 1
@@ -1755,8 +1755,8 @@
     {
       "id": "j2q5qroj",
       "name": "Swagus_Dapperdore",
-      "totalRecords": 1768,
-      "totalDates": 800,
+      "totalRecords": 1770,
+      "totalDates": 801,
       "peakRecords": {
         "date": "2024-04-13",
         "count": 3
@@ -1769,8 +1769,8 @@
     {
       "id": "xzl7wnn8",
       "name": "Dominikus",
-      "totalRecords": 1731,
-      "totalDates": 1731,
+      "totalRecords": 1732,
+      "totalDates": 1732,
       "peakRecords": {
         "date": "2021-08-14",
         "count": 1
@@ -1783,8 +1783,8 @@
     {
       "id": "jmp0vkej",
       "name": "Calicious",
-      "totalRecords": 1724,
-      "totalDates": 491,
+      "totalRecords": 1725,
+      "totalDates": 492,
       "peakRecords": {
         "date": "2026-01-12",
         "count": 8
@@ -1811,8 +1811,8 @@
     {
       "id": "8ek19268",
       "name": "BaggerFahrer19",
-      "totalRecords": 1720,
-      "totalDates": 860,
+      "totalRecords": 1722,
+      "totalDates": 861,
       "peakRecords": {
         "date": "2024-01-03",
         "count": 2
@@ -1823,24 +1823,10 @@
       }
     },
     {
-      "id": "86no01wx",
-      "name": "merio",
-      "totalRecords": 1714,
-      "totalDates": 1513,
-      "peakRecords": {
-        "date": "2022-04-05",
-        "count": 2
-      },
-      "peakPercentage": {
-        "date": "2022-04-05",
-        "percentage": 0.17
-      }
-    },
-    {
       "id": "8r6zvnw8",
       "name": "HobbesNadata",
-      "totalRecords": 1712,
-      "totalDates": 123,
+      "totalRecords": 1721,
+      "totalDates": 124,
       "peakRecords": {
         "date": "2026-01-25",
         "count": 24
@@ -1851,10 +1837,24 @@
       }
     },
     {
+      "id": "86no01wx",
+      "name": "merio",
+      "totalRecords": 1715,
+      "totalDates": 1514,
+      "peakRecords": {
+        "date": "2022-04-05",
+        "count": 2
+      },
+      "peakPercentage": {
+        "date": "2022-04-05",
+        "percentage": 0.17
+      }
+    },
+    {
       "id": "jmlr41o8",
       "name": "Lare",
-      "totalRecords": 1711,
-      "totalDates": 1558,
+      "totalRecords": 1712,
+      "totalDates": 1559,
       "peakRecords": {
         "date": "2022-02-06",
         "count": 2
@@ -1867,8 +1867,8 @@
     {
       "id": "xk44397j",
       "name": "AwesomelifeandGD",
-      "totalRecords": 1702,
-      "totalDates": 1642,
+      "totalRecords": 1703,
+      "totalDates": 1643,
       "peakRecords": {
         "date": "2021-11-11",
         "count": 2
@@ -1881,8 +1881,8 @@
     {
       "id": "xkmqre6j",
       "name": "SnakeKillah420000",
-      "totalRecords": 1649,
-      "totalDates": 1649,
+      "totalRecords": 1650,
+      "totalDates": 1650,
       "peakRecords": {
         "date": "2021-11-04",
         "count": 1
@@ -1895,8 +1895,8 @@
     {
       "id": "8wgv7ovx",
       "name": "hhh_awesome",
-      "totalRecords": 1641,
-      "totalDates": 169,
+      "totalRecords": 1645,
+      "totalDates": 170,
       "peakRecords": {
         "date": "2025-12-21",
         "count": 25
@@ -1909,8 +1909,8 @@
     {
       "id": "68wvldlx",
       "name": "Comical_",
-      "totalRecords": 1626,
-      "totalDates": 912,
+      "totalRecords": 1631,
+      "totalDates": 913,
       "peakRecords": {
         "date": "2026-01-08",
         "count": 6
@@ -1923,8 +1923,8 @@
     {
       "id": "8gep0qyj",
       "name": "AwesomeZuma",
-      "totalRecords": 1599,
-      "totalDates": 169,
+      "totalRecords": 1601,
+      "totalDates": 170,
       "peakRecords": {
         "date": "2025-12-06",
         "count": 13
@@ -1937,8 +1937,8 @@
     {
       "id": "81qgwllj",
       "name": "babahorome1668",
-      "totalRecords": 1590,
-      "totalDates": 1556,
+      "totalRecords": 1591,
+      "totalDates": 1557,
       "peakRecords": {
         "date": "2025-11-24",
         "count": 2
@@ -1951,8 +1951,8 @@
     {
       "id": "j033e2rj",
       "name": "Firefox_Gaming",
-      "totalRecords": 1578,
-      "totalDates": 1578,
+      "totalRecords": 1579,
+      "totalDates": 1579,
       "peakRecords": {
         "date": "2022-01-14",
         "count": 1
@@ -1965,8 +1965,8 @@
     {
       "id": "jn9710dx",
       "name": "CallMeLizOrWhatever",
-      "totalRecords": 1571,
-      "totalDates": 1571,
+      "totalRecords": 1572,
+      "totalDates": 1572,
       "peakRecords": {
         "date": "2022-01-21",
         "count": 1
@@ -1993,8 +1993,8 @@
     {
       "id": "8r7g27wj",
       "name": "Sentile",
-      "totalRecords": 1538,
-      "totalDates": 1525,
+      "totalRecords": 1539,
+      "totalDates": 1526,
       "peakRecords": {
         "date": "2021-11-04",
         "count": 2
@@ -2007,8 +2007,8 @@
     {
       "id": "8ew6qkp8",
       "name": "Ayden",
-      "totalRecords": 1520,
-      "totalDates": 1248,
+      "totalRecords": 1521,
+      "totalDates": 1249,
       "peakRecords": {
         "date": "2022-12-13",
         "count": 3
@@ -2091,8 +2091,8 @@
     {
       "id": "jn6mkmwx",
       "name": "Pigouni46",
-      "totalRecords": 1378,
-      "totalDates": 282,
+      "totalRecords": 1381,
+      "totalDates": 283,
       "peakRecords": {
         "date": "2025-11-27",
         "count": 16
@@ -2119,8 +2119,8 @@
     {
       "id": "18vkkn2j",
       "name": "BrunoVisnadi",
-      "totalRecords": 1354,
-      "totalDates": 677,
+      "totalRecords": 1356,
+      "totalDates": 678,
       "peakRecords": {
         "date": "2024-07-04",
         "count": 2
@@ -2133,8 +2133,8 @@
     {
       "id": "xkzepd7x",
       "name": "Thyicecreamman",
-      "totalRecords": 1350,
-      "totalDates": 194,
+      "totalRecords": 1354,
+      "totalDates": 195,
       "peakRecords": {
         "date": "2025-12-02",
         "count": 10
@@ -2147,8 +2147,8 @@
     {
       "id": "joo6wzej",
       "name": "31415mt",
-      "totalRecords": 1339,
-      "totalDates": 338,
+      "totalRecords": 1343,
+      "totalDates": 339,
       "peakRecords": {
         "date": "2025-06-13",
         "count": 4
@@ -2161,8 +2161,8 @@
     {
       "id": "8vkqgkyj",
       "name": "Fuki",
-      "totalRecords": 1289,
-      "totalDates": 1187,
+      "totalRecords": 1290,
+      "totalDates": 1188,
       "peakRecords": {
         "date": "2023-02-21",
         "count": 2
@@ -2189,8 +2189,8 @@
     {
       "id": "8wlnwg3j",
       "name": "SpeedySnake",
-      "totalRecords": 1272,
-      "totalDates": 807,
+      "totalRecords": 1273,
+      "totalDates": 808,
       "peakRecords": {
         "date": "2024-02-26",
         "count": 2
@@ -2203,8 +2203,8 @@
     {
       "id": "8grdln7x",
       "name": "FileFolder",
-      "totalRecords": 1251,
-      "totalDates": 1251,
+      "totalRecords": 1252,
+      "totalDates": 1252,
       "peakRecords": {
         "date": "2022-12-07",
         "count": 1
@@ -2231,8 +2231,8 @@
     {
       "id": "j5qd4vzj",
       "name": "Genericplates",
-      "totalRecords": 1222,
-      "totalDates": 1222,
+      "totalRecords": 1223,
+      "totalDates": 1223,
       "peakRecords": {
         "date": "2023-01-06",
         "count": 1
@@ -2259,8 +2259,8 @@
     {
       "id": "jp4v1m0j",
       "name": "takoika",
-      "totalRecords": 1189,
-      "totalDates": 1178,
+      "totalRecords": 1190,
+      "totalDates": 1179,
       "peakRecords": {
         "date": "2023-09-19",
         "count": 3
@@ -2273,8 +2273,8 @@
     {
       "id": "8lpzw3lj",
       "name": "ArcaneGnu",
-      "totalRecords": 1166,
-      "totalDates": 218,
+      "totalRecords": 1174,
+      "totalDates": 219,
       "peakRecords": {
         "date": "2026-02-19",
         "count": 10
@@ -2301,8 +2301,8 @@
     {
       "id": "xkpkn1mj",
       "name": "nebris84",
-      "totalRecords": 1132,
-      "totalDates": 814,
+      "totalRecords": 1135,
+      "totalDates": 815,
       "peakRecords": {
         "date": "2025-12-04",
         "count": 3
@@ -2343,8 +2343,8 @@
     {
       "id": "j06r34mj",
       "name": "Superturtle85",
-      "totalRecords": 1107,
-      "totalDates": 634,
+      "totalRecords": 1108,
+      "totalDates": 635,
       "peakRecords": {
         "date": "2024-09-17",
         "count": 5
@@ -2385,8 +2385,8 @@
     {
       "id": "j0vq6rrx",
       "name": "SubRiver0",
-      "totalRecords": 1055,
-      "totalDates": 1014,
+      "totalRecords": 1056,
+      "totalDates": 1015,
       "peakRecords": {
         "date": "2023-08-04",
         "count": 3
@@ -2413,8 +2413,8 @@
     {
       "id": "81415oq8",
       "name": "Matteo",
-      "totalRecords": 1038,
-      "totalDates": 1034,
+      "totalRecords": 1039,
+      "totalDates": 1035,
       "peakRecords": {
         "date": "2023-07-17",
         "count": 2
@@ -2441,8 +2441,8 @@
     {
       "id": "x77677vx",
       "name": "HypersonicMach",
-      "totalRecords": 1003,
-      "totalDates": 541,
+      "totalRecords": 1004,
+      "totalDates": 542,
       "peakRecords": {
         "date": "2024-11-17",
         "count": 2
@@ -2469,8 +2469,8 @@
     {
       "id": "8q6q1roj",
       "name": "AlreadyRented",
-      "totalRecords": 929,
-      "totalDates": 500,
+      "totalRecords": 930,
+      "totalDates": 501,
       "peakRecords": {
         "date": "2025-01-21",
         "count": 3
@@ -2483,8 +2483,8 @@
     {
       "id": "8goqo4px",
       "name": "babouboss777",
-      "totalRecords": 916,
-      "totalDates": 412,
+      "totalRecords": 917,
+      "totalDates": 413,
       "peakRecords": {
         "date": "2025-04-14",
         "count": 4
@@ -2525,8 +2525,8 @@
     {
       "id": "j40gy4l8",
       "name": "dazeeba",
-      "totalRecords": 908,
-      "totalDates": 607,
+      "totalRecords": 909,
+      "totalDates": 608,
       "peakRecords": {
         "date": "2023-02-08",
         "count": 3
@@ -2539,8 +2539,8 @@
     {
       "id": "8e69ve6j",
       "name": "THEGAMINGPITCHFORK",
-      "totalRecords": 902,
-      "totalDates": 625,
+      "totalRecords": 904,
+      "totalDates": 626,
       "peakRecords": {
         "date": "2024-06-07",
         "count": 6
@@ -2567,8 +2567,8 @@
     {
       "id": "8g2y0q7j",
       "name": "Microscopic",
-      "totalRecords": 885,
-      "totalDates": 885,
+      "totalRecords": 886,
+      "totalDates": 886,
       "peakRecords": {
         "date": "2023-12-09",
         "count": 1
@@ -2595,8 +2595,8 @@
     {
       "id": "xyk0q2v8",
       "name": "Juomapullo",
-      "totalRecords": 850,
-      "totalDates": 425,
+      "totalRecords": 852,
+      "totalDates": 426,
       "peakRecords": {
         "date": "2025-03-13",
         "count": 2
@@ -2651,8 +2651,8 @@
     {
       "id": "8ez1r5p8",
       "name": "yo_cs",
-      "totalRecords": 792,
-      "totalDates": 400,
+      "totalRecords": 794,
+      "totalDates": 401,
       "peakRecords": {
         "date": "2025-04-07",
         "count": 2
@@ -2679,8 +2679,8 @@
     {
       "id": "8eorgloj",
       "name": "sinceseptember2020",
-      "totalRecords": 777,
-      "totalDates": 442,
+      "totalRecords": 779,
+      "totalDates": 443,
       "peakRecords": {
         "date": "2026-01-04",
         "count": 4
@@ -2705,6 +2705,20 @@
       }
     },
     {
+      "id": "8w12903x",
+      "name": "VANCANTORUS",
+      "totalRecords": 760,
+      "totalDates": 195,
+      "peakRecords": {
+        "date": "2025-11-24",
+        "count": 7
+      },
+      "peakPercentage": {
+        "date": "2025-11-24",
+        "percentage": 0.2
+      }
+    },
+    {
       "id": "jmlv63e8",
       "name": "NoahBoa123",
       "totalRecords": 756,
@@ -2719,24 +2733,10 @@
       }
     },
     {
-      "id": "8w12903x",
-      "name": "VANCANTORUS",
-      "totalRecords": 756,
-      "totalDates": 194,
-      "peakRecords": {
-        "date": "2025-11-24",
-        "count": 7
-      },
-      "peakPercentage": {
-        "date": "2025-11-24",
-        "percentage": 0.2
-      }
-    },
-    {
       "id": "864womwj",
       "name": "Sp00nzz",
-      "totalRecords": 747,
-      "totalDates": 747,
+      "totalRecords": 748,
+      "totalDates": 748,
       "peakRecords": {
         "date": "2024-04-25",
         "count": 1
@@ -2749,8 +2749,8 @@
     {
       "id": "xzl4d498",
       "name": "speedsnakeyguy",
-      "totalRecords": 739,
-      "totalDates": 728,
+      "totalRecords": 740,
+      "totalDates": 729,
       "peakRecords": {
         "date": "2022-01-08",
         "count": 2
@@ -2805,8 +2805,8 @@
     {
       "id": "xz76ed4j",
       "name": "andy_",
-      "totalRecords": 669,
-      "totalDates": 139,
+      "totalRecords": 674,
+      "totalDates": 140,
       "peakRecords": {
         "date": "2026-01-01",
         "count": 5
@@ -2861,8 +2861,8 @@
     {
       "id": "j5rgerwx",
       "name": "ikhfaa",
-      "totalRecords": 636,
-      "totalDates": 149,
+      "totalRecords": 638,
+      "totalDates": 150,
       "peakRecords": {
         "date": "2025-12-18",
         "count": 13
@@ -2959,8 +2959,8 @@
     {
       "id": "jn9vq0dx",
       "name": "IanTrbrk",
-      "totalRecords": 572,
-      "totalDates": 569,
+      "totalRecords": 573,
+      "totalDates": 570,
       "peakRecords": {
         "date": "2026-02-28",
         "count": 2
@@ -2973,8 +2973,8 @@
     {
       "id": "j062pewj",
       "name": "secondducky",
-      "totalRecords": 558,
-      "totalDates": 550,
+      "totalRecords": 559,
+      "totalDates": 551,
       "peakRecords": {
         "date": "2023-02-27",
         "count": 2
@@ -3055,10 +3055,24 @@
       }
     },
     {
+      "id": "8wk4ggv8",
+      "name": "Stevefox",
+      "totalRecords": 536,
+      "totalDates": 47,
+      "peakRecords": {
+        "date": "2026-05-04",
+        "count": 20
+      },
+      "peakPercentage": {
+        "date": "2026-05-06",
+        "percentage": 0.43
+      }
+    },
+    {
       "id": "x31z5g78",
       "name": "fuku",
-      "totalRecords": 532,
-      "totalDates": 169,
+      "totalRecords": 535,
+      "totalDates": 170,
       "peakRecords": {
         "date": "2025-11-24",
         "count": 6
@@ -3071,8 +3085,8 @@
     {
       "id": "xy57n7v8",
       "name": "kayli",
-      "totalRecords": 529,
-      "totalDates": 169,
+      "totalRecords": 532,
+      "totalDates": 170,
       "peakRecords": {
         "date": "2025-11-24",
         "count": 4
@@ -3111,24 +3125,10 @@
       }
     },
     {
-      "id": "8wk4ggv8",
-      "name": "Stevefox",
-      "totalRecords": 516,
-      "totalDates": 46,
-      "peakRecords": {
-        "date": "2026-05-04",
-        "count": 20
-      },
-      "peakPercentage": {
-        "date": "2026-05-06",
-        "percentage": 0.43
-      }
-    },
-    {
       "id": "1xy2lzn8",
       "name": "Xdxboxjaja",
-      "totalRecords": 507,
-      "totalDates": 169,
+      "totalRecords": 510,
+      "totalDates": 170,
       "peakRecords": {
         "date": "2025-11-24",
         "count": 3
@@ -3141,8 +3141,8 @@
     {
       "id": "j9r75wvj",
       "name": "Zanum",
-      "totalRecords": 507,
-      "totalDates": 169,
+      "totalRecords": 510,
+      "totalDates": 170,
       "peakRecords": {
         "date": "2025-11-24",
         "count": 3
@@ -3153,24 +3153,10 @@
       }
     },
     {
-      "id": "x35yq46j",
-      "name": "4d9r",
-      "totalRecords": 498,
-      "totalDates": 94,
-      "peakRecords": {
-        "date": "2025-11-24",
-        "count": 20
-      },
-      "peakPercentage": {
-        "date": "2025-11-24",
-        "percentage": 0.56
-      }
-    },
-    {
       "id": "8dpwyp58",
       "name": "SMG2xfan",
-      "totalRecords": 492,
-      "totalDates": 63,
+      "totalRecords": 506,
+      "totalDates": 64,
       "peakRecords": {
         "date": "2026-04-09",
         "count": 14
@@ -3178,6 +3164,20 @@
       "peakPercentage": {
         "date": "2026-04-09",
         "percentage": 0.31
+      }
+    },
+    {
+      "id": "x35yq46j",
+      "name": "4d9r",
+      "totalRecords": 500,
+      "totalDates": 95,
+      "peakRecords": {
+        "date": "2025-11-24",
+        "count": 20
+      },
+      "peakPercentage": {
+        "date": "2025-11-24",
+        "percentage": 0.56
       }
     },
     {
@@ -3197,8 +3197,8 @@
     {
       "id": "xzld0de8",
       "name": "RobeSoN",
-      "totalRecords": 482,
-      "totalDates": 106,
+      "totalRecords": 484,
+      "totalDates": 107,
       "peakRecords": {
         "date": "2026-02-06",
         "count": 8
@@ -3393,8 +3393,8 @@
     {
       "id": "j4wrrdmx",
       "name": "ThesnakegodManu",
-      "totalRecords": 399,
-      "totalDates": 399,
+      "totalRecords": 400,
+      "totalDates": 400,
       "peakRecords": {
         "date": "2025-04-08",
         "count": 1
@@ -3435,8 +3435,8 @@
     {
       "id": "8165k3qx",
       "name": "juhiss",
-      "totalRecords": 386,
-      "totalDates": 169,
+      "totalRecords": 387,
+      "totalDates": 170,
       "peakRecords": {
         "date": "2025-11-24",
         "count": 3
@@ -3463,8 +3463,8 @@
     {
       "id": "jm0knpo8",
       "name": "mazihere",
-      "totalRecords": 382,
-      "totalDates": 166,
+      "totalRecords": 383,
+      "totalDates": 167,
       "peakRecords": {
         "date": "2025-11-28",
         "count": 8
@@ -3472,6 +3472,20 @@
       "peakPercentage": {
         "date": "2025-11-28",
         "percentage": 0.22
+      }
+    },
+    {
+      "id": "8ez67y28",
+      "name": "PelMeshek81",
+      "totalRecords": 378,
+      "totalDates": 134,
+      "peakRecords": {
+        "date": "2026-01-16",
+        "count": 3
+      },
+      "peakPercentage": {
+        "date": "2026-01-16",
+        "percentage": 0.07
       }
     },
     {
@@ -3486,20 +3500,6 @@
       "peakPercentage": {
         "date": "2024-08-14",
         "percentage": 0.19
-      }
-    },
-    {
-      "id": "8ez67y28",
-      "name": "PelMeshek81",
-      "totalRecords": 376,
-      "totalDates": 133,
-      "peakRecords": {
-        "date": "2026-01-16",
-        "count": 3
-      },
-      "peakPercentage": {
-        "date": "2026-01-16",
-        "percentage": 0.07
       }
     },
     {
@@ -3519,8 +3519,8 @@
     {
       "id": "8qz63n78",
       "name": "earlwolf",
-      "totalRecords": 373,
-      "totalDates": 169,
+      "totalRecords": 375,
+      "totalDates": 170,
       "peakRecords": {
         "date": "2025-12-06",
         "count": 3
@@ -3547,8 +3547,8 @@
     {
       "id": "8r6ze3g8",
       "name": "rader123",
-      "totalRecords": 367,
-      "totalDates": 124,
+      "totalRecords": 369,
+      "totalDates": 125,
       "peakRecords": {
         "date": "2026-01-11",
         "count": 6
@@ -3573,6 +3573,20 @@
       }
     },
     {
+      "id": "8geqzypj",
+      "name": "BriKaper",
+      "totalRecords": 365,
+      "totalDates": 365,
+      "peakRecords": {
+        "date": "2025-05-13",
+        "count": 1
+      },
+      "peakPercentage": {
+        "date": "2025-05-13",
+        "percentage": 0.03
+      }
+    },
+    {
       "id": "j2y4w2n8",
       "name": "Brubs",
       "totalRecords": 364,
@@ -3587,24 +3601,10 @@
       }
     },
     {
-      "id": "8geqzypj",
-      "name": "BriKaper",
-      "totalRecords": 364,
-      "totalDates": 364,
-      "peakRecords": {
-        "date": "2025-05-13",
-        "count": 1
-      },
-      "peakPercentage": {
-        "date": "2025-05-13",
-        "percentage": 0.03
-      }
-    },
-    {
       "id": "8wg3n3lx",
       "name": "nyidagyal",
-      "totalRecords": 352,
-      "totalDates": 148,
+      "totalRecords": 355,
+      "totalDates": 149,
       "peakRecords": {
         "date": "2026-01-30",
         "count": 3
@@ -3612,6 +3612,20 @@
       "peakPercentage": {
         "date": "2026-01-30",
         "percentage": 0.07
+      }
+    },
+    {
+      "id": "j21m9dp8",
+      "name": "CooperFan5",
+      "totalRecords": 351,
+      "totalDates": 136,
+      "peakRecords": {
+        "date": "2026-01-18",
+        "count": 9
+      },
+      "peakPercentage": {
+        "date": "2026-01-18",
+        "percentage": 0.21
       }
     },
     {
@@ -3626,20 +3640,6 @@
       "peakPercentage": {
         "date": "2021-03-26",
         "percentage": 0.57
-      }
-    },
-    {
-      "id": "j21m9dp8",
-      "name": "CooperFan5",
-      "totalRecords": 350,
-      "totalDates": 135,
-      "peakRecords": {
-        "date": "2026-01-18",
-        "count": 9
-      },
-      "peakPercentage": {
-        "date": "2026-01-18",
-        "percentage": 0.21
       }
     },
     {
@@ -3659,8 +3659,8 @@
     {
       "id": "joz679n8",
       "name": "twisnak",
-      "totalRecords": 347,
-      "totalDates": 119,
+      "totalRecords": 348,
+      "totalDates": 120,
       "peakRecords": {
         "date": "2026-01-16",
         "count": 5
@@ -3682,6 +3682,20 @@
       "peakPercentage": {
         "date": "2021-02-05",
         "percentage": 1.62
+      }
+    },
+    {
+      "id": "8ezw25o8",
+      "name": "rizzlord_darcy",
+      "totalRecords": 344,
+      "totalDates": 344,
+      "peakRecords": {
+        "date": "2025-06-03",
+        "count": 1
+      },
+      "peakPercentage": {
+        "date": "2025-06-05",
+        "percentage": 0.03
       }
     },
     {
@@ -3710,20 +3724,6 @@
       "peakPercentage": {
         "date": "2023-10-03",
         "percentage": 0.05
-      }
-    },
-    {
-      "id": "8ezw25o8",
-      "name": "rizzlord_darcy",
-      "totalRecords": 343,
-      "totalDates": 343,
-      "peakRecords": {
-        "date": "2025-06-03",
-        "count": 1
-      },
-      "peakPercentage": {
-        "date": "2025-06-05",
-        "percentage": 0.03
       }
     },
     {
@@ -3797,6 +3797,20 @@
       }
     },
     {
+      "id": "x7264ky8",
+      "name": "SpeedingMyPeanuts",
+      "totalRecords": 334,
+      "totalDates": 223,
+      "peakRecords": {
+        "date": "2025-12-21",
+        "count": 3
+      },
+      "peakPercentage": {
+        "date": "2025-12-21",
+        "percentage": 0.08
+      }
+    },
+    {
       "id": "j0n9qm48",
       "name": "Karol_Gamer",
       "totalRecords": 333,
@@ -3808,20 +3822,6 @@
       "peakPercentage": {
         "date": "2020-12-03",
         "percentage": 3.37
-      }
-    },
-    {
-      "id": "x7264ky8",
-      "name": "SpeedingMyPeanuts",
-      "totalRecords": 333,
-      "totalDates": 222,
-      "peakRecords": {
-        "date": "2025-12-21",
-        "count": 3
-      },
-      "peakPercentage": {
-        "date": "2025-12-21",
-        "percentage": 0.08
       }
     },
     {
@@ -3883,8 +3883,8 @@
     {
       "id": "jpz5ewkx",
       "name": "chaton_de_bp",
-      "totalRecords": 315,
-      "totalDates": 103,
+      "totalRecords": 318,
+      "totalDates": 104,
       "peakRecords": {
         "date": "2026-01-31",
         "count": 4
@@ -3923,6 +3923,20 @@
       }
     },
     {
+      "id": "x3pw9v68",
+      "name": "spluhmars",
+      "totalRecords": 307,
+      "totalDates": 307,
+      "peakRecords": {
+        "date": "2025-07-10",
+        "count": 1
+      },
+      "peakPercentage": {
+        "date": "2025-07-10",
+        "percentage": 0.03
+      }
+    },
+    {
       "id": "qjoygd7x",
       "name": "graz94jr",
       "totalRecords": 306,
@@ -3937,24 +3951,10 @@
       }
     },
     {
-      "id": "x3pw9v68",
-      "name": "spluhmars",
-      "totalRecords": 306,
-      "totalDates": 306,
-      "peakRecords": {
-        "date": "2025-07-10",
-        "count": 1
-      },
-      "peakPercentage": {
-        "date": "2025-07-10",
-        "percentage": 0.03
-      }
-    },
-    {
       "id": "j51dzgq8",
       "name": "yvaga",
-      "totalRecords": 305,
-      "totalDates": 305,
+      "totalRecords": 306,
+      "totalDates": 306,
       "peakRecords": {
         "date": "2021-04-23",
         "count": 1
@@ -4079,8 +4079,8 @@
     {
       "id": "81kk29qj",
       "name": "BOGKONTENTA",
-      "totalRecords": 272,
-      "totalDates": 62,
+      "totalRecords": 276,
+      "totalDates": 63,
       "peakRecords": {
         "date": "2026-03-14",
         "count": 7
@@ -4088,6 +4088,20 @@
       "peakPercentage": {
         "date": "2026-03-14",
         "percentage": 0.15
+      }
+    },
+    {
+      "id": "j95l01o8",
+      "name": "newmanator",
+      "totalRecords": 267,
+      "totalDates": 89,
+      "peakRecords": {
+        "date": "2026-02-13",
+        "count": 3
+      },
+      "peakPercentage": {
+        "date": "2026-02-13",
+        "percentage": 0.07
       }
     },
     {
@@ -4105,20 +4119,6 @@
       }
     },
     {
-      "id": "j95l01o8",
-      "name": "newmanator",
-      "totalRecords": 264,
-      "totalDates": 88,
-      "peakRecords": {
-        "date": "2026-02-13",
-        "count": 3
-      },
-      "peakPercentage": {
-        "date": "2026-02-13",
-        "percentage": 0.07
-      }
-    },
-    {
       "id": "8dg6d9l8",
       "name": "thatoneflowergirl",
       "totalRecords": 262,
@@ -4130,6 +4130,20 @@
       "peakPercentage": {
         "date": "2022-08-15",
         "percentage": 0.14
+      }
+    },
+    {
+      "id": "8d9zmrlx",
+      "name": "AnsarHashir",
+      "totalRecords": 255,
+      "totalDates": 169,
+      "peakRecords": {
+        "date": "2025-11-29",
+        "count": 3
+      },
+      "peakPercentage": {
+        "date": "2025-11-29",
+        "percentage": 0.08
       }
     },
     {
@@ -4147,24 +4161,10 @@
       }
     },
     {
-      "id": "8d9zmrlx",
-      "name": "AnsarHashir",
-      "totalRecords": 254,
-      "totalDates": 168,
-      "peakRecords": {
-        "date": "2025-11-29",
-        "count": 3
-      },
-      "peakPercentage": {
-        "date": "2025-11-29",
-        "percentage": 0.08
-      }
-    },
-    {
       "id": "xymlz7mx",
       "name": "Jerealistic",
-      "totalRecords": 252,
-      "totalDates": 220,
+      "totalRecords": 253,
+      "totalDates": 221,
       "peakRecords": {
         "date": "2025-03-22",
         "count": 5
@@ -4373,8 +4373,8 @@
     {
       "id": "xk6v1v78",
       "name": "RockieSpeedruns",
-      "totalRecords": 227,
-      "totalDates": 169,
+      "totalRecords": 228,
+      "totalDates": 170,
       "peakRecords": {
         "date": "2025-11-24",
         "count": 4
@@ -4443,8 +4443,8 @@
     {
       "id": "jmldykz8",
       "name": "TodTheSushiMonster",
-      "totalRecords": 214,
-      "totalDates": 210,
+      "totalRecords": 215,
+      "totalDates": 211,
       "peakRecords": {
         "date": "2022-06-09",
         "count": 2
@@ -4457,8 +4457,8 @@
     {
       "id": "j9vgm2wx",
       "name": "Ectoplasm22",
-      "totalRecords": 213,
-      "totalDates": 128,
+      "totalRecords": 214,
+      "totalDates": 129,
       "peakRecords": {
         "date": "2026-01-19",
         "count": 4
@@ -4513,8 +4513,8 @@
     {
       "id": "xyygpvyx",
       "name": "Dipu",
-      "totalRecords": 201,
-      "totalDates": 201,
+      "totalRecords": 202,
+      "totalDates": 202,
       "peakRecords": {
         "date": "2025-10-23",
         "count": 1
@@ -4569,8 +4569,8 @@
     {
       "id": "jmpyykoj",
       "name": "Charzar314",
-      "totalRecords": 196,
-      "totalDates": 196,
+      "totalRecords": 197,
+      "totalDates": 197,
       "peakRecords": {
         "date": "2024-03-12",
         "count": 1
@@ -4595,6 +4595,20 @@
       }
     },
     {
+      "id": "jpzp40kx",
+      "name": "Beartype1",
+      "totalRecords": 191,
+      "totalDates": 170,
+      "peakRecords": {
+        "date": "2025-11-24",
+        "count": 2
+      },
+      "peakPercentage": {
+        "date": "2025-11-24",
+        "percentage": 0.06
+      }
+    },
+    {
       "id": "o86d15jz",
       "name": "RubyRabbit",
       "totalRecords": 190,
@@ -4606,20 +4620,6 @@
       "peakPercentage": {
         "date": "2021-01-01",
         "percentage": 1.83
-      }
-    },
-    {
-      "id": "jpzp40kx",
-      "name": "Beartype1",
-      "totalRecords": 190,
-      "totalDates": 169,
-      "peakRecords": {
-        "date": "2025-11-24",
-        "count": 2
-      },
-      "peakPercentage": {
-        "date": "2025-11-24",
-        "percentage": 0.06
       }
     },
     {
@@ -4653,8 +4653,8 @@
     {
       "id": "j2q4e77j",
       "name": "Manexpro",
-      "totalRecords": 186,
-      "totalDates": 186,
+      "totalRecords": 187,
+      "totalDates": 187,
       "peakRecords": {
         "date": "2025-11-07",
         "count": 1
@@ -4763,6 +4763,20 @@
       }
     },
     {
+      "id": "8e6rpq7j",
+      "name": "LordParoah",
+      "totalRecords": 172,
+      "totalDates": 172,
+      "peakRecords": {
+        "date": "2022-07-18",
+        "count": 1
+      },
+      "peakPercentage": {
+        "date": "2022-07-18",
+        "percentage": 0.07
+      }
+    },
+    {
       "id": "jn3kqq2x",
       "name": "Pigbot1",
       "totalRecords": 171,
@@ -4788,20 +4802,6 @@
       "peakPercentage": {
         "date": "2020-11-24",
         "percentage": 1.73
-      }
-    },
-    {
-      "id": "8e6rpq7j",
-      "name": "LordParoah",
-      "totalRecords": 171,
-      "totalDates": 171,
-      "peakRecords": {
-        "date": "2022-07-18",
-        "count": 1
-      },
-      "peakPercentage": {
-        "date": "2022-07-18",
-        "percentage": 0.07
       }
     },
     {
@@ -4833,6 +4833,20 @@
       }
     },
     {
+      "id": "xz2p0l9x",
+      "name": "Serdzio10",
+      "totalRecords": 170,
+      "totalDates": 170,
+      "peakRecords": {
+        "date": "2025-11-24",
+        "count": 1
+      },
+      "peakPercentage": {
+        "date": "2025-11-24",
+        "percentage": 0.03
+      }
+    },
+    {
       "id": "x72kezr8",
       "name": "Iciatt",
       "totalRecords": 169,
@@ -4844,20 +4858,6 @@
       "peakPercentage": {
         "date": "2020-12-10",
         "percentage": 2.26
-      }
-    },
-    {
-      "id": "xz2p0l9x",
-      "name": "Serdzio10",
-      "totalRecords": 169,
-      "totalDates": 169,
-      "peakRecords": {
-        "date": "2025-11-24",
-        "count": 1
-      },
-      "peakPercentage": {
-        "date": "2025-11-24",
-        "percentage": 0.03
       }
     },
     {
@@ -5213,8 +5213,8 @@
     {
       "id": "jm6yd3n8",
       "name": "GMONEY_13",
-      "totalRecords": 135,
-      "totalDates": 125,
+      "totalRecords": 136,
+      "totalDates": 126,
       "peakRecords": {
         "date": "2025-11-24",
         "count": 5
@@ -5435,6 +5435,20 @@
       }
     },
     {
+      "id": "x7gz7yqx",
+      "name": "YELKONOM",
+      "totalRecords": 121,
+      "totalDates": 107,
+      "peakRecords": {
+        "date": "2026-01-29",
+        "count": 2
+      },
+      "peakPercentage": {
+        "date": "2026-01-29",
+        "percentage": 0.05
+      }
+    },
+    {
       "id": "jnpvyr18",
       "name": "HermesGofT",
       "totalRecords": 120,
@@ -5449,17 +5463,17 @@
       }
     },
     {
-      "id": "x7gz7yqx",
-      "name": "YELKONOM",
+      "id": "kjpknr2x",
+      "name": "Emeralve",
       "totalRecords": 120,
-      "totalDates": 106,
+      "totalDates": 120,
       "peakRecords": {
-        "date": "2026-01-29",
-        "count": 2
+        "date": "2026-01-13",
+        "count": 1
       },
       "peakPercentage": {
-        "date": "2026-01-29",
-        "percentage": 0.05
+        "date": "2026-01-13",
+        "percentage": 0.02
       }
     },
     {
@@ -5488,20 +5502,6 @@
       "peakPercentage": {
         "date": "2021-01-04",
         "percentage": 0.9
-      }
-    },
-    {
-      "id": "kjpknr2x",
-      "name": "Emeralve",
-      "totalRecords": 119,
-      "totalDates": 119,
-      "peakRecords": {
-        "date": "2026-01-13",
-        "count": 1
-      },
-      "peakPercentage": {
-        "date": "2026-01-13",
-        "percentage": 0.02
       }
     },
     {
@@ -5703,8 +5703,8 @@
     {
       "id": "xkgoep6j",
       "name": "UnknownWolf5619",
-      "totalRecords": 100,
-      "totalDates": 100,
+      "totalRecords": 101,
+      "totalDates": 101,
       "peakRecords": {
         "date": "2026-02-01",
         "count": 1
@@ -6065,6 +6065,20 @@
       }
     },
     {
+      "id": "8e510q28",
+      "name": "derkingofgalaxy",
+      "totalRecords": 84,
+      "totalDates": 84,
+      "peakRecords": {
+        "date": "2026-02-18",
+        "count": 1
+      },
+      "peakPercentage": {
+        "date": "2026-02-18",
+        "percentage": 0.02
+      }
+    },
+    {
       "id": "8d3lyqgx",
       "name": "CapnCrunch",
       "totalRecords": 83,
@@ -6104,20 +6118,6 @@
       "peakPercentage": {
         "date": "2021-02-23",
         "percentage": 0.55
-      }
-    },
-    {
-      "id": "8e510q28",
-      "name": "derkingofgalaxy",
-      "totalRecords": 83,
-      "totalDates": 83,
-      "peakRecords": {
-        "date": "2026-02-18",
-        "count": 1
-      },
-      "peakPercentage": {
-        "date": "2026-02-18",
-        "percentage": 0.02
       }
     },
     {
@@ -6527,6 +6527,20 @@
       }
     },
     {
+      "id": "18q4or0x",
+      "name": "StrandedPond",
+      "totalRecords": 59,
+      "totalDates": 30,
+      "peakRecords": {
+        "date": "2026-04-14",
+        "count": 2
+      },
+      "peakPercentage": {
+        "date": "2026-04-14",
+        "percentage": 0.04
+      }
+    },
+    {
       "id": "j03q4g9j",
       "name": "gloopys",
       "totalRecords": 57,
@@ -6538,20 +6552,6 @@
       "peakPercentage": {
         "date": "2021-02-12",
         "percentage": 0.4
-      }
-    },
-    {
-      "id": "18q4or0x",
-      "name": "StrandedPond",
-      "totalRecords": 57,
-      "totalDates": 29,
-      "peakRecords": {
-        "date": "2026-04-14",
-        "count": 2
-      },
-      "peakPercentage": {
-        "date": "2026-04-14",
-        "percentage": 0.04
       }
     },
     {
@@ -6821,6 +6821,20 @@
       }
     },
     {
+      "id": "8dy4r4g8",
+      "name": "ninjaelephant",
+      "totalRecords": 51,
+      "totalDates": 51,
+      "peakRecords": {
+        "date": "2026-03-23",
+        "count": 1
+      },
+      "peakPercentage": {
+        "date": "2026-03-24",
+        "percentage": 0.02
+      }
+    },
+    {
       "id": "x7gnerrx",
       "name": "EZtorete",
       "totalRecords": 50,
@@ -6832,20 +6846,6 @@
       "peakPercentage": {
         "date": "2025-12-03",
         "percentage": 0.05
-      }
-    },
-    {
-      "id": "8dy4r4g8",
-      "name": "ninjaelephant",
-      "totalRecords": 50,
-      "totalDates": 50,
-      "peakRecords": {
-        "date": "2026-03-23",
-        "count": 1
-      },
-      "peakPercentage": {
-        "date": "2026-03-24",
-        "percentage": 0.02
       }
     },
     {
@@ -7241,6 +7241,20 @@
       }
     },
     {
+      "id": "j2qe2pnj",
+      "name": "lunaluvssnake",
+      "totalRecords": 42,
+      "totalDates": 40,
+      "peakRecords": {
+        "date": "2024-01-12",
+        "count": 2
+      },
+      "peakPercentage": {
+        "date": "2024-01-12",
+        "percentage": 0.08
+      }
+    },
+    {
       "id": "8r11z66j",
       "name": "Straw_Dur",
       "totalRecords": 42,
@@ -7294,20 +7308,6 @@
       "peakPercentage": {
         "date": "2021-01-01",
         "percentage": 0.61
-      }
-    },
-    {
-      "id": "j2qe2pnj",
-      "name": "lunaluvssnake",
-      "totalRecords": 41,
-      "totalDates": 39,
-      "peakRecords": {
-        "date": "2024-01-12",
-        "count": 2
-      },
-      "peakPercentage": {
-        "date": "2024-01-12",
-        "percentage": 0.08
       }
     },
     {
@@ -7633,6 +7633,20 @@
       }
     },
     {
+      "id": "qxk2vg6x",
+      "name": "Zachhhhhhhhh",
+      "totalRecords": 36,
+      "totalDates": 23,
+      "peakRecords": {
+        "date": "2026-04-30",
+        "count": 2
+      },
+      "peakPercentage": {
+        "date": "2026-04-30",
+        "percentage": 0.04
+      }
+    },
+    {
       "id": "8dw01moj",
       "name": "TommyJTC",
       "totalRecords": 35,
@@ -7728,20 +7742,6 @@
       "peakPercentage": {
         "date": "2021-03-01",
         "percentage": 0.17
-      }
-    },
-    {
-      "id": "qxk2vg6x",
-      "name": "Zachhhhhhhhh",
-      "totalRecords": 34,
-      "totalDates": 22,
-      "peakRecords": {
-        "date": "2026-04-30",
-        "count": 2
-      },
-      "peakPercentage": {
-        "date": "2026-04-30",
-        "percentage": 0.04
       }
     },
     {
@@ -8011,6 +8011,20 @@
       }
     },
     {
+      "id": "x7g34qvx",
+      "name": "ViableWheel408",
+      "totalRecords": 28,
+      "totalDates": 28,
+      "peakRecords": {
+        "date": "2026-04-15",
+        "count": 1
+      },
+      "peakPercentage": {
+        "date": "2026-04-15",
+        "percentage": 0.02
+      }
+    },
+    {
       "id": "x35rd1kj",
       "name": "Tomanyapples",
       "totalRecords": 27,
@@ -8092,20 +8106,6 @@
       "peakPercentage": {
         "date": "2026-01-02",
         "percentage": 0.07
-      }
-    },
-    {
-      "id": "x7g34qvx",
-      "name": "ViableWheel408",
-      "totalRecords": 27,
-      "totalDates": 27,
-      "peakRecords": {
-        "date": "2026-04-15",
-        "count": 1
-      },
-      "peakPercentage": {
-        "date": "2026-04-15",
-        "percentage": 0.02
       }
     },
     {
@@ -8319,6 +8319,20 @@
       }
     },
     {
+      "id": "8l61qgl8",
+      "name": "SepDepYT",
+      "totalRecords": 25,
+      "totalDates": 25,
+      "peakRecords": {
+        "date": "2026-04-18",
+        "count": 1
+      },
+      "peakPercentage": {
+        "date": "2026-04-20",
+        "percentage": 0.02
+      }
+    },
+    {
       "id": "xk4m5z7j",
       "name": "NelFusion",
       "totalRecords": 24,
@@ -8386,20 +8400,6 @@
       "peakPercentage": {
         "date": "2021-03-08",
         "percentage": 0.32
-      }
-    },
-    {
-      "id": "8l61qgl8",
-      "name": "SepDepYT",
-      "totalRecords": 24,
-      "totalDates": 24,
-      "peakRecords": {
-        "date": "2026-04-18",
-        "count": 1
-      },
-      "peakPercentage": {
-        "date": "2026-04-20",
-        "percentage": 0.02
       }
     },
     {
@@ -8848,6 +8848,20 @@
       "peakPercentage": {
         "date": "2024-01-14",
         "percentage": 0.29
+      }
+    },
+    {
+      "id": "j47e02wj",
+      "name": "Tydal",
+      "totalRecords": 19,
+      "totalDates": 5,
+      "peakRecords": {
+        "date": "2026-05-11",
+        "count": 5
+      },
+      "peakPercentage": {
+        "date": "2026-05-11",
+        "percentage": 0.11
       }
     },
     {
@@ -9467,20 +9481,6 @@
       }
     },
     {
-      "id": "j47e02wj",
-      "name": "Tydal",
-      "totalRecords": 14,
-      "totalDates": 4,
-      "peakRecords": {
-        "date": "2026-05-11",
-        "count": 5
-      },
-      "peakPercentage": {
-        "date": "2026-05-11",
-        "percentage": 0.11
-      }
-    },
-    {
       "id": "xkolww98",
       "name": "TwaNy",
       "totalRecords": 13,
@@ -9775,6 +9775,20 @@
       }
     },
     {
+      "id": "8lk200rx",
+      "name": "BlueNerfDart",
+      "totalRecords": 10,
+      "totalDates": 10,
+      "peakRecords": {
+        "date": "2026-05-03",
+        "count": 1
+      },
+      "peakPercentage": {
+        "date": "2026-05-03",
+        "percentage": 0.02
+      }
+    },
+    {
       "id": "1xyor2zj",
       "name": "onetabloid",
       "totalRecords": 9,
@@ -9898,20 +9912,6 @@
       "peakPercentage": {
         "date": "2025-11-29",
         "percentage": 0.03
-      }
-    },
-    {
-      "id": "8lk200rx",
-      "name": "BlueNerfDart",
-      "totalRecords": 9,
-      "totalDates": 9,
-      "peakRecords": {
-        "date": "2026-05-03",
-        "count": 1
-      },
-      "peakPercentage": {
-        "date": "2026-05-03",
-        "percentage": 0.02
       }
     },
     {
