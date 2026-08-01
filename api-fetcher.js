@@ -417,8 +417,8 @@ async function refreshSpecificTable(settings) {
         // Fetch world records for all game modes and levels for this specific combination
         const levels = ["25", "50", "100", "All"];
         const highscoreLevels = ["H"]; // Only for highscore modes
-        const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
-        const highscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 3]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Cheese
+        const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
+        const highscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 20, 3]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Bridge, Cheese
         
         // Fetch regular level-based records for all modes
         for (let modeIndex = 0; modeIndex < modeNames.length; modeIndex++) {
@@ -675,8 +675,8 @@ async function getAllWorldRecordsForCurrentSettings() {
     // When multiple tables is disabled, only fetch for visible modes and levels
     const levels = ["25", "50", "100", "All"];
     const highscoreLevels = ["H"]; // Only for highscore modes
-    const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
-    const highscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 3]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Cheese
+    const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
+    const highscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 20, 3]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Bridge, Cheese
     
     // When multiple tables is disabled, only use visible modes and levels
     let selectedModes = [];
@@ -1055,8 +1055,8 @@ async function getAllWorldRecordsForDate(date) {
     // When multiple tables is disabled, only fetch for visible modes and levels
     const levels = ["25", "50", "100", "All"];
     const highscoreLevels = ["H"]; // Only for highscore modes
-    const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
-    const highscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 3]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Cheese
+    const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
+    const highscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 20, 3]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Bridge, Cheese
     
     // When multiple tables is disabled, only use visible modes and levels
     let selectedModes = [];

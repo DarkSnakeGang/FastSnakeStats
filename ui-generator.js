@@ -5,7 +5,7 @@
 const orderedGamemodes = [
     "Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", 
     "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", 
-    "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"
+    "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"
 ];
 
 const orderedRunModes = [
@@ -444,7 +444,7 @@ function generateTableContent(table, settings, specificGamemode = null) {
                     }
                     
                     // Only show "High Score" column for highscore modes
-                    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Cheese"];
+                    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge", "Cheese"];
                     if(runMode === "High Score" && !highscoreModes.includes(gamemode)){
                         continue;
                     }
@@ -595,7 +595,7 @@ function generateLeaderboard(settings, specificGamemode = null){
     }
     
     // Find all run modes that have data for this combination
-    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Cheese"];
+    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge", "Cheese"];
      
      // Use ordered gamemodes for consistent row ordering
      for(const gamemode of orderedGamemodes){
@@ -750,7 +750,7 @@ function generateLeaderboardForMultiple(settings, container){
     }
     
     // Find all run modes that have data for this combination
-    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Cheese"];
+    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge", "Cheese"];
     
     // Use ordered gamemodes for consistent row ordering
     for(const gamemode of orderedGamemodes){

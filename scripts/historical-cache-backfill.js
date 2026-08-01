@@ -289,10 +289,10 @@ class HistoricalCacheBackfill {
         }
 
         // Use the same modes and levels as the website
-        const allModeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
+        const allModeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
         
         // Filter out excluded modes for 2021 and earlier
-        const excludedModes = ["Dimension", "Minesweeper", "Statue", "Shield", "Arrow", "Hotdog", "Magnet", "Gate"];
+        const excludedModes = ["Dimension", "Minesweeper", "Statue", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge"];
         const modeNames = is2021OrEarlier 
             ? allModeNames.filter(mode => !excludedModes.includes(mode))
             : allModeNames;
@@ -301,7 +301,7 @@ class HistoricalCacheBackfill {
         const highscoreLevels = ["H"]; // Only for highscore modes
         
         // Filter highscore modes to exclude the ones that shouldn't be fetched for 2021 and earlier
-        const allHighscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 3]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Cheese
+        const allHighscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 20, 3]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Bridge, Cheese
         const highscoreModes = is2021OrEarlier 
             ? allHighscoreModes.filter((mode, index) => {
                 const modeName = allModeNames[mode];
@@ -377,7 +377,7 @@ class HistoricalCacheBackfill {
                     
                     allRequests.push({
                         count, speed, size, mode, level, date,
-                        key: `${count}|${speed}|${size}|${modeNames[mode]}|High Score`
+                        key: `${count}|${speed}|${size}|${allModeNames[mode]}|High Score`
                     });
                 }
             }
@@ -385,7 +385,7 @@ class HistoricalCacheBackfill {
         
         // Add empty records for excluded modes (for 2021 and earlier)
         if (is2021OrEarlier) {
-            const excludedModes = ["Dimension", "Minesweeper", "Statue", "Shield", "Arrow", "Hotdog", "Magnet", "Gate"];
+            const excludedModes = ["Dimension", "Minesweeper", "Statue", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge"];
             
             for (const combo of combinations) {
                 const [count, speed, size] = combo;
@@ -410,7 +410,7 @@ class HistoricalCacheBackfill {
                         }
                         
                         // Highscore records for excluded modes (if they have highscore variants)
-                        const excludedHighscoreModes = [12, 13, 15, 17, 19]; // Minesweeper, Statue, Shield, Hotdog, Gate
+                        const excludedHighscoreModes = [12, 13, 15, 17, 19, 20]; // Minesweeper, Statue, Shield, Hotdog, Gate, Bridge
                         if (excludedHighscoreModes.includes(modeIndex)) {
                             for (let levelIndex = 0; levelIndex < highscoreLevels.length; levelIndex++) {
                                 const level = highscoreLevels[levelIndex];
@@ -529,7 +529,7 @@ class HistoricalCacheBackfill {
             const categories = metadata.categories;
             
             // Step 2: Find the level ID for the mode (using includes like WorldRecordFetcher)
-            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
             const modeName = modeNames[mode];
             
             const levelData = levels.data.find(l => l.name.includes(modeName));
@@ -855,22 +855,26 @@ class HistoricalCacheBackfill {
         const forceOverwrite = args.includes('--force');
         const clearCheckpoint = args.includes('--clear-checkpoint');
         const isYesterday = args.includes('--yesterday');
+        const dateArgs = args.filter(arg => !arg.startsWith('--'));
         
         // Handle different input formats
         if (isYesterday) {
             startDate = this.getYesterdayDate();
             endDate = startDate;
             console.log(`Fetching yesterday's data: ${startDate}`);
-        } else if (args.length === 1) {
+        } else if (dateArgs.length === 1) {
             // Single date
-            startDate = args[0];
+            startDate = dateArgs[0];
             endDate = startDate;
             console.log(`Fetching single date: ${startDate}`);
-        } else {
+        } else if (dateArgs.length >= 2) {
             // Date range
-            startDate = args[0];
-            endDate = args[1];
+            startDate = dateArgs[0];
+            endDate = dateArgs[1];
             console.log(`Fetching date range: ${startDate} to ${endDate}`);
+        } else {
+            console.log('No date provided. Use a date, date range, or --yesterday.');
+            process.exit(1);
         }
         
         // Clear checkpoint if requested

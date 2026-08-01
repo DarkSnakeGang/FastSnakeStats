@@ -6,7 +6,7 @@ A comprehensive web application that displays Google Snake world records from Sp
 
 ### Core Functionality
 - **World Records Display**: View current and historical world records for Google Snake
-- **Multiple Game Modes**: Support for 21 different game modes including Classic, Wall, Portal, Cheese, Borderless, Twin, Winged, Yin Yang, Key, Sokoban, Poison, Dimension, Minesweeper, Statue, Light, Shield, Arrow, Hotdog, Magnet, Gate, and Peaceful
+- **Multiple Game Modes**: Support for 22 different game modes including Classic, Wall, Portal, Cheese, Borderless, Twin, Winged, Yin Yang, Key, Sokoban, Poison, Dimension, Minesweeper, Statue, Light, Shield, Arrow, Hotdog, Magnet, Gate, Bridge, and Peaceful
 - **Flexible Settings**: Configure apple amounts (1, 3, 5, Dice), speeds (Normal, Fast, Slow), and sizes (Standard, Small, Large)
 - **Multiple Tables**: Toggle between single table and multiple table views
 - **Time Travel**: View world records from any historical date with available cache data
@@ -139,7 +139,7 @@ scripts/install-nodejs.bat
 ## Configuration
 
 ### Settings
-- **Game Modes**: 21 different modes including Classic, Wall, Portal, Cheese, Borderless, Twin, Winged, Yin Yang, Key, Sokoban, Poison, Dimension, Minesweeper, Statue, Light, Shield, Arrow, Hotdog, Magnet, Gate, and Peaceful
+- **Game Modes**: 22 different modes including Classic, Wall, Portal, Cheese, Borderless, Twin, Winged, Yin Yang, Key, Sokoban, Poison, Dimension, Minesweeper, Statue, Light, Shield, Arrow, Hotdog, Magnet, Gate, Bridge, and Peaceful
 - **Apple Amounts**: 1, 3, 5, Dice
 - **Speeds**: Normal, Fast, Slow
 - **Sizes**: Standard, Small, Large

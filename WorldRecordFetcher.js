@@ -271,7 +271,7 @@ class WorldRecordFetcher {
     async getWorldRecord(level, mode = 0, count = 0, speed = 0, size = 0) {
         try {
             // Check cache first
-            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
             const modeName = modeNames[mode];
             const categoryName = level === "H" ? modeName : `${level} Apples`;
             
@@ -465,7 +465,7 @@ class WorldRecordFetcher {
                 throw error;
             }
             
-            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
             const categoryName = level === "H" ? modeNames[mode] : level + " Apples";
             return {
                 success: false,
@@ -484,7 +484,7 @@ class WorldRecordFetcher {
     async getWorldRecordForDate(level, mode = 0, count = 0, speed = 0, size = 0, date) {
         try {
             // Check cache first
-            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
             const modeName = modeNames[mode];
             const categoryName = level === "H" ? modeName : `${level} Apples`;
             
@@ -679,7 +679,7 @@ class WorldRecordFetcher {
                 throw error;
             }
             
-            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
             const categoryName = level === "H" ? modeNames[mode] : level + " Apples";
             return {
                 success: false,
@@ -711,7 +711,7 @@ class WorldRecordFetcher {
         // Process ALL cache checks instantly with maximum concurrency
         const cachePromises = requests.map(async (request, index) => {
             // Generate cache key for this request
-            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Peaceful"];
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
             const modeName = modeNames[request.mode];
             
             // Check if this is a high score request (either by level or levelName)
