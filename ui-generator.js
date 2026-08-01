@@ -184,8 +184,9 @@ function calculateRanglist(){
     //console.log('currentTableSettings:', currentTableSettings);
     
     ranglist = [];
+    var totalCategories = 0;
     
-    // Count world records per player
+    // Count world records per player against selected categories
     for(var key in worldRecords){
         var runs = worldRecords[key];
         //console.log('Processing key:', key, 'with', runs.length, 'runs');
@@ -212,64 +213,60 @@ function calculateRanglist(){
             console.warn('Invalid key format:', key, 'with', settings.length, 'parts');
             continue; // Skip invalid keys
         }
+
+        if(!runs || runs.length === 0){
+            continue;
+        }
+
+        var inSelection = false;
         
-        // When multiple tables is disabled, only count the currently selected category
+        // When multiple tables is disabled, only count the currently selected board
         if(!isMultipleTablesEnabled) {
             //console.log('Single table mode - checking if matches current settings');
             if(appleAmount === currentTableSettings[0] && 
                speed === currentTableSettings[1] && 
-               size === currentTableSettings[2]) {
-                //console.log('Matches current settings, processing runs');
-                // Count each run for each player
-                for(var i = 0; i < runs.length; i++) {
-                    var run = runs[i];
-                    var id = run.players.data[0].id;
-                    if(typeof(ranglist[id]) == 'undefined'){
-                        ranglist[id] = [1, run.players.data[0]];
-                    }
-                    else{
-                        ranglist[id][0] += 1;
-                    }
-                }
-            } else {
-                //console.log('Does not match current settings, skipping');
+               size === currentTableSettings[2] &&
+               gamemodes[gamemode] && gamemodes[gamemode].visible &&
+               runModes[runMode] && runModes[runMode].visible) {
+                inSelection = true;
             }
         } else {
             //console.log('Multiple tables mode - checking visibility');
             // When multiple tables is enabled, count all visible categories
-            if(appleAmounts[appleAmount].visible && 
-               speeds[speed].visible && 
-               sizes[size].visible && 
-               gamemodes[gamemode].visible && 
-               runModes[runMode].visible){
-                //console.log('All categories visible, processing runs');
-                // Count each run for each player
-                for(var i = 0; i < runs.length; i++) {
-                    var run = runs[i];
-                    var id = run.players.data[0].id;
-                    if(typeof(ranglist[id]) == 'undefined'){
-                        ranglist[id] = [1, run.players.data[0]];
-                    }
-                    else{
-                        ranglist[id][0] += 1;
-                    }
-                }
-            } else {
-                //console.log('Some categories not visible, skipping');
+            if(appleAmounts[appleAmount] && appleAmounts[appleAmount].visible && 
+               speeds[speed] && speeds[speed].visible && 
+               sizes[size] && sizes[size].visible && 
+               gamemodes[gamemode] && gamemodes[gamemode].visible && 
+               runModes[runMode] && runModes[runMode].visible){
+                inSelection = true;
+            }
+        }
+
+        if(!inSelection){
+            continue;
+        }
+
+        // Each matching category counts once toward the percentage denominator
+        totalCategories += 1;
+
+        // Count each tied WR holder for this category
+        for(var i = 0; i < runs.length; i++) {
+            var run = runs[i];
+            var id = run.players.data[0].id;
+            if(typeof(ranglist[id]) == 'undefined'){
+                ranglist[id] = [1, run.players.data[0]];
+            }
+            else{
+                ranglist[id][0] += 1;
             }
         }
     }
     
-    //calculate total
-    total = 0;
-    for(user in ranglist){
-        total += ranglist[user][0];
-    }
-    
-    //calculate percentages
-    if(total != 0){
+    // Percentage = player's WR count / total selected categories (not vs other players)
+    total = totalCategories;
+    if(totalCategories != 0){
         for(user in ranglist){
-            ranglist[user][2] = roundNumber(ranglist[user][0]*100/total,2);
+            ranglist[user][2] = roundNumber(ranglist[user][0]*100/totalCategories,2);
         }
     }
 
