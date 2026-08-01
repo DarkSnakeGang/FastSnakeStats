@@ -44,7 +44,7 @@ var gamemodes =    {"Classic":{visible:true,icon:"https://i.ibb.co/Q3Qh6BSy/trop
 		    "Hotdog":{visible:true,icon:"https://i.ibb.co/FF4hdbz/trophy-17-png.png",id:"trophy_18"},
 		    "Magnet":{visible:true,icon:"https://i.ibb.co/nMbMjjfL/trophy-18-png.png",id:"trophy_19"},
 		    "Gate":{visible:true,icon:"https://i.ibb.co/1tp8JqBM/trophy-19-png.png",id:"trophy_20"},
-		    "Bridge":{visible:true,icon:"https://www.google.com/logos/fnbx/snake_arcade/v22/trophy_20.png",id:"trophy_22"},
+		    "Bridge":{visible:true,icon:"https://i.ibb.co/Kj7tYtM7/trophy-20.png",id:"trophy_22"},
                     "Peaceful":{visible:true,icon:"https://i.ibb.co/jvrCYD8r/trophy-17-png.png",id:"trophy_21"}};
 var runModes =     {"25 Apples":{visible:true,icon:null,text:"25 Apples",id:"mode_00"},
                     "50 Apples":{visible:true,icon:null,text:"50 Apples",id:"mode_01"},
