@@ -298,7 +298,7 @@ async function quickFetchWorldRecords() {
             // Convert GitHub cache format to bestRuns format
             bestRuns = {};
             
-            // Initialize the structure
+            // Initialize the structure (include all gamemodes so new modes always get table rows)
             const countNames = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"];
             const speedNames = ["Normal", "Fast", "Slow"];
             const sizeNames = ["Standard", "Small", "Large"];
@@ -309,6 +309,9 @@ async function quickFetchWorldRecords() {
                     bestRuns[count][speed] = {};
                     for (const size of sizeNames) {
                         bestRuns[count][speed][size] = {};
+                        for (const gamemode of Object.keys(gamemodes)) {
+                            bestRuns[count][speed][size][gamemode] = {};
+                        }
                     }
                 }
             }

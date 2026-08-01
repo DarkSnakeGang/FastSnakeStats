@@ -9,46 +9,71 @@ class GitHubCacheFetcher {
         this.fallbackToAPI = true; // Whether to fall back to API calls
     }
 
-    // Get the most recent available date from GitHub
-    async getMostRecentDate() {
+    // Get available dates (prefer local metadata, fall back to GitHub)
+    async getAvailableDates() {
         try {
-            const response = await fetch(this.metadataURL);
-            if (!response.ok) {
-                console.log('GitHub metadata not available (404), GitHub cache not set up yet');
-                return null;
+            try {
+                const localResponse = await fetch('time-travel-cache/metadata/available-dates.json');
+                if (localResponse.ok) {
+                    const metadata = await localResponse.json();
+                    return metadata.availableDates || [];
+                }
+            } catch (localError) {
+                // Local fetch unavailable — fall through to GitHub
             }
+
+            const response = await fetch(this.metadataURL);
+            if (!response.ok) return [];
             
             const metadata = await response.json();
-            if (metadata.availableDates && metadata.availableDates.length > 0) {
-                return metadata.availableDates[metadata.availableDates.length - 1];
+            return metadata.availableDates || [];
+        } catch (error) {
+            console.log('Error fetching available dates:', error);
+            return [];
+        }
+    }
+
+    // Get the most recent available date
+    async getMostRecentDate() {
+        try {
+            const dates = await this.getAvailableDates();
+            if (dates && dates.length > 0) {
+                return dates[dates.length - 1];
             }
         } catch (error) {
-            console.log('Error fetching GitHub metadata:', error);
+            console.log('Error fetching most recent date:', error);
         }
         return null;
     }
 
-    // Check if a specific date is available in GitHub cache
+    // Check if a specific date is available in cache
     async isDateAvailable(date) {
         try {
-            const response = await fetch(this.metadataURL);
-            if (!response.ok) {
-                console.log('GitHub metadata not available (404), cannot check date availability');
-                return false;
-            }
-            
-            const metadata = await response.json();
-            return metadata.availableDates && metadata.availableDates.includes(date);
+            const dates = await this.getAvailableDates();
+            return dates.includes(date);
         } catch (error) {
             console.log('Error checking date availability:', error);
             return false;
         }
     }
 
-    // Fetch cache data for a specific date from GitHub
+    // Fetch cache data for a specific date (prefer local files, fall back to GitHub)
     async fetchCacheForDate(date) {
         try {
             const [year, month] = date.split('-');
+            const relativePath = `time-travel-cache/${this.cacheDir}/${year}/${month}/${date}.json`;
+            
+            // Prefer local cache so newly fetched dates work before push
+            try {
+                const localResponse = await fetch(relativePath);
+                if (localResponse.ok) {
+                    console.log(`Loaded local cache for ${date}`);
+                    return await localResponse.json();
+                }
+            } catch (localError) {
+                // Local fetch unavailable (e.g. file://) — fall through to GitHub
+            }
+
             const cacheURL = `${this.baseURL}/time-travel-cache/${this.cacheDir}/${year}/${month}/${date}.json`;
             
             console.log(`Fetching GitHub cache for ${date}...`);
@@ -71,7 +96,7 @@ class GitHubCacheFetcher {
             return cacheData;
             
         } catch (error) {
-            console.log(`Error fetching GitHub cache for ${date}:`, error);
+            console.log(`Error fetching cache for ${date}:`, error);
             // Update time travel button status if in time travel mode
             if (window.isTimeTravelEnabled && window.selectedTimeTravelDate === date) {
                 console.log('GitHub cache fetcher: Setting button to missing (error)');
@@ -152,20 +177,6 @@ class GitHubCacheFetcher {
         }
 
         return this.convertCacheFormat(cacheData, date);
-    }
-
-    // Get available dates from GitHub
-    async getAvailableDates() {
-        try {
-            const response = await fetch(this.metadataURL);
-            if (!response.ok) return [];
-            
-            const metadata = await response.json();
-            return metadata.availableDates || [];
-        } catch (error) {
-            console.log('Error fetching available dates:', error);
-            return [];
-        }
     }
 
     // Check if GitHub cache is accessible

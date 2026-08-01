@@ -657,9 +657,10 @@ function generateLeaderboard(settings, specificGamemode = null){
 
     //creat tbody
     var tbody = document.createElement('tbody');
-    // Use ordered gamemodes for consistent row ordering
+    // Use ordered gamemodes for consistent row ordering (always show visible modes, even if cache has no data yet)
     for(const gamemode of orderedGamemodes){
-        if(thisBoardRuns[gamemode] && gamemodes[gamemode].visible && (specificGamemode === null || gamemode === specificGamemode)){
+        if(gamemodes[gamemode] && gamemodes[gamemode].visible && (specificGamemode === null || gamemode === specificGamemode)){
+            const modeRuns = thisBoardRuns[gamemode] || {};
             row = document.createElement('tr');
             th = document.createElement('th');
             th.appendChild(createIconElement(gamemodes[gamemode]));
@@ -667,9 +668,9 @@ function generateLeaderboard(settings, specificGamemode = null){
 
             for(runMode of thisBoardRunModes){
                 td = document.createElement('td');
-                if(typeof(thisBoardRuns[gamemode][runMode]) != 'undefined'){
+                if(typeof(modeRuns[runMode]) != 'undefined'){
                     td.setAttribute('class','result');
-                    if(thisBoardRuns[gamemode][runMode].runs && thisBoardRuns[gamemode][runMode].runs.length != 0){
+                    if(modeRuns[runMode].runs && modeRuns[runMode].runs.length != 0){
                         // Create a container for all runs
                         var runsContainer = document.createElement('div');
                         runsContainer.setAttribute('class', 'runs-container');
@@ -678,22 +679,22 @@ function generateLeaderboard(settings, specificGamemode = null){
                         var timeDisplay = document.createElement('div');
                         timeDisplay.setAttribute('class', 'time-display');
                         var timeLink = document.createElement('a');
-                        timeLink.setAttribute('href', thisBoardRuns[gamemode][runMode].runs[0].weblink);
+                        timeLink.setAttribute('href', modeRuns[runMode].runs[0].weblink);
                         timeLink.setAttribute('target', '_blank');
-                        timeLink.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode].runs[0].times, runMode === "High Score"));
+                        timeLink.appendChild(createTimeElement(modeRuns[runMode].runs[0].times, runMode === "High Score"));
                         timeDisplay.appendChild(timeLink);
                         runsContainer.appendChild(timeDisplay);
                         
                         // Add all player names with their individual links
-                        for(var i = 0; i < thisBoardRuns[gamemode][runMode].runs.length; i++){
-                            var run = thisBoardRuns[gamemode][runMode].runs[i];
+                        for(var i = 0; i < modeRuns[runMode].runs.length; i++){
+                            var run = modeRuns[runMode].runs[i];
                             var playerLink = document.createElement('a');
                             playerLink.setAttribute('href', run.weblink);
                             playerLink.setAttribute('target','_blank');
                             playerLink.appendChild(createNameElement(run.players.data[0]));
                             
                             // Add separator between players (except for the last one)
-                            if(i < thisBoardRuns[gamemode][runMode].runs.length - 1) {
+                            if(i < modeRuns[runMode].runs.length - 1) {
                                 var separator = document.createElement('span');
                                 separator.innerHTML = ' ';
                                 separator.setAttribute('class', 'player-separator');
@@ -806,9 +807,10 @@ function generateLeaderboardForMultiple(settings, container){
 
     //creat tbody
     var tbody = document.createElement('tbody');
-    // Use ordered gamemodes for consistent row ordering
+    // Use ordered gamemodes for consistent row ordering (always show visible modes, even if cache has no data yet)
     for(const gamemode of orderedGamemodes){
-        if(thisBoardRuns[gamemode] && gamemodes[gamemode].visible){
+        if(gamemodes[gamemode] && gamemodes[gamemode].visible){
+            const modeRuns = thisBoardRuns[gamemode] || {};
             row = document.createElement('tr');
             th = document.createElement('th');
             th.appendChild(createIconElement(gamemodes[gamemode]));
@@ -816,9 +818,9 @@ function generateLeaderboardForMultiple(settings, container){
 
             for(runMode of thisBoardRunModes){
                 td = document.createElement('td');
-                if(typeof(thisBoardRuns[gamemode][runMode]) != 'undefined'){
+                if(typeof(modeRuns[runMode]) != 'undefined'){
                     td.setAttribute('class','result');
-                    if(thisBoardRuns[gamemode][runMode].runs && thisBoardRuns[gamemode][runMode].runs.length != 0){
+                    if(modeRuns[runMode].runs && modeRuns[runMode].runs.length != 0){
                         // Create a container for all runs
                         var runsContainer = document.createElement('div');
                         runsContainer.setAttribute('class', 'runs-container');
@@ -827,22 +829,22 @@ function generateLeaderboardForMultiple(settings, container){
                         var timeDisplay = document.createElement('div');
                         timeDisplay.setAttribute('class', 'time-display');
                         var timeLink = document.createElement('a');
-                        timeLink.setAttribute('href', thisBoardRuns[gamemode][runMode].runs[0].weblink);
+                        timeLink.setAttribute('href', modeRuns[runMode].runs[0].weblink);
                         timeLink.setAttribute('target', '_blank');
-                        timeLink.appendChild(createTimeElement(thisBoardRuns[gamemode][runMode].runs[0].times, runMode === "High Score"));
+                        timeLink.appendChild(createTimeElement(modeRuns[runMode].runs[0].times, runMode === "High Score"));
                         timeDisplay.appendChild(timeLink);
                         runsContainer.appendChild(timeDisplay);
                         
                         // Add all player names with their individual links
-                        for(var i = 0; i < thisBoardRuns[gamemode][runMode].runs.length; i++){
-                            var run = thisBoardRuns[gamemode][runMode].runs[i];
+                        for(var i = 0; i < modeRuns[runMode].runs.length; i++){
+                            var run = modeRuns[runMode].runs[i];
                             var playerLink = document.createElement('a');
                             playerLink.setAttribute('href', run.weblink);
                             playerLink.setAttribute('target','_blank');
                             playerLink.appendChild(createNameElement(run.players.data[0]));
                             
                             // Add separator between players (except for the last one)
-                            if(i < thisBoardRuns[gamemode][runMode].runs.length - 1) {
+                            if(i < modeRuns[runMode].runs.length - 1) {
                                 var separator = document.createElement('span');
                                 separator.innerHTML = ' ';
                                 separator.setAttribute('class', 'player-separator');
