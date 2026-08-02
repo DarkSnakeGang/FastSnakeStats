@@ -2242,6 +2242,19 @@ body.dark-mode .quick-fetch-btn:disabled {
 		opacity: 0.85;
 	}
 
+	.stats-unheld-free-meme {
+		margin: 8px 0 12px;
+		text-align: center;
+	}
+
+	.stats-unheld-free-meme img {
+		max-width: min(100%, 360px);
+		width: 100%;
+		height: auto;
+		border-radius: 8px;
+		display: inline-block;
+	}
+
 	.stats-explorer-chart {
 		position: relative;
 		overflow: hidden;

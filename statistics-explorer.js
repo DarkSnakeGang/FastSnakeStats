@@ -7,7 +7,7 @@ var statsExplorerActiveTab = 'progression';
 var statsExplorerImproveWindow = '30d';
 var statsExplorerHeatMetric = 'flips';
 var statsExplorerHeatYear = null; // set from data
-var statsExplorerLongevityMode = 'all'; // 'all' | 'standing'
+var statsExplorerLongevityMode = 'standing'; // 'all' | 'standing'
 var statsExplorerUnheldTier = 'All'; // 'All' | Free…Inhuman
 // Independent progression filters (not Category Settings)
 var statsProgApple = '1 Apple';
@@ -634,6 +634,16 @@ function renderUnheldView(body) {
         bar.appendChild(chip);
     });
     body.appendChild(bar);
+
+    if (statsExplorerUnheldTier === 'Free') {
+        var memeWrap = document.createElement('div');
+        memeWrap.className = 'stats-unheld-free-meme';
+        var meme = document.createElement('img');
+        meme.src = 'assets/unheld_free.gif';
+        meme.alt = 'google snake speedrunners when a random category isn\'t absolutely free';
+        memeWrap.appendChild(meme);
+        body.appendChild(memeWrap);
+    }
 
     var rows = allRows;
     if (statsExplorerUnheldTier !== 'All') {
