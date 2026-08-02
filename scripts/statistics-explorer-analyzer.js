@@ -555,10 +555,11 @@ class StatisticsExplorerAnalyzer {
             // Only 1a Statue 100 Standard is Mythic; 3a+ stay below (even Fast)
             tier = 'Mythic';
         } else if (mode === 'Portal' && apple === 'Bomb') {
-            // Portal Bomb: Mythic any speed; Fast → Inhuman
+            // Portal Bomb: Mythic any size/run; Fast → Inhuman (Slow kept Mythic below)
             tier = speed === 'Fast' ? 'Inhuman' : 'Mythic';
         } else if (mode === 'Poison' && apple === 'Bomb') {
-            tier = 'Mythic';
+            // Poison Bomb: Mythic any size/run; Fast → Inhuman (Slow kept Mythic below)
+            tier = speed === 'Fast' ? 'Inhuman' : 'Mythic';
         } else if (
             mode !== 'Borderless' &&
             mode !== 'Classic' &&
