@@ -6,20 +6,25 @@ A comprehensive web application that displays Google Snake world records from Sp
 
 ### Core Functionality
 - **World Records Display**: View current and historical world records for Google Snake
-- **Multiple Game Modes**: Support for 22 different game modes including Classic, Wall, Portal, Cheese, Borderless, Twin, Winged, Yin Yang, Key, Sokoban, Poison, Dimension, Minesweeper, Statue, Light, Shield, Arrow, Hotdog, Magnet, Gate, Bridge, and Peaceful
-- **Flexible Settings**: Configure apple amounts (1, 3, 5, Dice), speeds (Normal, Fast, Slow), and sizes (Standard, Small, Large)
-- **Multiple Tables**: Toggle between single table and multiple table views
+- **Multiple Game Modes**: Support for 22 modes — Classic, Wall, Portal, Cheese, Borderless, Twin, Winged, Yin Yang, Key, Sokoban, Poison, Dimension, Minesweeper, Statue, Light, Shield, Arrow, Hotdog, Magnet, Gate, Bridge, and Peaceful
+- **Flexible Settings**: Apple amounts (1, 3, 5, 10, Dice, Bomb), speeds (Normal, Fast, Slow), and sizes (Standard, Small, Large)
+- **Run Types**: 25 / 50 / 100 / All Apples, plus High Score where SRC supports it (not Cheese)
+- **Multiple Tables**: Toggle between single-table and multiple-table views
 - **Time Travel**: View world records from any historical date with available cache data
+- **Player Peak Search**: Look up a player's peak record count and peak percentage dates (ties use the latest date)
 - **Responsive Design**: Optimized for both desktop and mobile devices
 
 ### Advanced Caching System
 - **GitHub-Hosted Cache**: Historical data stored in organized JSON files
 - **Smart Updates**: Only update cache when data has changed
-- **Automated Collection**: Daily cache updates via GitHub Actions
+- **Automated Collection**: Daily cache updates via GitHub Actions (Node.js 24)
 - **Historical Backfill**: Local scripts for filling historical data gaps
 
 ### User Experience
 - **Dark/Light Mode**: Toggle between themes
+- **Collapsible Panels**: Category Settings and Rankings overlay the records table without shifting layout
+- **Play Now**: Quick link to [Google Snake Mods](https://googlesnakemods.com/v/current/)
+- **Rankings**: Player WR counts with Overall% and Relative% for the current category selection
 - **Error Handling**: Graceful fallbacks and user-friendly error messages
 - **Performance Optimized**: Instant cache loading and efficient data processing
 
@@ -27,14 +32,15 @@ A comprehensive web application that displays Google Snake world records from Sp
 
 ### For Users
 1. Visit [FastSnakeStats](https://stats.googlesnakemods.com/)
-2. Select your preferred game settings
+2. Select your preferred game settings in **Category Settings**
 3. Enable **Time Travel** to view historical records from available cache dates
 4. Toggle **Multiple Tables** for comprehensive views
+5. Open **Rankings** for player WR leaderboards, or **Play Now** to jump into the game
 
 ### For Developers
 
 #### Prerequisites
-- Node.js 24+ 
+- Node.js 24+
 
 #### Local Development
 ```bash
@@ -51,13 +57,22 @@ cd FastSnakeStats
 # Run historical cache backfill for a specific date range
 node scripts/historical-cache-backfill.js 2024-01-01 2024-01-31
 
+# Fetch yesterday (same as the daily GitHub Action)
+node scripts/historical-cache-backfill.js --yesterday
+
+# Overwrite an existing day
+node scripts/historical-cache-backfill.js 2026-08-01 --force
+
 # Run monthly backfill for a specific month and year
 node scripts/monthly-backfill.js 2024 1
 
 # Generate available dates metadata
 node scripts/generate-available-dates.js
 
-# Install Node.js unattended on Windows
+# Rebuild player peak stats (peak records / peak percentage)
+node scripts/player-stats-analyzer.js
+
+# Install Node.js unattended on Windows (LTS 24.x)
 scripts/install-nodejs.bat
 ```
 
@@ -65,15 +80,17 @@ scripts/install-nodejs.bat
 
 ### GitHub Cache System
 - **Automated Collection**: Daily at midnight UTC via GitHub Actions
+- **Runtime**: Node.js 24 with `actions/checkout@v6` and `actions/setup-node@v6`
 - **Organized Storage**: Year/month/day folder structure
 - **Metadata Management**: Indexes and statistics for efficient access
 - **Smart Updates**: Only commit changes when data differs
 
 ### Time Travel Feature
 - **Historical Access**: View world records from any date with available cache
-- **Cache Integration**: Fast loading from GitHub-hosted data
+- **Cache Integration**: Fast loading from GitHub-hosted data (local cache preferred when present)
 - **Empty Cell Handling**: Proper display when no records exist
 - **Date Selection**: User-friendly date picker interface
+- **Peak Dates**: Search a username for peak records and peak percentage days
 
 ### Mobile Optimization
 - **Responsive Design**: Optimized for all screen sizes
@@ -83,17 +100,16 @@ scripts/install-nodejs.bat
 
 ## Cache System Details
 
-### GitHub Actions Workflow
-- **Trigger**: Daily at midnight UTC
-- **Process**: Fetches yesterday's complete world records
-- **Storage**: Saves to organized folder structure
-- **Commit**: Only commits when data has changed
+### GitHub Actions Workflows
+- **Daily Cache** (`daily-cache.yml`): Fetches yesterday's complete world records
+- **Available Dates** (`update-available-dates.yml`): Regenerates date metadata
+- **Player Stats** (`analyze-player-stats.yml`): Rebuilds peak records / percentage data
 
 ### Local Backfill Scripts
 - **Historical Backfill**: Fill historical data gaps for specific date ranges
 - **Monthly Backfill**: Automated backfill for entire months
 - **Usage**: `node scripts/historical-cache-backfill.js <start-date> <end-date>`
-- **Features**: Skip existing data, error handling, progress tracking
+- **Features**: Skip existing data (or `--force`), error handling, progress tracking
 
 ### Cache Format
 ```json
@@ -113,13 +129,14 @@ scripts/install-nodejs.bat
 ## UI Components
 
 ### Desktop Interface
-- **Sidebar Navigation**: Settings, options, and data controls
-- **Table Display**: Clean, organized world records tables
-- **Summary View**: Player statistics and rankings
-- **Modal Dialogs**: Settings and information panels
+- **Category Settings**: Collapsible left panel for modes, apples, speeds, sizes, and options
+- **Play Now**: Always-visible left-edge shortcut to Google Snake Mods
+- **Records Table**: Centered world records view
+- **Rankings**: Collapsible right panel with player counts, Overall%, and Relative%
+- **Modal Dialogs**: Settings (time travel / peak search) and Info (links, credits)
 
 ### Mobile Interface
-- **Tab Navigation**: Records, Summary, and Settings tabs
+- **Tab Navigation**: Records, Rankings, and Settings tabs
 - **Touch Controls**: Large, accessible buttons
 - **Responsive Tables**: Optimized for mobile viewing
 - **Quick Actions**: Fast access to common functions
@@ -139,8 +156,8 @@ scripts/install-nodejs.bat
 ## Configuration
 
 ### Settings
-- **Game Modes**: 22 different modes including Classic, Wall, Portal, Cheese, Borderless, Twin, Winged, Yin Yang, Key, Sokoban, Poison, Dimension, Minesweeper, Statue, Light, Shield, Arrow, Hotdog, Magnet, Gate, Bridge, and Peaceful
-- **Apple Amounts**: 1, 3, 5, Dice
+- **Game Modes**: 22 modes (see Features above); High Score columns for Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, and Bridge
+- **Apple Amounts**: 1, 3, 5, 10, Dice, Bomb
 - **Speeds**: Normal, Fast, Slow
 - **Sizes**: Standard, Small, Large
 - **Display Options**: Single/Multiple tables, Time Travel
@@ -162,27 +179,21 @@ scripts/install-nodejs.bat
 - **Cache Hit Rate**: >95% for recent data
 - **User Experience**: Instant loading for cached data
 
-## Future Plans
-
-### Planned Features
-- **Fetch best percentage and most records per user name**
-
 ## Acknowledgments
 
 - **Speedrun.com**: For providing the API and data
 - **Google**: For the original Snake game and images
 - **GitHub**: For hosting and automation services
-- **Community**: For feedback and contributions
+- **Community**: For feedback and contributions — [Google Snake Discord](https://discord.gg/n3UZcHttqX)
 
 ## Support
 
 For questions, issues, or contributions:
 - **Repository**: [GitHub Issues](https://github.com/darkSnakeGang/FastSnakeStats/issues)
 - **Website**: [FastSnakeStats](https://stats.googlesnakemods.com/)
+- **Discord**: [Google Snake Discord](https://discord.gg/n3UZcHttqX)
 - **Author**: Yarmiplay
 
 ---
 
 **Made with dedication by Yarmiplay**
-
-
