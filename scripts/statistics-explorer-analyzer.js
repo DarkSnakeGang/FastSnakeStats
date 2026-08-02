@@ -554,6 +554,11 @@ class StatisticsExplorerAnalyzer {
         } else if (mode === 'Statue' && run === '100 Apples' && size === 'Standard' && apple === '1 Apple') {
             // Only 1a Statue 100 Standard is Mythic; 3a+ stay below (even Fast)
             tier = 'Mythic';
+        } else if (mode === 'Portal' && apple === 'Bomb') {
+            // Portal Bomb: Mythic any speed; Fast → Inhuman
+            tier = speed === 'Fast' ? 'Inhuman' : 'Mythic';
+        } else if (mode === 'Poison' && apple === 'Bomb') {
+            tier = 'Mythic';
         } else if (
             mode !== 'Borderless' &&
             mode !== 'Classic' &&
@@ -563,6 +568,8 @@ class StatisticsExplorerAnalyzer {
             mode !== 'Yin Yang' &&
             !(mode === 'Statue' && (apple === '10 Apples' || apple === 'Bomb')) &&
             !(mode === 'Arrow' && apple === 'Bomb') &&
+            !(mode === 'Portal' && apple === 'Bomb') &&
+            !(mode === 'Poison' && apple === 'Bomb') &&
             speed === 'Fast' &&
             size === 'Large' &&
             run === 'All Apples'
@@ -586,16 +593,21 @@ class StatisticsExplorerAnalyzer {
             }
         }
 
-        // Slow never reaches Mythic (Lottery/Inhuman exceptions stay)
+        // Slow never reaches Mythic (Lottery/Inhuman and Bomb Mythic exceptions stay)
         if (speed === 'Slow' && tier === 'Mythic') {
-            tier = 'Hard';
+            const keepMythic =
+                (mode === 'Portal' && apple === 'Bomb') ||
+                (mode === 'Poison' && apple === 'Bomb');
+            if (!keepMythic) tier = 'Hard';
         }
 
         // Non-exception Slow + Small is Medium at most
         const slowSmallException =
             (mode === 'Wall' && run === 'All Apples') ||
             (mode === 'Cheese' && run === '50 Apples' && size === 'Small') ||
-            (mode === 'Statue' && apple === '1 Apple' && run === '50 Apples' && size === 'Small');
+            (mode === 'Statue' && apple === '1 Apple' && run === '50 Apples' && size === 'Small') ||
+            (mode === 'Portal' && apple === 'Bomb') ||
+            (mode === 'Poison' && apple === 'Bomb');
         if (speed === 'Slow' && size === 'Small' && !slowSmallException) {
             if (this.tierIndex(tier) > this.tierIndex('Medium')) {
                 tier = 'Medium';

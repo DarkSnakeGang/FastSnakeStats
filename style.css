@@ -394,7 +394,7 @@ body.dark-mode .button-group .dark-mode-toggle:hover {
 /* Ensure ranglist table has the same styling as main table */
 .ranglist-wrapper table {
 	border-top: none;
-	border: 10px solid #578A34;
+	border: 6px solid #578A34;
 	background-color: #578A34;
 	border-collapse: collapse;
 	color: white;
@@ -411,22 +411,22 @@ body.dark-mode .button-group .dark-mode-toggle:hover {
 }
 
 .ranglist-wrapper thead {
-	font-size: 18px;
+	font-size: 14px;
 	background: linear-gradient(135deg, #4C792D, #578A34);
 }
 
 .ranglist-wrapper th {
-	border: 3px solid #578A34;
-	height: 50px;
-	padding: 10px;
+	border: 2px solid #578A34;
+	height: 36px;
+	padding: 6px;
 	text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
 .ranglist-wrapper td {
-	border: 3px solid #578A34;
+	border: 2px solid #578A34;
 	color: white;
 	text-align: center;
-	padding: 8px;
+	padding: 5px;
 	transition: all 0.2s ease;
 }
 
@@ -437,34 +437,34 @@ body.dark-mode .button-group .dark-mode-toggle:hover {
 /* Mode-specific styling for ranglist table */
 .ranglist-wrapper table.mode1 {
 	background-color: #51AD3E;
-	border: 10px solid #51AD3E;
+	border: 6px solid #51AD3E;
 }
 
 .ranglist-wrapper .mode1 th {
-	border: 3px solid #51AD3E;
+	border: 2px solid #51AD3E;
 }
 
 .ranglist-wrapper .mode1 td {
-	border: 3px solid #51AD3E;
+	border: 2px solid #51AD3E;
 }
 
 .ranglist-wrapper table.mode2 {
 	background-color: #AB593E;
-	border: 10px solid #AB593E;
+	border: 6px solid #AB593E;
 }
 
 .ranglist-wrapper .mode2 th {
-	border: 3px solid #AB593E;
+	border: 2px solid #AB593E;
 }
 
 .ranglist-wrapper .mode2 td {
-	border: 3px solid #AB593E;
+	border: 2px solid #AB593E;
 }
 
 /* Improve table aesthetics */
 .container table {
 	border-top: none;
-	border: 10px solid #578A34;
+	border: 6px solid #578A34;
 	background-color: #578A34;
 	border-collapse: collapse;
 	color: white;
@@ -482,23 +482,23 @@ body.dark-mode .button-group .dark-mode-toggle:hover {
 
 /* Improve table header styling */
 .container thead {
-	font-size: 18px;
+	font-size: 14px;
 	background: linear-gradient(135deg, #4C792D, #578A34);
 }
 
 .container th {
-	border: 3px solid #578A34;
-	height: 50px;
-	padding: 10px;
+	border: 2px solid #578A34;
+	height: 36px;
+	padding: 6px;
 	text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
 /* Improve table cell styling */
 .container td {
-	border: 3px solid #578A34;
+	border: 2px solid #578A34;
 	color: white;
 	text-align: center;
-	padding: 8px;
+	padding: 5px;
 	transition: all 0.2s ease;
 }
 
@@ -801,24 +801,24 @@ body.dark-mode .stop-resume-btn {
 
 .container table.mode1{
 	background-color: #51AD3E;
-	border: 10px solid #51AD3E;
+	border: 6px solid #51AD3E;
 }
 .container .mode1 th{
-	border: 3px solid #51AD3E;
+	border: 2px solid #51AD3E;
 }
 .container .mode1 td{
-	border: 3px solid #51AD3E;
+	border: 2px solid #51AD3E;
 }
 
 .container table.mode2{
 	background-color: #AB593E;
-	border: 10px solid #AB593E;
+	border: 6px solid #AB593E;
 }
 .container .mode2 th{
-	border: 3px solid #AB593E;
+	border: 2px solid #AB593E;
 }
 .container .mode2 td{
-	border: 3px solid #AB593E;
+	border: 2px solid #AB593E;
 }
 
 
@@ -895,22 +895,24 @@ body.dark-mode .player-separator {
 }
 
 .time{
-	margin-top: 5px;
-	margin-left: 4px;
-	margin-right:4px;
-	font-size: 18px;
+	margin-top: 3px;
+	margin-left: 3px;
+	margin-right: 3px;
+	font-size: 14px;
 	display: block;
 	white-space: nowrap;
 }
 
 .name{
-	margin-left: 5px;
-	margin-right: 5px;
+	margin-left: 4px;
+	margin-right: 4px;
 	font-weight: bold;
+	font-size: 14px;
+	line-height: 1.2;
 }
 
 .percentage{
-	font-size: 20px;
+	font-size: 14px;
 	font-weight: bold;
 }
 
@@ -2025,7 +2027,7 @@ body.dark-mode .quick-fetch-btn:disabled {
 		flex-direction: column !important;
 		align-items: stretch !important;
 		margin: 0 !important;
-		padding: 12px !important;
+		padding: 8px !important;
 		box-sizing: border-box !important;
 		overflow: visible !important;
 		z-index: 250 !important;
@@ -2510,11 +2512,54 @@ body.dark-mode .quick-fetch-btn:disabled {
 		max-width: none !important;
 		table-layout: auto !important;
 		margin: 0 !important;
+		font-size: 12px !important;
 	}
 
 	.ranglist-scroll th,
 	.ranglist-scroll td {
 		white-space: nowrap;
+		padding: 4px 8px !important;
+		height: auto !important;
+		line-height: 1.25 !important;
+		font-size: 12px !important;
+	}
+
+	.ranglist-scroll .ranglist-count-header,
+	.ranglist-scroll .ranglist-count-cell,
+	.ranglist-scroll .ranglist-percentage-header,
+	.ranglist-scroll .ranglist-percentage-cell,
+	.ranglist-scroll .ranglist-overall-header,
+	.ranglist-scroll .ranglist-overall-cell,
+	.ranglist-scroll .ranglist-relative-header,
+	.ranglist-scroll .ranglist-relative-cell {
+		width: 1% !important;
+		padding-left: 6px !important;
+		padding-right: 6px !important;
+		text-align: center !important;
+	}
+
+	.ranglist-scroll .ranglist-player-header,
+	.ranglist-scroll .ranglist-player-cell {
+		padding-left: 8px !important;
+		padding-right: 10px !important;
+	}
+
+	.ranglist-scroll thead {
+		font-size: 12px !important;
+	}
+
+	.ranglist-scroll .name {
+		font-size: 13px !important;
+	}
+
+	.ranglist-scroll .percentage,
+	.ranglist-scroll .ranglist-count-cell,
+	.ranglist-scroll .ranglist-percentage-cell {
+		font-size: 12px !important;
+	}
+
+	.ranglist-panel-title {
+		font-size: 0.9rem;
 	}
 
 	.snake-mods-btn {

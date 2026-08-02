@@ -354,6 +354,88 @@ function createTimeElement(times, isHighScore = false){
     return span;
 }
 
+function parseHexColor(hex) {
+    if (!hex || typeof hex !== 'string') return null;
+    var h = hex.trim().replace('#', '');
+    if (h.length === 3) {
+        h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    }
+    if (!/^[0-9a-fA-F]{6}$/.test(h)) return null;
+    return {
+        r: parseInt(h.slice(0, 2), 16),
+        g: parseInt(h.slice(2, 4), 16),
+        b: parseInt(h.slice(4, 6), 16)
+    };
+}
+
+function relativeLuminance(hex) {
+    var rgb = parseHexColor(hex);
+    if (!rgb) return 0.5;
+    function toLinear(c) {
+        c /= 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    }
+    return 0.2126 * toLinear(rgb.r) + 0.7152 * toLinear(rgb.g) + 0.0722 * toLinear(rgb.b);
+}
+
+/** Black outline by default; white only if fill is nearly black. */
+function sharpContrastOutline(fillHex) {
+    return relativeLuminance(fillHex) < 0.08 ? '#ffffff' : '#000000';
+}
+
+/** 0-blur drop-shadow ring — sharp, does not fill letter counters. */
+function sharpOutlineFilter(outlineHex) {
+    return (
+        'drop-shadow(1px 0 0 ' + outlineHex + ') ' +
+        'drop-shadow(-1px 0 0 ' + outlineHex + ') ' +
+        'drop-shadow(0 1px 0 ' + outlineHex + ') ' +
+        'drop-shadow(0 -1px 0 ' + outlineHex + ')'
+    );
+}
+
+function clearNameEffects(span) {
+    span.style.webkitTextStroke = '';
+    span.style.paintOrder = '';
+    span.style.textShadow = '';
+    span.style.filter = '';
+    span.style.background = '';
+    span.style.webkitBackgroundClip = '';
+    span.style.backgroundClip = '';
+    span.style.webkitTextFillColor = '';
+}
+
+function applyUsernameColors(span, nameStyle) {
+    clearNameEffects(span);
+    span.style.display = 'inline-block';
+
+    if (!nameStyle) {
+        span.style.color = '#ffffff';
+        span.style.filter = sharpOutlineFilter('#000000');
+        return;
+    }
+
+    if (nameStyle.style === 'gradient' && nameStyle['color-from'] && nameStyle['color-to']) {
+        var colorFrom = nameStyle['color-from'].dark || nameStyle['color-from'].light;
+        var colorTo = nameStyle['color-to'].dark || nameStyle['color-to'].light;
+        var midL = (relativeLuminance(colorFrom) + relativeLuminance(colorTo)) / 2;
+        var outline = midL < 0.08 ? '#ffffff' : '#000000';
+        span.style.background = 'linear-gradient(90deg, ' + colorFrom + ', ' + colorTo + ')';
+        span.style.webkitBackgroundClip = 'text';
+        span.style.backgroundClip = 'text';
+        span.style.webkitTextFillColor = 'transparent';
+        span.style.color = colorFrom;
+        span.style.filter = sharpOutlineFilter(outline);
+    } else if (nameStyle.color) {
+        var fill = nameStyle.color.dark || nameStyle.color.light || '#ffffff';
+        var outline = sharpContrastOutline(fill);
+        span.style.color = fill;
+        span.style.filter = sharpOutlineFilter(outline);
+    } else {
+        span.style.color = '#ffffff';
+        span.style.filter = sharpOutlineFilter('#000000');
+    }
+}
+
 function createNameElement(user){
     
     var span = document.createElement('span');
@@ -368,52 +450,12 @@ function createNameElement(user){
     // Check if this is a user with names.international (GitHub cache format)
     if(user.names && user.names.international){
         span.appendChild(document.createTextNode(user.names.international));
-        // Add safety check for name-style property
-        if(user["name-style"] && user["name-style"].style == "gradient"){
-            var colorfrom = user["name-style"]["color-from"].dark;
-            var colorto = user["name-style"]["color-to"].dark;
-            // Apply gradient using CSS - try a more compatible approach
-            span.style.background = `linear-gradient(90deg, ${colorfrom}, ${colorto})`;
-            span.style.webkitBackgroundClip = "text";
-            span.style.webkitTextFillColor = "transparent";
-            span.style.backgroundClip = "text";
-            span.style.color = "transparent";
-            span.style.display = "inline-block"; // Ensure the gradient works
-        }
-        else if(user["name-style"] && user["name-style"]["color"]){
-            var color = user["name-style"]["color"].dark;
-            // Apply solid color
-            span.style.color = color;
-        }
-        else{
-            // Default colors if name-style is missing
-            span.style.color = "#ffffff";
-        }
+        applyUsernameColors(span, user['name-style']);
     }
     // Legacy format check (user.rel == "user")
     else if(user.rel == "user"){
         span.appendChild(document.createTextNode(user.names.international));
-        // Add safety check for name-style property
-        if(user["name-style"] && user["name-style"].style == "gradient"){
-            var colorfrom = user["name-style"]["color-from"].dark;
-            var colorto = user["name-style"]["color-to"].dark;
-            // Apply gradient using CSS - try a more compatible approach
-            span.style.background = `linear-gradient(90deg, ${colorfrom}, ${colorto})`;
-            span.style.webkitBackgroundClip = "text";
-            span.style.webkitTextFillColor = "transparent";
-            span.style.backgroundClip = "text";
-            span.style.color = "transparent";
-            span.style.display = "inline-block"; // Ensure the gradient works
-        }
-        else if(user["name-style"] && user["name-style"]["color"]){
-            var color = user["name-style"]["color"].dark;
-            // Apply solid color
-            span.style.color = color;
-        }
-        else{
-            // Default colors if name-style is missing
-            span.style.color = "#ffffff";
-        }
+        applyUsernameColors(span, user['name-style']);
     }
     else{
         // Fallback for other formats
