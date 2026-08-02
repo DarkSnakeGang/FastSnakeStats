@@ -31,7 +31,7 @@ const MODE_BASE_TIER = {
     Hotdog: 'Medium',
     Sokoban: 'Hard',
     Gate: 'Hard',
-    Bridge: 'Hard'
+    Bridge: 'Medium'
 };
 
 const COUNT_MORE_EASIER = ['Bomb', '10 Apples', '5 Apples', 'Dice', '3 Apples', '1 Apple'];
@@ -572,9 +572,20 @@ class StatisticsExplorerAnalyzer {
             }
         }
 
-        // Slow never reaches Mythic or above
-        if (speed === 'Slow' && this.tierIndex(tier) >= this.tierIndex('Mythic')) {
+        // Slow never reaches Mythic (Lottery/Inhuman exceptions stay)
+        if (speed === 'Slow' && tier === 'Mythic') {
             tier = 'Hard';
+        }
+
+        // Non-exception Slow + Small is Medium at most
+        const slowSmallException =
+            (mode === 'Wall' && run === 'All Apples') ||
+            (mode === 'Cheese' && run === '50 Apples' && size === 'Small') ||
+            (mode === 'Statue' && apple === '1 Apple' && run === '50 Apples' && size === 'Small');
+        if (speed === 'Slow' && size === 'Small' && !slowSmallException) {
+            if (this.tierIndex(tier) > this.tierIndex('Medium')) {
+                tier = 'Medium';
+            }
         }
 
         return tier;
