@@ -1,4 +1,4 @@
-// Statistics Explorer — collapsible right panel + six analytics views
+// Statistics Explorer — collapsible right panel + analytics views
 // Data: time-travel-cache/metadata/statistics-explorer.json (precomputed)
 
 var statsExplorerData = null;
@@ -8,6 +8,7 @@ var statsExplorerImproveWindow = '30d';
 var statsExplorerHeatMetric = 'flips';
 var statsExplorerHeatYear = null; // set from data
 var statsExplorerLongevityMode = 'all'; // 'all' | 'standing'
+var statsExplorerUnheldTier = 'All'; // 'All' | Free…Inhuman
 // Independent progression filters (not Category Settings)
 var statsProgApple = '1 Apple';
 var statsProgSpeed = 'Normal';
@@ -22,7 +23,9 @@ var STATS_TABS = [
     { id: 'longevity', label: 'Longevity' },
     { id: 'improving', label: 'Improving' },
     { id: 'contested', label: 'Contested' },
+    { id: 'stale', label: 'Stale' },
     { id: 'popularity', label: 'Popularity' },
+    { id: 'unheld', label: 'Unheld' },
     { id: 'heatmap', label: 'Heatmap' }
 ];
 
@@ -299,8 +302,14 @@ function renderStatisticsExplorerContent(targetBody) {
         case 'contested':
             renderListView(body, statsExplorerData.contested || [], 'contested');
             break;
+        case 'stale':
+            renderListView(body, statsExplorerData.stale || [], 'stale');
+            break;
         case 'popularity':
             renderListView(body, statsExplorerData.popularity || [], 'popularity');
+            break;
+        case 'unheld':
+            renderUnheldView(body);
             break;
         case 'heatmap':
             renderHeatmapView(body);
@@ -508,7 +517,7 @@ function renderLongevityView(body) {
     renderListView(body, getLongevityRows(), 'longevity');
 }
 
-function renderListView(body, rows, kind) {
+function renderListView(body, rows, kind, showAll) {
     if (!rows.length) {
         var empty = document.createElement('div');
         empty.className = 'stats-explorer-empty';
@@ -524,9 +533,13 @@ function renderListView(body, rows, kind) {
     var hr = document.createElement('tr');
     var headers = kind === 'longevity'
         ? ['Player', 'Mode', 'Count', 'Speed', 'Size', 'Run', 'Days', 'Range']
-        : kind === 'contested'
-            ? ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Flips', 'Holders']
-            : ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Holders', 'Days'];
+        : kind === 'stale'
+            ? ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Days', 'Flips', 'Holders']
+            : kind === 'contested'
+                ? ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Flips', 'Holders']
+                : kind === 'unheld'
+                    ? ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Tier']
+                    : ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Holders', 'Days'];
     headers.forEach(function (h) {
         var th = document.createElement('th');
         th.textContent = h;
@@ -535,7 +548,8 @@ function renderListView(body, rows, kind) {
     thead.appendChild(hr);
     table.appendChild(thead);
     var tbody = document.createElement('tbody');
-    rows.slice(0, 50).forEach(function (row) {
+    var displayRows = showAll ? rows : rows.slice(0, 50);
+    displayRows.forEach(function (row) {
         var parsed = parseCategoryKey(row.category) || {
             gamemode: row.category || '-',
             apple: '-',
@@ -558,6 +572,16 @@ function renderListView(body, rows, kind) {
                 '<td>' + escapeHtml(parsed.runMode) + '</td>' +
                 '<td>' + row.days + '</td>' +
                 '<td>' + escapeHtml(range) + '</td>';
+        } else if (kind === 'stale') {
+            tr.innerHTML =
+                '<td>' + escapeHtml(parsed.gamemode) + '</td>' +
+                '<td>' + escapeHtml(parsed.apple) + '</td>' +
+                '<td>' + escapeHtml(parsed.speed) + '</td>' +
+                '<td>' + escapeHtml(parsed.size) + '</td>' +
+                '<td>' + escapeHtml(parsed.runMode) + '</td>' +
+                '<td>' + (row.holdDays != null ? row.holdDays : row.daysWithRecord) + '</td>' +
+                '<td>' + row.flips + '</td>' +
+                '<td>' + row.uniqueHolders + '</td>';
         } else if (kind === 'contested') {
             tr.innerHTML =
                 '<td>' + escapeHtml(parsed.gamemode) + '</td>' +
@@ -567,6 +591,14 @@ function renderListView(body, rows, kind) {
                 '<td>' + escapeHtml(parsed.runMode) + '</td>' +
                 '<td>' + row.flips + '</td>' +
                 '<td>' + row.uniqueHolders + '</td>';
+        } else if (kind === 'unheld') {
+            tr.innerHTML =
+                '<td>' + escapeHtml(parsed.gamemode) + '</td>' +
+                '<td>' + escapeHtml(parsed.apple) + '</td>' +
+                '<td>' + escapeHtml(parsed.speed) + '</td>' +
+                '<td>' + escapeHtml(parsed.size) + '</td>' +
+                '<td>' + escapeHtml(parsed.runMode) + '</td>' +
+                '<td>' + escapeHtml(row.tier || '') + '</td>';
         } else {
             tr.innerHTML =
                 '<td>' + escapeHtml(parsed.gamemode) + '</td>' +
@@ -581,6 +613,57 @@ function renderListView(body, rows, kind) {
     });
     table.appendChild(tbody);
     body.appendChild(table);
+}
+
+function renderUnheldView(body) {
+    var payload = statsExplorerData.unheld || {};
+    var tiers = payload.tiers || ['Free', 'Warmup', 'Easy', 'Medium', 'Hard', 'Mythic', 'Lottery', 'Inhuman'];
+    var allRows = payload.rows || [];
+
+    var bar = document.createElement('div');
+    bar.className = 'stats-explorer-chips';
+    ['All'].concat(tiers).forEach(function (t) {
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'stats-explorer-chip' + (t === statsExplorerUnheldTier ? ' active' : '');
+        chip.textContent = t;
+        chip.addEventListener('click', function () {
+            statsExplorerUnheldTier = t;
+            renderStatisticsExplorerContent(body);
+        });
+        bar.appendChild(chip);
+    });
+    body.appendChild(bar);
+
+    var rows = allRows;
+    if (statsExplorerUnheldTier !== 'All') {
+        rows = allRows.filter(function (r) { return r.tier === statsExplorerUnheldTier; });
+    }
+
+    var meta = document.createElement('div');
+    meta.className = 'stats-explorer-meta';
+    meta.textContent = rows.length + ' shown' +
+        (payload.total != null ? ' · ' + payload.total + ' unheld total' : '') +
+        ' · easiest first';
+    body.appendChild(meta);
+
+    if (!rows.length) {
+        var empty = document.createElement('div');
+        empty.className = 'stats-explorer-empty';
+        empty.textContent = 'No unheld categories for this filter.';
+        body.appendChild(empty);
+        return;
+    }
+
+    renderListView(body, rows.map(function (r) {
+        return {
+            category: r.category,
+            tier: r.tier,
+            score: r.score,
+            uniqueHolders: 0,
+            daysWithRecord: 0
+        };
+    }), 'unheld', true);
 }
 
 function renderImprovingView(body) {

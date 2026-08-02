@@ -25,7 +25,7 @@ A comprehensive web application that displays Google Snake world records from Sp
 - **Collapsible Panels**: Category Settings, Rankings, and Statistics overlay the records table without shifting layout
 - **Play Now**: Quick link to [Google Snake Mods](https://googlesnakemods.com/v/current/)
 - **Rankings**: Player WR counts with Overall% and Relative% for the current category selection
-- **Statistics Explorer**: Precomputed history views — WR progression, record longevity, fastest improving players (7d/30d/90d/365d), contested categories, category popularity, and activity heatmaps
+- **Statistics Explorer**: Precomputed history views — WR progression, record longevity, fastest improving players (7d/30d/90d/365d), contested / stale categories, unheld difficulty rankings, category popularity, and activity heatmaps
 - **Error Handling**: Graceful fallbacks and user-friendly error messages
 - **Performance Optimized**: Instant cache loading and efficient data processing
 
@@ -112,7 +112,7 @@ scripts/install-nodejs.bat
 ### Statistics Explorer
 - Precomputed from the full daily cache into `time-travel-cache/metadata/statistics-explorer.json`
 - Progression uses its own Count / Speed / Size / Run / Mode dropdowns (all-time history, independent of Category Settings)
-- Longevity, contested, and popularity list Mode + Count + Speed + Size + Run; Longevity has All-time / Still standing toggles
+- Longevity, contested, stale, popularity, and unheld list Mode + Count + Speed + Size + Run; Longevity has All-time / Still standing toggles; Unheld ranks never-held categories by difficulty tier (Free→Inhuman)
 - Heatmap uses a year dropdown (one year at a time)
 - Improving players and heatmap metrics are site-wide
 - Refresh locally with `node scripts/statistics-explorer-analyzer.js`

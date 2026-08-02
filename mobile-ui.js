@@ -1560,7 +1560,9 @@ function showBasicMobileStatisticsSection() {
         { id: 'longevity', label: 'Longevity' },
         { id: 'improving', label: 'Improving' },
         { id: 'contested', label: 'Contested' },
+        { id: 'stale', label: 'Stale' },
         { id: 'popularity', label: 'Popularity' },
+        { id: 'unheld', label: 'Unheld' },
         { id: 'heatmap', label: 'Heatmap' }
     ]).map(function (tab) {
         const active = (typeof statsExplorerActiveTab !== 'undefined' && statsExplorerActiveTab === tab.id) ? ' active' : '';

@@ -3,8 +3,59 @@ const path = require('path');
 
 /**
  * Scans daily time-travel cache and emits compact statistics-explorer.json
- * for the Statistics panel (progression, longevity, improving, contested, popularity, heatmap).
+ * for the Statistics panel (progression, longevity, improving, contested,
+ * popularity, stale, unheld, heatmap).
  */
+
+const DIFFICULTY_TIERS = ['Free', 'Warmup', 'Easy', 'Medium', 'Hard', 'Mythic', 'Lottery', 'Inhuman'];
+
+const MODE_BASE_TIER = {
+    Peaceful: 'Free',
+    Classic: 'Warmup',
+    Cheese: 'Warmup',
+    Borderless: 'Warmup',
+    Winged: 'Warmup',
+    'Yin Yang': 'Warmup',
+    Magnet: 'Warmup',
+    Dimension: 'Easy',
+    Statue: 'Easy',
+    Arrow: 'Easy',
+    Light: 'Easy',
+    Wall: 'Medium',
+    Portal: 'Medium',
+    Twin: 'Medium',
+    Key: 'Medium',
+    Poison: 'Medium',
+    Minesweeper: 'Medium',
+    Shield: 'Medium',
+    Hotdog: 'Medium',
+    Sokoban: 'Hard',
+    Gate: 'Hard',
+    Bridge: 'Hard'
+};
+
+const COUNT_MORE_EASIER = ['Bomb', '10 Apples', '5 Apples', 'Dice', '3 Apples', '1 Apple'];
+const COUNT_LESS_EASIER = ['1 Apple', '3 Apples', 'Dice', '5 Apples', '10 Apples', 'Bomb'];
+const COUNT_POISON = ['1 Apple', 'Dice', '3 Apples', '5 Apples', '10 Apples', 'Bomb'];
+const COUNT_LESS_EASIER_MODES = new Set([
+    'Portal', 'Key', 'Sokoban', 'Minesweeper', 'Shield', 'Hotdog'
+]);
+
+const HIGHSCORE_MODES = new Set([
+    'Wall', 'Portal', 'Key', 'Sokoban', 'Poison', 'Minesweeper',
+    'Statue', 'Shield', 'Hotdog', 'Gate', 'Bridge'
+]);
+
+const APPLE_AMOUNTS = ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb'];
+const SPEED_NAMES = ['Normal', 'Fast', 'Slow'];
+const SIZE_NAMES = ['Standard', 'Small', 'Large'];
+const MODE_NAMES = [
+    'Classic', 'Wall', 'Portal', 'Cheese', 'Borderless', 'Twin', 'Winged', 'Yin Yang',
+    'Key', 'Sokoban', 'Poison', 'Dimension', 'Minesweeper', 'Statue', 'Light', 'Shield',
+    'Arrow', 'Hotdog', 'Magnet', 'Gate', 'Bridge', 'Peaceful'
+];
+const APPLE_RUNS = ['25 Apples', '50 Apples', '100 Apples', 'All Apples'];
+
 class StatisticsExplorerAnalyzer {
     constructor() {
         this.cacheDir = 'time-travel-cache/daily';
@@ -142,10 +193,30 @@ class StatisticsExplorerAnalyzer {
 
             const meta = this.ensureCategoryMeta(categoryKey);
             meta.daysWithRecord++;
-            meta.holders.add(playerId);
+
+            // Count every player tied for WR (same primary as #1) toward holders
+            let tiedHolderCount = 0;
+            for (const run of categoryData.runs) {
+                const t = (run.times && run.times.primary) || '';
+                if (t !== primary) break;
+                if (!run.players || !run.players.data) continue;
+                for (const p of run.players.data) {
+                    const pid = this.extractPlayerId(p);
+                    if (!pid) continue;
+                    meta.holders.add(pid);
+                    tiedHolderCount++;
+                }
+            }
+            if (tiedHolderCount === 0) {
+                meta.holders.add(playerId);
+                tiedHolderCount = 1;
+            }
+            meta.currentTiedHolders = tiedHolderCount;
 
             const prev = this.prevTop.get(categoryKey);
-            const changed = !prev || prev.runKey !== runKey;
+            // WR change = different player or time. Do not use SRC run id — duplicate
+            // board entries with the same time/player oscillate ids and inflate flips.
+            const changed = !prev || prev.primary !== primary || prev.playerId !== playerId;
 
             if (!prev) {
                 if (!this.progression.has(categoryKey)) this.progression.set(categoryKey, []);
@@ -181,12 +252,13 @@ class StatisticsExplorerAnalyzer {
                     start: date
                 });
             } else {
-                // Same run (id/link): keep hold, refresh displayed time/name if retimed/renamed
+                // Same player+time (retime/id swap): keep hold, refresh display fields
                 const hold = this.openHolds.get(categoryKey);
                 if (hold) {
                     hold.primary = primary;
                     hold.playerName = playerName;
                     hold.playerId = playerId;
+                    hold.runKey = runKey;
                 }
             }
 
@@ -238,6 +310,186 @@ class StatisticsExplorerAnalyzer {
             }))
             .sort((a, b) => b.uniqueHolders - a.uniqueHolders || b.daysWithRecord - a.daysWithRecord)
             .slice(0, limit);
+    }
+
+    buildStale(lastDate, limit = 50) {
+        return Array.from(this.categoryMeta.entries())
+            .filter(([, meta]) => meta.daysWithRecord > 0)
+            .map(([category, meta]) => {
+                const hold = this.openHolds.get(category);
+                const holdStart = hold ? hold.start : null;
+                const holdDays = hold ? this.daysBetween(hold.start, lastDate) : 0;
+                const tiedNow = meta.currentTiedHolders || 1;
+                // Unique holders over history, with current ties ensuring multi-way WRs aren't undersold
+                const holders = Math.max(meta.holders.size, tiedNow);
+                return {
+                    category,
+                    flips: meta.flips,
+                    uniqueHolders: holders,
+                    tiedHolders: tiedNow,
+                    daysWithRecord: meta.daysWithRecord,
+                    holdStart,
+                    holdDays
+                };
+            })
+            .sort((a, b) =>
+                a.flips - b.flips ||
+                a.uniqueHolders - b.uniqueHolders ||
+                a.tiedHolders - b.tiedHolders ||
+                b.holdDays - a.holdDays
+            )
+            .slice(0, limit);
+    }
+
+    enumerateExpectedCategories() {
+        const keys = [];
+        for (const apple of APPLE_AMOUNTS) {
+            for (const speed of SPEED_NAMES) {
+                for (const size of SIZE_NAMES) {
+                    for (const mode of MODE_NAMES) {
+                        for (const run of APPLE_RUNS) {
+                            if (run === '100 Apples' && size === 'Small') continue;
+                            // Yin Yang 50 on Small does not exist
+                            if (mode === 'Yin Yang' && run === '50 Apples' && size === 'Small') continue;
+                            keys.push(`${apple}|${speed}|${size}|${mode}|${run}`);
+                        }
+                        if (HIGHSCORE_MODES.has(mode)) {
+                            keys.push(`${apple}|${speed}|${size}|${mode}|High Score`);
+                        }
+                    }
+                }
+            }
+        }
+        return keys;
+    }
+
+    parseCategoryParts(category) {
+        const parts = (category || '').split('|');
+        return {
+            apple: parts[0] || '',
+            speed: parts[1] || '',
+            size: parts[2] || '',
+            mode: parts[3] || '',
+            run: parts[4] || ''
+        };
+    }
+
+    tierIndex(name) {
+        const i = DIFFICULTY_TIERS.indexOf(name);
+        return i >= 0 ? i : 0;
+    }
+
+    effectiveModeTier(mode, size, speed, run, apple) {
+        let tier = MODE_BASE_TIER[mode] || 'Medium';
+
+        if (mode === 'Wall' && run === 'All Apples') {
+            // Fast + above Small (Standard/Large) → Inhuman
+            if ((size === 'Standard' || size === 'Large') && speed === 'Fast') {
+                tier = 'Inhuman';
+            } else if (size === 'Standard' || size === 'Large') {
+                tier = 'Lottery';
+            } else if (size === 'Small' && speed === 'Normal') {
+                tier = 'Hard';
+            } else if (size === 'Small' && (speed === 'Fast' || speed === 'Slow')) {
+                tier = 'Mythic';
+            }
+        } else if (mode === 'Cheese' && run === '50 Apples' && size === 'Small') {
+            // under 5a + Dice → Lottery; 5a+ → Mythic
+            if (apple === '1 Apple' || apple === '3 Apples' || apple === 'Dice') {
+                tier = 'Lottery';
+            } else {
+                tier = 'Mythic'; // 5 Apples, 10 Apples, Bomb
+            }
+        } else if (mode === 'Statue' && apple === '1 Apple' && run === '50 Apples' && size === 'Small') {
+            tier = 'Lottery';
+        } else if (mode === 'Statue' && run === '100 Apples' && size === 'Standard') {
+            // Statue 100 Standard → at least Mythic
+            tier = 'Mythic';
+        } else if (speed === 'Fast' && size === 'Large' && run === 'All Apples') {
+            // Fast + Large + All Apples is Mythic for every mode
+            tier = 'Mythic';
+        } else if (mode === 'Portal' && speed === 'Fast' && (size === 'Standard' || size === 'Large')) {
+            // Fast Portal on Standard/Large is at least Hard
+            tier = 'Hard';
+        } else if (mode === 'Winged' && speed === 'Fast') {
+            // Fast Winged on Small is Easy; Standard/Large floored to Medium below
+            tier = 'Easy';
+        }
+
+        // Floor: anything Fast on Standard/Large is at least Medium
+        if (speed === 'Fast' && (size === 'Standard' || size === 'Large')) {
+            if (this.tierIndex(tier) < this.tierIndex('Medium')) {
+                tier = 'Medium';
+            }
+        }
+
+        return tier;
+    }
+
+    countWeight(mode, apple) {
+        if (mode === 'Twin') return 0;
+        let order;
+        if (mode === 'Poison') order = COUNT_POISON;
+        else if (COUNT_LESS_EASIER_MODES.has(mode)) order = COUNT_LESS_EASIER;
+        else order = COUNT_MORE_EASIER; // more-is-easier default (incl. unknown)
+        const idx = order.indexOf(apple);
+        return idx >= 0 ? idx : 0;
+    }
+
+    sizeWeight(size) {
+        if (size === 'Small') return 0;
+        if (size === 'Standard') return 1;
+        if (size === 'Large') return 2;
+        return 1;
+    }
+
+    speedWeight(speed) {
+        if (speed === 'Slow') return 0;
+        if (speed === 'Normal') return 1;
+        if (speed === 'Fast') return 2;
+        return 1;
+    }
+
+    runWeight(run) {
+        if (run === '25 Apples') return 0;
+        if (run === '50 Apples') return 1;
+        if (run === '100 Apples') return 2;
+        if (run === 'High Score') return 3;
+        if (run === 'All Apples') return 3.2;
+        return 0;
+    }
+
+    scoreCategory(category) {
+        const { apple, speed, size, mode, run } = this.parseCategoryParts(category);
+        const tier = this.effectiveModeTier(mode, size, speed, run, apple);
+        const modeW = this.tierIndex(tier);
+        const score =
+            modeW * 100 +
+            this.sizeWeight(size) * 10 +
+            this.speedWeight(speed) * 10 +
+            this.countWeight(mode, apple) * 1 +
+            this.runWeight(run) * 1;
+        return { score, tier, apple, speed, size, mode, run };
+    }
+
+    buildUnheld() {
+        const expected = this.enumerateExpectedCategories();
+        const rows = [];
+        for (const category of expected) {
+            if (this.categoryMeta.has(category)) continue;
+            const scored = this.scoreCategory(category);
+            rows.push({
+                category,
+                score: Math.round(scored.score * 10) / 10,
+                tier: scored.tier
+            });
+        }
+        rows.sort((a, b) => a.score - b.score || a.category.localeCompare(b.category));
+        return {
+            tiers: DIFFICULTY_TIERS.slice(),
+            total: rows.length,
+            rows
+        };
     }
 
     buildLongevity(lastDate, limit = 50) {
@@ -341,9 +593,12 @@ class StatisticsExplorerAnalyzer {
             },
             activityHeatmap: this.activityHeatmap,
             contested: this.buildContested(50),
+            // Before longevity closes open holds — need current hold age
+            stale: this.buildStale(lastDate, 50),
             popularity: this.buildPopularity(50),
             longevity: this.buildLongevity(lastDate, 50),
             improving: this.buildImproving(dates, 25),
+            unheld: this.buildUnheld(),
             progression: this.buildProgressionObject()
         };
 
@@ -355,7 +610,12 @@ class StatisticsExplorerAnalyzer {
         fs.writeFileSync(this.outputFile, JSON.stringify(output));
         const sizeMb = (fs.statSync(this.outputFile).size / (1024 * 1024)).toFixed(2);
         console.log(`Saved ${this.outputFile} (${sizeMb} MB)`);
-        console.log(`Contested: ${output.contested.length}, Longevity all: ${output.longevity.all.length}, standing: ${output.longevity.standing.length}, Progression keys: ${Object.keys(output.progression).length}`);
+        console.log(
+            `Contested: ${output.contested.length}, Stale: ${output.stale.length}, ` +
+            `Unheld: ${output.unheld.rows.length}/${output.unheld.total}, ` +
+            `Longevity all: ${output.longevity.all.length}, standing: ${output.longevity.standing.length}, ` +
+            `Progression keys: ${Object.keys(output.progression).length}`
+        );
         console.log('Statistics explorer analysis complete.');
     }
 }
