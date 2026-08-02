@@ -784,12 +784,14 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	.mobile-summary-wrapper {
 		width: 100%;
 		max-width: 100%;
-		overflow-x: hidden;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
 		padding: 0 5px;
 	}
 
 	.mobile-summary-wrapper table {
 		width: 100%;
+		min-width: 320px;
 		max-width: 100%;
 		border-collapse: collapse;
 		font-size: 10px;
@@ -807,7 +809,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		padding: 3px 1px;
 		text-align: center;
 		font-weight: 700;
-		font-size: 10px;
+		font-size: 9px;
 		border: 1px solid rgba(255, 255, 255, 0.3);
 		white-space: normal;
 		word-wrap: break-word;
@@ -823,6 +825,24 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		white-space: normal;
 		word-wrap: break-word;
 		background: rgba(255, 255, 255, 0.02);
+	}
+
+	/* Keep Player/Count/Overall%/Relative% readable on narrow screens */
+	.mobile-summary-wrapper .ranglist-player-header,
+	.mobile-summary-wrapper .ranglist-player-cell {
+		width: 34%;
+	}
+
+	.mobile-summary-wrapper .ranglist-count-header,
+	.mobile-summary-wrapper .ranglist-count-cell {
+		width: 16%;
+	}
+
+	.mobile-summary-wrapper .ranglist-overall-header,
+	.mobile-summary-wrapper .ranglist-overall-cell,
+	.mobile-summary-wrapper .ranglist-relative-header,
+	.mobile-summary-wrapper .ranglist-relative-cell {
+		width: 25%;
 	}
 
 	.mobile-summary-wrapper tr:hover td {
