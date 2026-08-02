@@ -137,7 +137,8 @@ class PlayerStatsAnalyzer {
             let maxRecordsCount = 0;
 
             for (const [date, count] of playerStat.dailyRecordCounts) {
-                if (count > maxRecordsCount) {
+                // >= so ties keep the latest date (dates are processed earliest → latest)
+                if (count >= maxRecordsCount) {
                     maxRecordsCount = count;
                     maxRecordsDate = date;
                 }
@@ -148,7 +149,8 @@ class PlayerStatsAnalyzer {
             let maxPercentage = 0;
 
             for (const [date, percentage] of playerStat.dailyRecordPercentages) {
-                if (percentage > maxPercentage) {
+                // >= so ties keep the latest date (dates are processed earliest → latest)
+                if (percentage >= maxPercentage) {
                     maxPercentage = percentage;
                     maxPercentageDate = date;
                 }
