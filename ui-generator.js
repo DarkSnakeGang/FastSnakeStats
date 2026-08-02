@@ -1067,9 +1067,6 @@ function generateTableSelector(){
     var categoryText = document.createElement('h3');
     categoryText.setAttribute('class', 'category-settings-title');
     categoryText.textContent = 'Category Settings';
-    categoryText.style.margin = '0';
-    categoryText.style.flex = '1';
-    categoryText.style.textAlign = 'center';
     sidebarHeader.appendChild(categoryText);
     
     // Create sidebar info button

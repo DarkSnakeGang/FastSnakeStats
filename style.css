@@ -60,11 +60,26 @@ body.dark-mode .container table {
 /* Sidebar header with buttons */
 .sidebar-header {
 	display: flex;
-	justify-content: space-between;
+	justify-content: flex-start;
 	align-items: center;
+	position: relative;
 	margin-bottom: 15px;
 	padding-bottom: 10px;
 	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Title centered to the full header width, ignoring asymmetric side buttons */
+.sidebar-header .category-settings-title {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	margin: 0;
+	white-space: nowrap;
+	pointer-events: none;
+}
+
+.sidebar-header .sidebar-info-btn {
+	margin-left: auto;
 }
 
 .sidebar-info-btn,
@@ -2070,6 +2085,8 @@ body.dark-mode .quick-fetch-btn:disabled {
 		display: flex !important;
 		align-items: center !important;
 		justify-content: center !important;
+		position: static !important;
+		left: auto !important;
 		writing-mode: horizontal-tb !important;
 		text-orientation: mixed !important;
 		transform: none !important;
@@ -2084,6 +2101,7 @@ body.dark-mode .quick-fetch-btn:disabled {
 		line-height: 1 !important;
 		text-align: center;
 		text-shadow: none;
+		pointer-events: auto;
 	}
 
 	/* Collapsed Summary — icon edge tab */
