@@ -312,8 +312,20 @@ class StatisticsExplorerAnalyzer {
             .slice(0, limit);
     }
 
+    isExcludedFromPopularity(category) {
+        const p = this.parseCategoryParts(category);
+        // Soft-capped easy HS boards that don't get real competition
+        return (
+            p.mode === 'Statue' &&
+            p.run === 'High Score' &&
+            p.size === 'Small' &&
+            p.apple === 'Bomb'
+        );
+    }
+
     buildPopularity(limit = 50) {
         return Array.from(this.categoryMeta.entries())
+            .filter(([category]) => !this.isExcludedFromPopularity(category))
             .map(([category, meta]) => ({
                 category,
                 uniqueHolders: meta.holders.size,
