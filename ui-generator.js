@@ -262,18 +262,27 @@ function calculateRanglist(){
         }
     }
     
-    // Percentage = player's WR count / total selected categories (not vs other players)
+    // Overall% = player's WR count / total selected categories
+    // Relative% = player's WR count / sum of all player WR counts (ties inflate this total)
+    var relativeTotal = 0;
+    for(user in ranglist){
+        relativeTotal += ranglist[user][0];
+    }
     total = totalCategories;
-    if(totalCategories != 0){
-        for(user in ranglist){
-            ranglist[user][2] = roundNumber(ranglist[user][0]*100/totalCategories,2);
-        }
+    for(user in ranglist){
+        ranglist[user][2] = totalCategories != 0
+            ? roundNumber(ranglist[user][0]*100/totalCategories,2)
+            : 0;
+        ranglist[user][3] = relativeTotal != 0
+            ? roundNumber(ranglist[user][0]*100/relativeTotal,2)
+            : 0;
     }
 
     // Convert ranglist object to array and sort by count (descending)
+    // [count, player, overall%, relative%]
     var ranglistArray = [];
     for(user in ranglist){
-        ranglistArray.push([ranglist[user][0], ranglist[user][1], ranglist[user][2]]);
+        ranglistArray.push([ranglist[user][0], ranglist[user][1], ranglist[user][2], ranglist[user][3]]);
     }
     ranglist = ranglistArray.sort(function(a, b){return b[0]-a[0]});
 }
@@ -1407,11 +1416,17 @@ function generateRanglist(){
     countHeader.setAttribute('class', 'ranglist-count-header');
     row.appendChild(countHeader);
     
-    // Percentage column header
-    var percentageHeader = document.createElement('th');
-    percentageHeader.textContent = 'Percentage';
-    percentageHeader.setAttribute('class', 'ranglist-percentage-header');
-    row.appendChild(percentageHeader);
+    // Overall% = share of selected categories
+    var overallHeader = document.createElement('th');
+    overallHeader.textContent = 'Overall%';
+    overallHeader.setAttribute('class', 'ranglist-percentage-header ranglist-overall-header');
+    row.appendChild(overallHeader);
+
+    // Relative% = share of all counted player WRs (old calculation)
+    var relativeHeader = document.createElement('th');
+    relativeHeader.textContent = 'Relative%';
+    relativeHeader.setAttribute('class', 'ranglist-percentage-header ranglist-relative-header');
+    row.appendChild(relativeHeader);
     
     thead.appendChild(row);
     table.append(thead);
@@ -1450,10 +1465,16 @@ function generateRanglist(){
                 td.appendChild(document.createTextNode(ranglist[j][0]));
                 row.appendChild(td);
 
-                // Percentage column
+                // Overall% column
                 td = document.createElement('td');
-                td.setAttribute('class','ranglist-percentage-cell percentage result');
+                td.setAttribute('class','ranglist-percentage-cell ranglist-overall-cell percentage result');
                 td.appendChild(document.createTextNode(ranglist[j][2]+"%"));
+                row.appendChild(td);
+
+                // Relative% column
+                td = document.createElement('td');
+                td.setAttribute('class','ranglist-percentage-cell ranglist-relative-cell percentage result');
+                td.appendChild(document.createTextNode(ranglist[j][3]+"%"));
                 row.appendChild(td);
                 if(i >= maxRanglistLength){
                     row.setAttribute('style','display:none');
@@ -1471,7 +1492,7 @@ function generateRanglist(){
     if(i > maxRanglistLength){
         var buttonRow = document.createElement('tr');
         var buttonCell = document.createElement('td');
-        buttonCell.setAttribute('colspan', '3'); // Span all 3 columns
+        buttonCell.setAttribute('colspan', '4'); // Span all 4 columns
         buttonCell.setAttribute('style', 'text-align: center; padding: 10px;');
         
         var button = document.createElement('button');
