@@ -899,14 +899,14 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		line-height: 1.4;
 	}
 
-	.mobile-stats-explorer {
+	.mobile-main .mobile-stats-explorer {
 		padding: 0 12px 28px;
 		color: var(--mobile-text);
 		box-sizing: border-box;
 		max-width: 100%;
 	}
 
-	.mobile-stats-explorer .stats-explorer-tabs {
+	.mobile-main .mobile-stats-explorer .stats-explorer-tabs {
 		display: flex;
 		flex-wrap: nowrap;
 		gap: 8px;
@@ -917,11 +917,11 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		scrollbar-width: none;
 	}
 
-	.mobile-stats-explorer .stats-explorer-tabs::-webkit-scrollbar {
+	.mobile-main .mobile-stats-explorer .stats-explorer-tabs::-webkit-scrollbar {
 		display: none;
 	}
 
-	.mobile-stats-explorer .stats-explorer-tab {
+	.mobile-main .mobile-stats-explorer .stats-explorer-tab {
 		flex: 0 0 auto;
 		background: rgba(0, 0, 0, 0.06);
 		border: 1px solid var(--mobile-border);
@@ -935,19 +935,20 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		-webkit-tap-highlight-color: transparent;
 	}
 
-	body.dark-mode .mobile-stats-explorer .stats-explorer-tab {
+	body.dark-mode .mobile-main .mobile-stats-explorer .stats-explorer-tab {
 		background: rgba(255, 255, 255, 0.08);
 		border-color: rgba(255, 255, 255, 0.16);
 		color: #eee;
 	}
 
-	.mobile-stats-explorer .stats-explorer-tab.active {
+	.mobile-main .mobile-stats-explorer .stats-explorer-tab.active {
 		background: #4C792D;
 		color: #fff;
 		border-color: #4C792D;
 	}
 
-	.mobile-stats-body {
+	.mobile-main .mobile-stats-explorer .mobile-stats-body,
+	.mobile-main .mobile-stats-explorer .stats-explorer-body {
 		overflow-x: auto;
 		-webkit-overflow-scrolling: touch;
 		text-align: left;
@@ -955,7 +956,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		padding-bottom: 8px;
 	}
 
-	.mobile-stats-explorer .stats-explorer-chips {
+	.mobile-main .mobile-stats-explorer .stats-explorer-chips {
 		display: flex;
 		flex-wrap: nowrap;
 		gap: 6px;
@@ -966,11 +967,11 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		scrollbar-width: none;
 	}
 
-	.mobile-stats-explorer .stats-explorer-chips::-webkit-scrollbar {
+	.mobile-main .mobile-stats-explorer .stats-explorer-chips::-webkit-scrollbar {
 		display: none;
 	}
 
-	.mobile-stats-explorer .stats-explorer-chip {
+	.mobile-main .mobile-stats-explorer .stats-explorer-chip {
 		flex: 0 0 auto;
 		background: rgba(0, 0, 0, 0.05);
 		border: 1px solid var(--mobile-border);
@@ -983,19 +984,19 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		white-space: nowrap;
 	}
 
-	body.dark-mode .mobile-stats-explorer .stats-explorer-chip {
+	body.dark-mode .mobile-main .mobile-stats-explorer .stats-explorer-chip {
 		background: rgba(255, 255, 255, 0.08);
 		border-color: rgba(255, 255, 255, 0.16);
 		color: #eee;
 	}
 
-	.mobile-stats-explorer .stats-explorer-chip.active {
+	.mobile-main .mobile-stats-explorer .stats-explorer-chip.active {
 		background: rgba(76, 121, 45, 0.9);
 		border-color: #4C792D;
 		color: #fff;
 	}
 
-	.mobile-stats-explorer .stats-explorer-filters {
+	.mobile-main .mobile-stats-explorer .stats-explorer-filters {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		gap: 10px;
@@ -1003,14 +1004,14 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		align-items: end;
 	}
 
-	.mobile-stats-explorer .stats-explorer-select-wrap {
+	.mobile-main .mobile-stats-explorer .stats-explorer-select-wrap {
 		display: flex;
 		flex-direction: column;
 		gap: 4px;
 		min-width: 0;
 	}
 
-	.mobile-stats-explorer .stats-explorer-select-label {
+	.mobile-main .mobile-stats-explorer .stats-explorer-select-label {
 		font-size: 11px;
 		opacity: 0.7;
 		text-transform: uppercase;
@@ -1018,7 +1019,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		font-weight: 600;
 	}
 
-	.mobile-stats-explorer .stats-explorer-select {
+	.mobile-main .mobile-stats-explorer .stats-explorer-select {
 		width: 100%;
 		background: rgba(0, 0, 0, 0.04);
 		border: 1px solid var(--mobile-border);
@@ -1031,39 +1032,39 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		color-scheme: light;
 	}
 
-	body.dark-mode .mobile-stats-explorer .stats-explorer-select {
+	body.dark-mode .mobile-main .mobile-stats-explorer .stats-explorer-select {
 		background: rgba(0, 0, 0, 0.35);
 		border-color: rgba(255, 255, 255, 0.2);
 		color: #eee;
 		color-scheme: dark;
 	}
 
-	.mobile-stats-explorer .stats-explorer-select option {
+	.mobile-main .mobile-stats-explorer .stats-explorer-select option {
 		background: #fff;
 		color: #111;
 	}
 
-	body.dark-mode .mobile-stats-explorer .stats-explorer-select option {
+	body.dark-mode .mobile-main .mobile-stats-explorer .stats-explorer-select option {
 		background: #1a242e;
 		color: #eee;
 	}
 
-	.mobile-stats-explorer .stats-explorer-table {
+	.mobile-main .mobile-stats-explorer .stats-explorer-table {
 		width: max-content;
 		min-width: 100%;
 		border-collapse: collapse;
 		font-size: 12px;
 	}
 
-	.mobile-stats-explorer .stats-explorer-table th,
-	.mobile-stats-explorer .stats-explorer-table td {
+	.mobile-main .mobile-stats-explorer .stats-explorer-table th,
+	.mobile-main .mobile-stats-explorer .stats-explorer-table td {
 		padding: 8px 10px;
 		border-bottom: 1px solid var(--mobile-border);
 		text-align: left;
 		white-space: nowrap;
 	}
 
-	.mobile-stats-explorer .stats-explorer-table th {
+	.mobile-main .mobile-stats-explorer .stats-explorer-table th {
 		font-size: 11px;
 		text-transform: uppercase;
 		letter-spacing: 0.03em;
@@ -1076,40 +1077,40 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		z-index: 1;
 	}
 
-	body.dark-mode .mobile-stats-explorer .stats-explorer-table th {
+	body.dark-mode .mobile-main .mobile-stats-explorer .stats-explorer-table th {
 		background: rgba(20, 30, 40, 0.94);
 		color: #eee;
 	}
 
-	.mobile-stats-explorer .stats-explorer-empty,
-	.mobile-stats-explorer .stats-explorer-loading,
-	.mobile-stats-explorer .stats-explorer-meta {
+	.mobile-main .mobile-stats-explorer .stats-explorer-empty,
+	.mobile-main .mobile-stats-explorer .stats-explorer-loading,
+	.mobile-main .mobile-stats-explorer .stats-explorer-meta {
 		padding: 12px 2px;
 		opacity: 0.85;
 		font-size: 13px;
 		line-height: 1.4;
 	}
 
-	.mobile-stats-explorer .stats-unheld-free-meme {
+	.mobile-main .mobile-stats-explorer .stats-unheld-free-meme {
 		margin: 8px 0 14px;
 		text-align: center;
 	}
 
-	.mobile-stats-explorer .stats-unheld-free-meme img {
+	.mobile-main .mobile-stats-explorer .stats-unheld-free-meme img {
 		max-width: 100%;
 		width: min(100%, 340px);
 		height: auto;
 		border-radius: 12px;
 	}
 
-	.mobile-stats-explorer .stats-explorer-chart {
+	.mobile-main .mobile-stats-explorer .stats-explorer-chart {
 		position: relative;
 		overflow: hidden;
 		width: 100%;
 		margin: 8px 0 12px;
 	}
 
-	.mobile-stats-explorer .stats-line-svg {
+	.mobile-main .mobile-stats-explorer .stats-line-svg {
 		width: 100%;
 		height: auto;
 		display: block;
@@ -1117,57 +1118,57 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		border-radius: 12px;
 	}
 
-	body.dark-mode .mobile-stats-explorer .stats-line-svg {
+	body.dark-mode .mobile-main .mobile-stats-explorer .stats-line-svg {
 		background: rgba(0, 0, 0, 0.25);
 	}
 
-	.mobile-stats-explorer .stats-axis {
+	.mobile-main .mobile-stats-explorer .stats-axis {
 		stroke: rgba(0, 0, 0, 0.25);
 		stroke-width: 1;
 	}
 
-	body.dark-mode .mobile-stats-explorer .stats-axis {
+	body.dark-mode .mobile-main .mobile-stats-explorer .stats-axis {
 		stroke: rgba(255, 255, 255, 0.35);
 	}
 
-	.mobile-stats-explorer .stats-axis-grid {
+	.mobile-main .mobile-stats-explorer .stats-axis-grid {
 		stroke: rgba(0, 0, 0, 0.06);
 		stroke-width: 1;
 	}
 
-	body.dark-mode .mobile-stats-explorer .stats-axis-grid {
+	body.dark-mode .mobile-main .mobile-stats-explorer .stats-axis-grid {
 		stroke: rgba(255, 255, 255, 0.08);
 	}
 
-	.mobile-stats-explorer .stats-line {
+	.mobile-main .mobile-stats-explorer .stats-line {
 		fill: none;
 		stroke: #4C792D;
 		stroke-width: 2.5;
 	}
 
-	body.dark-mode .mobile-stats-explorer .stats-line {
+	body.dark-mode .mobile-main .mobile-stats-explorer .stats-line {
 		stroke: #8fd14f;
 	}
 
-	.mobile-stats-explorer .stats-point {
+	.mobile-main .mobile-stats-explorer .stats-point {
 		fill: #578A34;
 		cursor: pointer;
 	}
 
-	body.dark-mode .mobile-stats-explorer .stats-point {
+	body.dark-mode .mobile-main .mobile-stats-explorer .stats-point {
 		fill: #c6f28a;
 	}
 
-	.mobile-stats-explorer .stats-axis-label {
+	.mobile-main .mobile-stats-explorer .stats-axis-label {
 		fill: rgba(0, 0, 0, 0.55);
 		font-size: 9px;
 	}
 
-	body.dark-mode .mobile-stats-explorer .stats-axis-label {
+	body.dark-mode .mobile-main .mobile-stats-explorer .stats-axis-label {
 		fill: rgba(255, 255, 255, 0.65);
 	}
 
-	.mobile-stats-explorer .stats-explorer-tooltip {
+	.mobile-main .mobile-stats-explorer .stats-explorer-tooltip {
 		position: absolute;
 		background: rgba(0, 0, 0, 0.9);
 		color: #fff;
@@ -1179,7 +1180,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		max-width: 70%;
 	}
 
-	.mobile-stats-explorer .stats-bar-row {
+	.mobile-main .mobile-stats-explorer .stats-bar-row {
 		display: grid;
 		grid-template-columns: minmax(0, 1.2fr) minmax(60px, 1fr) auto;
 		gap: 8px;
@@ -1188,44 +1189,44 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		font-size: 12px;
 	}
 
-	.mobile-stats-explorer .stats-bar-track {
+	.mobile-main .mobile-stats-explorer .stats-bar-track {
 		height: 8px;
 		border-radius: 999px;
 		background: rgba(0, 0, 0, 0.08);
 		overflow: hidden;
 	}
 
-	body.dark-mode .mobile-stats-explorer .stats-bar-track {
+	body.dark-mode .mobile-main .mobile-stats-explorer .stats-bar-track {
 		background: rgba(255, 255, 255, 0.12);
 	}
 
-	.mobile-stats-explorer .stats-bar-fill {
+	.mobile-main .mobile-stats-explorer .stats-bar-fill {
 		height: 100%;
 		border-radius: 999px;
 		background: #4C792D;
 	}
 
-	body.dark-mode .mobile-stats-explorer .stats-bar-fill {
+	body.dark-mode .mobile-main .mobile-stats-explorer .stats-bar-fill {
 		background: #8fd14f;
 	}
 
-	.mobile-stats-explorer .stats-bar-delta {
+	.mobile-main .mobile-stats-explorer .stats-bar-delta {
 		font-weight: 700;
 		color: #4C792D;
 		white-space: nowrap;
 	}
 
-	body.dark-mode .mobile-stats-explorer .stats-bar-delta {
+	body.dark-mode .mobile-main .mobile-stats-explorer .stats-bar-delta {
 		color: #8fd14f;
 	}
 
-	.mobile-stats-explorer .stats-heatmap-wrap {
+	.mobile-main .mobile-stats-explorer .stats-heatmap-wrap {
 		width: 100%;
 		overflow-x: auto;
 		-webkit-overflow-scrolling: touch;
 	}
 
-	.mobile-stats-explorer .stats-heatmap-year {
+	.mobile-main .mobile-stats-explorer .stats-heatmap-year {
 		display: flex;
 		gap: 8px;
 		margin-bottom: 8px;
@@ -1233,7 +1234,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		min-width: min(100%, 520px);
 	}
 
-	.mobile-stats-explorer .stats-heatmap-year-label {
+	.mobile-main .mobile-stats-explorer .stats-heatmap-year-label {
 		width: 36px;
 		flex-shrink: 0;
 		font-size: 12px;
@@ -1241,7 +1242,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		padding-top: 4px;
 	}
 
-	.mobile-stats-explorer .stats-heatmap-grid {
+	.mobile-main .mobile-stats-explorer .stats-heatmap-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(12px, 1fr));
 		gap: 2px;
@@ -1250,7 +1251,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		min-width: 0;
 	}
 
-	.mobile-stats-explorer .stats-heatmap-cell {
+	.mobile-main .mobile-stats-explorer .stats-heatmap-cell {
 		width: 100%;
 		aspect-ratio: 1;
 		height: auto;
@@ -1261,7 +1262,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		cursor: pointer;
 	}
 
-	.mobile-stats-explorer .stats-heatmap-detail {
+	.mobile-main .mobile-stats-explorer .stats-heatmap-detail {
 		margin-bottom: 8px;
 		opacity: 0.9;
 		font-size: 13px;

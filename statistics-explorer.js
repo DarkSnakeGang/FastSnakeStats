@@ -65,9 +65,9 @@ function normalizeProgressionFilters() {
     }
 }
 
-function createStatsSelect(labelText, value, options, onChange) {
+function createStatsSelect(labelText, value, options, onChange, compact) {
     var wrap = document.createElement('label');
-    wrap.className = 'stats-explorer-select-wrap';
+    wrap.className = 'stats-explorer-select-wrap' + (compact ? ' stats-explorer-select-wrap--compact' : '');
     var lab = document.createElement('span');
     lab.className = 'stats-explorer-select-label';
     lab.textContent = labelText;
@@ -778,7 +778,7 @@ function renderHeatmapView(body) {
     controls.appendChild(createStatsSelect('Year', statsExplorerHeatYear, years, function (v) {
         statsExplorerHeatYear = v;
         renderStatisticsExplorerContent(body);
-    }));
+    }, true));
 
     var metricWrap = document.createElement('div');
     metricWrap.className = 'stats-explorer-chips';
