@@ -375,6 +375,22 @@ function renderProgressionView(body) {
     body.appendChild(buildLineChart(points, isHs));
 }
 
+function formatChartAxisSeconds(sec, isHighScore) {
+    if (!isFinite(sec)) return '';
+    if (isHighScore) {
+        return String(Math.round(sec * 1000));
+    }
+    if (sec >= 60) {
+        var m = Math.floor(sec / 60);
+        var s = sec - m * 60;
+        var sStr = s < 10 ? '0' + s.toFixed(1) : s.toFixed(1);
+        if (sStr.indexOf('.0') === sStr.length - 2) sStr = sStr.slice(0, -2);
+        return m + ':' + sStr;
+    }
+    if (sec >= 10) return sec.toFixed(1) + 's';
+    return sec.toFixed(2) + 's';
+}
+
 function buildLineChart(points, isHighScore) {
     var wrap = document.createElement('div');
     wrap.className = 'stats-explorer-chart';
@@ -384,7 +400,7 @@ function buildLineChart(points, isHighScore) {
         return wrap;
     }
 
-    var w = 420, h = 220, padL = 48, padR = 12, padT = 16, padB = 36;
+    var w = 720, h = 260, padL = 72, padR = 28, padT = 16, padB = 36;
     var values = points.map(function (p) { return parsePrimaryToSeconds(p.t); });
     var minV = Math.min.apply(null, values);
     var maxV = Math.max.apply(null, values);
@@ -413,6 +429,28 @@ function buildLineChart(points, isHighScore) {
     axis2.setAttribute('y1', h - padB); axis2.setAttribute('y2', h - padB);
     axis2.setAttribute('class', 'stats-axis');
     svg.appendChild(axis2);
+
+    // Y-axis time ticks (top = max, bottom = min)
+    var tickCount = 4;
+    for (var ti = 0; ti <= tickCount; ti++) {
+        var frac = ti / tickCount;
+        var v = maxV - frac * (maxV - minV);
+        var y = yAt(v);
+        var grid = document.createElementNS(svgNS, 'line');
+        grid.setAttribute('x1', padL);
+        grid.setAttribute('x2', w - padR);
+        grid.setAttribute('y1', y);
+        grid.setAttribute('y2', y);
+        grid.setAttribute('class', 'stats-axis-grid');
+        svg.appendChild(grid);
+        var lab = document.createElementNS(svgNS, 'text');
+        lab.setAttribute('x', padL - 6);
+        lab.setAttribute('y', y + 3);
+        lab.setAttribute('text-anchor', 'end');
+        lab.setAttribute('class', 'stats-axis-label stats-axis-y-label');
+        lab.textContent = formatChartAxisSeconds(v, isHighScore);
+        svg.appendChild(lab);
+    }
 
     var d = '';
     points.forEach(function (p, i) {

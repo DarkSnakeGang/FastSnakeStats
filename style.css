@@ -2259,6 +2259,7 @@ body.dark-mode .quick-fetch-btn:disabled {
 		position: relative;
 		overflow: hidden;
 		width: 100%;
+		margin: 0 auto;
 	}
 
 	.stats-line-svg {
@@ -2269,6 +2270,11 @@ body.dark-mode .quick-fetch-btn:disabled {
 
 	.stats-axis {
 		stroke: rgba(255, 255, 255, 0.35);
+		stroke-width: 1;
+	}
+
+	.stats-axis-grid {
+		stroke: rgba(255, 255, 255, 0.08);
 		stroke-width: 1;
 	}
 
@@ -2286,6 +2292,11 @@ body.dark-mode .quick-fetch-btn:disabled {
 	.stats-axis-label {
 		fill: rgba(255, 255, 255, 0.65);
 		font-size: 9px;
+	}
+
+	.stats-axis-y-label {
+		font-size: 8px;
+		fill: rgba(255, 255, 255, 0.75);
 	}
 
 	.stats-explorer-tooltip {
