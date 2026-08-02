@@ -22,9 +22,10 @@ A comprehensive web application that displays Google Snake world records from Sp
 
 ### User Experience
 - **Dark/Light Mode**: Toggle between themes
-- **Collapsible Panels**: Category Settings and Rankings overlay the records table without shifting layout
+- **Collapsible Panels**: Category Settings, Rankings, and Statistics overlay the records table without shifting layout
 - **Play Now**: Quick link to [Google Snake Mods](https://googlesnakemods.com/v/current/)
 - **Rankings**: Player WR counts with Overall% and Relative% for the current category selection
+- **Statistics Explorer**: Precomputed history views — WR progression, record longevity, fastest improving players (7d/30d/90d/365d), contested categories, category popularity, and activity heatmaps
 - **Error Handling**: Graceful fallbacks and user-friendly error messages
 - **Performance Optimized**: Instant cache loading and efficient data processing
 
@@ -69,8 +70,11 @@ node scripts/monthly-backfill.js 2024 1
 # Generate available dates metadata
 node scripts/generate-available-dates.js
 
-# Rebuild player peak stats (peak records / peak percentage)
+# Rebuild player peak stats
 node scripts/player-stats-analyzer.js
+
+# Rebuild statistics explorer metadata (progression, longevity, heatmap, etc.)
+node scripts/statistics-explorer-analyzer.js
 
 # Install Node.js unattended on Windows (LTS 24.x)
 scripts/install-nodejs.bat
@@ -101,9 +105,17 @@ scripts/install-nodejs.bat
 ## Cache System Details
 
 ### GitHub Actions Workflows
-- **Daily Cache** (`daily-cache.yml`): Fetches yesterday's complete world records
+- **Daily Cache** (`daily-cache.yml`): Fetches yesterday's world records, regenerates `available-dates.json`, `player-stats.json`, and `statistics-explorer.json`
 - **Available Dates** (`update-available-dates.yml`): Regenerates date metadata
-- **Player Stats** (`analyze-player-stats.yml`): Rebuilds peak records / percentage data
+- **Player Stats** (`analyze-player-stats.yml`): Manual/backup rebuild of peak stats and statistics explorer metadata
+
+### Statistics Explorer
+- Precomputed from the full daily cache into `time-travel-cache/metadata/statistics-explorer.json`
+- Progression uses its own Count / Speed / Size / Run / Mode dropdowns (all-time history, independent of Category Settings)
+- Longevity, contested, and popularity list Mode + Count + Speed + Size + Run
+- Heatmap uses a year dropdown (one year at a time)
+- Improving players and heatmap metrics are site-wide
+- Refresh locally with `node scripts/statistics-explorer-analyzer.js`
 
 ### Local Backfill Scripts
 - **Historical Backfill**: Fill historical data gaps for specific date ranges
@@ -133,10 +145,11 @@ scripts/install-nodejs.bat
 - **Play Now**: Always-visible left-edge shortcut to Google Snake Mods
 - **Records Table**: Centered world records view
 - **Rankings**: Collapsible right panel with player counts, Overall%, and Relative%
+- **Statistics**: Collapsible right panel (under Rankings when collapsed) for historical explorer views
 - **Modal Dialogs**: Settings (time travel / peak search) and Info (links, credits)
 
 ### Mobile Interface
-- **Tab Navigation**: Records, Rankings, and Settings tabs
+- **Tab Navigation**: Records, Rankings, Statistics, and Settings tabs
 - **Touch Controls**: Large, accessible buttons
 - **Responsive Tables**: Optimized for mobile viewing
 - **Quick Actions**: Fast access to common functions

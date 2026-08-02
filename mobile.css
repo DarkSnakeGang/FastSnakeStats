@@ -899,6 +899,37 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		line-height: 1.4;
 	}
 
+	.mobile-stats-explorer {
+		padding: 12px 16px 24px;
+		color: var(--mobile-text);
+	}
+
+	.mobile-stats-explorer .stats-explorer-tabs {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		margin-bottom: 12px;
+	}
+
+	.mobile-stats-explorer .stats-explorer-tab {
+		background: var(--mobile-card-bg, rgba(0,0,0,0.06));
+		border: 1px solid var(--mobile-border, rgba(0,0,0,0.12));
+		border-radius: 8px;
+		padding: 6px 10px;
+		font-size: 12px;
+		cursor: pointer;
+	}
+
+	.mobile-stats-explorer .stats-explorer-tab.active {
+		background: #4C792D;
+		color: #fff;
+		border-color: #4C792D;
+	}
+
+	.mobile-stats-body {
+		overflow-x: auto;
+	}
+
 	/* Ensure table fits within mobile viewport with extra scroll space */
 	.mobile-table-wrapper,
 	.mobile-multiple-tables-container {

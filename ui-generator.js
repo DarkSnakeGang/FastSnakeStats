@@ -1541,6 +1541,12 @@ function generateRanglist(){
 
     document.getElementsByClassName("container")[0].appendChild(ranglistWrapper);
     applyPanelCollapseState();
+    if (typeof ensureStatisticsExplorer === 'function') {
+        ensureStatisticsExplorer();
+    }
+    if (typeof refreshStatisticsExplorer === 'function') {
+        refreshStatisticsExplorer();
+    }
 }
 
 function removeLeaderboards(){

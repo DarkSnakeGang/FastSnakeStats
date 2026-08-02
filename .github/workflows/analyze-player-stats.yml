@@ -14,8 +14,8 @@ jobs:
   analyze-player-stats:
     runs-on: ubuntu-latest
     
-    # Only run if the triggering workflow succeeded
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # Run on manual dispatch, or when the triggering workflow succeeded
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
         
     steps:
     - name: Checkout repository
@@ -27,20 +27,19 @@ jobs:
         node-version: '24'
     
     - name: Run player statistics analysis
-      run: |
-        echo "🔍 Starting player statistics analysis..."
-        echo "📁 Working directory: $(pwd)"
-        echo ""
-        node scripts/player-stats-analyzer.js
+      run: node scripts/player-stats-analyzer.js
+
+    - name: Run statistics explorer analysis
+      run: node scripts/statistics-explorer-analyzer.js
     
     - name: Check for changes
       id: check-changes
       run: |
-        if git diff --quiet time-travel-cache/metadata/player-stats.json; then
-          echo "No changes detected in player stats file"
+        if git diff --quiet time-travel-cache/metadata/player-stats.json time-travel-cache/metadata/statistics-explorer.json; then
+          echo "No changes detected in stats metadata"
           echo "has-changes=false" >> $GITHUB_OUTPUT
         else
-          echo "Changes detected in player stats file"
+          echo "Changes detected in stats metadata"
           echo "has-changes=true" >> $GITHUB_OUTPUT
         fi
     
@@ -49,11 +48,11 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add time-travel-cache/metadata/player-stats.json
-        git commit -m "Update player statistics [skip ci]"
+        git add time-travel-cache/metadata/player-stats.json time-travel-cache/metadata/statistics-explorer.json
+        git commit -m "Update player and explorer statistics [skip ci]"
         git push
     
     - name: No changes message
       if: steps.check-changes.outputs.has-changes == 'false'
       run: |
-        echo "✅ No changes to commit - player statistics are up to date"
+        echo "No changes to commit - statistics metadata is up to date"

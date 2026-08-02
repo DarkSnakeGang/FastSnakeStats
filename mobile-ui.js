@@ -283,15 +283,14 @@ function switchBasicMobileSection(section) {
             break;
         case 'summary':
             showBasicMobileSummarySection();
-            // Refresh summary when switching to summary to ensure latest data is shown
             setTimeout(() => {
-                // Double-check we're still on summary section before loading
                 if (mobileState.currentSection === 'summary') {
                     loadMobileSummaryData();
-                } else {
-                    //console.log('Navigation changed, skipping summary load');
                 }
             }, 200);
+            break;
+        case 'statistics':
+            showBasicMobileStatisticsSection();
             break;
         default:
             //console.log('Unknown mobile section:', section);
@@ -1551,6 +1550,64 @@ async function setMobileTimeTravelDate(date) {
     }, 100);
 }
 
+// Show basic mobile statistics section
+function showBasicMobileStatisticsSection() {
+    const mobileTablesContainer = document.getElementById('mobileTablesContainer');
+    if (!mobileTablesContainer) return;
+
+    const tabsHtml = (typeof STATS_TABS !== 'undefined' ? STATS_TABS : [
+        { id: 'progression', label: 'Progression' },
+        { id: 'longevity', label: 'Longevity' },
+        { id: 'improving', label: 'Improving' },
+        { id: 'contested', label: 'Contested' },
+        { id: 'popularity', label: 'Popularity' },
+        { id: 'heatmap', label: 'Heatmap' }
+    ]).map(function (tab) {
+        const active = (typeof statsExplorerActiveTab !== 'undefined' && statsExplorerActiveTab === tab.id) ? ' active' : '';
+        return '<button type="button" class="stats-explorer-tab' + active + '" data-tab="' + tab.id + '">' + tab.label + '</button>';
+    }).join('');
+
+    mobileTablesContainer.innerHTML = `
+        <div class="mobile-card">
+            <div class="mobile-card-header">
+                <h2 class="mobile-card-title">Statistics</h2>
+            </div>
+        </div>
+        <div class="mobile-stats-explorer">
+            <div class="stats-explorer-tabs" id="mobileStatsTabs">${tabsHtml}</div>
+            <div class="stats-explorer-body mobile-stats-body" id="mobileStatsExplorerBody">
+                <div class="stats-explorer-loading">Loading statistics…</div>
+            </div>
+        </div>
+    `;
+
+    const tabs = document.getElementById('mobileStatsTabs');
+    if (tabs) {
+        tabs.querySelectorAll('.stats-explorer-tab').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                statsExplorerActiveTab = btn.dataset.tab;
+                tabs.querySelectorAll('.stats-explorer-tab').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.tab === statsExplorerActiveTab);
+                });
+                const body = document.getElementById('mobileStatsExplorerBody');
+                if (typeof renderStatisticsExplorerContent === 'function') {
+                    renderStatisticsExplorerContent(body);
+                }
+            });
+        });
+    }
+
+    const body = document.getElementById('mobileStatsExplorerBody');
+    if (typeof loadStatisticsExplorerData === 'function') {
+        loadStatisticsExplorerData().then(function () {
+            if (mobileState.currentSection !== 'statistics') return;
+            if (typeof renderStatisticsExplorerContent === 'function') {
+                renderStatisticsExplorerContent(body);
+            }
+        });
+    }
+}
+
 // Export functions for use in other modules
 window.mobileUI = {
     initializeSimpleMobileUI,
@@ -1558,6 +1615,7 @@ window.mobileUI = {
     showBasicMobileSettingsSection,
     showBasicMobileRecordsSection,
     showBasicMobileSummarySection,
+    showBasicMobileStatisticsSection,
     loadMobileSummaryData,
     initializeMobileLoadingState
 };

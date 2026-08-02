@@ -64,7 +64,8 @@ var isTimeTravelEnabled = false; // Time travel toggle state
 var selectedTimeTravelDate = ""; // Currently selected date for time travel
 var isMultipleTablesEnabled = false; // Multiple tables toggle state
 var isCategoryCollapsed = false; // Desktop left Category Settings panel
-var isSummaryCollapsed = false; // Desktop right Summary panel
+var isSummaryCollapsed = false; // Desktop right Rankings panel
+var isStatsExplorerCollapsed = true; // Desktop right Statistics panel (default collapsed)
 var isApiOverloaded = false; // Track if SRC API is overloaded (420 error)
 var apiCallProgress = { successful: 0, total: 0 }; // Track API call progress for runs only
 var isApiPaused = false; // Track if API calls are paused
@@ -118,6 +119,10 @@ function applyPanelCollapseState() {
     if (summaryWrapper) {
         summaryWrapper.classList.toggle('collapsed', !!isSummaryCollapsed);
     }
+
+    if (typeof applyStatsExplorerCollapseState === 'function') {
+        applyStatsExplorerCollapseState();
+    }
 }
 
 function toggleCategoryCollapsed() {
@@ -128,6 +133,12 @@ function toggleCategoryCollapsed() {
 
 function toggleSummaryCollapsed() {
     isSummaryCollapsed = !isSummaryCollapsed;
+    saveSettings();
+    applyPanelCollapseState();
+}
+
+function toggleStatsExplorerCollapsed() {
+    isStatsExplorerCollapsed = !isStatsExplorerCollapsed;
     saveSettings();
     applyPanelCollapseState();
 }
@@ -186,6 +197,11 @@ function loadSettings() {
         localStorage.setItem('summaryCollapsed', 'false');
     } else {
         isSummaryCollapsed = localStorage.getItem('summaryCollapsed') === 'true';
+    }
+    if(localStorage.getItem('statsExplorerCollapsed') == null){
+        localStorage.setItem('statsExplorerCollapsed', 'true');
+    } else {
+        isStatsExplorerCollapsed = localStorage.getItem('statsExplorerCollapsed') === 'true';
     }
     
     // Load table settings
@@ -259,6 +275,7 @@ function saveSettings() {
     localStorage.setItem('multipleTablesEnabled', isMultipleTablesEnabled);
     localStorage.setItem('categorySettingsCollapsed', isCategoryCollapsed);
     localStorage.setItem('summaryCollapsed', isSummaryCollapsed);
+    localStorage.setItem('statsExplorerCollapsed', isStatsExplorerCollapsed);
     
     // Save visibility settings for all options
     var visibilitySettings = {
@@ -290,6 +307,10 @@ function saveSettings() {
     // Make time travel variables globally available
     window.isTimeTravelEnabled = isTimeTravelEnabled;
     window.selectedTimeTravelDate = selectedTimeTravelDate;
+
+    if (typeof refreshStatisticsExplorer === 'function') {
+        refreshStatisticsExplorer();
+    }
 }
 
 // Generate run holder for data organization

@@ -5,6 +5,12 @@
 loadSettings();
 applyPanelCollapseState();
 
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof ensureStatisticsExplorer === 'function') {
+        ensureStatisticsExplorer();
+    }
+});
+
 // Initialize WorldRecordFetcher
 if (typeof WorldRecordFetcher !== 'undefined') {
     window.worldRecordFetcher = new WorldRecordFetcher();
