@@ -671,6 +671,10 @@ class StatisticsExplorerAnalyzer {
         };
     }
 
+    isHighScoreCategory(category) {
+        return this.parseCategoryParts(category).run === 'High Score';
+    }
+
     buildLongevity(lastDate, limit = 50) {
         for (const key of Array.from(this.openHolds.keys())) {
             this.closeHold(key, lastDate, true);
@@ -678,6 +682,7 @@ class StatisticsExplorerAnalyzer {
         const sorted = this.completedHolds
             .slice()
             .sort((a, b) => b.days - a.days || a.start.localeCompare(b.start));
+        const timed = sorted.filter((h) => !this.isHighScoreCategory(h.category));
         const mapRow = (h) => ({
             category: h.category,
             playerId: h.playerId,
@@ -691,7 +696,9 @@ class StatisticsExplorerAnalyzer {
         });
         return {
             all: sorted.slice(0, limit).map(mapRow),
-            standing: sorted.filter((h) => h.stillStanding).slice(0, limit).map(mapRow)
+            standing: sorted.filter((h) => h.stillStanding).slice(0, limit).map(mapRow),
+            allTimed: timed.slice(0, limit).map(mapRow),
+            standingTimed: timed.filter((h) => h.stillStanding).slice(0, limit).map(mapRow)
         };
     }
 

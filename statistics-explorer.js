@@ -8,6 +8,7 @@ var statsExplorerImproveWindow = '30d';
 var statsExplorerHeatMetric = 'flips';
 var statsExplorerHeatYear = null; // set from data
 var statsExplorerLongevityMode = 'standing'; // 'all' | 'standing'
+var statsExplorerLongevityHideHs = false; // when true, exclude High Score holds
 var statsExplorerUnheldTier = 'All'; // 'All' | Free…Inhuman
 // Independent progression filters (not Category Settings)
 var statsProgApple = '1 Apple';
@@ -555,12 +556,31 @@ function buildLineChart(points, isHighScore) {
 function getLongevityRows() {
     var raw = statsExplorerData && statsExplorerData.longevity;
     if (!raw) return [];
-    // New shape: { all, standing }; legacy: flat array
+    // New shape: { all, standing, allTimed, standingTimed }; legacy: flat array
     if (Array.isArray(raw)) {
+        var legacy = raw;
         if (statsExplorerLongevityMode === 'standing') {
-            return raw.filter(function (r) { return r.stillStanding; });
+            legacy = legacy.filter(function (r) { return r.stillStanding; });
         }
-        return raw;
+        if (statsExplorerLongevityHideHs) {
+            legacy = legacy.filter(function (r) {
+                var p = parseCategoryKey(r.category);
+                return !p || p.runMode !== 'High Score';
+            });
+        }
+        return legacy;
+    }
+    if (statsExplorerLongevityHideHs) {
+        if (statsExplorerLongevityMode === 'standing') {
+            return raw.standingTimed || (raw.standing || []).filter(function (r) {
+                var p = parseCategoryKey(r.category);
+                return !p || p.runMode !== 'High Score';
+            });
+        }
+        return raw.allTimed || (raw.all || []).filter(function (r) {
+            var p = parseCategoryKey(r.category);
+            return !p || p.runMode !== 'High Score';
+        });
     }
     if (statsExplorerLongevityMode === 'standing') {
         return raw.standing || [];
@@ -586,6 +606,25 @@ function renderLongevityView(body) {
         bar.appendChild(chip);
     });
     body.appendChild(bar);
+
+    var hsBar = document.createElement('div');
+    hsBar.className = 'stats-explorer-chips';
+    [
+        { id: false, label: 'Include High Score' },
+        { id: true, label: 'Hide High Score' }
+    ].forEach(function (opt) {
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'stats-explorer-chip' + (opt.id === statsExplorerLongevityHideHs ? ' active' : '');
+        chip.textContent = opt.label;
+        chip.addEventListener('click', function () {
+            statsExplorerLongevityHideHs = opt.id;
+            renderStatisticsExplorerContent(body);
+        });
+        hsBar.appendChild(chip);
+    });
+    body.appendChild(hsBar);
+
     renderListView(body, getLongevityRows(), 'longevity');
 }
 
