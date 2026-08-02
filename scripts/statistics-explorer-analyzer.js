@@ -594,6 +594,13 @@ class StatisticsExplorerAnalyzer {
             }
         }
 
+        // Floor: Large + All Apples is at least Hard (not Medium/Easy)
+        if (size === 'Large' && run === 'All Apples') {
+            if (this.tierIndex(tier) < this.tierIndex('Hard')) {
+                tier = 'Hard';
+            }
+        }
+
         // Slow never reaches Mythic (Lottery/Inhuman and Bomb Mythic exceptions stay)
         if (speed === 'Slow' && tier === 'Mythic') {
             const keepMythic =
