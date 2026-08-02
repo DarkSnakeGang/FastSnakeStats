@@ -813,6 +813,16 @@ function renderUnheldView(body) {
         body.appendChild(memeWrap);
     }
 
+    if (statsExplorerUnheldTier === 'Inhuman' && Math.random() < 1 / 25) {
+        var inhumanMemeWrap = document.createElement('div');
+        inhumanMemeWrap.className = 'stats-unheld-free-meme';
+        var inhumanMeme = document.createElement('img');
+        inhumanMeme.src = 'assets/unheld_inhuman.gif';
+        inhumanMeme.alt = 'Yeah I think someone will get wall all mainboard eventually';
+        inhumanMemeWrap.appendChild(inhumanMeme);
+        body.appendChild(inhumanMemeWrap);
+    }
+
     var rows = allRows;
     if (statsExplorerUnheldTier !== 'All') {
         rows = allRows.filter(function (r) { return r.tier === statsExplorerUnheldTier; });
