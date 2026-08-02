@@ -233,7 +233,8 @@ class StatisticsExplorerAnalyzer {
                     d: date,
                     t: primary,
                     n: playerName,
-                    i: playerId
+                    i: playerId,
+                    w: weblink || null
                 });
                 this.openHolds.set(categoryKey, {
                     playerId,
@@ -252,7 +253,8 @@ class StatisticsExplorerAnalyzer {
                     d: date,
                     t: primary,
                     n: playerName,
-                    i: playerId
+                    i: playerId,
+                    w: weblink || null
                 });
                 this.openHolds.set(categoryKey, {
                     playerId,
@@ -681,6 +683,7 @@ class StatisticsExplorerAnalyzer {
             playerId: h.playerId,
             playerName: h.playerName,
             time: h.time,
+            weblink: h.weblink || null,
             start: h.start,
             end: h.end,
             days: h.days,

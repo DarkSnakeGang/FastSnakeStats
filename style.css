@@ -2390,12 +2390,21 @@ body.dark-mode .quick-fetch-btn:disabled {
 		border-radius: 6px;
 		font-size: 11px;
 		line-height: 1.35;
-		pointer-events: none;
+		pointer-events: auto;
 		z-index: 5;
 		max-width: min(180px, 70%);
 		box-sizing: border-box;
 		white-space: normal;
 		word-break: break-word;
+	}
+
+	.stats-explorer-tooltip a.stats-run-link {
+		color: #9ecbff;
+		text-decoration: underline;
+	}
+
+	.stats-point--link {
+		cursor: pointer;
 	}
 
 	.stats-bar-row {

@@ -1209,9 +1209,14 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		padding: 6px 8px;
 		border-radius: 8px;
 		font-size: 11px;
-		pointer-events: none;
+		pointer-events: auto;
 		z-index: 5;
 		max-width: 70%;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-explorer-tooltip a.stats-run-link {
+		color: #93c5fd;
+		text-decoration: underline;
 	}
 
 	.mobile-main .mobile-stats-explorer .stats-bar-row {

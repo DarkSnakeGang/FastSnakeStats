@@ -483,17 +483,27 @@ function buildLineChart(points, isHighScore) {
     var tip = document.createElement('div');
     tip.className = 'stats-explorer-tooltip';
     tip.hidden = true;
+    tip.style.pointerEvents = 'auto';
+    tip.addEventListener('mouseenter', function () { tip.hidden = false; });
+    tip.addEventListener('mouseleave', function () { tip.hidden = true; });
 
     points.forEach(function (p, i) {
         var cx = xAt(i), cy = yAt(parsePrimaryToSeconds(p.t));
         var c = document.createElementNS(svgNS, 'circle');
         c.setAttribute('cx', cx); c.setAttribute('cy', cy); c.setAttribute('r', 3.5);
-        c.setAttribute('class', 'stats-point');
+        c.setAttribute('class', 'stats-point' + (p.w ? ' stats-point--link' : ''));
+        if (p.w) {
+            c.style.cursor = 'pointer';
+        }
         (function (pt) {
             c.addEventListener('mouseenter', function () {
                 tip.hidden = false;
-                tip.innerHTML = '<strong>' + pt.d + '</strong><br>' + escapeHtml(pt.n || '') + '<br>' +
-                    escapeHtml(formatPrimaryDisplay(pt.t, isHighScore));
+                var timeText = formatPrimaryDisplay(pt.t, isHighScore);
+                var timeHtml = pt.w
+                    ? '<a class="stats-run-link" href="' + escapeAttr(pt.w) +
+                        '" target="_blank" rel="noopener noreferrer">' + escapeHtml(timeText) + '</a>'
+                    : escapeHtml(timeText);
+                tip.innerHTML = '<strong>' + pt.d + '</strong><br>' + escapeHtml(pt.n || '') + '<br>' + timeHtml;
                 // Place tooltip inside chart bounds (flip left/down if needed) — no overflow scroll
                 var wrapRect = wrap.getBoundingClientRect();
                 var cRect = c.getBoundingClientRect();
@@ -515,6 +525,12 @@ function buildLineChart(points, isHighScore) {
                 tip.style.top = top + 'px';
             });
             c.addEventListener('mouseleave', function () { tip.hidden = true; });
+            if (pt.w) {
+                c.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    window.open(pt.w, '_blank', 'noopener,noreferrer');
+                });
+            }
         })(p);
         svg.appendChild(c);
     });
@@ -588,7 +604,7 @@ function renderListView(body, rows, kind, showAll) {
     var thead = document.createElement('thead');
     var hr = document.createElement('tr');
     var headers = kind === 'longevity'
-        ? ['Player', 'Mode', 'Count', 'Speed', 'Size', 'Run', 'Days', 'Range']
+        ? ['Player', 'Mode', 'Count', 'Speed', 'Size', 'Run', 'Time', 'Days', 'Range']
         : kind === 'stale'
             ? ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Days', 'Flips', 'Holders']
             : kind === 'contested'
@@ -630,6 +646,7 @@ function renderListView(body, rows, kind, showAll) {
                 '<td>' + escapeHtml(parsed.speed) + '</td>' +
                 '<td>' + escapeHtml(parsed.size) + '</td>' +
                 '<td>' + escapeHtml(parsed.runMode) + '</td>' +
+                '<td>' + formatHoldTimeCell(row, parsed) + '</td>' +
                 '<td>' + row.days + '</td>' +
                 '<td>' + escapeHtml(range) + '</td>';
         } else if (kind === 'stale') {
