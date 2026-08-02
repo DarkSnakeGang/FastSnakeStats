@@ -8,7 +8,6 @@ var statsExplorerImproveWindow = '30d';
 var statsExplorerHeatMetric = 'flips';
 var statsExplorerHeatYear = null; // set from data
 var statsExplorerLongevityMode = 'standing'; // 'all' | 'standing'
-var statsExplorerLongevityHideHs = false; // when true, exclude High Score holds
 var statsExplorerUnheldTier = 'All'; // 'All' | Free…Inhuman
 // Independent progression filters (not Category Settings)
 var statsProgApple = '1 Apple';
@@ -16,6 +15,13 @@ var statsProgSpeed = 'Normal';
 var statsProgSize = 'Standard';
 var statsProgGamemode = 'Classic';
 var statsProgRunMode = '25 Apples';
+// Shared list filters for contested / stale / popularity / unheld ("All" = no filter)
+var statsListApple = 'All';
+var statsListSpeed = 'All';
+var statsListSize = 'All';
+var statsListGamemode = 'All';
+var statsListRunMode = 'All';
+var STATS_LIST_DISPLAY_LIMIT = 50;
 
 var STATS_HIGHSCORE_MODES = ['Wall', 'Portal', 'Key', 'Sokoban', 'Poison', 'Minesweeper', 'Statue', 'Shield', 'Hotdog', 'Gate', 'Bridge'];
 
@@ -89,6 +95,92 @@ function createStatsSelect(labelText, value, options, onChange, compact) {
     });
     wrap.appendChild(sel);
     return wrap;
+}
+
+function getListGamemodeOptions() {
+    var names = typeof gamemodes !== 'undefined' ? Object.keys(gamemodes) : [];
+    if (statsListRunMode === 'High Score') {
+        return names.filter(function (n) { return STATS_HIGHSCORE_MODES.indexOf(n) !== -1; });
+    }
+    return names;
+}
+
+function normalizeListFilters() {
+    if (statsListRunMode === '100 Apples' && statsListSize === 'Small') {
+        statsListSize = 'Standard';
+    }
+    if (statsListGamemode !== 'All') {
+        var modes = getListGamemodeOptions();
+        if (modes.indexOf(statsListGamemode) === -1) {
+            statsListGamemode = 'All';
+        }
+    }
+}
+
+function appendListFilters(body) {
+    normalizeListFilters();
+
+    var appleOpts = ['All'].concat(typeof appleAmounts !== 'undefined' ? Object.keys(appleAmounts) : ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb']);
+    var speedOpts = ['All'].concat(typeof speeds !== 'undefined' ? Object.keys(speeds) : ['Normal', 'Fast', 'Slow']);
+    var sizeOpts = ['All'].concat(typeof sizes !== 'undefined' ? Object.keys(sizes) : ['Standard', 'Small', 'Large']);
+    if (statsListRunMode === '100 Apples') {
+        sizeOpts = sizeOpts.filter(function (s) { return s !== 'Small'; });
+    }
+    var runOpts = ['All', 'Timed'].concat(typeof runModes !== 'undefined' ? Object.keys(runModes) : ['25 Apples', '50 Apples', '100 Apples', 'All Apples', 'High Score']);
+    var modeOpts = ['All'].concat(getListGamemodeOptions());
+
+    var filters = document.createElement('div');
+    filters.className = 'stats-explorer-filters';
+    filters.appendChild(createStatsSelect('Count', statsListApple, appleOpts, function (v) {
+        statsListApple = v;
+        renderStatisticsExplorerContent(body);
+    }));
+    filters.appendChild(createStatsSelect('Speed', statsListSpeed, speedOpts, function (v) {
+        statsListSpeed = v;
+        renderStatisticsExplorerContent(body);
+    }));
+    filters.appendChild(createStatsSelect('Size', statsListSize, sizeOpts, function (v) {
+        statsListSize = v;
+        renderStatisticsExplorerContent(body);
+    }));
+    filters.appendChild(createStatsSelect('Run', statsListRunMode, runOpts, function (v) {
+        statsListRunMode = v;
+        normalizeListFilters();
+        renderStatisticsExplorerContent(body);
+    }));
+    filters.appendChild(createStatsSelect('Mode', statsListGamemode, modeOpts, function (v) {
+        statsListGamemode = v;
+        renderStatisticsExplorerContent(body);
+    }));
+    body.appendChild(filters);
+}
+
+function rowMatchesListFilters(row) {
+    var parsed = parseCategoryKey(row.category);
+    if (!parsed) return false;
+    if (statsListApple !== 'All' && parsed.apple !== statsListApple) return false;
+    if (statsListSpeed !== 'All' && parsed.speed !== statsListSpeed) return false;
+    if (statsListSize !== 'All' && parsed.size !== statsListSize) return false;
+    if (statsListRunMode === 'Timed') {
+        if (parsed.runMode === 'High Score') return false;
+    } else if (statsListRunMode !== 'All' && parsed.runMode !== statsListRunMode) {
+        return false;
+    }
+    if (statsListGamemode !== 'All' && parsed.gamemode !== statsListGamemode) return false;
+    return true;
+}
+
+function filterRowsByListFilters(rows) {
+    if (
+        statsListApple === 'All' &&
+        statsListSpeed === 'All' &&
+        statsListSize === 'All' &&
+        statsListRunMode === 'All' &&
+        statsListGamemode === 'All'
+    ) {
+        return rows;
+    }
+    return rows.filter(rowMatchesListFilters);
 }
 
 function parsePrimaryToSeconds(primary) {
@@ -313,13 +405,13 @@ function renderStatisticsExplorerContent(targetBody) {
             renderImprovingView(body);
             break;
         case 'contested':
-            renderListView(body, statsExplorerData.contested || [], 'contested');
+            renderFilteredListTab(body, statsExplorerData.contested || [], 'contested', 'most flips first');
             break;
         case 'stale':
-            renderListView(body, statsExplorerData.stale || [], 'stale');
+            renderFilteredListTab(body, statsExplorerData.stale || [], 'stale', 'least contested first');
             break;
         case 'popularity':
-            renderListView(body, statsExplorerData.popularity || [], 'popularity');
+            renderFilteredListTab(body, statsExplorerData.popularity || [], 'popularity', 'most holders first');
             break;
         case 'unicorns':
             renderUnicornsView(body);
@@ -556,31 +648,12 @@ function buildLineChart(points, isHighScore) {
 function getLongevityRows() {
     var raw = statsExplorerData && statsExplorerData.longevity;
     if (!raw) return [];
-    // New shape: { all, standing, allTimed, standingTimed }; legacy: flat array
+    // New shape: { all, standing }; legacy: flat array or timed variants
     if (Array.isArray(raw)) {
-        var legacy = raw;
         if (statsExplorerLongevityMode === 'standing') {
-            legacy = legacy.filter(function (r) { return r.stillStanding; });
+            return raw.filter(function (r) { return r.stillStanding; });
         }
-        if (statsExplorerLongevityHideHs) {
-            legacy = legacy.filter(function (r) {
-                var p = parseCategoryKey(r.category);
-                return !p || p.runMode !== 'High Score';
-            });
-        }
-        return legacy;
-    }
-    if (statsExplorerLongevityHideHs) {
-        if (statsExplorerLongevityMode === 'standing') {
-            return raw.standingTimed || (raw.standing || []).filter(function (r) {
-                var p = parseCategoryKey(r.category);
-                return !p || p.runMode !== 'High Score';
-            });
-        }
-        return raw.allTimed || (raw.all || []).filter(function (r) {
-            var p = parseCategoryKey(r.category);
-            return !p || p.runMode !== 'High Score';
-        });
+        return raw;
     }
     if (statsExplorerLongevityMode === 'standing') {
         return raw.standing || [];
@@ -607,25 +680,34 @@ function renderLongevityView(body) {
     });
     body.appendChild(bar);
 
-    var hsBar = document.createElement('div');
-    hsBar.className = 'stats-explorer-chips';
-    [
-        { id: false, label: 'Include High Score' },
-        { id: true, label: 'Hide High Score' }
-    ].forEach(function (opt) {
-        var chip = document.createElement('button');
-        chip.type = 'button';
-        chip.className = 'stats-explorer-chip' + (opt.id === statsExplorerLongevityHideHs ? ' active' : '');
-        chip.textContent = opt.label;
-        chip.addEventListener('click', function () {
-            statsExplorerLongevityHideHs = opt.id;
-            renderStatisticsExplorerContent(body);
-        });
-        hsBar.appendChild(chip);
-    });
-    body.appendChild(hsBar);
+    appendListFilters(body);
 
-    renderListView(body, getLongevityRows(), 'longevity');
+    var allRows = getLongevityRows();
+    var filtered = filterRowsByListFilters(allRows);
+    var meta = document.createElement('div');
+    meta.className = 'stats-explorer-meta';
+    var shown = Math.min(filtered.length, STATS_LIST_DISPLAY_LIMIT);
+    meta.textContent = shown + ' shown' +
+        (filtered.length > STATS_LIST_DISPLAY_LIMIT ? ' · ' + filtered.length + ' match' : '') +
+        (filtered.length !== allRows.length ? ' · ' + allRows.length + ' total' : '') +
+        ' · longest first';
+    body.appendChild(meta);
+
+    renderListView(body, filtered, 'longevity');
+}
+
+function renderFilteredListTab(body, allRows, kind, sortHint) {
+    appendListFilters(body);
+    var filtered = filterRowsByListFilters(allRows);
+    var meta = document.createElement('div');
+    meta.className = 'stats-explorer-meta';
+    var shown = Math.min(filtered.length, STATS_LIST_DISPLAY_LIMIT);
+    meta.textContent = shown + ' shown' +
+        (filtered.length > STATS_LIST_DISPLAY_LIMIT ? ' · ' + filtered.length + ' match' : '') +
+        (filtered.length !== allRows.length ? ' · ' + allRows.length + ' total' : '') +
+        (sortHint ? ' · ' + sortHint : '');
+    body.appendChild(meta);
+    renderListView(body, filtered, kind);
 }
 
 function renderListView(body, rows, kind, showAll) {
@@ -633,8 +715,10 @@ function renderListView(body, rows, kind, showAll) {
         var empty = document.createElement('div');
         empty.className = 'stats-explorer-empty';
         empty.textContent = kind === 'longevity' && statsExplorerLongevityMode === 'standing'
-            ? 'No still-standing records in the top list.'
-            : 'No data available.';
+            ? 'No still-standing records match these filters.'
+            : (kind === 'longevity' || kind === 'contested' || kind === 'stale' || kind === 'popularity' || kind === 'unheld')
+                ? 'No categories match these filters.'
+                : 'No data available.';
         body.appendChild(empty);
         return;
     }
@@ -663,7 +747,7 @@ function renderListView(body, rows, kind, showAll) {
     thead.appendChild(hr);
     table.appendChild(thead);
     var tbody = document.createElement('tbody');
-    var displayRows = showAll ? rows : rows.slice(0, 50);
+    var displayRows = showAll ? rows : rows.slice(0, STATS_LIST_DISPLAY_LIMIT);
     displayRows.forEach(function (row) {
         var parsed = parseCategoryKey(row.category) || {
             gamemode: row.category || '-',
@@ -788,6 +872,8 @@ function renderUnheldView(body) {
     var tiers = payload.tiers || ['Free', 'Warmup', 'Easy', 'Medium', 'Hard', 'Mythic', 'Lottery', 'Inhuman'];
     var allRows = payload.rows || [];
 
+    appendListFilters(body);
+
     var bar = document.createElement('div');
     bar.className = 'stats-explorer-chips';
     ['All'].concat(tiers).forEach(function (t) {
@@ -823,9 +909,9 @@ function renderUnheldView(body) {
         body.appendChild(inhumanMemeWrap);
     }
 
-    var rows = allRows;
+    var rows = filterRowsByListFilters(allRows);
     if (statsExplorerUnheldTier !== 'All') {
-        rows = allRows.filter(function (r) { return r.tier === statsExplorerUnheldTier; });
+        rows = rows.filter(function (r) { return r.tier === statsExplorerUnheldTier; });
     }
 
     var meta = document.createElement('div');

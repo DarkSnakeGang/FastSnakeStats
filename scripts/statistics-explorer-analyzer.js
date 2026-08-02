@@ -302,7 +302,7 @@ class StatisticsExplorerAnalyzer {
         this.activityHeatmap.push({ date, flips, newWrs });
     }
 
-    buildContested(limit = 50) {
+    buildContested() {
         return Array.from(this.categoryMeta.entries())
             .map(([category, meta]) => ({
                 category,
@@ -310,8 +310,7 @@ class StatisticsExplorerAnalyzer {
                 uniqueHolders: meta.holders.size,
                 daysWithRecord: meta.daysWithRecord
             }))
-            .sort((a, b) => b.flips - a.flips || b.uniqueHolders - a.uniqueHolders)
-            .slice(0, limit);
+            .sort((a, b) => b.flips - a.flips || b.uniqueHolders - a.uniqueHolders);
     }
 
     isExcludedFromPopularity(category) {
@@ -325,7 +324,7 @@ class StatisticsExplorerAnalyzer {
         );
     }
 
-    buildPopularity(limit = 50) {
+    buildPopularity() {
         return Array.from(this.categoryMeta.entries())
             .filter(([category]) => !this.isExcludedFromPopularity(category))
             .map(([category, meta]) => ({
@@ -334,11 +333,10 @@ class StatisticsExplorerAnalyzer {
                 daysWithRecord: meta.daysWithRecord,
                 flips: meta.flips
             }))
-            .sort((a, b) => b.uniqueHolders - a.uniqueHolders || b.daysWithRecord - a.daysWithRecord)
-            .slice(0, limit);
+            .sort((a, b) => b.uniqueHolders - a.uniqueHolders || b.daysWithRecord - a.daysWithRecord);
     }
 
-    buildStale(lastDate, limit = 50) {
+    buildStale(lastDate) {
         return Array.from(this.categoryMeta.entries())
             .filter(([, meta]) => meta.daysWithRecord > 0)
             .map(([category, meta]) => {
@@ -363,8 +361,7 @@ class StatisticsExplorerAnalyzer {
                 a.uniqueHolders - b.uniqueHolders ||
                 a.tiedHolders - b.tiedHolders ||
                 b.holdDays - a.holdDays
-            )
-            .slice(0, limit);
+            );
     }
 
     isCheese50Small(category) {
@@ -695,14 +692,13 @@ class StatisticsExplorerAnalyzer {
         return this.parseCategoryParts(category).run === 'High Score';
     }
 
-    buildLongevity(lastDate, limit = 50) {
+    buildLongevity(lastDate) {
         for (const key of Array.from(this.openHolds.keys())) {
             this.closeHold(key, lastDate, true);
         }
         const sorted = this.completedHolds
             .slice()
             .sort((a, b) => b.days - a.days || a.start.localeCompare(b.start));
-        const timed = sorted.filter((h) => !this.isHighScoreCategory(h.category));
         const mapRow = (h) => ({
             category: h.category,
             playerId: h.playerId,
@@ -715,10 +711,8 @@ class StatisticsExplorerAnalyzer {
             stillStanding: !!h.stillStanding
         });
         return {
-            all: sorted.slice(0, limit).map(mapRow),
-            standing: sorted.filter((h) => h.stillStanding).slice(0, limit).map(mapRow),
-            allTimed: timed.slice(0, limit).map(mapRow),
-            standingTimed: timed.filter((h) => h.stillStanding).slice(0, limit).map(mapRow)
+            all: sorted.map(mapRow),
+            standing: sorted.filter((h) => h.stillStanding).map(mapRow)
         };
     }
 
@@ -799,13 +793,13 @@ class StatisticsExplorerAnalyzer {
                 dateRange: { earliest: firstDate, latest: lastDate }
             },
             activityHeatmap: this.activityHeatmap,
-            contested: this.buildContested(50),
+            contested: this.buildContested(),
             // Before longevity closes open holds — need current hold age
-            stale: this.buildStale(lastDate, 50),
-            popularity: this.buildPopularity(50),
+            stale: this.buildStale(lastDate),
+            popularity: this.buildPopularity(),
             unicorns: this.buildUnicorns(lastDate),
             legends: this.buildLegends(lastDate),
-            longevity: this.buildLongevity(lastDate, 50),
+            longevity: this.buildLongevity(lastDate),
             improving: this.buildImproving(dates, 25),
             unheld: this.buildUnheld(),
             progression: this.buildProgressionObject()
