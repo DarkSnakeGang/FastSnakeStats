@@ -112,7 +112,7 @@ scripts/install-nodejs.bat
 ### Statistics Explorer
 - Precomputed from the full daily cache into `time-travel-cache/metadata/statistics-explorer.json`
 - Progression uses its own Count / Speed / Size / Run / Mode dropdowns (all-time history, independent of Category Settings)
-- Longevity, contested, and popularity list Mode + Count + Speed + Size + Run
+- Longevity, contested, and popularity list Mode + Count + Speed + Size + Run; Longevity has All-time / Still standing toggles
 - Heatmap uses a year dropdown (one year at a time)
 - Improving players and heatmap metrics are site-wide
 - Refresh locally with `node scripts/statistics-explorer-analyzer.js`

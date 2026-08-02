@@ -76,7 +76,7 @@ class StatisticsExplorerAnalyzer {
         return this.categoryMeta.get(key);
     }
 
-    closeHold(key, endDate) {
+    closeHold(key, endDate, stillStanding = false) {
         const hold = this.openHolds.get(key);
         if (!hold) return;
         const days = this.daysBetween(hold.start, endDate);
@@ -87,7 +87,8 @@ class StatisticsExplorerAnalyzer {
             time: hold.primary,
             start: hold.start,
             end: endDate,
-            days
+            days,
+            stillStanding: !!stillStanding
         });
         this.openHolds.delete(key);
     }
@@ -216,21 +217,25 @@ class StatisticsExplorerAnalyzer {
 
     buildLongevity(lastDate, limit = 50) {
         for (const key of Array.from(this.openHolds.keys())) {
-            this.closeHold(key, lastDate);
+            this.closeHold(key, lastDate, true);
         }
-        return this.completedHolds
+        const sorted = this.completedHolds
             .slice()
-            .sort((a, b) => b.days - a.days || a.start.localeCompare(b.start))
-            .slice(0, limit)
-            .map((h) => ({
-                category: h.category,
-                playerId: h.playerId,
-                playerName: h.playerName,
-                time: h.time,
-                start: h.start,
-                end: h.end,
-                days: h.days
-            }));
+            .sort((a, b) => b.days - a.days || a.start.localeCompare(b.start));
+        const mapRow = (h) => ({
+            category: h.category,
+            playerId: h.playerId,
+            playerName: h.playerName,
+            time: h.time,
+            start: h.start,
+            end: h.end,
+            days: h.days,
+            stillStanding: !!h.stillStanding
+        });
+        return {
+            all: sorted.slice(0, limit).map(mapRow),
+            standing: sorted.filter((h) => h.stillStanding).slice(0, limit).map(mapRow)
+        };
     }
 
     countOnOrBefore(countsMap, targetDate, datesAsc) {
@@ -325,7 +330,7 @@ class StatisticsExplorerAnalyzer {
         fs.writeFileSync(this.outputFile, JSON.stringify(output));
         const sizeMb = (fs.statSync(this.outputFile).size / (1024 * 1024)).toFixed(2);
         console.log(`Saved ${this.outputFile} (${sizeMb} MB)`);
-        console.log(`Contested: ${output.contested.length}, Longevity: ${output.longevity.length}, Progression keys: ${Object.keys(output.progression).length}`);
+        console.log(`Contested: ${output.contested.length}, Longevity all: ${output.longevity.all.length}, standing: ${output.longevity.standing.length}, Progression keys: ${Object.keys(output.progression).length}`);
         console.log('Statistics explorer analysis complete.');
     }
 }

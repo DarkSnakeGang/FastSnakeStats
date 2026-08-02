@@ -7,6 +7,7 @@ var statsExplorerActiveTab = 'progression';
 var statsExplorerImproveWindow = '30d';
 var statsExplorerHeatMetric = 'flips';
 var statsExplorerHeatYear = null; // set from data
+var statsExplorerLongevityMode = 'all'; // 'all' | 'standing'
 // Independent progression filters (not Category Settings)
 var statsProgApple = '1 Apple';
 var statsProgSpeed = 'Normal';
@@ -290,7 +291,7 @@ function renderStatisticsExplorerContent(targetBody) {
             renderProgressionView(body);
             break;
         case 'longevity':
-            renderListView(body, statsExplorerData.longevity || [], 'longevity');
+            renderLongevityView(body);
             break;
         case 'improving':
             renderImprovingView(body);
@@ -470,9 +471,51 @@ function buildLineChart(points, isHighScore) {
     return wrap;
 }
 
+function getLongevityRows() {
+    var raw = statsExplorerData && statsExplorerData.longevity;
+    if (!raw) return [];
+    // New shape: { all, standing }; legacy: flat array
+    if (Array.isArray(raw)) {
+        if (statsExplorerLongevityMode === 'standing') {
+            return raw.filter(function (r) { return r.stillStanding; });
+        }
+        return raw;
+    }
+    if (statsExplorerLongevityMode === 'standing') {
+        return raw.standing || [];
+    }
+    return raw.all || [];
+}
+
+function renderLongevityView(body) {
+    var bar = document.createElement('div');
+    bar.className = 'stats-explorer-chips';
+    [
+        { id: 'all', label: 'All-time' },
+        { id: 'standing', label: 'Still standing' }
+    ].forEach(function (opt) {
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'stats-explorer-chip' + (opt.id === statsExplorerLongevityMode ? ' active' : '');
+        chip.textContent = opt.label;
+        chip.addEventListener('click', function () {
+            statsExplorerLongevityMode = opt.id;
+            renderStatisticsExplorerContent(body);
+        });
+        bar.appendChild(chip);
+    });
+    body.appendChild(bar);
+    renderListView(body, getLongevityRows(), 'longevity');
+}
+
 function renderListView(body, rows, kind) {
     if (!rows.length) {
-        body.innerHTML = '<div class="stats-explorer-empty">No data available.</div>';
+        var empty = document.createElement('div');
+        empty.className = 'stats-explorer-empty';
+        empty.textContent = kind === 'longevity' && statsExplorerLongevityMode === 'standing'
+            ? 'No still-standing records in the top list.'
+            : 'No data available.';
+        body.appendChild(empty);
         return;
     }
     var table = document.createElement('table');
@@ -503,6 +546,9 @@ function renderListView(body, rows, kind) {
         var tr = document.createElement('tr');
         tr.title = row.category || '';
         if (kind === 'longevity') {
+            var range = row.stillStanding
+                ? row.start + ' → present'
+                : row.start + ' → ' + row.end;
             tr.innerHTML =
                 '<td>' + escapeHtml(row.playerName) + '</td>' +
                 '<td>' + escapeHtml(parsed.gamemode) + '</td>' +
@@ -511,7 +557,7 @@ function renderListView(body, rows, kind) {
                 '<td>' + escapeHtml(parsed.size) + '</td>' +
                 '<td>' + escapeHtml(parsed.runMode) + '</td>' +
                 '<td>' + row.days + '</td>' +
-                '<td>' + escapeHtml(row.start + ' → ' + row.end) + '</td>';
+                '<td>' + escapeHtml(range) + '</td>';
         } else if (kind === 'contested') {
             tr.innerHTML =
                 '<td>' + escapeHtml(parsed.gamemode) + '</td>' +
