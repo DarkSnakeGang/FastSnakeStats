@@ -701,7 +701,10 @@ function renderListView(body, rows, kind, showAll) {
         tbody.appendChild(tr);
     });
     table.appendChild(tbody);
-    body.appendChild(table);
+    var scroll = document.createElement('div');
+    scroll.className = 'stats-table-scroll';
+    scroll.appendChild(table);
+    body.appendChild(scroll);
 }
 
 function renderUnicornsView(body) {

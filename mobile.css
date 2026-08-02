@@ -903,7 +903,9 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		padding: 0 12px 28px;
 		color: var(--mobile-text);
 		box-sizing: border-box;
+		width: 100%;
 		max-width: 100%;
+		overflow-x: hidden;
 	}
 
 	.mobile-main .mobile-stats-explorer .stats-explorer-tabs {
@@ -949,11 +951,28 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 
 	.mobile-main .mobile-stats-explorer .mobile-stats-body,
 	.mobile-main .mobile-stats-explorer .stats-explorer-body {
-		overflow-x: auto;
-		-webkit-overflow-scrolling: touch;
+		overflow-x: visible;
+		overflow-y: visible;
 		text-align: left;
 		font-size: 13px;
 		padding-bottom: 8px;
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-table-scroll {
+		display: block;
+		width: 100%;
+		max-width: 100%;
+		overflow-x: auto;
+		overflow-y: visible;
+		-webkit-overflow-scrolling: touch;
+		overscroll-behavior-x: contain;
+		margin: 0 -12px;
+		padding: 0 12px 10px;
+		box-sizing: border-box;
+		scrollbar-width: thin;
 	}
 
 	.mobile-main .mobile-stats-explorer .stats-explorer-chips {
@@ -965,6 +984,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		-webkit-overflow-scrolling: touch;
 		padding-bottom: 2px;
 		scrollbar-width: none;
+		max-width: 100%;
 	}
 
 	.mobile-main .mobile-stats-explorer .stats-explorer-chips::-webkit-scrollbar {
@@ -1002,6 +1022,9 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		gap: 10px;
 		margin-bottom: 12px;
 		align-items: end;
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
 	}
 
 	.mobile-main .mobile-stats-explorer .stats-explorer-select-wrap {
@@ -1054,6 +1077,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		min-width: 100%;
 		border-collapse: collapse;
 		font-size: 12px;
+		table-layout: auto;
 	}
 
 	.mobile-main .mobile-stats-explorer .stats-explorer-table th,
@@ -1062,6 +1086,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		border-bottom: 1px solid var(--mobile-border);
 		text-align: left;
 		white-space: nowrap;
+		vertical-align: middle;
 	}
 
 	.mobile-main .mobile-stats-explorer .stats-explorer-table a.stats-run-link {
@@ -1094,6 +1119,10 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		opacity: 0.85;
 		font-size: 13px;
 		line-height: 1.4;
+		max-width: 100%;
+		overflow-wrap: anywhere;
+		word-break: break-word;
+		white-space: normal;
 	}
 
 	.mobile-main .mobile-stats-explorer .stats-unheld-free-meme {
