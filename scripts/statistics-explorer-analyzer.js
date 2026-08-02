@@ -11,13 +11,13 @@ class StatisticsExplorerAnalyzer {
         this.outputFile = 'time-travel-cache/metadata/statistics-explorer.json';
         this.availableDatesFile = 'time-travel-cache/metadata/available-dates.json';
 
-        // categoryKey -> last signature { primary, playerId, playerName }
+        // categoryKey -> last signature { runKey, primary, playerId, playerName }
         this.prevTop = new Map();
         // categoryKey -> change points [{ d, t, n, i }]
         this.progression = new Map();
         // categoryKey -> { flips, holders: Set, daysWithRecord }
         this.categoryMeta = new Map();
-        // categoryKey -> open hold { playerId, playerName, primary, start }
+        // categoryKey -> open hold { playerId, playerName, primary, runKey, start }
         this.openHolds = new Map();
         // completed holds for longevity ranking
         this.completedHolds = [];
@@ -54,6 +54,20 @@ class StatisticsExplorerAnalyzer {
         }
         if (playerData.name) return playerData.name;
         return 'Unknown';
+    }
+
+    /**
+     * Stable identity for the #1 WR run. Prefer SRC run id / weblink so retimes
+     * of the same run do not reset longevity or count as flips.
+     */
+    extractRunKey(topRun) {
+        if (!topRun) return 'unknown';
+        if (topRun.id) return `id:${topRun.id}`;
+        if (topRun.weblink) return `link:${topRun.weblink}`;
+        const primary = (topRun.times && topRun.times.primary) || '';
+        const playerData = topRun.players && topRun.players.data && topRun.players.data[0];
+        const playerId = this.extractPlayerId(playerData) || 'unknown';
+        return `fallback:${playerId}|${primary}`;
     }
 
     daysBetween(start, end) {
@@ -124,13 +138,14 @@ class StatisticsExplorerAnalyzer {
             const playerData = topRun.players && topRun.players.data && topRun.players.data[0];
             const playerId = this.extractPlayerId(playerData) || 'unknown';
             const playerName = this.extractPlayerName(playerData);
+            const runKey = this.extractRunKey(topRun);
 
             const meta = this.ensureCategoryMeta(categoryKey);
             meta.daysWithRecord++;
             meta.holders.add(playerId);
 
             const prev = this.prevTop.get(categoryKey);
-            const changed = !prev || prev.primary !== primary || prev.playerId !== playerId;
+            const changed = !prev || prev.runKey !== runKey;
 
             if (!prev) {
                 if (!this.progression.has(categoryKey)) this.progression.set(categoryKey, []);
@@ -144,6 +159,7 @@ class StatisticsExplorerAnalyzer {
                     playerId,
                     playerName,
                     primary,
+                    runKey,
                     start: date
                 });
             } else if (changed) {
@@ -161,11 +177,20 @@ class StatisticsExplorerAnalyzer {
                     playerId,
                     playerName,
                     primary,
+                    runKey,
                     start: date
                 });
+            } else {
+                // Same run (id/link): keep hold, refresh displayed time/name if retimed/renamed
+                const hold = this.openHolds.get(categoryKey);
+                if (hold) {
+                    hold.primary = primary;
+                    hold.playerName = playerName;
+                    hold.playerId = playerId;
+                }
             }
 
-            this.prevTop.set(categoryKey, { primary, playerId, playerName });
+            this.prevTop.set(categoryKey, { runKey, primary, playerId, playerName });
 
             for (const run of categoryData.runs) {
                 if (run.date === date) newWrs++;
