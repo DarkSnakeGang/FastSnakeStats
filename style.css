@@ -110,6 +110,40 @@ body.dark-mode .container table {
 	background: rgba(0, 0, 0, 0.3);
 }
 
+/* Play Now — always-visible left edge tab above Category Settings collapse */
+.snake-mods-btn {
+	position: fixed;
+	left: 0;
+	top: 76px;
+	z-index: 270;
+	width: 56px;
+	height: 88px;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+	color: inherit;
+	box-sizing: border-box;
+	border-radius: 0 16px 16px 0;
+	background: linear-gradient(180deg, #4C792D, #2d4a1f);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-left: none;
+	box-shadow: 4px 0 18px rgba(0, 0, 0, 0.35);
+	cursor: pointer;
+	transition: background 0.2s ease, top 0.2s ease;
+}
+
+.snake-mods-btn:hover {
+	background: linear-gradient(180deg, #578A34, #3a5c28);
+}
+
+.snake-mods-btn-icon {
+	width: 1.75rem;
+	height: 1.75rem;
+	display: block;
+	object-fit: contain;
+}
+
 /* Emoji icons in sidebar buttons */
 
 /* Dark mode sidebar buttons - now using consistent styling for both modes */
@@ -162,10 +196,11 @@ h2{
 }
 
 /* Table Selector Sidebar — wide enough for all 6 apple amounts on one row */
+/* Sit below Play Now (top 76px + height 88px) so the open panel never covers it */
 .table-selector {
 	position: fixed;
 	left: 16px;
-	top: 100px;
+	top: 176px;
 	transform: none;
 	background: rgba(255, 255, 255, 0.15);
 	border-radius: 15px;
@@ -176,7 +211,7 @@ h2{
 	z-index: 260;
 	backdrop-filter: blur(15px);
 	border: 1px solid rgba(255, 255, 255, 0.2);
-	transition: width 0.2s ease, padding 0.2s ease, max-width 0.2s ease, left 0.2s ease;
+	transition: width 0.2s ease, padding 0.2s ease, max-width 0.2s ease, left 0.2s ease, top 0.2s ease;
 	box-sizing: border-box;
 }
 
@@ -2037,6 +2072,15 @@ body.dark-mode .quick-fetch-btn:disabled {
 	.ranglist-scroll th,
 	.ranglist-scroll td {
 		white-space: nowrap;
+	}
+
+	.snake-mods-btn {
+		display: flex !important;
+	}
+
+	/* Sit just above the Category Settings collapse tab (both 88px tall, 12px gap) */
+	body.category-collapsed .snake-mods-btn {
+		top: calc(50% - 144px);
 	}
 
 	/* Collapsed Category Settings — vertical edge tab matching Summary */
