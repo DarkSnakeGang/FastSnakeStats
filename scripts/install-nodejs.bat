@@ -32,7 +32,7 @@ if %errorlevel% equ 0 (
 )
 
 :: Set variables
-set "NODE_VERSION=20.10.0"
+set "NODE_VERSION=24.18.1"
 set "NODE_ARCH=x64"
 set "DOWNLOAD_URL=https://nodejs.org/dist/v%NODE_VERSION%/node-v%NODE_VERSION%-win-%NODE_ARCH%.msi"
 set "INSTALLER_PATH=%TEMP%\nodejs-installer.msi"
@@ -60,7 +60,7 @@ powershell -ExecutionPolicy Bypass -Command "& {[Net.ServicePointManager]::Secur
 
 if not exist "%INSTALLER_PATH%" (
     echo Primary download failed, trying latest LTS version...
-    set "NODE_VERSION=20.9.0"
+    set "NODE_VERSION=24.18.0"
     set "DOWNLOAD_URL=https://nodejs.org/dist/v%NODE_VERSION%/node-v%NODE_VERSION%-win-%NODE_ARCH%.msi"
     echo Trying fallback URL: %DOWNLOAD_URL%
     powershell -ExecutionPolicy Bypass -Command "& {[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; try { Invoke-WebRequest -Uri '%DOWNLOAD_URL%' -OutFile '%INSTALLER_PATH%' -UseBasicParsing -TimeoutSec 300; Write-Host 'Fallback download completed successfully' } catch { Write-Host 'Fallback download failed: ' + $_.Exception.Message; Write-Host 'Trying alternative download method...'; try { $webClient = New-Object System.Net.WebClient; $webClient.DownloadFile('%DOWNLOAD_URL%', '%INSTALLER_PATH%'); Write-Host 'Alternative fallback download completed successfully' } catch { Write-Host 'All download methods failed: ' + $_.Exception.Message; exit 1 } }}"

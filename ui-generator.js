@@ -450,7 +450,7 @@ function generateTableContent(table, settings, specificGamemode = null) {
                     }
                     
                     // Only show "High Score" column for highscore modes
-                    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge", "Cheese"];
+                    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge"];
                     if(runMode === "High Score" && !highscoreModes.includes(gamemode)){
                         continue;
                     }
@@ -601,7 +601,7 @@ function generateLeaderboard(settings, specificGamemode = null){
     }
     
     // Find all run modes that have data for this combination
-    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge", "Cheese"];
+    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge"];
      
      // Use ordered gamemodes for consistent row ordering
      for(const gamemode of orderedGamemodes){
@@ -757,7 +757,7 @@ function generateLeaderboardForMultiple(settings, container){
     }
     
     // Find all run modes that have data for this combination
-    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge", "Cheese"];
+    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge"];
     
     // Use ordered gamemodes for consistent row ordering
     for(const gamemode of orderedGamemodes){

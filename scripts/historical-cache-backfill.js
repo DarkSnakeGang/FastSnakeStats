@@ -301,7 +301,7 @@ class HistoricalCacheBackfill {
         const highscoreLevels = ["H"]; // Only for highscore modes
         
         // Filter highscore modes to exclude the ones that shouldn't be fetched for 2021 and earlier
-        const allHighscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 20, 3]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Bridge, Cheese
+        const allHighscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 20]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Bridge
         const highscoreModes = is2021OrEarlier 
             ? allHighscoreModes.filter((mode, index) => {
                 const modeName = allModeNames[mode];

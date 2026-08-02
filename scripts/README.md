@@ -24,7 +24,7 @@ scripts\install-nodejs.bat
 ### What it does
 
 1. Checks if Node.js is already installed
-2. Downloads the latest LTS version of Node.js (v20.11.1 x64)
+2. Downloads the latest LTS version of Node.js (v24.18.1 x64)
 3. Installs Node.js silently using Windows Installer
 4. Verifies the installation was successful
 5. Displays installed versions of Node.js and npm
@@ -38,7 +38,7 @@ scripts\install-nodejs.bat
 
 ### Notes
 
-- Installs Node.js v20.11.1 (LTS) for x64 architecture
+- Installs Node.js v24.18.1 (LTS) for x64 architecture
 - Uses silent installation mode (`/quiet /norestart`)
 - Creates installation logs in `%TEMP%\nodejs-install.log`
 - Automatically cleans up the downloaded installer

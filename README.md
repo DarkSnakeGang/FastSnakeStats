@@ -34,7 +34,7 @@ A comprehensive web application that displays Google Snake world records from Sp
 ### For Developers
 
 #### Prerequisites
-- Node.js 18+ 
+- Node.js 24+ 
 
 #### Local Development
 ```bash
