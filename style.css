@@ -2302,6 +2302,15 @@ body.dark-mode .quick-fetch-btn:disabled {
 		white-space: nowrap;
 	}
 
+	.stats-explorer-table a.stats-run-link {
+		color: #7eb8ff;
+		text-decoration: none;
+	}
+
+	.stats-explorer-table a.stats-run-link:hover {
+		text-decoration: underline;
+	}
+
 	.stats-explorer-empty,
 	.stats-explorer-loading,
 	.stats-explorer-meta {

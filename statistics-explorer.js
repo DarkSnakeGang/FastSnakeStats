@@ -25,6 +25,8 @@ var STATS_TABS = [
     { id: 'contested', label: 'Contested' },
     { id: 'stale', label: 'Stale' },
     { id: 'popularity', label: 'Popularity' },
+    { id: 'unicorns', label: 'Unicorns' },
+    { id: 'legends', label: 'Legends' },
     { id: 'unheld', label: 'Unheld' },
     { id: 'heatmap', label: 'Heatmap' }
 ];
@@ -118,6 +120,16 @@ function formatPrimaryDisplay(primary, isHighScore) {
     s = Math.floor(s);
     if (m > 0) return m + 'm ' + s + 's ' + ms + 'ms';
     return s + 's ' + ms + 'ms';
+}
+
+function formatHoldTimeCell(row, parsed) {
+    var isHS = parsed && parsed.runMode === 'High Score';
+    var text = formatPrimaryDisplay(row.time, isHS);
+    if (row.weblink) {
+        return '<a class="stats-run-link" href="' + escapeAttr(row.weblink) +
+            '" target="_blank" rel="noopener noreferrer">' + escapeHtml(text) + '</a>';
+    }
+    return escapeHtml(text);
 }
 
 async function loadStatisticsExplorerData() {
@@ -307,6 +319,12 @@ function renderStatisticsExplorerContent(targetBody) {
             break;
         case 'popularity':
             renderListView(body, statsExplorerData.popularity || [], 'popularity');
+            break;
+        case 'unicorns':
+            renderUnicornsView(body);
+            break;
+        case 'legends':
+            renderLegendsView(body);
             break;
         case 'unheld':
             renderUnheldView(body);
@@ -577,7 +595,11 @@ function renderListView(body, rows, kind, showAll) {
                 ? ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Flips', 'Holders']
                 : kind === 'unheld'
                     ? ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Tier']
-                    : ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Holders', 'Days'];
+                    : kind === 'unicorns'
+                        ? ['Player', 'Mode', 'Count', 'Speed', 'Size', 'Run', 'Time', 'Days', 'Range']
+                        : kind === 'legends'
+                            ? ['Player', 'Mode', 'Count', 'Speed', 'Size', 'Run', 'Time', 'Score', 'Days', 'Range']
+                            : ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Holders', 'Days'];
     headers.forEach(function (h) {
         var th = document.createElement('th');
         th.textContent = h;
@@ -637,6 +659,35 @@ function renderListView(body, rows, kind, showAll) {
                 '<td>' + escapeHtml(parsed.size) + '</td>' +
                 '<td>' + escapeHtml(parsed.runMode) + '</td>' +
                 '<td>' + escapeHtml(row.tier || '') + '</td>';
+        } else if (kind === 'unicorns') {
+            var uniRange = row.stillStanding
+                ? row.start + ' → present'
+                : row.start + ' → ' + row.end;
+            tr.innerHTML =
+                '<td>' + escapeHtml(row.playerName || '—') + '</td>' +
+                '<td>' + escapeHtml(parsed.gamemode) + '</td>' +
+                '<td>' + escapeHtml(parsed.apple) + '</td>' +
+                '<td>' + escapeHtml(parsed.speed) + '</td>' +
+                '<td>' + escapeHtml(parsed.size) + '</td>' +
+                '<td>' + escapeHtml(parsed.runMode) + '</td>' +
+                '<td>' + formatHoldTimeCell(row, parsed) + '</td>' +
+                '<td>' + row.days + '</td>' +
+                '<td>' + escapeHtml(uniRange) + '</td>';
+        } else if (kind === 'legends') {
+            var legRange = row.stillStanding
+                ? row.start + ' → present'
+                : row.start + ' → ' + row.end;
+            tr.innerHTML =
+                '<td>' + escapeHtml(row.playerName || '—') + '</td>' +
+                '<td>' + escapeHtml(parsed.gamemode) + '</td>' +
+                '<td>' + escapeHtml(parsed.apple) + '</td>' +
+                '<td>' + escapeHtml(parsed.speed) + '</td>' +
+                '<td>' + escapeHtml(parsed.size) + '</td>' +
+                '<td>' + escapeHtml(parsed.runMode) + '</td>' +
+                '<td>' + formatHoldTimeCell(row, parsed) + '</td>' +
+                '<td>' + (row.score != null ? row.score : '—') + '</td>' +
+                '<td>' + row.days + '</td>' +
+                '<td>' + escapeHtml(legRange) + '</td>';
         } else {
             tr.innerHTML =
                 '<td>' + escapeHtml(parsed.gamemode) + '</td>' +
@@ -651,6 +702,26 @@ function renderListView(body, rows, kind, showAll) {
     });
     table.appendChild(tbody);
     body.appendChild(table);
+}
+
+function renderUnicornsView(body) {
+    var rows = statsExplorerData.unicorns || [];
+    var standing = rows.filter(function (r) { return r.stillStanding; }).length;
+    var meta = document.createElement('div');
+    meta.className = 'stats-explorer-meta';
+    meta.textContent = rows.length + ' holds · ' + standing + ' still standing · Lottery · present first';
+    body.appendChild(meta);
+    renderListView(body, rows, 'unicorns', true);
+}
+
+function renderLegendsView(body) {
+    var rows = statsExplorerData.legends || [];
+    var standing = rows.filter(function (r) { return r.stillStanding; }).length;
+    var meta = document.createElement('div');
+    meta.className = 'stats-explorer-meta';
+    meta.textContent = rows.length + ' Mythic holds · ' + standing + ' still standing · hardest first';
+    body.appendChild(meta);
+    renderListView(body, rows, 'legends', true);
 }
 
 function renderUnheldView(body) {

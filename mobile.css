@@ -1064,6 +1064,11 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		white-space: nowrap;
 	}
 
+	.mobile-main .mobile-stats-explorer .stats-explorer-table a.stats-run-link {
+		color: #3b82f6;
+		text-decoration: none;
+	}
+
 	.mobile-main .mobile-stats-explorer .stats-explorer-table th {
 		font-size: 11px;
 		text-transform: uppercase;

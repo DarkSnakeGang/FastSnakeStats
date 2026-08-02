@@ -1562,6 +1562,8 @@ function showBasicMobileStatisticsSection() {
         { id: 'contested', label: 'Contested' },
         { id: 'stale', label: 'Stale' },
         { id: 'popularity', label: 'Popularity' },
+        { id: 'unicorns', label: 'Unicorns' },
+        { id: 'legends', label: 'Legends' },
         { id: 'unheld', label: 'Unheld' },
         { id: 'heatmap', label: 'Heatmap' }
     ]).map(function (tab) {

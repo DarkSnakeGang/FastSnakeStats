@@ -121,6 +121,13 @@ class StatisticsExplorerAnalyzer {
         return `fallback:${playerId}|${primary}`;
     }
 
+    extractWeblink(topRun) {
+        if (!topRun) return null;
+        if (topRun.weblink) return topRun.weblink;
+        if (topRun.id) return `https://www.speedrun.com/snake_game/run/${topRun.id}`;
+        return null;
+    }
+
     daysBetween(start, end) {
         const a = Date.parse(start + 'T00:00:00Z');
         const b = Date.parse(end + 'T00:00:00Z');
@@ -150,6 +157,7 @@ class StatisticsExplorerAnalyzer {
             playerId: hold.playerId,
             playerName: hold.playerName,
             time: hold.primary,
+            weblink: hold.weblink || null,
             start: hold.start,
             end: endDate,
             days,
@@ -190,6 +198,7 @@ class StatisticsExplorerAnalyzer {
             const playerId = this.extractPlayerId(playerData) || 'unknown';
             const playerName = this.extractPlayerName(playerData);
             const runKey = this.extractRunKey(topRun);
+            const weblink = this.extractWeblink(topRun);
 
             const meta = this.ensureCategoryMeta(categoryKey);
             meta.daysWithRecord++;
@@ -230,6 +239,7 @@ class StatisticsExplorerAnalyzer {
                     playerId,
                     playerName,
                     primary,
+                    weblink,
                     runKey,
                     start: date
                 });
@@ -248,6 +258,7 @@ class StatisticsExplorerAnalyzer {
                     playerId,
                     playerName,
                     primary,
+                    weblink,
                     runKey,
                     start: date
                 });
@@ -259,6 +270,7 @@ class StatisticsExplorerAnalyzer {
                     hold.playerName = playerName;
                     hold.playerId = playerId;
                     hold.runKey = runKey;
+                    if (weblink) hold.weblink = weblink;
                 }
             }
 
@@ -341,6 +353,124 @@ class StatisticsExplorerAnalyzer {
             .slice(0, limit);
     }
 
+    isCheese50Small(category) {
+        const p = this.parseCategoryParts(category);
+        return p.mode === 'Cheese' && p.run === '50 Apples' && p.size === 'Small';
+    }
+
+    isUnicornCategory(category) {
+        return this.scoreCategory(category).tier === 'Lottery';
+    }
+
+    /**
+     * Every hold of a Lottery-tier category — including past holders.
+     * Present (still standing) first.
+     */
+    buildUnicorns(lastDate) {
+        const rows = [];
+
+        for (const hold of this.completedHolds) {
+            if (!this.isUnicornCategory(hold.category)) continue;
+            const scored = this.scoreCategory(hold.category);
+            rows.push({
+                category: hold.category,
+                tier: scored.tier,
+                score: Math.round(scored.score * 10) / 10,
+                playerId: hold.playerId,
+                playerName: hold.playerName,
+                time: hold.time,
+                weblink: hold.weblink || null,
+                start: hold.start,
+                end: hold.end,
+                days: hold.days,
+                stillStanding: false,
+                cheese50Small: this.isCheese50Small(hold.category)
+            });
+        }
+
+        for (const [category, hold] of this.openHolds.entries()) {
+            if (!this.isUnicornCategory(category)) continue;
+            const scored = this.scoreCategory(category);
+            rows.push({
+                category,
+                tier: scored.tier,
+                score: Math.round(scored.score * 10) / 10,
+                playerId: hold.playerId,
+                playerName: hold.playerName,
+                time: hold.primary,
+                weblink: hold.weblink || null,
+                start: hold.start,
+                end: lastDate,
+                days: this.daysBetween(hold.start, lastDate),
+                stillStanding: true,
+                cheese50Small: this.isCheese50Small(category)
+            });
+        }
+
+        rows.sort((a, b) => {
+            if (a.stillStanding !== b.stillStanding) return a.stillStanding ? -1 : 1;
+            if (a.stillStanding && b.stillStanding) {
+                const byHolder = String(a.playerName || '').localeCompare(String(b.playerName || ''));
+                if (byHolder) return byHolder;
+                return b.days - a.days;
+            }
+            return b.days - a.days || a.start.localeCompare(b.start);
+        });
+        return rows;
+    }
+
+    /**
+     * Every hold of a Mythic-tier category — including past holders.
+     * Hardest (highest score) first.
+     */
+    buildLegends(lastDate) {
+        const rows = [];
+
+        for (const hold of this.completedHolds) {
+            const scored = this.scoreCategory(hold.category);
+            if (scored.tier !== 'Mythic') continue;
+            rows.push({
+                category: hold.category,
+                tier: scored.tier,
+                score: Math.round(scored.score * 10) / 10,
+                playerId: hold.playerId,
+                playerName: hold.playerName,
+                time: hold.time,
+                weblink: hold.weblink || null,
+                start: hold.start,
+                end: hold.end,
+                days: hold.days,
+                stillStanding: false
+            });
+        }
+
+        for (const [category, hold] of this.openHolds.entries()) {
+            const scored = this.scoreCategory(category);
+            if (scored.tier !== 'Mythic') continue;
+            rows.push({
+                category,
+                tier: scored.tier,
+                score: Math.round(scored.score * 10) / 10,
+                playerId: hold.playerId,
+                playerName: hold.playerName,
+                time: hold.primary,
+                weblink: hold.weblink || null,
+                start: hold.start,
+                end: lastDate,
+                days: this.daysBetween(hold.start, lastDate),
+                stillStanding: true
+            });
+        }
+
+        rows.sort((a, b) =>
+            b.score - a.score ||
+            (a.stillStanding !== b.stillStanding ? (a.stillStanding ? -1 : 1) : 0) ||
+            b.days - a.days ||
+            a.start.localeCompare(b.start)
+        );
+        return rows;
+    }
+
     enumerateExpectedCategories() {
         const keys = [];
         for (const apple of APPLE_AMOUNTS) {
@@ -380,6 +510,9 @@ class StatisticsExplorerAnalyzer {
     }
 
     effectiveModeTier(mode, size, speed, run, apple) {
+        // Peaceful is always Free — no overrides apply
+        if (mode === 'Peaceful') return 'Free';
+
         let tier = MODE_BASE_TIER[mode] || 'Medium';
 
         if (mode === 'Wall' && run === 'All Apples') {
@@ -390,23 +523,39 @@ class StatisticsExplorerAnalyzer {
                 tier = 'Lottery';
             } else if (size === 'Small' && speed === 'Normal') {
                 tier = 'Hard';
-            } else if (size === 'Small' && (speed === 'Fast' || speed === 'Slow')) {
+            } else if (size === 'Small' && speed === 'Slow') {
+                tier = 'Hard';
+            } else if (size === 'Small' && speed === 'Fast') {
                 tier = 'Mythic';
             }
         } else if (mode === 'Cheese' && run === '50 Apples' && size === 'Small') {
-            // under 5a + Dice → Lottery; 5a+ → Mythic
-            if (apple === '1 Apple' || apple === '3 Apples' || apple === 'Dice') {
-                tier = 'Lottery';
+            // 10a/Bomb → Warmup; all other counts → Lottery
+            if (apple === '10 Apples' || apple === 'Bomb') {
+                tier = 'Warmup';
             } else {
-                tier = 'Mythic'; // 5 Apples, 10 Apples, Bomb
+                tier = 'Lottery'; // 1a, 3a, Dice, 5a
             }
         } else if (mode === 'Statue' && apple === '1 Apple' && run === '50 Apples' && size === 'Small') {
             tier = 'Lottery';
-        } else if (mode === 'Statue' && run === '100 Apples' && size === 'Standard') {
-            // Statue 100 Standard → at least Mythic
+        } else if (mode === 'Statue' && run === '100 Apples' && size === 'Standard' && apple === '1 Apple') {
+            // Only 1a Statue 100 Standard is Mythic; 3a+ stay below (even Fast)
             tier = 'Mythic';
-        } else if (speed === 'Fast' && size === 'Large' && run === 'All Apples') {
-            // Fast + Large + All Apples is Mythic for every mode
+        } else if (
+            mode !== 'Borderless' &&
+            mode !== 'Classic' &&
+            mode !== 'Cheese' &&
+            mode !== 'Magnet' &&
+            mode !== 'Light' &&
+            mode !== 'Yin Yang' &&
+            !(mode === 'Statue' && (apple === '10 Apples' || apple === 'Bomb')) &&
+            !(mode === 'Arrow' && apple === 'Bomb') &&
+            speed === 'Fast' &&
+            size === 'Large' &&
+            run === 'All Apples'
+        ) {
+            // Fast + Large + All Apples → Mythic
+            // Classic/Cheese/Borderless/Magnet/Light/Yin Yang stay below;
+            // Statue All Apples above 5a (10a/Bomb) and Arrow Bomb stay below
             tier = 'Mythic';
         } else if (mode === 'Portal' && speed === 'Fast' && (size === 'Standard' || size === 'Large')) {
             // Fast Portal on Standard/Large is at least Hard
@@ -421,6 +570,11 @@ class StatisticsExplorerAnalyzer {
             if (this.tierIndex(tier) < this.tierIndex('Medium')) {
                 tier = 'Medium';
             }
+        }
+
+        // Slow never reaches Mythic or above
+        if (speed === 'Slow' && this.tierIndex(tier) >= this.tierIndex('Mythic')) {
+            tier = 'Hard';
         }
 
         return tier;
@@ -596,6 +750,8 @@ class StatisticsExplorerAnalyzer {
             // Before longevity closes open holds — need current hold age
             stale: this.buildStale(lastDate, 50),
             popularity: this.buildPopularity(50),
+            unicorns: this.buildUnicorns(lastDate),
+            legends: this.buildLegends(lastDate),
             longevity: this.buildLongevity(lastDate, 50),
             improving: this.buildImproving(dates, 25),
             unheld: this.buildUnheld(),
@@ -612,6 +768,7 @@ class StatisticsExplorerAnalyzer {
         console.log(`Saved ${this.outputFile} (${sizeMb} MB)`);
         console.log(
             `Contested: ${output.contested.length}, Stale: ${output.stale.length}, ` +
+            `Unicorns: ${output.unicorns.length}, Legends: ${output.legends.length}, ` +
             `Unheld: ${output.unheld.rows.length}/${output.unheld.total}, ` +
             `Longevity all: ${output.longevity.all.length}, standing: ${output.longevity.standing.length}, ` +
             `Progression keys: ${Object.keys(output.progression).length}`
