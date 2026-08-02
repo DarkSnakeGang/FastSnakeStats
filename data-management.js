@@ -2,7 +2,6 @@
 // Handles all application state, variables, and localStorage operations
 
 const gameIDs = ["o1y9pyk6", "9dow0go1"];
-const maxRanglistLength = 17;
 var categories = [];
 var variables = [];
 var levels = [];
@@ -64,11 +63,74 @@ var isDarkMode = false; // Default to light mode
 var isTimeTravelEnabled = false; // Time travel toggle state
 var selectedTimeTravelDate = ""; // Currently selected date for time travel
 var isMultipleTablesEnabled = false; // Multiple tables toggle state
+var isCategoryCollapsed = false; // Desktop left Category Settings panel
+var isSummaryCollapsed = false; // Desktop right Summary panel
 var isApiOverloaded = false; // Track if SRC API is overloaded (420 error)
 var apiCallProgress = { successful: 0, total: 0 }; // Track API call progress for runs only
 var isApiPaused = false; // Track if API calls are paused
 var pausedApiState = null; // Store state when API calls are paused
 var isLoading = false; // Loading state management
+
+function applyPanelCollapseState() {
+    document.body.classList.toggle('category-collapsed', !!isCategoryCollapsed);
+    document.body.classList.toggle('summary-collapsed', !!isSummaryCollapsed);
+
+    var categoryToggle = document.getElementById('categoryCollapseBtn');
+    if (categoryToggle) {
+        // Only a close control when open; collapsed tab is label-only
+        categoryToggle.textContent = '◀';
+        categoryToggle.setAttribute('title', 'Hide Category Settings');
+        categoryToggle.setAttribute('aria-expanded', String(!isCategoryCollapsed));
+        categoryToggle.setAttribute('aria-label', 'Hide Category Settings');
+        categoryToggle.hidden = !!isCategoryCollapsed;
+    }
+
+    var categoryTitle = document.querySelector('.category-settings-title');
+    if (categoryTitle) {
+        categoryTitle.textContent = isCategoryCollapsed ? '⚙️' : 'Category Settings';
+        categoryTitle.setAttribute('aria-label', isCategoryCollapsed ? 'Show Category Settings' : 'Category Settings');
+        categoryTitle.setAttribute('title', isCategoryCollapsed ? 'Show Category Settings' : 'Category Settings');
+    }
+
+    var summaryToggle = document.getElementById('summaryCollapseBtn');
+    if (summaryToggle) {
+        // Only a close control when open; collapsed tab is icon-only
+        summaryToggle.textContent = '▶';
+        summaryToggle.setAttribute('title', 'Hide Rankings');
+        summaryToggle.setAttribute('aria-expanded', String(!isSummaryCollapsed));
+        summaryToggle.setAttribute('aria-label', 'Hide Rankings');
+        summaryToggle.hidden = !!isSummaryCollapsed;
+    }
+
+    var summaryTitle = document.querySelector('.ranglist-panel-title');
+    if (summaryTitle) {
+        summaryTitle.textContent = isSummaryCollapsed ? '📊' : 'Rankings';
+        summaryTitle.setAttribute('aria-label', isSummaryCollapsed ? 'Show Rankings' : 'Rankings');
+        summaryTitle.setAttribute('title', isSummaryCollapsed ? 'Show Rankings' : 'Rankings');
+    }
+
+    var categorySidebar = document.querySelector('.table-selector');
+    if (categorySidebar) {
+        categorySidebar.classList.toggle('collapsed', !!isCategoryCollapsed);
+    }
+
+    var summaryWrapper = document.querySelector('.ranglist-wrapper');
+    if (summaryWrapper) {
+        summaryWrapper.classList.toggle('collapsed', !!isSummaryCollapsed);
+    }
+}
+
+function toggleCategoryCollapsed() {
+    isCategoryCollapsed = !isCategoryCollapsed;
+    saveSettings();
+    applyPanelCollapseState();
+}
+
+function toggleSummaryCollapsed() {
+    isSummaryCollapsed = !isSummaryCollapsed;
+    saveSettings();
+    applyPanelCollapseState();
+}
 
 // Function to update cache info displays
 function updateAllCacheInfo() {
@@ -112,6 +174,18 @@ function loadSettings() {
         localStorage.setItem('multipleTablesEnabled', isMultipleTablesEnabled);
     } else {
         isMultipleTablesEnabled = localStorage.getItem('multipleTablesEnabled') === 'true';
+    }
+
+    // Load desktop panel collapse settings (default open)
+    if(localStorage.getItem('categorySettingsCollapsed') == null){
+        localStorage.setItem('categorySettingsCollapsed', 'false');
+    } else {
+        isCategoryCollapsed = localStorage.getItem('categorySettingsCollapsed') === 'true';
+    }
+    if(localStorage.getItem('summaryCollapsed') == null){
+        localStorage.setItem('summaryCollapsed', 'false');
+    } else {
+        isSummaryCollapsed = localStorage.getItem('summaryCollapsed') === 'true';
     }
     
     // Load table settings
@@ -183,6 +257,8 @@ function saveSettings() {
     localStorage.setItem('timeTravelEnabled', isTimeTravelEnabled);
     localStorage.setItem('selectedTimeTravelDate', selectedTimeTravelDate);
     localStorage.setItem('multipleTablesEnabled', isMultipleTablesEnabled);
+    localStorage.setItem('categorySettingsCollapsed', isCategoryCollapsed);
+    localStorage.setItem('summaryCollapsed', isSummaryCollapsed);
     
     // Save visibility settings for all options
     var visibilitySettings = {

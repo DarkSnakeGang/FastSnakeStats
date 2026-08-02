@@ -1182,7 +1182,7 @@ function showBasicMobileSummarySection() {
     mobileTablesContainer.innerHTML = `
         <div class="mobile-card">
             <div class="mobile-card-header">
-                <h2 class="mobile-card-title">Summary</h2>
+                <h2 class="mobile-card-title">Rankings</h2>
             </div>
         </div>
         
@@ -1237,23 +1237,7 @@ function loadMobileSummaryData() {
                     // Clone the content and move it to mobile
                     const clonedContent = ranglistElement.cloneNode(true);
                     summaryWrapper.appendChild(clonedContent);
-                    
-                    // Fix the "more runners" button in the cloned content
-                    const moreButton = clonedContent.querySelector('#morebutton');
-                    if (moreButton) {
-                        //console.log('Found more button, adding mobile event listener');
-                        moreButton.addEventListener('click', () => {
-                            //console.log('More button clicked, showing all runners');
-                            // Show all hidden rows in this specific table
-                            const hiddenRows = clonedContent.querySelectorAll('.ranglistRow[style*="display:none"]');
-                            hiddenRows.forEach(row => {
-                                row.style.display = '';
-                            });
-                            // Hide the button
-                            moreButton.style.display = 'none';
-                        });
-                    }
-                    
+
                     // Remove the original from desktop (since we cloned it)
                     ranglistElement.remove();
                     

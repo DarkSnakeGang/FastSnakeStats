@@ -1051,9 +1051,21 @@ function generateTableSelector(){
     // Create sidebar header with info and settings buttons
     var sidebarHeader = document.createElement('div');
     sidebarHeader.setAttribute('class', 'sidebar-header');
+
+    // Collapse/expand toggle (desktop)
+    var categoryCollapseBtn = document.createElement('button');
+    categoryCollapseBtn.setAttribute('type', 'button');
+    categoryCollapseBtn.setAttribute('id', 'categoryCollapseBtn');
+    categoryCollapseBtn.setAttribute('class', 'sidebar-settings-btn category-collapse-btn');
+    categoryCollapseBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleCategoryCollapsed();
+    });
+    sidebarHeader.appendChild(categoryCollapseBtn);
     
     // Add Category Settings text
     var categoryText = document.createElement('h3');
+    categoryText.setAttribute('class', 'category-settings-title');
     categoryText.textContent = 'Category Settings';
     categoryText.style.margin = '0';
     categoryText.style.flex = '1';
@@ -1076,6 +1088,10 @@ function generateTableSelector(){
     sidebarHeader.appendChild(sidebarSettingsBtn);
     
     sidebar.appendChild(sidebarHeader);
+
+    // Collapsible body holds all selectors
+    var sidebarBody = document.createElement('div');
+    sidebarBody.setAttribute('class', 'table-selector-body');
     
     // Add event listeners for sidebar buttons
     sidebarInfoBtn.addEventListener('click', function() {
@@ -1324,9 +1340,9 @@ function generateTableSelector(){
     sizeSelector.appendChild(sizeButtonGroup);
     
     // Always show count/speed/size selectors regardless of multiple tables setting
-    sidebar.appendChild(appleSelector);
-    sidebar.appendChild(speedSelector);
-    sidebar.appendChild(sizeSelector);
+    sidebarBody.appendChild(appleSelector);
+    sidebarBody.appendChild(speedSelector);
+    sidebarBody.appendChild(sizeSelector);
     
     // Add options section (refresh and time travel buttons)
     var optionsSelector = document.createElement('div');
@@ -1378,7 +1394,8 @@ function generateTableSelector(){
     optionsButtonGroup.appendChild(timeTravelButton);
     
     optionsSelector.appendChild(optionsButtonGroup);
-    sidebar.appendChild(optionsSelector);
+    sidebarBody.appendChild(optionsSelector);
+    sidebar.appendChild(sidebarBody);
     
     // Data section removed - no longer needed since only scripts handle API calls
     
@@ -1387,7 +1404,15 @@ function generateTableSelector(){
     if(existingSidebar){
         existingSidebar.remove();
     }
+    // Clicking the collapsed strip expands Category Settings
+    sidebar.addEventListener('click', function(e) {
+        if (!isCategoryCollapsed) return;
+        if (e.target.closest('#categoryCollapseBtn')) return;
+        toggleCategoryCollapsed();
+    });
+
     document.body.insertBefore(sidebar, document.querySelector('.container'));
+    applyPanelCollapseState();
 }
 
 function generateRanglist(){
@@ -1396,6 +1421,32 @@ function generateRanglist(){
     if (existingRanglist) {
         existingRanglist.remove();
     }
+
+    // Panel shell with collapse toggle
+    var ranglistWrapper = document.createElement('div');
+    ranglistWrapper.setAttribute('class', 'table-wrapper ranglist-wrapper');
+
+    var panelHeader = document.createElement('div');
+    panelHeader.setAttribute('class', 'ranglist-panel-header');
+
+    var summaryTitle = document.createElement('h3');
+    summaryTitle.setAttribute('class', 'ranglist-panel-title');
+    summaryTitle.textContent = 'Rankings';
+    panelHeader.appendChild(summaryTitle);
+
+    var summaryCollapseBtn = document.createElement('button');
+    summaryCollapseBtn.setAttribute('type', 'button');
+    summaryCollapseBtn.setAttribute('id', 'summaryCollapseBtn');
+    summaryCollapseBtn.setAttribute('class', 'panel-collapse-btn summary-collapse-btn');
+    summaryCollapseBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleSummaryCollapsed();
+    });
+    panelHeader.appendChild(summaryCollapseBtn);
+    ranglistWrapper.appendChild(panelHeader);
+
+    var scrollBody = document.createElement('div');
+    scrollBody.setAttribute('class', 'ranglist-scroll');
     
     var table = document.createElement('table');
     table.setAttribute('class', 'ranglist mode'+mode);
@@ -1431,7 +1482,6 @@ function generateRanglist(){
     thead.appendChild(row);
     table.append(thead);
 
-    var i = 0;
     var tbody = document.createElement('tbody');
     var values = []
 
@@ -1476,48 +1526,24 @@ function generateRanglist(){
                 td.setAttribute('class','ranglist-percentage-cell ranglist-relative-cell percentage result');
                 td.appendChild(document.createTextNode(ranglist[j][3]+"%"));
                 row.appendChild(td);
-                if(i >= maxRanglistLength){
-                    row.setAttribute('style','display:none');
-                }
                 tbody.appendChild(row);
-                i+=1;
             }
         }
     }
-    
 
     table.appendChild(tbody);
+    scrollBody.appendChild(table);
+    ranglistWrapper.appendChild(scrollBody);
     
-    // Add the "more runners" button as a table row if needed
-    if(i > maxRanglistLength){
-        var buttonRow = document.createElement('tr');
-        var buttonCell = document.createElement('td');
-        buttonCell.setAttribute('colspan', '4'); // Span all 4 columns
-        buttonCell.setAttribute('style', 'text-align: center; padding: 10px;');
-        
-        var button = document.createElement('button');
-        button.setAttribute('id','morebutton');
-        button.setAttribute('class', 'more-runners-btn');
-        button.appendChild(document.createTextNode("👥 Show all runners"));
-        button.addEventListener('click', () => {
-            for(row of document.getElementsByClassName('ranglistRow')){
-                row.setAttribute('style','');
-            }
-            document.getElementById("morebutton").parentElement.parentElement.setAttribute('style','display:none');
-        });
-        
-        buttonCell.appendChild(button);
-        buttonRow.appendChild(buttonCell);
-        tbody.appendChild(buttonRow);
-    }
-    
-    // Create a wrapper for the ranglist table
-    var ranglistWrapper = document.createElement('div');
-    ranglistWrapper.setAttribute('class', 'table-wrapper ranglist-wrapper');
-    ranglistWrapper.style.gridArea = 'ranglist'; // Ensure grid area is set
-    ranglistWrapper.appendChild(table);
-    
+    // Clicking the collapsed strip expands the summary
+    ranglistWrapper.addEventListener('click', function(e) {
+        if (!isSummaryCollapsed) return;
+        if (e.target.closest('#summaryCollapseBtn')) return;
+        toggleSummaryCollapsed();
+    });
+
     document.getElementsByClassName("container")[0].appendChild(ranglistWrapper);
+    applyPanelCollapseState();
 }
 
 function removeLeaderboards(){

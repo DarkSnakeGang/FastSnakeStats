@@ -3,6 +3,7 @@
 
 // Initialize settings
 loadSettings();
+applyPanelCollapseState();
 
 // Initialize WorldRecordFetcher
 if (typeof WorldRecordFetcher !== 'undefined') {

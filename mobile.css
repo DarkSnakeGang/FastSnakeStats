@@ -874,27 +874,14 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		background-color: #1e3a8a !important; /* Dark blue background - same as record cells */
 	}
 
-	/* Mobile More Runners Button */
-	.mobile-summary-wrapper .more-runners-btn {
-		background: linear-gradient(135deg, #28a745, #20c997);
-		color: white;
-		border: none;
-		border-radius: 8px;
-		padding: 10px 16px;
-		font-size: 13px;
-		font-weight: 600;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		margin: 12px auto;
-		display: block;
-		box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
-		-webkit-tap-highlight-color: transparent;
+	.mobile-summary-wrapper .ranglist-panel-header,
+	.mobile-summary-wrapper .panel-collapse-btn {
+		display: none !important;
 	}
 
-	.mobile-summary-wrapper .more-runners-btn:hover {
-		background: linear-gradient(135deg, #218838, #1ea085);
-		transform: translateY(-1px);
-		box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+	.mobile-summary-wrapper .ranglist-scroll {
+		width: 100%;
+		overflow-x: auto;
 	}
 
 	/* Mobile Summary Table Loading State */
