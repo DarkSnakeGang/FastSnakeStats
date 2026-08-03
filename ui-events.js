@@ -279,6 +279,13 @@ function setLoadingState(loading) {
         if (button.classList.contains('stop-resume-btn')) {
             return;
         }
+        if (button.classList.contains('category-icons-toggle')) {
+            // Keep icons/text toggle enabled and labeled during loads
+            if (!loading && typeof applyCategoryIconsToggleToButton === 'function') {
+                applyCategoryIconsToggleToButton(button);
+            }
+            return;
+        }
         if (loading) {
             button.disabled = true;
             button.style.opacity = '0.5';
