@@ -30,7 +30,7 @@ const MODE_BASE_TIER = {
     Shield: 'Medium',
     Hotdog: 'Easy',
     Sokoban: 'Hard',
-    Gate: 'Hard',
+    Gate: 'Mythic',
     Bridge: 'Medium'
 };
 
