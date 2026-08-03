@@ -925,15 +925,11 @@ function buildPlayerSearchProfileHtml(playerData) {
         : function (s) { return String(s == null ? '' : s); };
     const totalDates = playerData.totalDates || 0;
     const totalRecords = playerData.totalRecords || 0;
-    const avgPerDay = totalDates > 0
-        ? Math.round((totalRecords / totalDates) * 10) / 10
-        : 0;
 
     return '<div class="player-search-name">' + escape(playerData.name) + '</div>' +
         '<div class="player-search-summary">' +
         '<span><strong>' + escape(String(totalDates)) + '</strong> dates</span>' +
         '<span><strong>' + escape(String(totalRecords)) + '</strong> total WRs</span>' +
-        '<span><strong>' + escape(String(avgPerDay)) + '</strong> avg/day</span>' +
         '</div>';
 }
 
