@@ -551,13 +551,22 @@ function switchMode(newmode){
 }
 
 //option buttons
-function createOptionButton(setting){
+function createOptionButton(setting, label){
     var button = document.createElement('button');
     button.setAttribute('class','optionButton');
     button.setAttribute('onclick','optionButtonClick(this.id)');
     button.setAttribute('id','option'+setting.id);
     button.setAttribute('type','button');
-    var icon = createIconElement(setting);
+    var displayLabel = label;
+    if (displayLabel == null) {
+        displayLabel = setting.text;
+        if (displayLabel == null && typeof gamemodes !== 'undefined') {
+            for (var g in gamemodes) {
+                if (gamemodes[g] === setting) { displayLabel = g; break; }
+            }
+        }
+    }
+    var icon = createIconElement(setting, displayLabel);
     if(setting.visible){
         icon.setAttribute('class','optionButtonImage');
     }
@@ -882,6 +891,9 @@ function formatPlayerCategoryHtml(category) {
         : function (s) { return String(s == null ? '' : s); };
     const parsed = typeof parseCategoryKey === 'function' ? parseCategoryKey(category) : null;
     if (!parsed) return escape(category || '—');
+    if (typeof formatCategoryInlineHtml === 'function') {
+        return '<div class="player-longevity-cats">' + formatCategoryInlineHtml(parsed) + '</div>';
+    }
     const details = [parsed.apple, parsed.speed, parsed.size, parsed.runMode]
         .filter(Boolean)
         .join(' · ');

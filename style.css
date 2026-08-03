@@ -392,7 +392,7 @@ h2{
 }
 
 /* Left-column category icons — fixed square size, no squeeze */
-.settings-col-left .table-option-btn:not(.multiple-tables-btn):not(.time-travel-btn) {
+.settings-col-left .table-option-btn:not(.multiple-tables-btn):not(.time-travel-btn):not(.category-icons-toggle) {
 	box-sizing: border-box;
 	flex: 0 0 55px;
 	width: 55px;
@@ -406,7 +406,7 @@ h2{
 	border-color: transparent;
 }
 
-.settings-col-left .table-option-btn:not(.multiple-tables-btn):not(.time-travel-btn).active {
+.settings-col-left .table-option-btn:not(.multiple-tables-btn):not(.time-travel-btn):not(.category-icons-toggle).active {
 	border-color: rgba(255, 255, 255, 0.35);
 }
 
@@ -638,6 +638,19 @@ h2{
 	font-size: 14px;
 	font-weight: 700;
 	color: #fff;
+}
+
+.table-selector .settings-tools-section .player-longevity-cats {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px;
+	font-size: 12px;
+}
+
+.table-selector .settings-tools-section .player-longevity-cats .stats-cat-icon {
+	width: 16px;
+	height: 16px;
 }
 
 .table-selector .settings-tools-section .player-longevity-mode {
@@ -1200,6 +1213,44 @@ body:not(.dark-mode) .container td {
 }
 
 .multiple-tables-btn.active:hover {
+	background: #218838;
+}
+
+/* Category icons/text toggle — same footprint as other Options buttons */
+.table-option-btn.category-icons-toggle,
+.category-icons-toggle {
+	width: auto !important;
+	min-width: 120px !important;
+	height: 40px !important;
+	flex: 0 0 auto !important;
+	font-size: 14px !important;
+	font-weight: 600;
+	line-height: 1.2;
+	background: linear-gradient(135deg, #8B0000, #B22222);
+	border: 1px solid rgba(77, 193, 249, 0.2);
+	border-radius: 8px;
+	padding: 10px 15px !important;
+	white-space: nowrap;
+	overflow: visible;
+	color: white;
+}
+
+.table-option-btn.category-icons-toggle.active,
+.category-icons-toggle.active {
+	background: #28a745;
+	color: white;
+	border: 1px solid rgba(77, 193, 249, 0.2);
+	border-radius: 8px;
+	padding: 10px 15px !important;
+}
+
+.table-option-btn.category-icons-toggle:hover,
+.category-icons-toggle:hover {
+	background: linear-gradient(135deg, #660000, #8B0000);
+}
+
+.table-option-btn.category-icons-toggle.active:hover,
+.category-icons-toggle.active:hover {
 	background: #218838;
 }
 
@@ -2408,6 +2459,27 @@ body.dark-mode .multiple-tables-btn.active:hover {
 	background: #218838 !important;
 }
 
+body.dark-mode .category-icons-toggle {
+	background: linear-gradient(135deg, #8B0000, #B22222) !important;
+	border: 1px solid rgba(77, 193, 249, 0.2) !important;
+}
+
+body.dark-mode .category-icons-toggle.active {
+	background: #28a745 !important;
+	color: white !important;
+	border: 1px solid rgba(77, 193, 249, 0.2) !important;
+	border-radius: 8px !important;
+	padding: 10px 15px !important;
+}
+
+body.dark-mode .category-icons-toggle:hover {
+	background: linear-gradient(135deg, #660000, #8B0000) !important;
+}
+
+body.dark-mode .category-icons-toggle.active:hover {
+	background: #218838 !important;
+}
+
 /* Dark mode Quick Fetch button */
 body.dark-mode .quick-fetch-btn {
 	background: linear-gradient(135deg, #007bff, #0056b3) !important;
@@ -2859,9 +2931,55 @@ body.dark-mode .quick-fetch-btn:disabled {
 		font-size: 12px;
 	}
 
+	.stats-career-hold-cats {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 4px;
+	}
+
 	.stats-career-hold-meta {
 		opacity: 0.85;
 		margin-top: 2px;
+	}
+
+	.stats-cat-icon {
+		width: 18px;
+		height: 18px;
+		object-fit: contain;
+		vertical-align: middle;
+		display: inline-block;
+	}
+
+	.stats-cat-cell {
+		text-align: center;
+		padding-left: 4px !important;
+		padding-right: 4px !important;
+		white-space: nowrap;
+	}
+
+	.stats-cat-cell .stats-cat-icon {
+		width: 20px;
+		height: 20px;
+	}
+
+	.stats-cat-sep {
+		margin: 0 3px;
+		opacity: 0.55;
+	}
+
+	.category-text-label {
+		font-size: 10px;
+		line-height: 1.15;
+		text-align: center;
+		word-break: break-word;
+		max-width: 100%;
+	}
+
+	.optionButton .category-text-label,
+	.table-option-btn .category-text-label {
+		font-size: 9px;
+		padding: 0 2px;
 	}
 
 	.stats-explorer-wrapper .stats-explorer-table {

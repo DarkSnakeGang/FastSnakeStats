@@ -287,16 +287,79 @@ function calculateRanglist(){
     ranglist = ranglistArray.sort(function(a, b){return b[0]-a[0]});
 }
 
-function createIconElement(setting){
-    if(setting.icon == null){
-        return document.createTextNode(setting.text);
+function getCategoryUseIcons() {
+    try {
+        var v = localStorage.getItem('categoryUseIcons');
+        if (v === null || v === undefined) return true;
+        return v !== 'false';
+    } catch (e) {
+        return true;
     }
-    else{
-        var img = document.createElement('img');
-        img.setAttribute('src',setting.icon);
-        img.setAttribute('alt',setting.text);
-        return img;
+}
+
+function setCategoryUseIcons(useIcons) {
+    try {
+        localStorage.setItem('categoryUseIcons', useIcons ? 'true' : 'false');
+    } catch (e) { /* ignore */ }
+    if (typeof updateCategoryIconsToggleButtons === 'function') {
+        updateCategoryIconsToggleButtons();
     }
+    refreshCategoryIconDisplays();
+}
+
+function toggleCategoryUseIcons() {
+    setCategoryUseIcons(!getCategoryUseIcons());
+}
+
+function updateCategoryIconsToggleButtons() {
+    var useIcons = getCategoryUseIcons();
+    // Match Dark Mode / Time Travel: emoji + label for current mode
+    var label = useIcons ? '🔣 Icons' : '🔤 Text';
+    var title = useIcons
+        ? 'Statistics categories use icons. Click to switch to text.'
+        : 'Statistics categories use text. Click to switch to icons.';
+    document.querySelectorAll('#categoryIconsToggle, #mobileCategoryIconsToggle, .category-icons-toggle').forEach(function (btn) {
+        btn.textContent = label;
+        btn.setAttribute('title', title);
+        btn.classList.toggle('active', !!useIcons);
+    });
+}
+
+function applyCategoryIconsToggleToButton(btn) {
+    if (!btn) return;
+    var useIcons = getCategoryUseIcons();
+    btn.textContent = useIcons ? '🔣 Icons' : '🔤 Text';
+    btn.setAttribute('title', useIcons
+        ? 'Statistics categories use icons. Click to switch to text.'
+        : 'Statistics categories use text. Click to switch to icons.');
+    btn.classList.toggle('active', !!useIcons);
+}
+
+function refreshCategoryIconDisplays() {
+    // Settings menu always keeps icons — only refresh Statistics category cells
+    if (typeof renderStatisticsExplorerContent === 'function') {
+        var body = document.getElementById('statsExplorerBody') ||
+            document.getElementById('mobileStatsExplorerBody');
+        if (body) renderStatisticsExplorerContent(body);
+    }
+}
+
+function createIconElement(setting, label) {
+    var text = label != null ? String(label)
+        : (setting && setting.text != null ? String(setting.text) : '');
+    // Settings / table headers always use icons when available (toggle does not apply here)
+    if (!setting || setting.icon == null) {
+        var span = document.createElement('span');
+        span.className = 'category-text-label';
+        span.textContent = text || '—';
+        span.setAttribute('title', text || '');
+        return span;
+    }
+    var img = document.createElement('img');
+    img.setAttribute('src', setting.icon);
+    img.setAttribute('alt', text);
+    img.setAttribute('title', text);
+    return img;
 }
 
 function createTimeElement(times, isHighScore = false){
@@ -539,9 +602,9 @@ function generateTableContent(table, settings, specificGamemode = null) {
     var th = document.createElement('th');
     th.setAttribute('class', 'settingsRow');
     th.setAttribute('colspan', thisBoardRunModes.length + 1);
-    th.appendChild(createIconElement(appleAmounts[settings[0]]));
-    th.appendChild(createIconElement(speeds[settings[1]]));
-    th.appendChild(createIconElement(sizes[settings[2]]));
+    th.appendChild(createIconElement(appleAmounts[settings[0]], settings[0]));
+    th.appendChild(createIconElement(speeds[settings[1]], settings[1]));
+    th.appendChild(createIconElement(sizes[settings[2]], settings[2]));
     row.appendChild(th);
     thead.appendChild(row);
     
@@ -553,7 +616,7 @@ function generateTableContent(table, settings, specificGamemode = null) {
     for(runMode of thisBoardRunModes){
         let th = document.createElement('th');
         if(runModes[runMode]){
-            th.appendChild(createIconElement(runModes[runMode]));
+            th.appendChild(createIconElement(runModes[runMode], runMode));
         }
         row.appendChild(th);
     }
@@ -566,7 +629,7 @@ function generateTableContent(table, settings, specificGamemode = null) {
         if(gamemodes[gamemode] && gamemodes[gamemode].visible && (specificGamemode === null || gamemode === specificGamemode)){
             row = document.createElement('tr');
             th = document.createElement('th');
-            th.appendChild(createIconElement(gamemodes[gamemode]));
+            th.appendChild(createIconElement(gamemodes[gamemode], gamemode));
             row.appendChild(th);
 
             for(runMode of thisBoardRunModes){
@@ -697,9 +760,9 @@ function generateLeaderboard(settings, specificGamemode = null){
     th.setAttribute('colspan', thisBoardRunModes.length+1);
     
     // Safe icon creation with fallbacks
-    const appleIcon = appleAmounts[settings[0]] ? createIconElement(appleAmounts[settings[0]]) : document.createTextNode(settings[0]);
-    const speedIcon = speeds[settings[1]] ? createIconElement(speeds[settings[1]]) : document.createTextNode(settings[1]);
-    const sizeIcon = sizes[settings[2]] ? createIconElement(sizes[settings[2]]) : document.createTextNode(settings[2]);
+    const appleIcon = appleAmounts[settings[0]] ? createIconElement(appleAmounts[settings[0]], settings[0]) : document.createTextNode(settings[0]);
+    const speedIcon = speeds[settings[1]] ? createIconElement(speeds[settings[1]], settings[1]) : document.createTextNode(settings[1]);
+    const sizeIcon = sizes[settings[2]] ? createIconElement(sizes[settings[2]], settings[2]) : document.createTextNode(settings[2]);
     
     th.appendChild(appleIcon);
     th.appendChild(speedIcon);
@@ -717,7 +780,7 @@ function generateLeaderboard(settings, specificGamemode = null){
     row.appendChild(firstHeaderCell);
     for(runMode of thisBoardRunModes){
         let th = document.createElement('th');
-        th.appendChild(createIconElement(runModes[runMode]));
+        th.appendChild(createIconElement(runModes[runMode], runMode));
         row.appendChild(th);
     }
     thead.appendChild(row);
@@ -731,7 +794,7 @@ function generateLeaderboard(settings, specificGamemode = null){
             const modeRuns = thisBoardRuns[gamemode] || {};
             row = document.createElement('tr');
             th = document.createElement('th');
-            th.appendChild(createIconElement(gamemodes[gamemode]));
+            th.appendChild(createIconElement(gamemodes[gamemode], gamemode));
             row.appendChild(th);
 
             for(runMode of thisBoardRunModes){
@@ -851,9 +914,9 @@ function generateLeaderboardForMultiple(settings, container){
     th = document.createElement('th');
     th.setAttribute('class', 'settingsRow');
     th.setAttribute('colspan', thisBoardRunModes.length+1);
-    th.appendChild(createIconElement(appleAmounts[settings[0]]));
-    th.appendChild(createIconElement(speeds[settings[1]]));
-    th.appendChild(createIconElement(sizes[settings[2]]));
+    th.appendChild(createIconElement(appleAmounts[settings[0]], settings[0]));
+    th.appendChild(createIconElement(speeds[settings[1]], settings[1]));
+    th.appendChild(createIconElement(sizes[settings[2]], settings[2]));
     
     row.appendChild(th);
     thead.appendChild(row);
@@ -867,7 +930,7 @@ function generateLeaderboardForMultiple(settings, container){
     row.appendChild(firstHeaderCell);
     for(runMode of thisBoardRunModes){
         let th = document.createElement('th');
-        th.appendChild(createIconElement(runModes[runMode]));
+        th.appendChild(createIconElement(runModes[runMode], runMode));
         row.appendChild(th);
     }
     thead.appendChild(row);
@@ -881,7 +944,7 @@ function generateLeaderboardForMultiple(settings, container){
             const modeRuns = thisBoardRuns[gamemode] || {};
             row = document.createElement('tr');
             th = document.createElement('th');
-            th.appendChild(createIconElement(gamemodes[gamemode]));
+            th.appendChild(createIconElement(gamemodes[gamemode], gamemode));
             row.appendChild(th);
 
             for(runMode of thisBoardRunModes){
@@ -1046,6 +1109,11 @@ function updateTableSelector(){
             multipleTablesButton.classList.remove('active');
             multipleTablesButton.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
         }
+    }
+
+    // Restore icons/text toggle label + active (cleared by blanket remove above)
+    if (typeof applyCategoryIconsToggleToButton === 'function') {
+        applyCategoryIconsToggleToButton(document.getElementById('categoryIconsToggle'));
     }
 
     // Restore run-mode chip active states (cleared by the blanket remove above)
@@ -1242,8 +1310,8 @@ function generateTableSelector(){
             };
         }(appleAmount);
         
-        // Add icon instead of text
-        var icon = createIconElement(appleAmounts[appleAmount]);
+        // Add icon / text label
+        var icon = createIconElement(appleAmounts[appleAmount], appleAmount);
         button.appendChild(icon);
         button.setAttribute('data-setting', appleAmount);
         appleButtonGroup.appendChild(button);
@@ -1319,8 +1387,8 @@ function generateTableSelector(){
             };
         }(speed);
         
-        // Add icon instead of text
-        var icon = createIconElement(speeds[speed]);
+        // Add icon / text label
+        var icon = createIconElement(speeds[speed], speed);
         button.appendChild(icon);
         button.setAttribute('data-setting', speed);
         speedButtonGroup.appendChild(button);
@@ -1396,8 +1464,8 @@ function generateTableSelector(){
             };
         }(size);
         
-        // Add icon instead of text
-        var icon = createIconElement(sizes[size]);
+    // Add icon / text label
+        var icon = createIconElement(sizes[size], size);
         button.appendChild(icon);
         button.setAttribute('data-setting', size);
         sizeButtonGroup.appendChild(button);
@@ -1457,6 +1525,19 @@ function generateTableSelector(){
     }
     timeTravelButton.onclick = toggleTimeTravel;
     optionsButtonGroup.appendChild(timeTravelButton);
+
+    var categoryIconsToggle = document.createElement('button');
+    categoryIconsToggle.setAttribute('class', 'table-option-btn category-icons-toggle');
+    categoryIconsToggle.setAttribute('id', 'categoryIconsToggle');
+    categoryIconsToggle.type = 'button';
+    categoryIconsToggle.onclick = function () {
+        if (typeof toggleCategoryUseIcons === 'function') {
+            toggleCategoryUseIcons();
+        }
+    };
+    // Set label on the element itself (not yet in document — querySelector would miss it)
+    applyCategoryIconsToggleToButton(categoryIconsToggle);
+    optionsButtonGroup.appendChild(categoryIconsToggle);
     
     optionsSelector.appendChild(optionsButtonGroup);
     leftCol.appendChild(optionsSelector);
@@ -1519,7 +1600,7 @@ function populateSidebarSettingsExtras(rightCol) {
     var modeGroup = document.createElement('div');
     modeGroup.setAttribute('class', 'button-group settings-mode-group');
     for (var gamemode in gamemodes) {
-        modeGroup.appendChild(createOptionButton(gamemodes[gamemode]));
+        modeGroup.appendChild(createOptionButton(gamemodes[gamemode], gamemode));
     }
     modeSection.appendChild(modeGroup);
     rightCol.appendChild(modeSection);

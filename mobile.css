@@ -1754,6 +1754,42 @@ body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 		flex-shrink: 0;
 	}
 
+	.mobile-category-text {
+		font-size: 10px;
+		line-height: 1.15;
+		text-align: center;
+		word-break: break-word;
+		padding: 0 2px;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-cat-icon {
+		width: 18px;
+		height: 18px;
+		object-fit: contain;
+		vertical-align: middle;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-cat-cell {
+		text-align: center;
+		padding-left: 2px !important;
+		padding-right: 2px !important;
+		white-space: nowrap;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-career-hold-cats,
+	.mobile-peak-dates-container .player-longevity-cats {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 3px;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-cat-sep,
+	.mobile-peak-dates-container .stats-cat-sep {
+		margin: 0 2px;
+		opacity: 0.55;
+	}
+
 	.mobile-options-section {
 		margin-top: 24px;
 		padding: 20px 16px;

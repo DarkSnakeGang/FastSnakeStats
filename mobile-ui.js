@@ -656,6 +656,9 @@ function showBasicMobileSettingsSection() {
                         <button class="mobile-option-btn" id="mobileMultipleTablesToggle" title="Toggle multiple tables mode">
                             📊 Multiple Tables
                         </button>
+                        <button class="mobile-option-btn category-icons-toggle" id="mobileCategoryIconsToggle" title="Statistics categories use icons. Click to switch to text.">
+                            🔣 Icons
+                        </button>
                         <button class="mobile-option-btn" id="mobileResetBtn" title="Reset settings to default">
                             🔧 Reset
                         </button>
@@ -742,7 +745,7 @@ function initializeMobileRunAndGameModes() {
 // Generate mobile category icon buttons
 function generateMobileCategoryCheckboxes() {
     let html = '';
-    
+
     // Apple Amounts
     html += '<div class="mobile-category-section">';
     html += '<h4 class="mobile-category-title">Apple Amounts</h4>';
@@ -750,8 +753,8 @@ function generateMobileCategoryCheckboxes() {
     for (const [key, value] of Object.entries(appleAmounts)) {
         const isActive = isMultipleTablesEnabled ? value.visible : (currentTableSettings[0] === key);
         html += `
-            <button class="mobile-table-option-btn ${isActive ? 'active' : ''}" data-setting="${key}" data-type="apple">
-                <img src="${value.icon}" alt="${key}" class="mobile-category-icon">
+            <button class="mobile-table-option-btn ${isActive ? 'active' : ''}" data-setting="${key}" data-type="apple" title="${key}">
+                <img src="${value.icon}" alt="${key}" class="mobile-category-icon" title="${key}">
             </button>
         `;
     }
@@ -764,8 +767,8 @@ function generateMobileCategoryCheckboxes() {
     for (const [key, value] of Object.entries(speeds)) {
         const isActive = isMultipleTablesEnabled ? value.visible : (currentTableSettings[1] === key);
         html += `
-            <button class="mobile-table-option-btn ${isActive ? 'active' : ''}" data-setting="${key}" data-type="speed">
-                <img src="${value.icon}" alt="${key}" class="mobile-category-icon">
+            <button class="mobile-table-option-btn ${isActive ? 'active' : ''}" data-setting="${key}" data-type="speed" title="${key}">
+                <img src="${value.icon}" alt="${key}" class="mobile-category-icon" title="${key}">
             </button>
         `;
     }
@@ -778,8 +781,8 @@ function generateMobileCategoryCheckboxes() {
     for (const [key, value] of Object.entries(sizes)) {
         const isActive = isMultipleTablesEnabled ? value.visible : (currentTableSettings[2] === key);
         html += `
-            <button class="mobile-table-option-btn ${isActive ? 'active' : ''}" data-setting="${key}" data-type="size">
-                <img src="${value.icon}" alt="${key}" class="mobile-category-icon">
+            <button class="mobile-table-option-btn ${isActive ? 'active' : ''}" data-setting="${key}" data-type="size" title="${key}">
+                <img src="${value.icon}" alt="${key}" class="mobile-category-icon" title="${key}">
             </button>
         `;
     }
@@ -793,8 +796,8 @@ function generateMobileCategoryCheckboxes() {
         // Game modes are always toggle behavior (always use value.visible)
         const isActive = value.visible;
         html += `
-            <button class="mobile-table-option-btn ${isActive ? 'active' : ''}" data-setting="${key}" data-type="gamemode">
-                <img src="${value.icon}" alt="${key}" class="mobile-category-icon">
+            <button class="mobile-table-option-btn ${isActive ? 'active' : ''}" data-setting="${key}" data-type="gamemode" title="${key}">
+                <img src="${value.icon}" alt="${key}" class="mobile-category-icon" title="${key}">
             </button>
         `;
     }
@@ -903,6 +906,19 @@ function setupMobileOptionsListeners() {
         });
     }
 
+    // Category icons / text toggle
+    const categoryIconsToggle = document.getElementById('mobileCategoryIconsToggle');
+    if (categoryIconsToggle) {
+        if (typeof updateCategoryIconsToggleButtons === 'function') {
+            updateCategoryIconsToggleButtons();
+        }
+        categoryIconsToggle.addEventListener('click', function () {
+            if (typeof toggleCategoryUseIcons === 'function') {
+                toggleCategoryUseIcons();
+            }
+        });
+    }
+
     // Time travel button
     const timeTravelBtn = document.getElementById('mobileTimeTravelBtn');
     if (timeTravelBtn) {
@@ -981,65 +997,62 @@ function setupMobileDataListeners() {
     // Data listeners are now handled in setupMobileRecordsEventListeners
 }
 
-// Setup mobile icon button listeners
+// Setup mobile icon button listeners (delegated so category rebuilds keep working)
 function setupMobileCheckboxListeners() {
-    // Add click listeners to all mobile table option buttons
-    const buttons = document.querySelectorAll('.mobile-table-option-btn');
-    buttons.forEach(button => {
-        button.addEventListener('click', function() {
-            if (isLoading) return; // Prevent clicks while loading
-            
-            const setting = this.getAttribute('data-setting');
-            const type = this.getAttribute('data-type');
-            
-            if (type === 'apple') {
-                if (isMultipleTablesEnabled) {
-                    // Toggle behavior: toggle the visible state
-                    appleAmounts[setting].visible = !appleAmounts[setting].visible;
-                } else {
-                    // Radio behavior: set only this one as active
-                    currentTableSettings[0] = setting;
-                }
-            } else if (type === 'speed') {
-                if (isMultipleTablesEnabled) {
-                    // Toggle behavior: toggle the visible state
-                    speeds[setting].visible = !speeds[setting].visible;
-                } else {
-                    // Radio behavior: set only this one as active
-                    currentTableSettings[1] = setting;
-                }
-            } else if (type === 'size') {
-                if (isMultipleTablesEnabled) {
-                    // Toggle behavior: toggle the visible state
-                    sizes[setting].visible = !sizes[setting].visible;
-                } else {
-                    // Radio behavior: set only this one as active
-                    currentTableSettings[2] = setting;
-                }
-            } else if (type === 'gamemode') {
-                // Game modes are always toggle behavior
-                gamemodes[setting].visible = !gamemodes[setting].visible;
-            } else if (type === 'runmode') {
-                // Run modes are always toggle behavior
-                runModes[setting].visible = !runModes[setting].visible;
+    function handleMobileOptionClick(e) {
+        const button = e.target.closest('.mobile-table-option-btn');
+        if (!button) return;
+        if (isLoading) return;
+
+        const setting = button.getAttribute('data-setting');
+        const type = button.getAttribute('data-type');
+
+        if (type === 'apple') {
+            if (isMultipleTablesEnabled) {
+                appleAmounts[setting].visible = !appleAmounts[setting].visible;
+            } else {
+                currentTableSettings[0] = setting;
             }
-            
-            saveSettings();
-            // Update button states immediately
-            updateMobileButtonStates();
-            
-            // Trigger Quick Fetch to load data with new settings
-            if (!isLoading) {
-                setLoadingState(true);
-                try {
-                    quickFetchWorldRecords();
-                } catch (error) {
-                    console.error('Error in Quick Fetch after mobile settings change:', error);
-                } finally {
-                    setLoadingState(false);
-                }
+        } else if (type === 'speed') {
+            if (isMultipleTablesEnabled) {
+                speeds[setting].visible = !speeds[setting].visible;
+            } else {
+                currentTableSettings[1] = setting;
             }
-        });
+        } else if (type === 'size') {
+            if (isMultipleTablesEnabled) {
+                sizes[setting].visible = !sizes[setting].visible;
+            } else {
+                currentTableSettings[2] = setting;
+            }
+        } else if (type === 'gamemode') {
+            gamemodes[setting].visible = !gamemodes[setting].visible;
+        } else if (type === 'runmode') {
+            runModes[setting].visible = !runModes[setting].visible;
+        }
+
+        saveSettings();
+        updateMobileButtonStates();
+
+        if (!isLoading) {
+            setLoadingState(true);
+            try {
+                quickFetchWorldRecords();
+            } catch (error) {
+                console.error('Error in Quick Fetch after mobile settings change:', error);
+            } finally {
+                setLoadingState(false);
+            }
+        }
+    }
+
+    [
+        document.getElementById('mobileCategorySettings'),
+        document.getElementById('mobileRunModeSettings')
+    ].forEach(function (host) {
+        if (!host || host.dataset.catBound === '1') return;
+        host.dataset.catBound = '1';
+        host.addEventListener('click', handleMobileOptionClick);
     });
 }
 
@@ -1584,6 +1597,7 @@ function showBasicMobileStatisticsSection() {
     const tabsHtml = (typeof STATS_TABS !== 'undefined' ? STATS_TABS : [
         { id: 'progression', label: 'Progression' },
         { id: 'longevity', label: 'Longevity' },
+        { id: 'career', label: 'Career' },
         { id: 'improving', label: 'Improving' },
         { id: 'contested', label: 'Contested' },
         { id: 'stale', label: 'Stale' },

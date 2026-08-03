@@ -764,12 +764,47 @@ function getCareerMetrics(row) {
     };
 }
 
+function formatCategoryPartHtml(map, value) {
+    if (!value || value === '-') return escapeHtml(value || '—');
+    var useIcons = typeof getCategoryUseIcons === 'function' ? getCategoryUseIcons() : true;
+    var setting = map && map[value];
+    if (useIcons && setting && setting.icon) {
+        return '<img class="stats-cat-icon" src="' + escapeAttr(setting.icon) +
+            '" alt="' + escapeAttr(value) + '" title="' + escapeAttr(value) + '">';
+    }
+    return escapeHtml(value);
+}
+
+function formatCategoryInlineHtml(parsed) {
+    if (!parsed) return '—';
+    var parts = [
+        formatCategoryPartHtml(typeof gamemodes !== 'undefined' ? gamemodes : null, parsed.gamemode),
+        formatCategoryPartHtml(typeof appleAmounts !== 'undefined' ? appleAmounts : null, parsed.apple),
+        formatCategoryPartHtml(typeof speeds !== 'undefined' ? speeds : null, parsed.speed),
+        formatCategoryPartHtml(typeof sizes !== 'undefined' ? sizes : null, parsed.size),
+        escapeHtml(parsed.runMode || '')
+    ].filter(function (p) { return p && p !== ''; });
+    return parts.join('<span class="stats-cat-sep">·</span>');
+}
+
+function formatCategoryFiveCellsHtml(parsed) {
+    return '<td class="stats-cat-cell">' +
+        formatCategoryPartHtml(typeof gamemodes !== 'undefined' ? gamemodes : null, parsed.gamemode) + '</td>' +
+        '<td class="stats-cat-cell">' +
+        formatCategoryPartHtml(typeof appleAmounts !== 'undefined' ? appleAmounts : null, parsed.apple) + '</td>' +
+        '<td class="stats-cat-cell">' +
+        formatCategoryPartHtml(typeof speeds !== 'undefined' ? speeds : null, parsed.speed) + '</td>' +
+        '<td class="stats-cat-cell">' +
+        formatCategoryPartHtml(typeof sizes !== 'undefined' ? sizes : null, parsed.size) + '</td>' +
+        '<td>' + escapeHtml(parsed.runMode || '—') + '</td>';
+}
+
 function formatCareerHoldCell(hold) {
     if (!hold) return '—';
     var parsed = parseCategoryKey(hold.category);
-    var label = parsed
-        ? [parsed.gamemode, parsed.apple, parsed.speed, parsed.size, parsed.runMode].filter(Boolean).join(' · ')
-        : (hold.category || '—');
+    var labelHtml = parsed
+        ? formatCategoryInlineHtml(parsed)
+        : escapeHtml(hold.category || '—');
     var range = hold.stillStanding
         ? (hold.start || '?') + ' → present'
         : (hold.start || '?') + ' → ' + (hold.end || '?');
@@ -780,7 +815,8 @@ function formatCareerHoldCell(hold) {
             '" target="_blank" rel="noopener noreferrer">' + escapeHtml(timeText) + '</a>'
         : escapeHtml(timeText);
     return '<div class="stats-career-hold">' +
-        '<div><strong>' + escapeHtml(String(hold.days)) + 'd</strong> · ' + escapeHtml(label) + '</div>' +
+        '<div class="stats-career-hold-cats"><strong>' + escapeHtml(String(hold.days)) + 'd</strong>' +
+        '<span class="stats-cat-sep">·</span>' + labelHtml + '</div>' +
         '<div class="stats-career-hold-meta">' + escapeHtml(range) + ' · ' + timeHtml + '</div>' +
         '</div>';
 }
@@ -916,40 +952,24 @@ function renderListView(body, rows, kind, showAll) {
                 : row.start + ' → ' + row.end;
             tr.innerHTML =
                 '<td>' + escapeHtml(row.playerName) + '</td>' +
-                '<td>' + escapeHtml(parsed.gamemode) + '</td>' +
-                '<td>' + escapeHtml(parsed.apple) + '</td>' +
-                '<td>' + escapeHtml(parsed.speed) + '</td>' +
-                '<td>' + escapeHtml(parsed.size) + '</td>' +
-                '<td>' + escapeHtml(parsed.runMode) + '</td>' +
+                formatCategoryFiveCellsHtml(parsed) +
                 '<td>' + formatHoldTimeCell(row, parsed) + '</td>' +
                 '<td>' + row.days + '</td>' +
                 '<td>' + escapeHtml(range) + '</td>';
         } else if (kind === 'stale') {
             tr.innerHTML =
-                '<td>' + escapeHtml(parsed.gamemode) + '</td>' +
-                '<td>' + escapeHtml(parsed.apple) + '</td>' +
-                '<td>' + escapeHtml(parsed.speed) + '</td>' +
-                '<td>' + escapeHtml(parsed.size) + '</td>' +
-                '<td>' + escapeHtml(parsed.runMode) + '</td>' +
+                formatCategoryFiveCellsHtml(parsed) +
                 '<td>' + (row.holdDays != null ? row.holdDays : row.daysWithRecord) + '</td>' +
                 '<td>' + row.flips + '</td>' +
                 '<td>' + row.uniqueHolders + '</td>';
         } else if (kind === 'contested') {
             tr.innerHTML =
-                '<td>' + escapeHtml(parsed.gamemode) + '</td>' +
-                '<td>' + escapeHtml(parsed.apple) + '</td>' +
-                '<td>' + escapeHtml(parsed.speed) + '</td>' +
-                '<td>' + escapeHtml(parsed.size) + '</td>' +
-                '<td>' + escapeHtml(parsed.runMode) + '</td>' +
+                formatCategoryFiveCellsHtml(parsed) +
                 '<td>' + row.flips + '</td>' +
                 '<td>' + row.uniqueHolders + '</td>';
         } else if (kind === 'unheld') {
             tr.innerHTML =
-                '<td>' + escapeHtml(parsed.gamemode) + '</td>' +
-                '<td>' + escapeHtml(parsed.apple) + '</td>' +
-                '<td>' + escapeHtml(parsed.speed) + '</td>' +
-                '<td>' + escapeHtml(parsed.size) + '</td>' +
-                '<td>' + escapeHtml(parsed.runMode) + '</td>' +
+                formatCategoryFiveCellsHtml(parsed) +
                 '<td>' + escapeHtml(row.tier || '') + '</td>';
         } else if (kind === 'unicorns') {
             var uniRange = row.stillStanding
@@ -957,11 +977,7 @@ function renderListView(body, rows, kind, showAll) {
                 : row.start + ' → ' + row.end;
             tr.innerHTML =
                 '<td>' + escapeHtml(row.playerName || '—') + '</td>' +
-                '<td>' + escapeHtml(parsed.gamemode) + '</td>' +
-                '<td>' + escapeHtml(parsed.apple) + '</td>' +
-                '<td>' + escapeHtml(parsed.speed) + '</td>' +
-                '<td>' + escapeHtml(parsed.size) + '</td>' +
-                '<td>' + escapeHtml(parsed.runMode) + '</td>' +
+                formatCategoryFiveCellsHtml(parsed) +
                 '<td>' + formatHoldTimeCell(row, parsed) + '</td>' +
                 '<td>' + row.days + '</td>' +
                 '<td>' + escapeHtml(uniRange) + '</td>';
@@ -971,22 +987,14 @@ function renderListView(body, rows, kind, showAll) {
                 : row.start + ' → ' + row.end;
             tr.innerHTML =
                 '<td>' + escapeHtml(row.playerName || '—') + '</td>' +
-                '<td>' + escapeHtml(parsed.gamemode) + '</td>' +
-                '<td>' + escapeHtml(parsed.apple) + '</td>' +
-                '<td>' + escapeHtml(parsed.speed) + '</td>' +
-                '<td>' + escapeHtml(parsed.size) + '</td>' +
-                '<td>' + escapeHtml(parsed.runMode) + '</td>' +
+                formatCategoryFiveCellsHtml(parsed) +
                 '<td>' + formatHoldTimeCell(row, parsed) + '</td>' +
                 '<td>' + (row.score != null ? row.score : '—') + '</td>' +
                 '<td>' + row.days + '</td>' +
                 '<td>' + escapeHtml(legRange) + '</td>';
         } else {
             tr.innerHTML =
-                '<td>' + escapeHtml(parsed.gamemode) + '</td>' +
-                '<td>' + escapeHtml(parsed.apple) + '</td>' +
-                '<td>' + escapeHtml(parsed.speed) + '</td>' +
-                '<td>' + escapeHtml(parsed.size) + '</td>' +
-                '<td>' + escapeHtml(parsed.runMode) + '</td>' +
+                formatCategoryFiveCellsHtml(parsed) +
                 '<td>' + row.uniqueHolders + '</td>' +
                 '<td>' + row.daysWithRecord + '</td>';
         }
@@ -1264,6 +1272,10 @@ window.applyStatsExplorerCollapseState = applyStatsExplorerCollapseState;
 window.syncRightPanelsSideBySide = syncRightPanelsSideBySide;
 window.renderStatisticsExplorerContent = renderStatisticsExplorerContent;
 window.loadStatisticsExplorerData = loadStatisticsExplorerData;
+window.STATS_TABS = STATS_TABS;
+window.formatCategoryPartHtml = formatCategoryPartHtml;
+window.formatCategoryInlineHtml = formatCategoryInlineHtml;
+window.formatCategoryFiveCellsHtml = formatCategoryFiveCellsHtml;
 
 if (typeof window !== 'undefined' && !window.__statsRightPanelsResizeBound) {
     window.__statsRightPanelsResizeBound = true;
