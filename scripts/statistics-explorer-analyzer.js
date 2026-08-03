@@ -1,11 +1,22 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
+const { Worker } = require('worker_threads');
+const { slimDailyData } = require('./statistics-explorer-slim');
 
 /**
  * Scans daily time-travel cache and emits compact statistics-explorer.json
  * for the Statistics panel (progression, longevity, improving, contested,
  * popularity, stale, unheld, heatmap).
+ *
+ * Speed:
+ * - Parallel worker threads parse daily JSON and return slim payloads
+ * - Incremental resume when available-dates only grew at the end and
+ *   analyzer version matches the saved checkpoint
  */
+
+/** Bump whenever scoring / legends / hold logic changes (forces full rebuild). */
+const ANALYZER_VERSION = 6;
 
 const DIFFICULTY_TIERS = ['Free', 'Warmup', 'Easy', 'Medium', 'Hard', 'Mythic', 'Lottery', 'Inhuman'];
 
@@ -60,7 +71,9 @@ class StatisticsExplorerAnalyzer {
     constructor() {
         this.cacheDir = 'time-travel-cache/daily';
         this.outputFile = 'time-travel-cache/metadata/statistics-explorer.json';
+        this.stateFile = 'time-travel-cache/metadata/statistics-explorer-state.json';
         this.availableDatesFile = 'time-travel-cache/metadata/available-dates.json';
+        this.workerScript = path.join(__dirname, 'statistics-explorer-worker.js');
 
         // categoryKey -> last signature { runKey, primary, playerId, playerName }
         this.prevTop = new Map();
@@ -76,6 +89,8 @@ class StatisticsExplorerAnalyzer {
         this.activityHeatmap = [];
         // playerId -> { name, counts: Map(date -> count) }
         this.playerDaily = new Map();
+        // dates already folded into state (for incremental)
+        this.datesProcessed = [];
     }
 
     loadAvailableDates() {
@@ -128,6 +143,132 @@ class StatisticsExplorerAnalyzer {
         return null;
     }
 
+    resetAnalysisState() {
+        this.prevTop = new Map();
+        this.progression = new Map();
+        this.categoryMeta = new Map();
+        this.openHolds = new Map();
+        this.completedHolds = [];
+        this.activityHeatmap = [];
+        this.playerDaily = new Map();
+        this.datesProcessed = [];
+    }
+
+    serializeState() {
+        const categoryMeta = {};
+        for (const [key, meta] of this.categoryMeta) {
+            categoryMeta[key] = {
+                flips: meta.flips,
+                holders: Array.from(meta.holders),
+                daysWithRecord: meta.daysWithRecord,
+                currentTiedHolders: meta.currentTiedHolders || 1
+            };
+        }
+        const progression = {};
+        for (const [key, points] of this.progression) {
+            progression[key] = points;
+        }
+        const prevTop = {};
+        for (const [key, v] of this.prevTop) {
+            prevTop[key] = v;
+        }
+        const openHolds = {};
+        for (const [key, v] of this.openHolds) {
+            openHolds[key] = v;
+        }
+        const playerDaily = {};
+        for (const [pid, info] of this.playerDaily) {
+            const counts = {};
+            for (const [d, n] of info.counts) counts[d] = n;
+            playerDaily[pid] = { name: info.name, counts };
+        }
+        return {
+            version: ANALYZER_VERSION,
+            datesProcessed: this.datesProcessed.slice(),
+            prevTop,
+            openHolds,
+            completedHolds: this.completedHolds,
+            progression,
+            categoryMeta,
+            playerDaily,
+            activityHeatmap: this.activityHeatmap
+        };
+    }
+
+    restoreState(state) {
+        this.resetAnalysisState();
+        this.datesProcessed = (state.datesProcessed || []).slice();
+        this.completedHolds = state.completedHolds || [];
+        this.activityHeatmap = state.activityHeatmap || [];
+
+        this.prevTop = new Map(Object.entries(state.prevTop || {}));
+        this.openHolds = new Map(Object.entries(state.openHolds || {}));
+        this.progression = new Map(Object.entries(state.progression || {}));
+
+        this.categoryMeta = new Map();
+        for (const [key, meta] of Object.entries(state.categoryMeta || {})) {
+            this.categoryMeta.set(key, {
+                flips: meta.flips || 0,
+                holders: new Set(meta.holders || []),
+                daysWithRecord: meta.daysWithRecord || 0,
+                currentTiedHolders: meta.currentTiedHolders || 1
+            });
+        }
+
+        this.playerDaily = new Map();
+        for (const [pid, info] of Object.entries(state.playerDaily || {})) {
+            this.playerDaily.set(pid, {
+                name: info.name,
+                counts: new Map(Object.entries(info.counts || {}))
+            });
+        }
+    }
+
+    /**
+     * Resume only when prior dates are an exact prefix of available dates
+     * and analyzer version matches. Otherwise full rebuild.
+     */
+    tryLoadIncremental(dates, forceFull) {
+        if (forceFull) return { mode: 'full', startIndex: 0 };
+        if (!fs.existsSync(this.stateFile)) return { mode: 'full', startIndex: 0 };
+        let state;
+        try {
+            state = JSON.parse(fs.readFileSync(this.stateFile, 'utf8'));
+        } catch (e) {
+            console.warn('Checkpoint unreadable — full rebuild:', e.message);
+            return { mode: 'full', startIndex: 0 };
+        }
+        if (!state || state.version !== ANALYZER_VERSION) {
+            console.log('Checkpoint version mismatch — full rebuild');
+            return { mode: 'full', startIndex: 0 };
+        }
+        const processed = state.datesProcessed || [];
+        if (processed.length === 0) return { mode: 'full', startIndex: 0 };
+        if (processed.length > dates.length) {
+            console.log('Checkpoint has more dates than available — full rebuild');
+            return { mode: 'full', startIndex: 0 };
+        }
+        for (let i = 0; i < processed.length; i++) {
+            if (processed[i] !== dates[i]) {
+                console.log('Available dates diverged from checkpoint — full rebuild');
+                return { mode: 'full', startIndex: 0 };
+            }
+        }
+        if (processed.length === dates.length) {
+            this.restoreState(state);
+            return { mode: 'noop', startIndex: dates.length };
+        }
+        this.restoreState(state);
+        console.log(`Incremental: ${processed.length} dates cached, ${dates.length - processed.length} new`);
+        return { mode: 'incremental', startIndex: processed.length };
+    }
+
+    saveCheckpoint() {
+        const outDir = path.dirname(this.stateFile);
+        if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+        fs.writeFileSync(this.stateFile, JSON.stringify(this.serializeState()));
+    }
+
     daysBetween(start, end) {
         const a = Date.parse(start + 'T00:00:00Z');
         const b = Date.parse(end + 'T00:00:00Z');
@@ -170,56 +311,53 @@ class StatisticsExplorerAnalyzer {
     processDate(date) {
         const filePath = this.getCacheFilePath(date);
         if (!fs.existsSync(filePath)) {
-            this.activityHeatmap.push({ date, flips: 0, newWrs: 0 });
+            this.processSlimDate(date, null);
             return;
         }
-
-        let data;
         try {
-            data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            this.processSlimDate(date, slimDailyData(date, data));
         } catch (error) {
             console.error(`Error reading ${date}:`, error.message);
+            this.processSlimDate(date, null);
+        }
+    }
+
+    /**
+     * Fold one day's slim categories into analyzer state (chronological).
+     * @param {string} date
+     * @param {{ categories: object[], newWrs: number } | null} slim
+     */
+    processSlimDate(date, slim) {
+        if (!slim) {
             this.activityHeatmap.push({ date, flips: 0, newWrs: 0 });
+            this.datesProcessed.push(date);
             return;
         }
 
-        const records = data.records || {};
         let flips = 0;
-        let newWrs = 0;
         const playerCounts = new Map();
+        const categories = slim.categories || [];
 
-        for (const [categoryKey, categoryData] of Object.entries(records)) {
-            if (!categoryData || !categoryData.success || !categoryData.runs || categoryData.runs.length === 0) {
-                continue;
-            }
-
-            const topRun = categoryData.runs[0];
-            const primary = (topRun.times && topRun.times.primary) || '';
-            const playerData = topRun.players && topRun.players.data && topRun.players.data[0];
-            const playerId = this.extractPlayerId(playerData) || 'unknown';
-            const playerName = this.extractPlayerName(playerData);
-            const runKey = this.extractRunKey(topRun);
-            const weblink = this.extractWeblink(topRun);
+        for (let c = 0; c < categories.length; c++) {
+            const cat = categories[c];
+            const categoryKey = cat.key;
+            const primary = cat.primary;
+            const playerId = cat.playerId;
+            const playerName = cat.playerName;
+            const runKey = cat.runKey;
+            const weblink = cat.weblink;
+            const tiedHolderCount = cat.tiedHolderCount || 1;
 
             const meta = this.ensureCategoryMeta(categoryKey);
             meta.daysWithRecord++;
 
-            // Count every player tied for WR (same primary as #1) toward holders
-            let tiedHolderCount = 0;
-            for (const run of categoryData.runs) {
-                const t = (run.times && run.times.primary) || '';
-                if (t !== primary) break;
-                if (!run.players || !run.players.data) continue;
-                for (const p of run.players.data) {
-                    const pid = this.extractPlayerId(p);
-                    if (!pid) continue;
-                    meta.holders.add(pid);
-                    tiedHolderCount++;
-                }
+            const tiedIds = cat.tiedIds || [];
+            for (let i = 0; i < tiedIds.length; i++) {
+                meta.holders.add(tiedIds[i]);
             }
-            if (tiedHolderCount === 0) {
+            if (tiedIds.length === 0) {
                 meta.holders.add(playerId);
-                tiedHolderCount = 1;
             }
             meta.currentTiedHolders = tiedHolderCount;
 
@@ -282,19 +420,14 @@ class StatisticsExplorerAnalyzer {
 
             this.prevTop.set(categoryKey, { runKey, primary, playerId, playerName });
 
-            for (const run of categoryData.runs) {
-                if (run.date === date) newWrs++;
-                if (!run.players || !run.players.data) continue;
-                for (const p of run.players.data) {
-                    const pid = this.extractPlayerId(p);
-                    if (!pid) continue;
-                    const pname = this.extractPlayerName(p);
-                    playerCounts.set(pid, (playerCounts.get(pid) || 0) + 1);
-                    if (!this.playerDaily.has(pid)) {
-                        this.playerDaily.set(pid, { name: pname, counts: new Map() });
-                    } else {
-                        this.playerDaily.get(pid).name = pname;
-                    }
+            const increments = cat.playerIncrements || {};
+            for (const pid of Object.keys(increments)) {
+                const inc = increments[pid];
+                playerCounts.set(pid, (playerCounts.get(pid) || 0) + inc.n);
+                if (!this.playerDaily.has(pid)) {
+                    this.playerDaily.set(pid, { name: inc.name, counts: new Map() });
+                } else {
+                    this.playerDaily.get(pid).name = inc.name;
                 }
             }
         }
@@ -303,7 +436,72 @@ class StatisticsExplorerAnalyzer {
             this.playerDaily.get(pid).counts.set(date, count);
         }
 
-        this.activityHeatmap.push({ date, flips, newWrs });
+        this.activityHeatmap.push({ date, flips, newWrs: slim.newWrs || 0 });
+        this.datesProcessed.push(date);
+    }
+
+    /**
+     * Parse dates in parallel workers (bounded waves); fold chronologically.
+     */
+    async processDatesParallel(dates, startIndex) {
+        const toProcess = dates.slice(startIndex);
+        if (toProcess.length === 0) return;
+
+        const workerCount = Math.max(1, Math.min(os.cpus().length, 8, toProcess.length));
+        const workers = [];
+        for (let i = 0; i < workerCount; i++) {
+            workers.push(new Worker(this.workerScript));
+        }
+
+        const runJob = (worker, id, date) => new Promise((resolve, reject) => {
+            const onMsg = (msg) => {
+                if (msg.id !== id) return;
+                cleanup();
+                resolve(msg);
+            };
+            const onErr = (err) => {
+                cleanup();
+                reject(err);
+            };
+            const cleanup = () => {
+                worker.off('message', onMsg);
+                worker.off('error', onErr);
+            };
+            worker.on('message', onMsg);
+            worker.on('error', onErr);
+            worker.postMessage({
+                id,
+                date,
+                filePath: path.resolve(this.getCacheFilePath(date))
+            });
+        });
+
+        try {
+            for (let base = 0; base < toProcess.length; base += workerCount) {
+                const batch = [];
+                for (let w = 0; w < workerCount && base + w < toProcess.length; w++) {
+                    const idx = base + w;
+                    batch.push(runJob(workers[w], idx, toProcess[idx]));
+                }
+                const msgs = await Promise.all(batch);
+                msgs.sort((a, b) => a.id - b.id);
+                for (const payload of msgs) {
+                    if (!payload.ok && payload.error) {
+                        console.error(`Error reading ${payload.date}:`, payload.error);
+                    }
+                    this.processSlimDate(
+                        payload.date,
+                        payload.missing || !payload.ok ? null : payload.slim
+                    );
+                }
+                const done = startIndex + Math.min(base + workerCount, toProcess.length);
+                if (done % 50 < workerCount || done === dates.length) {
+                    console.log(`Processed ${done}/${dates.length} dates...`);
+                }
+            }
+        } finally {
+            await Promise.all(workers.map((w) => w.terminate()));
+        }
     }
 
     buildContested() {
@@ -435,6 +633,37 @@ class StatisticsExplorerAnalyzer {
     }
 
     /**
+     * High Score apple count from SRC primary (fractional seconds → ms = apples).
+     * e.g. PT0.086S → 86, PT0.100S → 100, PT0.224S → 224
+     */
+    parseHighScoreApples(primary) {
+        if (!primary || typeof primary !== 'string') return 0;
+        const match = primary.match(/PT(?:(\d+)H)?(?:(\d+)M)?([\d.]+)S/);
+        if (match) {
+            const seconds = parseFloat(match[3]);
+            if (!Number.isFinite(seconds)) return 0;
+            return Math.round((seconds - Math.floor(seconds)) * 1000);
+        }
+        return 0;
+    }
+
+    /**
+     * Mythic holds only.
+     * High Score floors: Standard/Large ≥100 apples, Small ≥35 apples.
+     */
+    qualifiesForLegends(category, time) {
+        const scored = this.scoreCategory(category);
+        if (scored.tier !== 'Mythic') return false;
+        const p = this.parseCategoryParts(category);
+        if (p.run === 'High Score') {
+            const apples = this.parseHighScoreApples(time);
+            if (p.size === 'Standard' || p.size === 'Large') return apples >= 100;
+            if (p.size === 'Small') return apples >= 35;
+        }
+        return true;
+    }
+
+    /**
      * Every hold of a Mythic-tier category — including past holders.
      * Hardest (highest score) first.
      */
@@ -442,8 +671,8 @@ class StatisticsExplorerAnalyzer {
         const rows = [];
 
         for (const hold of this.completedHolds) {
+            if (!this.qualifiesForLegends(hold.category, hold.time)) continue;
             const scored = this.scoreCategory(hold.category);
-            if (scored.tier !== 'Mythic') continue;
             rows.push({
                 category: hold.category,
                 tier: scored.tier,
@@ -460,8 +689,8 @@ class StatisticsExplorerAnalyzer {
         }
 
         for (const [category, hold] of this.openHolds.entries()) {
+            if (!this.qualifiesForLegends(category, hold.primary)) continue;
             const scored = this.scoreCategory(category);
-            if (scored.tier !== 'Mythic') continue;
             rows.push({
                 category,
                 tier: scored.tier,
@@ -654,6 +883,17 @@ class StatisticsExplorerAnalyzer {
             }
         }
 
+        // Cap: 25 Apples (any size) and 50 Apples on Standard/Large —
+        // Hard at most (never Mythic / Lottery / Inhuman). Small 50 can stay higher.
+        if (
+            run === '25 Apples' ||
+            (run === '50 Apples' && (size === 'Standard' || size === 'Large'))
+        ) {
+            if (this.tierIndex(tier) > this.tierIndex('Hard')) {
+                tier = 'Hard';
+            }
+        }
+
         return tier;
     }
 
@@ -800,7 +1040,8 @@ class StatisticsExplorerAnalyzer {
         return out;
     }
 
-    async run() {
+    async run(options = {}) {
+        const t0 = Date.now();
         console.log('Starting statistics explorer analysis...');
         const dates = this.loadAvailableDates();
         if (dates.length === 0) {
@@ -808,16 +1049,44 @@ class StatisticsExplorerAnalyzer {
             process.exit(1);
         }
 
+        const forceFull = !!(options.full || process.env.STATS_EXPLORER_FULL === '1');
+        const useWorkers = options.workers !== false && process.env.STATS_EXPLORER_SYNC !== '1';
+
         console.log(`Found ${dates.length} dates`);
-        let processed = 0;
-        for (const date of dates) {
-            this.processDate(date);
-            processed++;
-            if (processed % 50 === 0) {
-                console.log(`Processed ${processed}/${dates.length} dates...`);
+        const plan = this.tryLoadIncremental(dates, forceFull);
+
+        if (plan.mode === 'noop') {
+            console.log('Checkpoint already covers all dates — rebuilding outputs only');
+        } else if (plan.mode === 'full') {
+            this.resetAnalysisState();
+            if (useWorkers) {
+                await this.processDatesParallel(dates, 0);
+            } else {
+                for (let i = 0; i < dates.length; i++) {
+                    this.processDate(dates[i]);
+                    if ((i + 1) % 50 === 0 || i + 1 === dates.length) {
+                        console.log(`Processed ${i + 1}/${dates.length} dates...`);
+                    }
+                }
+            }
+        } else {
+            // incremental
+            if (useWorkers) {
+                await this.processDatesParallel(dates, plan.startIndex);
+            } else {
+                for (let i = plan.startIndex; i < dates.length; i++) {
+                    this.processDate(dates[i]);
+                    if ((i + 1) % 50 === 0 || i + 1 === dates.length) {
+                        console.log(`Processed ${i + 1}/${dates.length} dates...`);
+                    }
+                }
             }
         }
-        console.log(`Processed all ${dates.length} dates`);
+
+        console.log(`Processed all ${dates.length} dates (${((Date.now() - t0) / 1000).toFixed(1)}s scan)`);
+
+        // Snapshot state BEFORE longevity closes open holds
+        this.saveCheckpoint();
 
         const lastDate = dates[dates.length - 1];
         const firstDate = dates[0];
@@ -826,7 +1095,8 @@ class StatisticsExplorerAnalyzer {
             meta: {
                 lastUpdated: new Date().toISOString(),
                 totalDates: dates.length,
-                dateRange: { earliest: firstDate, latest: lastDate }
+                dateRange: { earliest: firstDate, latest: lastDate },
+                analyzerVersion: ANALYZER_VERSION
             },
             activityHeatmap: this.activityHeatmap,
             contested: this.buildContested(),
@@ -856,16 +1126,20 @@ class StatisticsExplorerAnalyzer {
             `Longevity all: ${output.longevity.all.length}, standing: ${output.longevity.standing.length}, ` +
             `Progression keys: ${Object.keys(output.progression).length}`
         );
-        console.log('Statistics explorer analysis complete.');
+        console.log(`Statistics explorer analysis complete in ${((Date.now() - t0) / 1000).toFixed(1)}s.`);
     }
 }
 
 if (require.main === module) {
+    const args = process.argv.slice(2);
+    const full = args.includes('--full');
+    const sync = args.includes('--sync');
     const analyzer = new StatisticsExplorerAnalyzer();
-    analyzer.run().catch((error) => {
+    analyzer.run({ full, workers: !sync }).catch((error) => {
         console.error('Analysis failed:', error);
         process.exit(1);
     });
 }
 
 module.exports = StatisticsExplorerAnalyzer;
+module.exports.ANALYZER_VERSION = ANALYZER_VERSION;
