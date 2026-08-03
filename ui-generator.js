@@ -1140,14 +1140,17 @@ function generateTableSelector(){
         }
     });
 
-    // Two-column layout: left = category picks, right = modes / tools
+    // Three-column layout: category | modes | time travel
     var settingsLayout = document.createElement('div');
     settingsLayout.setAttribute('class', 'settings-layout');
     var leftCol = document.createElement('div');
     leftCol.setAttribute('class', 'settings-col settings-col-left');
+    var centerCol = document.createElement('div');
+    centerCol.setAttribute('class', 'settings-col settings-col-center');
     var rightCol = document.createElement('div');
     rightCol.setAttribute('class', 'settings-col settings-col-right');
     settingsLayout.appendChild(leftCol);
+    settingsLayout.appendChild(centerCol);
     settingsLayout.appendChild(rightCol);
     sidebarBody.appendChild(settingsLayout);
     // Apple Amount selector
@@ -1438,8 +1441,8 @@ function generateTableSelector(){
     optionsSelector.appendChild(optionsButtonGroup);
     leftCol.appendChild(optionsSelector);
 
-    // Right column: game modes, run modes, time-travel tools
-    populateSidebarSettingsExtras(rightCol);
+    // Center: game modes + run modes; Right: time travel
+    populateSidebarSettingsExtras(centerCol);
 
     sidebar.appendChild(sidebarBody);
     
