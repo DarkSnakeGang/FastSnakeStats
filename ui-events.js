@@ -919,18 +919,37 @@ function formatLongevityHoldHtml(row) {
         '</div>';
 }
 
-function buildPlayerSearchProfileHtml(playerData) {
+function buildPlayerSearchProfileHtml(playerData, careerStats) {
     const escape = typeof escapeHtml === 'function'
         ? escapeHtml
         : function (s) { return String(s == null ? '' : s); };
     const totalDates = playerData.totalDates || 0;
     const totalRecords = playerData.totalRecords || 0;
+    const wrDays = careerStats && careerStats.wrDays != null ? careerStats.wrDays : null;
 
     return '<div class="player-search-name">' + escape(playerData.name) + '</div>' +
         '<div class="player-search-summary">' +
         '<span><strong>' + escape(String(totalDates)) + '</strong> dates</span>' +
         '<span><strong>' + escape(String(totalRecords)) + '</strong> total WRs</span>' +
+        (wrDays != null
+            ? '<span><strong>' + escape(String(wrDays)) + '</strong> WR-days</span>'
+            : '') +
         '</div>';
+}
+
+function getPlayerCareerStats(playerId) {
+    if (!playerId || typeof loadStatisticsExplorerData !== 'function') {
+        return Promise.resolve(null);
+    }
+    return loadStatisticsExplorerData().then(function (data) {
+        const rows = (data && data.career) || [];
+        for (let i = 0; i < rows.length; i++) {
+            if (rows[i].playerId === playerId) return rows[i];
+        }
+        return null;
+    }).catch(function () {
+        return null;
+    });
 }
 
 function buildPlayerLongevityHtml(longevityBest) {
@@ -960,8 +979,12 @@ async function displayPlayerPeakDates(playerData) {
 
     if (!peakDatesContainer || !peakRecordsDate || !peakPercentageDate) return;
 
+    const careerStats = typeof getPlayerCareerStats === 'function'
+        ? await getPlayerCareerStats(playerData.id)
+        : null;
+
     if (profileEl) {
-        profileEl.innerHTML = buildPlayerSearchProfileHtml(playerData);
+        profileEl.innerHTML = buildPlayerSearchProfileHtml(playerData, careerStats);
     }
 
     peakRecordsDate.textContent = playerData.peakRecords.date || '-';

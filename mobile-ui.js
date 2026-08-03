@@ -1504,8 +1504,12 @@ async function displayMobilePlayerPeakDates(playerData) {
 
     if (!peakDatesContainer || !peakRecordsDate || !peakPercentageDate) return;
 
+    const careerStats = typeof getPlayerCareerStats === 'function'
+        ? await getPlayerCareerStats(playerData.id)
+        : null;
+
     if (profileEl && typeof buildPlayerSearchProfileHtml === 'function') {
-        profileEl.innerHTML = buildPlayerSearchProfileHtml(playerData);
+        profileEl.innerHTML = buildPlayerSearchProfileHtml(playerData, careerStats);
     }
 
     peakRecordsDate.textContent = playerData.peakRecords.date || '-';

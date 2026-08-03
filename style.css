@@ -2844,13 +2844,24 @@ body.dark-mode .quick-fetch-btn:disabled {
 	}
 
 	.stats-explorer-wrapper .stats-longevity-chips {
-		flex-wrap: nowrap;
+		flex-wrap: wrap;
 		gap: 6px;
 	}
 
 	.stats-explorer-wrapper .stats-longevity-chips .stats-explorer-chip {
 		flex: 0 0 auto;
 		white-space: nowrap;
+	}
+
+	.stats-career-hold {
+		text-align: left;
+		line-height: 1.25;
+		font-size: 12px;
+	}
+
+	.stats-career-hold-meta {
+		opacity: 0.85;
+		margin-top: 2px;
 	}
 
 	.stats-explorer-wrapper .stats-explorer-table {

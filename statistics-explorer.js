@@ -9,7 +9,7 @@ var statsExplorerImproveWindow = '30d';
 var statsExplorerHeatMetric = 'flips';
 var statsExplorerHeatYear = null; // set from data
 var statsExplorerLongevityMode = 'standing'; // 'all' | 'standing'
-var statsExplorerLongevityUntied = true; // default: only sole (untied) holds
+var statsExplorerLongevityTiedMode = 'untied'; // 'all' | 'untied' | 'tied'
 var statsExplorerUnheldTier = 'All'; // 'All' | Free…Inhuman
 // Independent progression filters (not Category Settings)
 var statsProgApple = '1 Apple';
@@ -30,6 +30,7 @@ var STATS_HIGHSCORE_MODES = ['Wall', 'Portal', 'Key', 'Sokoban', 'Poison', 'Mine
 var STATS_TABS = [
     { id: 'progression', label: 'Progression' },
     { id: 'longevity', label: 'Longevity' },
+    { id: 'career', label: 'Career' },
     { id: 'improving', label: 'Improving' },
     { id: 'contested', label: 'Contested' },
     { id: 'stale', label: 'Stale' },
@@ -412,6 +413,9 @@ function renderStatisticsExplorerContent(targetBody) {
         case 'longevity':
             renderLongevityView(body);
             break;
+        case 'career':
+            renderCareerView(body);
+            break;
         case 'improving':
             renderImprovingView(body);
             break;
@@ -656,6 +660,49 @@ function buildLineChart(points, isHighScore) {
     return wrap;
 }
 
+function filterRowsByTiedMode(rows) {
+    if (!rows || !rows.length) return [];
+    if (statsExplorerLongevityTiedMode === 'untied') {
+        return rows.filter(function (r) { return (r.tiedHolders || 1) <= 1; });
+    }
+    if (statsExplorerLongevityTiedMode === 'tied') {
+        return rows.filter(function (r) { return (r.tiedHolders || 1) > 1; });
+    }
+    return rows;
+}
+
+function appendLongevityTiedChips(body, onChange) {
+    var bar = document.createElement('div');
+    bar.className = 'stats-explorer-chips stats-longevity-chips';
+    [
+        { group: 'mode', id: 'all', label: 'All-time' },
+        { group: 'mode', id: 'standing', label: 'Still standing' },
+        { group: 'tied', id: 'all', label: 'All holds' },
+        { group: 'tied', id: 'untied', label: 'Untied only' },
+        { group: 'tied', id: 'tied', label: 'Tied only' }
+    ].forEach(function (opt) {
+        // Longevity has mode chips; Career only wants tied chips
+        if (onChange === 'career' && opt.group === 'mode') return;
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        var active = opt.group === 'mode'
+            ? opt.id === statsExplorerLongevityMode
+            : opt.id === statsExplorerLongevityTiedMode;
+        chip.className = 'stats-explorer-chip' + (active ? ' active' : '');
+        chip.textContent = opt.label;
+        chip.addEventListener('click', function () {
+            if (opt.group === 'mode') {
+                statsExplorerLongevityMode = opt.id;
+            } else {
+                statsExplorerLongevityTiedMode = opt.id;
+            }
+            renderStatisticsExplorerContent(body);
+        });
+        bar.appendChild(chip);
+    });
+    body.appendChild(bar);
+}
+
 function getLongevityRows() {
     var raw = statsExplorerData && statsExplorerData.longevity;
     if (!raw) return [];
@@ -670,39 +717,11 @@ function getLongevityRows() {
     } else {
         rows = raw.all || [];
     }
-    if (statsExplorerLongevityUntied) {
-        rows = rows.filter(function (r) { return (r.tiedHolders || 1) <= 1; });
-    }
-    return rows;
+    return filterRowsByTiedMode(rows);
 }
 
 function renderLongevityView(body) {
-    var bar = document.createElement('div');
-    bar.className = 'stats-explorer-chips stats-longevity-chips';
-    [
-        { group: 'mode', id: 'all', label: 'All-time' },
-        { group: 'mode', id: 'standing', label: 'Still standing' },
-        { group: 'tied', id: false, label: 'All holds' },
-        { group: 'tied', id: true, label: 'Untied only' }
-    ].forEach(function (opt) {
-        var chip = document.createElement('button');
-        chip.type = 'button';
-        var active = opt.group === 'mode'
-            ? opt.id === statsExplorerLongevityMode
-            : opt.id === statsExplorerLongevityUntied;
-        chip.className = 'stats-explorer-chip' + (active ? ' active' : '');
-        chip.textContent = opt.label;
-        chip.addEventListener('click', function () {
-            if (opt.group === 'mode') {
-                statsExplorerLongevityMode = opt.id;
-            } else {
-                statsExplorerLongevityUntied = opt.id;
-            }
-            renderStatisticsExplorerContent(body);
-        });
-        bar.appendChild(chip);
-    });
-    body.appendChild(bar);
+    appendLongevityTiedChips(body, 'longevity');
 
     appendListFilters(body);
 
@@ -718,6 +737,115 @@ function renderLongevityView(body) {
     body.appendChild(meta);
 
     renderListView(body, filtered, 'longevity');
+}
+
+function getCareerMetrics(row) {
+    if (!row) {
+        return { wrDays: 0, bestAll: null, bestStanding: null };
+    }
+    if (statsExplorerLongevityTiedMode === 'untied') {
+        return {
+            wrDays: row.wrDaysUntied || 0,
+            bestAll: row.bestAllUntied || null,
+            bestStanding: row.bestStandingUntied || null
+        };
+    }
+    if (statsExplorerLongevityTiedMode === 'tied') {
+        return {
+            wrDays: row.wrDaysTied || 0,
+            bestAll: row.bestAllTied || null,
+            bestStanding: row.bestStandingTied || null
+        };
+    }
+    return {
+        wrDays: row.wrDays || 0,
+        bestAll: row.bestAll || null,
+        bestStanding: row.bestStanding || null
+    };
+}
+
+function formatCareerHoldCell(hold) {
+    if (!hold) return '—';
+    var parsed = parseCategoryKey(hold.category);
+    var label = parsed
+        ? [parsed.gamemode, parsed.apple, parsed.speed, parsed.size, parsed.runMode].filter(Boolean).join(' · ')
+        : (hold.category || '—');
+    var range = hold.stillStanding
+        ? (hold.start || '?') + ' → present'
+        : (hold.start || '?') + ' → ' + (hold.end || '?');
+    var isHS = parsed && parsed.runMode === 'High Score';
+    var timeText = formatPrimaryDisplay(hold.time, isHS);
+    var timeHtml = hold.weblink
+        ? '<a class="stats-run-link" href="' + escapeAttr(hold.weblink) +
+            '" target="_blank" rel="noopener noreferrer">' + escapeHtml(timeText) + '</a>'
+        : escapeHtml(timeText);
+    return '<div class="stats-career-hold">' +
+        '<div><strong>' + escapeHtml(String(hold.days)) + 'd</strong> · ' + escapeHtml(label) + '</div>' +
+        '<div class="stats-career-hold-meta">' + escapeHtml(range) + ' · ' + timeHtml + '</div>' +
+        '</div>';
+}
+
+function renderCareerView(body) {
+    appendLongevityTiedChips(body, 'career');
+
+    var rows = (statsExplorerData.career || []).map(function (row) {
+        var m = getCareerMetrics(row);
+        return {
+            playerId: row.playerId,
+            playerName: row.playerName,
+            wrDays: m.wrDays,
+            bestAll: m.bestAll,
+            bestStanding: m.bestStanding
+        };
+    }).filter(function (r) {
+        return r.wrDays > 0 || r.bestAll || r.bestStanding;
+    }).sort(function (a, b) {
+        return b.wrDays - a.wrDays || String(a.playerName).localeCompare(String(b.playerName));
+    });
+
+    var meta = document.createElement('div');
+    meta.className = 'stats-explorer-meta';
+    var shown = Math.min(rows.length, STATS_LIST_DISPLAY_LIMIT);
+    meta.textContent = shown + ' shown' +
+        (rows.length > STATS_LIST_DISPLAY_LIMIT ? ' · ' + rows.length + ' players' : '') +
+        ' · career WR-days (1 per day per WR held) · best longevity included';
+    body.appendChild(meta);
+
+    if (!rows.length) {
+        var empty = document.createElement('div');
+        empty.className = 'stats-explorer-empty';
+        empty.textContent = 'No career data for this tied filter.';
+        body.appendChild(empty);
+        return;
+    }
+
+    var table = document.createElement('table');
+    table.className = 'stats-explorer-table';
+    var thead = document.createElement('thead');
+    var hr = document.createElement('tr');
+    ['#', 'Player', 'WR-days', 'Best all-time', 'Best still standing'].forEach(function (h) {
+        var th = document.createElement('th');
+        th.textContent = h;
+        hr.appendChild(th);
+    });
+    thead.appendChild(hr);
+    table.appendChild(thead);
+    var tbody = document.createElement('tbody');
+    rows.slice(0, STATS_LIST_DISPLAY_LIMIT).forEach(function (row, idx) {
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td>' + (idx + 1) + '</td>' +
+            '<td>' + escapeHtml(row.playerName || '—') + '</td>' +
+            '<td>' + row.wrDays + '</td>' +
+            '<td>' + formatCareerHoldCell(row.bestAll) + '</td>' +
+            '<td>' + formatCareerHoldCell(row.bestStanding) + '</td>';
+        tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    var scroll = document.createElement('div');
+    scroll.className = 'stats-table-scroll';
+    scroll.appendChild(table);
+    body.appendChild(scroll);
 }
 
 function renderFilteredListTab(body, allRows, kind, sortHint) {

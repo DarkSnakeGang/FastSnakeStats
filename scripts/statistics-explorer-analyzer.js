@@ -16,7 +16,7 @@ const { slimDailyData } = require('./statistics-explorer-slim');
  */
 
 /** Bump whenever scoring / legends / hold logic changes (forces full rebuild). */
-const ANALYZER_VERSION = 10;
+const ANALYZER_VERSION = 11;
 
 const DIFFICULTY_TIERS = ['Free', 'Warmup', 'Easy', 'Medium', 'Hard', 'Mythic', 'Lottery', 'Inhuman'];
 
@@ -1033,6 +1033,85 @@ class StatisticsExplorerAnalyzer {
         };
     }
 
+    /**
+     * Career WR-days = sum of hold lengths (1 point per day per WR held).
+     * Also tracks best all-time / still-standing holds for all / untied / tied.
+     * Must run after buildLongevity (open holds closed into completedHolds).
+     */
+    buildCareer() {
+        const map = new Map();
+
+        const mapRow = (h) => ({
+            category: h.category,
+            playerId: h.playerId,
+            playerName: h.playerName,
+            time: h.time,
+            weblink: h.weblink || null,
+            start: h.start,
+            end: h.end,
+            days: h.days,
+            stillStanding: !!h.stillStanding,
+            tiedHolders: h.tiedHolders || 1
+        });
+
+        const better = (a, b) => {
+            if (!a) return b;
+            if (!b) return a;
+            if (b.days !== a.days) return b.days > a.days ? b : a;
+            return String(b.start || '').localeCompare(String(a.start || '')) > 0 ? b : a;
+        };
+
+        for (const h of this.completedHolds) {
+            if (!h.playerId) continue;
+            let p = map.get(h.playerId);
+            if (!p) {
+                p = {
+                    playerId: h.playerId,
+                    playerName: h.playerName,
+                    wrDays: 0,
+                    wrDaysUntied: 0,
+                    wrDaysTied: 0,
+                    holds: 0,
+                    standingHolds: 0,
+                    bestAll: null,
+                    bestStanding: null,
+                    bestAllUntied: null,
+                    bestStandingUntied: null,
+                    bestAllTied: null,
+                    bestStandingTied: null
+                };
+                map.set(h.playerId, p);
+            }
+            p.playerName = h.playerName || p.playerName;
+            const days = h.days || 0;
+            const row = mapRow(h);
+            const isTied = (h.tiedHolders || 1) > 1;
+
+            p.wrDays += days;
+            p.holds += 1;
+            p.bestAll = better(p.bestAll, row);
+
+            if (isTied) {
+                p.wrDaysTied += days;
+                p.bestAllTied = better(p.bestAllTied, row);
+            } else {
+                p.wrDaysUntied += days;
+                p.bestAllUntied = better(p.bestAllUntied, row);
+            }
+
+            if (h.stillStanding) {
+                p.standingHolds += 1;
+                p.bestStanding = better(p.bestStanding, row);
+                if (isTied) p.bestStandingTied = better(p.bestStandingTied, row);
+                else p.bestStandingUntied = better(p.bestStandingUntied, row);
+            }
+        }
+
+        return Array.from(map.values()).sort(
+            (a, b) => b.wrDays - a.wrDays || String(a.playerName).localeCompare(String(b.playerName))
+        );
+    }
+
     countOnOrBefore(countsMap, targetDate, datesAsc) {
         let last = 0;
         for (const d of datesAsc) {
@@ -1147,6 +1226,7 @@ class StatisticsExplorerAnalyzer {
             unicorns: this.buildUnicorns(lastDate),
             legends: this.buildLegends(lastDate),
             longevity: this.buildLongevity(lastDate),
+            career: this.buildCareer(),
             improving: this.buildImproving(dates, 25),
             unheld: this.buildUnheld(),
             progression: this.buildProgressionObject()
@@ -1165,6 +1245,7 @@ class StatisticsExplorerAnalyzer {
             `Unicorns: ${output.unicorns.length}, Legends: ${output.legends.length}, ` +
             `Unheld: ${output.unheld.rows.length}/${output.unheld.total}, ` +
             `Longevity all: ${output.longevity.all.length}, standing: ${output.longevity.standing.length}, ` +
+            `Career players: ${output.career.length}, ` +
             `Progression keys: ${Object.keys(output.progression).length}`
         );
         console.log(`Statistics explorer analysis complete in ${((Date.now() - t0) / 1000).toFixed(1)}s.`);
