@@ -30,7 +30,7 @@ const MODE_BASE_TIER = {
     Shield: 'Medium',
     Hotdog: 'Easy',
     Sokoban: 'Hard',
-    Gate: 'Mythic',
+    Gate: 'Hard',
     Bridge: 'Medium'
 };
 
@@ -620,11 +620,24 @@ class StatisticsExplorerAnalyzer {
             }
         }
 
+        // Floor: Gate Standard/Large All Apples is at least Mythic
+        // (25/50/100/High Score stay at base Hard; Small All Apples stays Hard)
+        if (
+            mode === 'Gate' &&
+            run === 'All Apples' &&
+            (size === 'Standard' || size === 'Large')
+        ) {
+            if (this.tierIndex(tier) < this.tierIndex('Mythic')) {
+                tier = 'Mythic';
+            }
+        }
+
         // Slow never reaches Mythic (Lottery/Inhuman and Bomb Mythic exceptions stay)
         if (speed === 'Slow' && tier === 'Mythic') {
             const keepMythic =
                 (mode === 'Portal' && apple === 'Bomb') ||
-                (mode === 'Poison' && apple === 'Bomb' && !(size === 'Small' && run === '25 Apples'));
+                (mode === 'Poison' && apple === 'Bomb' && !(size === 'Small' && run === '25 Apples')) ||
+                (mode === 'Gate' && run === 'All Apples' && (size === 'Standard' || size === 'Large'));
             if (!keepMythic) tier = 'Hard';
         }
 
