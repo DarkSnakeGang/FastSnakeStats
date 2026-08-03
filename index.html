@@ -144,11 +144,11 @@
                   <div class="inline-search-container">
                       <div class="date-search-row">
                           <div class="date-picker-group">
-                              <label for="datepicker">Time Travel Date</label>
+                              <label for="datepicker">Date</label>
                               <input type="date" id="datepicker">
                           </div>
                           <div class="username-search-group">
-                              <label for="usernameSearch">Search Player Peak Dates</label>
+                              <label for="usernameSearch">Search Player</label>
                               <div class="username-search-container">
                                   <input type="text" id="usernameSearch" placeholder="Enter username..." autocomplete="off">
                                   <button id="searchPlayerBtn" class="search-btn">🔍</button>
@@ -156,11 +156,13 @@
                           </div>
                       </div>
                       <div id="playerPeakDates" class="peak-dates-container" style="display: none;">
+                          <div id="playerSearchProfile" class="player-search-profile"></div>
                           <div class="peak-dates-buttons">
                               <button id="peakRecordsBtn" class="peak-date-btn">📊 Peak Records: <span id="peakRecordsDate">-</span></button>
                               <button id="peakPercentageBtn" class="peak-date-btn">📈 Peak Percentage: <span id="peakPercentageDate">-</span></button>
-                              <button id="latestDataBtn" class="peak-date-btn">🕒 Latest Data</button>
+                              <button id="latestDataBtn" class="peak-date-btn">🕒 Latest Data: <span id="latestDataDate">-</span></button>
                           </div>
+                          <div id="playerSearchLongevity" class="player-search-longevity"></div>
                       </div>
                   </div>
               </div>

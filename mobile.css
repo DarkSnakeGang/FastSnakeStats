@@ -262,14 +262,26 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 
 	.mobile-date-search-row {
 		display: flex;
-		flex-direction: column;
-		gap: 15px;
+		flex-direction: row;
+		align-items: flex-end;
+		gap: 10px;
 		margin-bottom: 10px;
 	}
 
 	.mobile-date-picker-group,
 	.mobile-username-search-group {
-		width: 100%;
+		flex: 1 1 0;
+		min-width: 0;
+		width: auto;
+	}
+
+	.mobile-date-picker-group .mobile-form-label,
+	.mobile-username-search-group .mobile-form-label {
+		font-size: 12px;
+		margin-bottom: 6px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	/* Mobile Username Search Container */
@@ -277,7 +289,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		display: flex;
 		gap: 8px;
 		align-items: center;
-		margin-top: 8px;
+		margin-top: 0;
 	}
 
 	.mobile-username-search-container .mobile-form-input {
@@ -319,31 +331,39 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-peak-dates-buttons {
-		display: flex;
-		flex-direction: row;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
 		gap: 8px;
-		flex-wrap: wrap;
+		margin-bottom: 4px;
 	}
 
 	.mobile-peak-date-btn {
 		background: #007bff;
 		color: white;
 		border: 1px solid #0056b3;
-		padding: 12px 16px;
+		padding: 10px 12px;
 		border-radius: 6px;
-		font-size: 15px;
+		font-size: 13px;
 		font-weight: 600;
 		cursor: pointer;
 		transition: all 0.2s ease;
 		text-align: left;
 		-webkit-tap-highlight-color: transparent;
-		flex: 0 0 calc(50% - 4px);
+		flex: none;
+		width: 100%;
+		white-space: normal;
+		line-height: 1.3;
+		overflow-wrap: anywhere;
 	}
 
 	.mobile-peak-date-btn:hover {
 		background: #0056b3;
 		transform: translateY(-1px);
 		box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+	}
+
+	.mobile-peak-dates-buttons #mobileLatestDataBtn {
+		grid-column: 1 / -1;
 	}
 
 	/* Dark mode styles for mobile peak date buttons */
@@ -356,6 +376,98 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	body.dark-mode .mobile-peak-date-btn:hover {
 		background: #3d5a2f;
 		box-shadow: 0 3px 10px rgba(45, 74, 31, 0.4);
+	}
+
+	.mobile-peak-dates-container .player-search-profile {
+		margin-bottom: 12px;
+	}
+
+	.mobile-peak-dates-container .player-search-name {
+		font-size: 16px;
+		font-weight: 700;
+		color: var(--mobile-text);
+		margin-bottom: 8px;
+	}
+
+	.mobile-peak-dates-container .player-search-summary {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 4px 10px;
+		font-size: 12px;
+		color: var(--mobile-text);
+		opacity: 0.9;
+		margin-bottom: 0;
+	}
+
+	.mobile-peak-dates-container .player-search-longevity {
+		margin-top: 12px;
+	}
+
+	.mobile-peak-dates-container .player-longevity-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 8px;
+		margin-bottom: 4px;
+	}
+
+	.mobile-peak-dates-container .player-longevity-card {
+		padding: 10px;
+		background: rgba(0, 0, 0, 0.04);
+		border: 1px solid var(--mobile-border);
+		border-radius: 8px;
+	}
+
+	body.dark-mode .mobile-peak-dates-container .player-longevity-card {
+		background: rgba(255, 255, 255, 0.05);
+		border-color: rgba(255, 255, 255, 0.12);
+	}
+
+	.mobile-peak-dates-container .player-longevity-label {
+		font-size: 11px;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		opacity: 0.7;
+		margin-bottom: 4px;
+	}
+
+	.mobile-peak-dates-container .player-longevity-days {
+		font-size: 14px;
+		font-weight: 700;
+	}
+
+	.mobile-peak-dates-container .player-longevity-mode {
+		font-size: 13px;
+		font-weight: 600;
+		margin-top: 4px;
+	}
+
+	.mobile-peak-dates-container .player-longevity-details {
+		font-size: 12px;
+		line-height: 1.4;
+		opacity: 0.88;
+		margin-top: 2px;
+		white-space: normal;
+		overflow-wrap: anywhere;
+	}
+
+	.mobile-peak-dates-container .player-longevity-meta,
+	.mobile-peak-dates-container .player-longevity-empty {
+		font-size: 12px;
+		line-height: 1.4;
+		opacity: 0.88;
+		margin-top: 6px;
+		white-space: normal;
+		overflow-wrap: anywhere;
+	}
+
+	.mobile-peak-dates-container .player-longevity-meta {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	.mobile-peak-dates-container .player-longevity-meta a.stats-run-link {
+		color: #3b82f6;
 	}
 
 	/* Remove the nth-child rule since we're using flex-basis now */
@@ -905,7 +1017,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		box-sizing: border-box;
 		width: 100%;
 		max-width: 100%;
-		overflow-x: hidden;
+		overflow-x: clip;
 	}
 
 	.mobile-main .mobile-stats-explorer .stats-explorer-tabs {
@@ -969,10 +1081,62 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		overflow-y: visible;
 		-webkit-overflow-scrolling: touch;
 		overscroll-behavior-x: contain;
-		margin: 0 -12px;
-		padding: 0 12px 10px;
+		margin: 0;
+		padding: 0 0 10px;
 		box-sizing: border-box;
 		scrollbar-width: thin;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-explorer-table {
+		width: max-content;
+		min-width: 720px;
+		border-collapse: separate;
+		border-spacing: 0;
+		font-size: 12px;
+		table-layout: auto;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-explorer-table th,
+	.mobile-main .mobile-stats-explorer .stats-explorer-table td {
+		padding: 8px 12px;
+		border-bottom: 1px solid var(--mobile-border);
+		text-align: left;
+		white-space: nowrap;
+		vertical-align: middle;
+		min-width: 4.75em;
+		max-width: none;
+		overflow: visible;
+		line-height: 1.35;
+		box-sizing: border-box;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-explorer-table th:first-child,
+	.mobile-main .mobile-stats-explorer .stats-explorer-table td:first-child {
+		min-width: 3.5em;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-explorer-table a.stats-run-link {
+		color: #3b82f6;
+		text-decoration: none;
+		white-space: nowrap;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-explorer-table th {
+		font-size: 11px;
+		text-transform: uppercase;
+		letter-spacing: 0.03em;
+		opacity: 0.75;
+		font-weight: 700;
+		position: sticky;
+		top: 0;
+		background: rgba(255, 255, 255, 0.92);
+		backdrop-filter: blur(8px);
+		z-index: 1;
+	}
+
+	body.dark-mode .mobile-main .mobile-stats-explorer .stats-explorer-table th {
+		background: rgba(20, 30, 40, 0.94);
+		color: #eee;
 	}
 
 	.mobile-main .mobile-stats-explorer .stats-explorer-chips {
@@ -1069,46 +1233,6 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 
 	body.dark-mode .mobile-main .mobile-stats-explorer .stats-explorer-select option {
 		background: #1a242e;
-		color: #eee;
-	}
-
-	.mobile-main .mobile-stats-explorer .stats-explorer-table {
-		width: max-content;
-		min-width: 100%;
-		border-collapse: collapse;
-		font-size: 12px;
-		table-layout: auto;
-	}
-
-	.mobile-main .mobile-stats-explorer .stats-explorer-table th,
-	.mobile-main .mobile-stats-explorer .stats-explorer-table td {
-		padding: 8px 10px;
-		border-bottom: 1px solid var(--mobile-border);
-		text-align: left;
-		white-space: nowrap;
-		vertical-align: middle;
-	}
-
-	.mobile-main .mobile-stats-explorer .stats-explorer-table a.stats-run-link {
-		color: #3b82f6;
-		text-decoration: none;
-	}
-
-	.mobile-main .mobile-stats-explorer .stats-explorer-table th {
-		font-size: 11px;
-		text-transform: uppercase;
-		letter-spacing: 0.03em;
-		opacity: 0.75;
-		font-weight: 700;
-		position: sticky;
-		top: 0;
-		background: rgba(255, 255, 255, 0.92);
-		backdrop-filter: blur(8px);
-		z-index: 1;
-	}
-
-	body.dark-mode .mobile-main .mobile-stats-explorer .stats-explorer-table th {
-		background: rgba(20, 30, 40, 0.94);
 		color: #eee;
 	}
 

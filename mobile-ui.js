@@ -599,11 +599,11 @@ function showBasicMobileSettingsSection() {
                  <div class="mobile-inline-search-container">
                      <div class="mobile-date-search-row">
                          <div class="mobile-date-picker-group">
-                             <label class="mobile-form-label" for="mobileDatePicker">Time Travel Date</label>
+                             <label class="mobile-form-label" for="mobileDatePicker">Date</label>
                              <input type="date" id="mobileDatePicker" class="mobile-form-input" value="${selectedTimeTravelDate || ''}">
                          </div>
                          <div class="mobile-username-search-group">
-                             <label class="mobile-form-label" for="mobileUsernameSearch">Search Player Peak Dates</label>
+                             <label class="mobile-form-label" for="mobileUsernameSearch">Search Player</label>
                              <div class="mobile-username-search-container">
                                  <input type="text" id="mobileUsernameSearch" class="mobile-form-input" placeholder="Enter username..." autocomplete="off">
                                  <button id="mobileSearchPlayerBtn" class="mobile-search-btn">🔍</button>
@@ -611,11 +611,13 @@ function showBasicMobileSettingsSection() {
                          </div>
                      </div>
                      <div id="mobilePlayerPeakDates" class="mobile-peak-dates-container" style="display: none;">
+                         <div id="mobilePlayerSearchProfile" class="player-search-profile"></div>
                          <div class="mobile-peak-dates-buttons">
                              <button id="mobilePeakRecordsBtn" class="mobile-peak-date-btn">📊 Peak Records: <span id="mobilePeakRecordsDate">-</span></button>
                              <button id="mobilePeakPercentageBtn" class="mobile-peak-date-btn">📈 Peak Percentage: <span id="mobilePeakPercentageDate">-</span></button>
-                             <button id="mobileLatestDataBtn" class="mobile-peak-date-btn">🕒 Latest Data</button>
+                             <button id="mobileLatestDataBtn" class="mobile-peak-date-btn">🕒 Latest Data: <span id="mobileLatestDataDate">-</span></button>
                          </div>
+                         <div id="mobilePlayerSearchLongevity" class="player-search-longevity"></div>
                      </div>
                  </div>
              </div>
@@ -1423,8 +1425,6 @@ function setupMobileUsernameSearchListeners() {
     const peakRecordsBtn = document.getElementById('mobilePeakRecordsBtn');
     const peakPercentageBtn = document.getElementById('mobilePeakPercentageBtn');
     const latestDataBtn = document.getElementById('mobileLatestDataBtn');
-    const peakRecordsDate = document.getElementById('mobilePeakRecordsDate');
-    const peakPercentageDate = document.getElementById('mobilePeakPercentageDate');
 
     if (!searchBtn || !usernameInput || !peakDatesContainer) return;
 
@@ -1439,7 +1439,7 @@ function setupMobileUsernameSearchListeners() {
         try {
             const playerData = await searchPlayerStats(username);
             if (playerData) {
-                displayMobilePlayerPeakDates(playerData);
+                await displayMobilePlayerPeakDates(playerData);
             } else {
                 alert(`Player "${username}" not found in the database`);
                 peakDatesContainer.style.display = 'none';
@@ -1487,30 +1487,48 @@ function setupMobileUsernameSearchListeners() {
     }
 }
 
-// Display mobile player peak dates
-function displayMobilePlayerPeakDates(playerData) {
+// Display mobile player peak dates + career / longevity profile
+async function displayMobilePlayerPeakDates(playerData) {
     const peakDatesContainer = document.getElementById('mobilePlayerPeakDates');
     const peakRecordsDate = document.getElementById('mobilePeakRecordsDate');
     const peakPercentageDate = document.getElementById('mobilePeakPercentageDate');
     const peakRecordsBtn = document.getElementById('mobilePeakRecordsBtn');
     const peakPercentageBtn = document.getElementById('mobilePeakPercentageBtn');
+    const latestDataBtn = document.getElementById('mobileLatestDataBtn');
+    const profileEl = document.getElementById('mobilePlayerSearchProfile');
+    const longevityEl = document.getElementById('mobilePlayerSearchLongevity');
 
     if (!peakDatesContainer || !peakRecordsDate || !peakPercentageDate) return;
 
-    // Update the date spans
+    if (profileEl && typeof buildPlayerSearchProfileHtml === 'function') {
+        profileEl.innerHTML = buildPlayerSearchProfileHtml(playerData);
+    }
+
     peakRecordsDate.textContent = playerData.peakRecords.date || '-';
     peakPercentageDate.textContent = playerData.peakPercentage.date || '-';
 
-    // Update button text with counts/percentages
     if (peakRecordsBtn) {
         peakRecordsBtn.innerHTML = `📊 Peak Records: <span id="mobilePeakRecordsDate">${playerData.peakRecords.date || '-'}</span> (${playerData.peakRecords.count} records)`;
     }
     if (peakPercentageBtn) {
         peakPercentageBtn.innerHTML = `📈 Peak Percentage: <span id="mobilePeakPercentageDate">${playerData.peakPercentage.date || '-'}</span> (${playerData.peakPercentage.percentage}%)`;
     }
+    if (latestDataBtn) {
+        const latest = playerData.latest || {};
+        const latestDate = latest.date || '-';
+        const latestCount = latest.count != null ? latest.count : 0;
+        const latestPct = latest.percentage != null ? latest.percentage : 0;
+        latestDataBtn.innerHTML = `🕒 Latest Data: <span id="mobileLatestDataDate">${latestDate}</span> (${latestCount} records, ${latestPct}%)`;
+    }
 
-    // Show the container
     peakDatesContainer.style.display = 'block';
+
+    const longevityBest = typeof getPlayerLongevityBest === 'function'
+        ? await getPlayerLongevityBest(playerData.id)
+        : { allTime: null, standing: null };
+    if (longevityEl && typeof buildPlayerLongevityHtml === 'function') {
+        longevityEl.innerHTML = buildPlayerLongevityHtml(longevityBest);
+    }
 }
 
 // Set mobile time travel date and enable time travel

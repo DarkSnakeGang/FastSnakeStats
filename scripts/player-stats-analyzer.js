@@ -128,8 +128,10 @@ class PlayerStatsAnalyzer {
     }
 
     // Calculate peak statistics for each player
-    calculatePeakStats() {
+    calculatePeakStats(latestDate) {
         const results = [];
+        const latestDateStats = latestDate ? this.dateStats.get(latestDate) : null;
+        const latestTotal = latestDateStats ? latestDateStats.totalRecords : 0;
 
         for (const [playerId, playerStat] of this.playerStats) {
             // Find date with most records
@@ -156,6 +158,13 @@ class PlayerStatsAnalyzer {
                 }
             }
 
+            const latestCount = latestDate
+                ? (playerStat.dailyRecordCounts.get(latestDate) || 0)
+                : 0;
+            const latestPercentage = latestTotal > 0
+                ? Math.round((latestCount / latestTotal) * 10000) / 100
+                : 0;
+
             results.push({
                 id: playerId,
                 name: playerStat.name,
@@ -168,6 +177,11 @@ class PlayerStatsAnalyzer {
                 peakPercentage: {
                     date: maxPercentageDate,
                     percentage: Math.round(maxPercentage * 100) / 100 // Round to 2 decimal places
+                },
+                latest: {
+                    date: latestDate || null,
+                    count: latestCount,
+                    percentage: latestPercentage
                 }
             });
         }
@@ -226,7 +240,8 @@ class PlayerStatsAnalyzer {
 
         // Calculate peak statistics
         console.log('📈 Calculating peak statistics...');
-        const results = this.calculatePeakStats();
+        const latestDate = availableDates[availableDates.length - 1];
+        const results = this.calculatePeakStats(latestDate);
 
         // Save results
         this.saveResults(results);

@@ -3,6 +3,7 @@
 
 var statsExplorerData = null;
 var statsExplorerLoading = false;
+var statsExplorerLoadPromise = null;
 var statsExplorerActiveTab = 'progression';
 var statsExplorerImproveWindow = '30d';
 var statsExplorerHeatMetric = 'flips';
@@ -227,29 +228,38 @@ function formatHoldTimeCell(row, parsed) {
 }
 
 async function loadStatisticsExplorerData() {
-    if (statsExplorerData || statsExplorerLoading) return statsExplorerData;
+    if (statsExplorerData) return statsExplorerData;
+    if (statsExplorerLoadPromise) return statsExplorerLoadPromise;
+
     statsExplorerLoading = true;
-    try {
-        var localRes = await fetch('time-travel-cache/metadata/statistics-explorer.json');
-        if (localRes.ok) {
-            statsExplorerData = await localRes.json();
-            return statsExplorerData;
+    statsExplorerLoadPromise = (async function () {
+        try {
+            var localRes = await fetch('time-travel-cache/metadata/statistics-explorer.json');
+            if (localRes.ok) {
+                statsExplorerData = await localRes.json();
+                return statsExplorerData;
+            }
+        } catch (e) { /* try remote */ }
+        try {
+            var base = (window.githubCacheFetcher && window.githubCacheFetcher.baseURL) ||
+                'https://raw.githubusercontent.com/DarkSnakeGang/FastSnakeStats/refs/heads/main';
+            var remoteRes = await fetch(base + '/time-travel-cache/metadata/statistics-explorer.json');
+            if (remoteRes.ok) {
+                statsExplorerData = await remoteRes.json();
+                return statsExplorerData;
+            }
+        } catch (e2) {
+            console.error('Failed to load statistics explorer data', e2);
         }
-    } catch (e) { /* try remote */ }
+        return null;
+    })();
+
     try {
-        var base = (window.githubCacheFetcher && window.githubCacheFetcher.baseURL) ||
-            'https://raw.githubusercontent.com/DarkSnakeGang/FastSnakeStats/refs/heads/main';
-        var remoteRes = await fetch(base + '/time-travel-cache/metadata/statistics-explorer.json');
-        if (remoteRes.ok) {
-            statsExplorerData = await remoteRes.json();
-            return statsExplorerData;
-        }
-    } catch (e2) {
-        console.error('Failed to load statistics explorer data', e2);
+        return await statsExplorerLoadPromise;
     } finally {
         statsExplorerLoading = false;
+        statsExplorerLoadPromise = null;
     }
-    return null;
 }
 
 function applyStatsExplorerCollapseState() {

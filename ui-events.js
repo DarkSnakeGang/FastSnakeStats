@@ -718,6 +718,9 @@ function initializeUI() {
 }
 
 // Username search functionality
+var playerStatsCache = null;
+var playerStatsCachePromise = null;
+
 function initializeUsernameSearch() {
     const searchBtn = document.getElementById('searchPlayerBtn');
     const usernameInput = document.getElementById('usernameSearch');
@@ -725,8 +728,6 @@ function initializeUsernameSearch() {
     const peakRecordsBtn = document.getElementById('peakRecordsBtn');
     const peakPercentageBtn = document.getElementById('peakPercentageBtn');
     const latestDataBtn = document.getElementById('latestDataBtn');
-    const peakRecordsDate = document.getElementById('peakRecordsDate');
-    const peakPercentageDate = document.getElementById('peakPercentageDate');
 
     if (!searchBtn || !usernameInput || !peakDatesContainer) return;
 
@@ -741,7 +742,7 @@ function initializeUsernameSearch() {
         try {
             const playerData = await searchPlayerStats(username);
             if (playerData) {
-                displayPlayerPeakDates(playerData);
+                await displayPlayerPeakDates(playerData);
             } else {
                 alert(`Player "${username}" not found in the database`);
                 peakDatesContainer.style.display = 'none';
@@ -789,22 +790,37 @@ function initializeUsernameSearch() {
     }
 }
 
-// Search for player in the stats database
-async function searchPlayerStats(username) {
-    try {
+async function loadPlayerStatsData() {
+    if (playerStatsCache) return playerStatsCache;
+    if (playerStatsCachePromise) return playerStatsCachePromise;
+
+    playerStatsCachePromise = (async function () {
         const response = await fetch('time-travel-cache/metadata/player-stats.json');
         if (!response.ok) {
             throw new Error('Failed to load player stats');
         }
-        
-        const data = await response.json();
+        playerStatsCache = await response.json();
+        return playerStatsCache;
+    })();
+
+    try {
+        return await playerStatsCachePromise;
+    } finally {
+        playerStatsCachePromise = null;
+    }
+}
+
+// Search for player in the stats database
+async function searchPlayerStats(username) {
+    try {
+        const data = await loadPlayerStatsData();
         const players = data.players || [];
-        
-        // Case-insensitive search
-        const player = players.find(p => 
+
+        // Case-insensitive exact match
+        const player = players.find(p =>
             p.name.toLowerCase() === username.toLowerCase()
         );
-        
+
         return player || null;
     } catch (error) {
         console.error('Error loading player stats:', error);
@@ -812,30 +828,165 @@ async function searchPlayerStats(username) {
     }
 }
 
-// Display player peak dates
-function displayPlayerPeakDates(playerData) {
+function getPlayerLongevityBest(playerId) {
+    const empty = { allTime: null, standing: null };
+    if (!playerId || typeof loadStatisticsExplorerData !== 'function') {
+        return Promise.resolve(empty);
+    }
+
+    return loadStatisticsExplorerData().then(function (data) {
+        if (!data || !data.longevity) return empty;
+
+        const longevity = data.longevity;
+        const allRows = Array.isArray(longevity.all)
+            ? longevity.all
+            : (Array.isArray(longevity) ? longevity : []);
+        const standingRows = Array.isArray(longevity.standing)
+            ? longevity.standing
+            : allRows.filter(function (r) { return r.stillStanding; });
+
+        const pickBest = function (rows) {
+            let best = null;
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                if (row.playerId !== playerId) continue;
+                if (!best || row.days > best.days) best = row;
+            }
+            return best;
+        };
+
+        return {
+            allTime: pickBest(allRows),
+            standing: pickBest(standingRows)
+        };
+    }).catch(function () {
+        return empty;
+    });
+}
+
+function formatPlayerCategoryLabel(category) {
+    const parsed = typeof parseCategoryKey === 'function' ? parseCategoryKey(category) : null;
+    if (!parsed) return category || '—';
+    return [parsed.gamemode, parsed.apple, parsed.speed, parsed.size, parsed.runMode]
+        .filter(Boolean)
+        .join(' · ');
+}
+
+function formatPlayerCategoryHtml(category) {
+    const escape = typeof escapeHtml === 'function'
+        ? escapeHtml
+        : function (s) { return String(s == null ? '' : s); };
+    const parsed = typeof parseCategoryKey === 'function' ? parseCategoryKey(category) : null;
+    if (!parsed) return escape(category || '—');
+    const details = [parsed.apple, parsed.speed, parsed.size, parsed.runMode]
+        .filter(Boolean)
+        .join(' · ');
+    return '<div class="player-longevity-mode">' + escape(parsed.gamemode) + '</div>' +
+        '<div class="player-longevity-details">' + escape(details) + '</div>';
+}
+
+function formatLongevityHoldHtml(row) {
+    if (!row) {
+        return '<div class="player-longevity-empty">None</div>';
+    }
+
+    const escape = typeof escapeHtml === 'function'
+        ? escapeHtml
+        : function (s) { return String(s == null ? '' : s); };
+    const parsed = typeof parseCategoryKey === 'function' ? parseCategoryKey(row.category) : null;
+    const isHS = parsed && parsed.runMode === 'High Score';
+    const timeText = typeof formatPrimaryDisplay === 'function'
+        ? formatPrimaryDisplay(row.time, isHS)
+        : (row.time || '—');
+    const timeHtml = row.weblink
+        ? '<a class="stats-run-link" href="' + (typeof escapeAttr === 'function' ? escapeAttr(row.weblink) : row.weblink) +
+            '" target="_blank" rel="noopener noreferrer">' + escape(timeText) + '</a>'
+        : escape(timeText);
+    const range = row.stillStanding
+        ? (row.start || '?') + ' → present'
+        : (row.start || '?') + ' → ' + (row.end || '?');
+    const tied = row.tiedHolders > 1 ? ' · tied×' + row.tiedHolders : '';
+
+    return '<div class="player-longevity-hold">' +
+        '<div class="player-longevity-days">' + escape(String(row.days)) + ' days' + escape(tied) + '</div>' +
+        '<div class="player-longevity-cat">' + formatPlayerCategoryHtml(row.category) + '</div>' +
+        '<div class="player-longevity-meta"><span class="player-longevity-range">' + escape(range) + '</span>' +
+        '<span class="player-longevity-time">' + timeHtml + '</span></div>' +
+        '</div>';
+}
+
+function buildPlayerSearchProfileHtml(playerData) {
+    const escape = typeof escapeHtml === 'function'
+        ? escapeHtml
+        : function (s) { return String(s == null ? '' : s); };
+    const totalDates = playerData.totalDates || 0;
+    const totalRecords = playerData.totalRecords || 0;
+    const avgPerDay = totalDates > 0
+        ? Math.round((totalRecords / totalDates) * 10) / 10
+        : 0;
+
+    return '<div class="player-search-name">' + escape(playerData.name) + '</div>' +
+        '<div class="player-search-summary">' +
+        '<span><strong>' + escape(String(totalDates)) + '</strong> dates</span>' +
+        '<span><strong>' + escape(String(totalRecords)) + '</strong> total WRs</span>' +
+        '<span><strong>' + escape(String(avgPerDay)) + '</strong> avg/day</span>' +
+        '</div>';
+}
+
+function buildPlayerLongevityHtml(longevityBest) {
+    const best = longevityBest || { allTime: null, standing: null };
+    return '<div class="player-longevity-grid">' +
+        '<div class="player-longevity-card">' +
+        '<div class="player-longevity-label">Best longevity (all-time)</div>' +
+        formatLongevityHoldHtml(best.allTime) +
+        '</div>' +
+        '<div class="player-longevity-card">' +
+        '<div class="player-longevity-label">Best still standing</div>' +
+        formatLongevityHoldHtml(best.standing) +
+        '</div>' +
+        '</div>';
+}
+
+// Display player peak dates + career / longevity profile
+async function displayPlayerPeakDates(playerData) {
     const peakDatesContainer = document.getElementById('playerPeakDates');
     const peakRecordsDate = document.getElementById('peakRecordsDate');
     const peakPercentageDate = document.getElementById('peakPercentageDate');
     const peakRecordsBtn = document.getElementById('peakRecordsBtn');
     const peakPercentageBtn = document.getElementById('peakPercentageBtn');
+    const latestDataBtn = document.getElementById('latestDataBtn');
+    const profileEl = document.getElementById('playerSearchProfile');
+    const longevityEl = document.getElementById('playerSearchLongevity');
 
     if (!peakDatesContainer || !peakRecordsDate || !peakPercentageDate) return;
 
-    // Update the date spans
+    if (profileEl) {
+        profileEl.innerHTML = buildPlayerSearchProfileHtml(playerData);
+    }
+
     peakRecordsDate.textContent = playerData.peakRecords.date || '-';
     peakPercentageDate.textContent = playerData.peakPercentage.date || '-';
 
-    // Update button text with counts/percentages
     if (peakRecordsBtn) {
         peakRecordsBtn.innerHTML = `📊 Peak Records: <span id="peakRecordsDate">${playerData.peakRecords.date || '-'}</span> (${playerData.peakRecords.count} records)`;
     }
     if (peakPercentageBtn) {
         peakPercentageBtn.innerHTML = `📈 Peak Percentage: <span id="peakPercentageDate">${playerData.peakPercentage.date || '-'}</span> (${playerData.peakPercentage.percentage}%)`;
     }
+    if (latestDataBtn) {
+        const latest = playerData.latest || {};
+        const latestDate = latest.date || '-';
+        const latestCount = latest.count != null ? latest.count : 0;
+        const latestPct = latest.percentage != null ? latest.percentage : 0;
+        latestDataBtn.innerHTML = `🕒 Latest Data: <span id="latestDataDate">${latestDate}</span> (${latestCount} records, ${latestPct}%)`;
+    }
 
-    // Show the container
     peakDatesContainer.style.display = 'block';
+
+    const longevityBest = await getPlayerLongevityBest(playerData.id);
+    if (longevityEl) {
+        longevityEl.innerHTML = buildPlayerLongevityHtml(longevityBest);
+    }
 }
 
 // Set time travel date and enable time travel
