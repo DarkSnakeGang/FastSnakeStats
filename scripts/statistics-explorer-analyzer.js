@@ -16,7 +16,7 @@ const { slimDailyData } = require('./statistics-explorer-slim');
  */
 
 /** Bump whenever scoring / legends / hold logic changes (forces full rebuild). */
-const ANALYZER_VERSION = 6;
+const ANALYZER_VERSION = 10;
 
 const DIFFICULTY_TIERS = ['Free', 'Warmup', 'Easy', 'Medium', 'Hard', 'Mythic', 'Lottery', 'Inhuman'];
 
@@ -649,7 +649,7 @@ class StatisticsExplorerAnalyzer {
 
     /**
      * Mythic holds only.
-     * High Score floors: Standard/Large ≥100 apples, Small ≥35 apples.
+     * High Score floors: Small ≥35, Standard >220, Large ≥300 and not Slow.
      */
     qualifiesForLegends(category, time) {
         const scored = this.scoreCategory(category);
@@ -657,7 +657,11 @@ class StatisticsExplorerAnalyzer {
         const p = this.parseCategoryParts(category);
         if (p.run === 'High Score') {
             const apples = this.parseHighScoreApples(time);
-            if (p.size === 'Standard' || p.size === 'Large') return apples >= 100;
+            if (p.size === 'Large') {
+                if (p.speed === 'Slow') return false;
+                return apples >= 300;
+            }
+            if (p.size === 'Standard') return apples > 220;
             if (p.size === 'Small') return apples >= 35;
         }
         return true;
@@ -789,8 +793,10 @@ class StatisticsExplorerAnalyzer {
             tier = speed === 'Fast' ? 'Inhuman' : 'Mythic';
         } else if (mode === 'Poison' && apple === 'Bomb') {
             // Poison Bomb: Mythic any size/run; Fast → Inhuman
-            // Exception: Small 25 is not Mythic (stays base / other floors)
-            if (!(size === 'Small' && run === '25 Apples')) {
+            // Slow Small: Mythic only for All Apples (other Slow Small runs stay below)
+            if (size === 'Small' && speed === 'Slow' && run !== 'All Apples') {
+                // leave base tier
+            } else if (!(size === 'Small' && run === '25 Apples')) {
                 tier = speed === 'Fast' ? 'Inhuman' : 'Mythic';
             }
         } else if (
@@ -799,8 +805,11 @@ class StatisticsExplorerAnalyzer {
             size === 'Standard' &&
             (speed === 'Normal' || speed === 'Fast')
         ) {
-            // Poison 5a Standard Normal+ → Mythic
-            tier = 'Mythic';
+            // Poison 5a Standard Normal/Fast → Mythic
+            // Exception: Normal 100 / High Score are not Mythic
+            if (!(speed === 'Normal' && (run === '100 Apples' || run === 'High Score'))) {
+                tier = 'Mythic';
+            }
         } else if (
             mode === 'Poison' &&
             apple === '3 Apples' &&
@@ -865,9 +874,40 @@ class StatisticsExplorerAnalyzer {
         if (speed === 'Slow' && tier === 'Mythic') {
             const keepMythic =
                 (mode === 'Portal' && apple === 'Bomb') ||
-                (mode === 'Poison' && apple === 'Bomb' && !(size === 'Small' && run === '25 Apples')) ||
+                // Poison Bomb Slow Small: Mythic only on All Apples
+                (mode === 'Poison' && apple === 'Bomb' && (size !== 'Small' || run === 'All Apples')) ||
                 (mode === 'Gate' && run === 'All Apples' && (size === 'Standard' || size === 'Large'));
             if (!keepMythic) tier = 'Hard';
+        }
+
+        // Large 100 Apples is never Mythic (or above), any mode/speed/count
+        if (
+            size === 'Large' &&
+            run === '100 Apples' &&
+            this.tierIndex(tier) > this.tierIndex('Hard')
+        ) {
+            tier = 'Hard';
+        }
+
+        // Standard 100 Apples is never Mythic — sole exception: Statue (non-Slow)
+        if (size === 'Standard' && run === '100 Apples') {
+            const statueOk = mode === 'Statue' && speed !== 'Slow';
+            if (!statueOk && this.tierIndex(tier) > this.tierIndex('Hard')) {
+                tier = 'Hard';
+            }
+            if (mode === 'Statue' && speed === 'Slow' && this.tierIndex(tier) >= this.tierIndex('Mythic')) {
+                tier = 'Hard';
+            }
+        }
+
+        // Slow Large High Score is never Mythic (Legends also requires ≥300 + non-Slow)
+        if (
+            speed === 'Slow' &&
+            size === 'Large' &&
+            run === 'High Score' &&
+            this.tierIndex(tier) >= this.tierIndex('Mythic')
+        ) {
+            tier = 'Hard';
         }
 
         // Non-exception Slow + Small is Medium at most
@@ -876,7 +916,8 @@ class StatisticsExplorerAnalyzer {
             (mode === 'Cheese' && run === '50 Apples' && size === 'Small') ||
             (mode === 'Statue' && apple === '1 Apple' && run === '50 Apples' && size === 'Small') ||
             (mode === 'Portal' && apple === 'Bomb') ||
-            (mode === 'Poison' && apple === 'Bomb' && !(size === 'Small' && run === '25 Apples'));
+            // Poison Bomb Slow Small: only All Apples may stay above Medium
+            (mode === 'Poison' && apple === 'Bomb' && run === 'All Apples');
         if (speed === 'Slow' && size === 'Small' && !slowSmallException) {
             if (this.tierIndex(tier) > this.tierIndex('Medium')) {
                 tier = 'Medium';
