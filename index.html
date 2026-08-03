@@ -137,13 +137,10 @@
 
                 </div>
 
-                <div id="settingsModal" class="modal">
-
-                  <!-- Modal content -->
+                <div id="settingsModal" class="modal" style="display: none;" aria-hidden="true">
+                  <!-- Kept as a parking host for #settingsTools until mounted into the Settings sidebar -->
                   <div class="modal-content">
-                        <p><strong>Settings</strong></p>
-
-                                      <div class="settings-form-item">
+                                      <div class="settings-form-item" id="settingsTools">
                   <div class="inline-search-container">
                       <div class="date-search-row">
                           <div class="date-picker-group">
@@ -168,8 +165,7 @@
                   </div>
               </div>
         
-                        <div id="optionButtons">
-                        </div>
+                        <div id="optionButtons" style="display: none;"></div>
                   </div>
 
                 </div>

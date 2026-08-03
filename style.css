@@ -206,13 +206,287 @@ h2{
 	border-radius: 15px;
 	padding: 20px;
 	box-shadow: 0 8px 32px var(--shadow);
-	max-width: 430px;
-	width: 430px;
+	max-width: 1040px;
+	width: min(1040px, calc(100vw - 32px));
+	max-height: calc(100vh - 196px);
 	z-index: 260;
 	backdrop-filter: blur(15px);
 	border: 1px solid rgba(255, 255, 255, 0.2);
 	transition: width 0.2s ease, padding 0.2s ease, max-width 0.2s ease, left 0.2s ease, top 0.2s ease;
 	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.table-selector-body {
+	overflow-y: auto;
+	overflow-x: hidden;
+	flex: 1 1 auto;
+	min-height: 0;
+	padding-right: 4px;
+}
+
+.settings-layout {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	gap: 20px;
+}
+
+.settings-col {
+	min-width: 0;
+}
+
+.settings-col-left {
+	flex: 0 0 380px;
+	width: 380px;
+	max-width: 380px;
+}
+
+.settings-col-right {
+	flex: 1 1 auto;
+	min-width: 0;
+	padding-left: 18px;
+	border-left: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.settings-panel-section {
+	margin-bottom: 14px;
+}
+
+.settings-panel-section > label {
+	margin-bottom: 8px;
+}
+
+.settings-mode-group .optionButton {
+	background: rgba(0, 0, 0, 0.18);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 12px;
+	padding: 6px;
+	width: 55px;
+	height: 55px;
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	box-shadow: 0 4px 12px var(--shadow);
+}
+
+.settings-mode-group .optionButton:hover {
+	background: rgba(0, 0, 0, 0.28);
+}
+
+.settings-mode-group .optionButtonImage {
+	width: 100%;
+	height: 100%;
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
+}
+
+.settings-col-right .settings-mode-group.button-group {
+	justify-content: center;
+	gap: 8px;
+}
+
+.settings-run-btn {
+	width: auto !important;
+	min-width: 72px;
+	height: 36px !important;
+	padding: 6px 10px !important;
+	font-size: 12px !important;
+	font-weight: 600;
+	background: rgba(0, 0, 0, 0.22) !important;
+	border: 1px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+.settings-run-btn.active {
+	background: #007bff !important;
+	border-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* Left-column category icons — fixed square size, no squeeze */
+.settings-col-left .table-option-btn:not(.multiple-tables-btn):not(.time-travel-btn) {
+	box-sizing: border-box;
+	flex: 0 0 55px;
+	width: 55px;
+	height: 55px;
+	min-width: 55px;
+	min-height: 55px;
+	margin: 0;
+	padding: 6px;
+	border-width: 2px;
+	border-style: solid;
+	border-color: transparent;
+}
+
+.settings-col-left .table-option-btn:not(.multiple-tables-btn):not(.time-travel-btn).active {
+	border-color: rgba(255, 255, 255, 0.35);
+}
+
+.settings-col-left .button-group {
+	justify-content: center;
+	gap: 8px;
+}
+
+/* Time Travel — date + search side by side, no card chrome */
+.table-selector .settings-tools-section {
+	margin-top: 6px;
+	padding: 0;
+	border-radius: 0;
+	background: transparent;
+	border: none;
+	box-sizing: border-box;
+}
+
+.table-selector .settings-tools-section > label {
+	display: block !important;
+	text-align: center !important;
+	margin: 0 0 12px 0 !important;
+	font-size: 14px;
+	font-weight: 600;
+	opacity: 0.95;
+}
+
+.table-selector .settings-tools-section .settings-form-item {
+	display: block !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	background: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
+	justify-content: stretch !important;
+	align-items: stretch !important;
+	gap: 0 !important;
+}
+
+.table-selector .settings-tools-section .inline-search-container {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	width: 100%;
+}
+
+.table-selector .settings-tools-section .date-search-row {
+	display: flex !important;
+	flex-direction: row !important;
+	align-items: flex-end !important;
+	gap: 12px !important;
+	margin: 0 !important;
+}
+
+.table-selector .settings-tools-section .date-picker-group,
+.table-selector .settings-tools-section .username-search-group {
+	display: flex !important;
+	flex-direction: column !important;
+	align-items: stretch !important;
+	flex: 1 1 0 !important;
+	min-width: 0 !important;
+	width: auto !important;
+	gap: 6px;
+	text-align: left;
+}
+
+.table-selector .settings-tools-section .date-picker-group label,
+.table-selector .settings-tools-section .username-search-group label {
+	display: block !important;
+	text-align: left !important;
+	justify-content: flex-start !important;
+	margin: 0 !important;
+	font-size: 12px;
+	font-weight: 600;
+	opacity: 0.9;
+	white-space: nowrap;
+}
+
+.table-selector .settings-tools-section input[type="date"],
+.table-selector .settings-tools-section input[type="text"],
+.table-selector .settings-tools-section #usernameSearch,
+.table-selector .settings-tools-section .username-search-container input[type="text"] {
+	width: 100% !important;
+	max-width: 100% !important;
+	min-width: 0 !important;
+	box-sizing: border-box !important;
+	height: 40px !important;
+	min-height: 40px !important;
+	padding: 8px 12px !important;
+	font-size: 13px !important;
+	line-height: 1.3 !important;
+	border-radius: 8px !important;
+	border: 1px solid rgba(255, 255, 255, 0.25) !important;
+	background: rgba(0, 0, 0, 0.4) !important;
+	color: #fff !important;
+	box-shadow: none !important;
+	backdrop-filter: none !important;
+	color-scheme: dark;
+}
+
+.table-selector .settings-tools-section input[type="date"]:focus,
+.table-selector .settings-tools-section input[type="text"]:focus,
+.table-selector .settings-tools-section #usernameSearch:focus {
+	outline: none !important;
+	border-color: rgba(77, 193, 249, 0.7) !important;
+	background: rgba(0, 0, 0, 0.5) !important;
+	box-shadow: 0 0 0 2px rgba(77, 193, 249, 0.2) !important;
+}
+
+.table-selector .settings-tools-section .username-search-container {
+	display: flex !important;
+	flex-direction: row !important;
+	align-items: center !important;
+	gap: 8px !important;
+	width: 100%;
+}
+
+.table-selector .settings-tools-section .search-btn {
+	flex: 0 0 40px;
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(0, 0, 0, 0.35);
+	border: 1px solid rgba(255, 255, 255, 0.22);
+	border-radius: 8px;
+	color: #fff;
+	cursor: pointer;
+}
+
+.table-selector .settings-tools-section .search-btn:hover {
+	background: rgba(0, 0, 0, 0.5);
+}
+
+.table-selector .settings-tools-section .peak-dates-container {
+	margin: 0;
+	padding: 0;
+	background: transparent;
+	border: none;
+}
+
+.table-selector .settings-tools-section .peak-dates-buttons {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.table-selector .settings-tools-section .peak-date-btn {
+	width: 100%;
+	text-align: left;
+	background: rgba(0, 0, 0, 0.28);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: #fff;
+	border-radius: 8px;
+	padding: 8px 10px;
+	cursor: pointer;
+	font-size: 12px;
+}
+
+.table-selector .settings-tools-section .peak-date-btn:hover {
+	background: rgba(0, 0, 0, 0.4);
 }
 
 /* Shared open-state collapse button — matches sidebar settings/info buttons */
@@ -538,9 +812,10 @@ body:not(.dark-mode) .container td {
 	justify-content: center;
 }
 
-/* Keep all apple-amount icons on a single row */
-.table-selector-body > div:first-child .button-group {
+/* Keep apple-amount icons on a single row without squeezing */
+.settings-col-left > div:first-child .button-group {
 	flex-wrap: nowrap;
+	justify-content: center;
 }
 
 .table-option-btn {
@@ -555,11 +830,12 @@ body:not(.dark-mode) .container td {
 	transition: all 0.3s ease;
 	width: 55px;
 	height: 55px;
+	box-sizing: border-box;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	box-shadow: 0 4px 12px var(--shadow);
-	border: 1px solid rgba(255, 255, 255, 0.1);
+	border: 2px solid transparent;
 }
 
 .table-option-btn img {
@@ -576,7 +852,7 @@ body:not(.dark-mode) .container td {
 .table-option-btn.active {
 	background: #007bff;
 	color: white;
-	border: 2px solid rgba(255, 255, 255, 0.3);
+	border-color: rgba(255, 255, 255, 0.35);
 }
 
 
@@ -1662,7 +1938,7 @@ body.dark-mode .checkbox-item label {
 /* Dark mode styling for category settings */
 body.dark-mode .table-option-btn {
 	background: rgba(255, 255, 255, 0.1);
-	border: 1px solid rgba(77, 193, 249, 0.2);
+	border: 2px solid transparent;
 }
 
 body.dark-mode .table-option-btn:hover {
@@ -1673,7 +1949,7 @@ body.dark-mode .table-option-btn:hover {
 body.dark-mode .table-option-btn.active {
 	background: #007bff;
 	color: white;
-	border: 2px solid rgba(255, 255, 255, 0.3);
+	border-color: rgba(255, 255, 255, 0.3);
 }
 
 body.dark-mode .modal-content p {
@@ -2573,8 +2849,7 @@ body.dark-mode .quick-fetch-btn:disabled {
 
 	/* Collapsed Category Settings — vertical edge tab matching Summary */
 	body.category-collapsed .table-selector-body,
-	body.category-collapsed .sidebar-info-btn,
-	body.category-collapsed .sidebar-settings-btn:not(.category-collapse-btn) {
+	body.category-collapsed .sidebar-info-btn {
 		display: none !important;
 	}
 

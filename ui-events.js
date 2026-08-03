@@ -713,77 +713,8 @@ function initializeUI() {
     // Initialize username search functionality
     initializeUsernameSearch();
 
-    //make all optionbuttons
-    var optionButtons = document.getElementById('optionButtons');
-    if(optionButtons) {
-        // Clear existing content
-        optionButtons.innerHTML = '';
-        
-        // Create main row container for top settings
-        var topRowContainer = document.createElement('div');
-        topRowContainer.className = 'top-settings-row';
-        
-        // Create container for category settings (gamemodes) - left column
-        var categoryContainer = document.createElement('div');
-        categoryContainer.className = 'settings-container category-container';
-        categoryContainer.style.display = 'block'; // Force visibility
-        categoryContainer.style.visibility = 'visible'; // Force visibility
-        var categoryTitle = document.createElement('h4');
-        categoryTitle.textContent = 'Category Settings';
-        categoryTitle.className = 'settings-title';
-        categoryContainer.appendChild(categoryTitle);
-        
-        var categoryButtonGroup = document.createElement('div');
-        categoryButtonGroup.className = 'button-group';
-        for(gamemode in gamemodes){
-            categoryButtonGroup.appendChild(createOptionButton(gamemodes[gamemode]));
-        }
-        categoryContainer.appendChild(categoryButtonGroup);
-        
-        topRowContainer.appendChild(categoryContainer);
-        
-        // Create container for run mode settings (checkboxes) - right column
-        var runModeContainer = document.createElement('div');
-        runModeContainer.className = 'settings-container runmode-container';
-        var runModeTitle = document.createElement('h4');
-        runModeTitle.textContent = 'Run Mode Settings';
-        runModeTitle.className = 'settings-title';
-        runModeContainer.appendChild(runModeTitle);
-        
-        // Create a wrapper for checkboxes to align them properly
-        var checkboxWrapper = document.createElement('div');
-        checkboxWrapper.className = 'checkbox-wrapper';
-        
-        for(runMode in runModes){
-            var checkboxItem = document.createElement('div');
-            checkboxItem.className = 'checkbox-item';
-            
-            input = document.createElement('input');
-            input.checked = true;
-            input.setAttribute('type','checkbox');
-            input.setAttribute('id',"option"+runModes[runMode].id);
-            label = document.createElement('label');
-            label.setAttribute('for',"option"+runModes[runMode].id);
-            label.appendChild(document.createTextNode(runModes[runMode].text));
-            
-            input.addEventListener('click', ()=> {
-                for(runMode in runModes){
-                    runModes[runMode].visible = document.getElementById('option'+runModes[runMode].id).checked;
-                }
-                saveSettings(); // Save settings when changed
-                switchMode(2);
-            });
-            
-            checkboxItem.appendChild(input);
-            checkboxItem.appendChild(label);
-            checkboxWrapper.appendChild(checkboxItem);
-        }
-        
-        runModeContainer.appendChild(checkboxWrapper);
-        topRowContainer.appendChild(runModeContainer);
-        optionButtons.appendChild(topRowContainer);
-    } else {
-    }
+    // Game modes / run modes are mounted into the Settings sidebar by generateTableSelector
+    // (settings modal is no longer used as a UI surface).
 }
 
 // Username search functionality

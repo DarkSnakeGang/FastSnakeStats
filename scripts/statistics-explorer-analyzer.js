@@ -28,7 +28,7 @@ const MODE_BASE_TIER = {
     Poison: 'Medium',
     Minesweeper: 'Medium',
     Shield: 'Medium',
-    Hotdog: 'Medium',
+    Hotdog: 'Easy',
     Sokoban: 'Hard',
     Gate: 'Hard',
     Bridge: 'Medium'
@@ -161,7 +161,8 @@ class StatisticsExplorerAnalyzer {
             start: hold.start,
             end: endDate,
             days,
-            stillStanding: !!stillStanding
+            stillStanding: !!stillStanding,
+            tiedHolders: hold.tiedHolders || 1
         });
         this.openHolds.delete(key);
     }
@@ -242,7 +243,8 @@ class StatisticsExplorerAnalyzer {
                     primary,
                     weblink,
                     runKey,
-                    start: date
+                    start: date,
+                    tiedHolders: tiedHolderCount
                 });
             } else if (changed) {
                 flips++;
@@ -262,7 +264,8 @@ class StatisticsExplorerAnalyzer {
                     primary,
                     weblink,
                     runKey,
-                    start: date
+                    start: date,
+                    tiedHolders: tiedHolderCount
                 });
             } else {
                 // Same player+time (retime/id swap): keep hold, refresh display fields
@@ -272,6 +275,7 @@ class StatisticsExplorerAnalyzer {
                     hold.playerName = playerName;
                     hold.playerId = playerId;
                     hold.runKey = runKey;
+                    hold.tiedHolders = tiedHolderCount;
                     if (weblink) hold.weblink = weblink;
                 }
             }
@@ -555,8 +559,26 @@ class StatisticsExplorerAnalyzer {
             // Portal Bomb: Mythic any size/run; Fast → Inhuman (Slow kept Mythic below)
             tier = speed === 'Fast' ? 'Inhuman' : 'Mythic';
         } else if (mode === 'Poison' && apple === 'Bomb') {
-            // Poison Bomb: Mythic any size/run; Fast → Inhuman (Slow kept Mythic below)
-            tier = speed === 'Fast' ? 'Inhuman' : 'Mythic';
+            // Poison Bomb: Mythic any size/run; Fast → Inhuman
+            // Exception: Small 25 is not Mythic (stays base / other floors)
+            if (!(size === 'Small' && run === '25 Apples')) {
+                tier = speed === 'Fast' ? 'Inhuman' : 'Mythic';
+            }
+        } else if (
+            mode === 'Poison' &&
+            apple === '5 Apples' &&
+            size === 'Standard' &&
+            (speed === 'Normal' || speed === 'Fast')
+        ) {
+            // Poison 5a Standard Normal+ → Mythic
+            tier = 'Mythic';
+        } else if (
+            mode === 'Poison' &&
+            apple === '3 Apples' &&
+            (size === 'Standard' || size === 'Large')
+        ) {
+            // Poison 3a Standard/Large → Hard (not Medium)
+            tier = 'Hard';
         } else if (
             mode !== 'Borderless' &&
             mode !== 'Classic' &&
@@ -602,7 +624,7 @@ class StatisticsExplorerAnalyzer {
         if (speed === 'Slow' && tier === 'Mythic') {
             const keepMythic =
                 (mode === 'Portal' && apple === 'Bomb') ||
-                (mode === 'Poison' && apple === 'Bomb');
+                (mode === 'Poison' && apple === 'Bomb' && !(size === 'Small' && run === '25 Apples'));
             if (!keepMythic) tier = 'Hard';
         }
 
@@ -612,7 +634,7 @@ class StatisticsExplorerAnalyzer {
             (mode === 'Cheese' && run === '50 Apples' && size === 'Small') ||
             (mode === 'Statue' && apple === '1 Apple' && run === '50 Apples' && size === 'Small') ||
             (mode === 'Portal' && apple === 'Bomb') ||
-            (mode === 'Poison' && apple === 'Bomb');
+            (mode === 'Poison' && apple === 'Bomb' && !(size === 'Small' && run === '25 Apples'));
         if (speed === 'Slow' && size === 'Small' && !slowSmallException) {
             if (this.tierIndex(tier) > this.tierIndex('Medium')) {
                 tier = 'Medium';
@@ -708,7 +730,8 @@ class StatisticsExplorerAnalyzer {
             start: h.start,
             end: h.end,
             days: h.days,
-            stillStanding: !!h.stillStanding
+            stillStanding: !!h.stillStanding,
+            tiedHolders: h.tiedHolders || 1
         });
         return {
             all: sorted.map(mapRow),

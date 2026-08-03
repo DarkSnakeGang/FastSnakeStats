@@ -1027,6 +1027,14 @@ function updateTableSelector(){
             multipleTablesButton.setAttribute('title', 'Multiple tables mode disabled. Click to enable.');
         }
     }
+
+    // Restore run-mode chip active states (cleared by the blanket remove above)
+    document.querySelectorAll('.settings-run-btn').forEach(function (btn) {
+        var rm = btn.getAttribute('data-run-mode');
+        if (rm && runModes[rm]) {
+            btn.classList.toggle('active', !!runModes[rm].visible);
+        }
+    });
     
     // Double-check that we have the right number of active buttons (should be 3: count, speed, size)
     var activeButtons = document.querySelectorAll('.table-option-btn.active');
@@ -1105,10 +1113,10 @@ function generateTableSelector(){
     });
     sidebarHeader.appendChild(categoryCollapseBtn);
     
-    // Add Category Settings text
+    // Add Settings title
     var categoryText = document.createElement('h3');
     categoryText.setAttribute('class', 'category-settings-title');
-    categoryText.textContent = 'Category Settings';
+    categoryText.textContent = 'Settings';
     sidebarHeader.appendChild(categoryText);
     
     // Create sidebar info button
@@ -1117,14 +1125,6 @@ function generateTableSelector(){
     sidebarInfoBtn.innerHTML = 'ℹ️';
     sidebarInfoBtn.setAttribute('title', 'Info');
     sidebarHeader.appendChild(sidebarInfoBtn);
-    
-    // Create sidebar settings button
-    var sidebarSettingsBtn = document.createElement('button');
-    sidebarSettingsBtn.setAttribute('class', 'sidebar-settings-btn');
-    sidebarSettingsBtn.innerHTML = '⚙️';
-    sidebarSettingsBtn.setAttribute('title', 'Settings');
-    sidebarSettingsBtn.style.marginLeft = '8px'; // Add spacing between info and settings buttons
-    sidebarHeader.appendChild(sidebarSettingsBtn);
     
     sidebar.appendChild(sidebarHeader);
 
@@ -1139,14 +1139,17 @@ function generateTableSelector(){
             modal.style.display = "block";
         }
     });
-    
-    sidebarSettingsBtn.addEventListener('click', function() {
-        var modal2 = document.getElementById("settingsModal");
-        if(modal2) {
-            modal2.style.display = "block";
-        }
-    });
-    
+
+    // Two-column layout: left = category picks, right = modes / tools
+    var settingsLayout = document.createElement('div');
+    settingsLayout.setAttribute('class', 'settings-layout');
+    var leftCol = document.createElement('div');
+    leftCol.setAttribute('class', 'settings-col settings-col-left');
+    var rightCol = document.createElement('div');
+    rightCol.setAttribute('class', 'settings-col settings-col-right');
+    settingsLayout.appendChild(leftCol);
+    settingsLayout.appendChild(rightCol);
+    sidebarBody.appendChild(settingsLayout);
     // Apple Amount selector
     var appleSelector = document.createElement('div');
     appleSelector.innerHTML = '<label>Apple Amount</label>';
@@ -1379,9 +1382,9 @@ function generateTableSelector(){
     sizeSelector.appendChild(sizeButtonGroup);
     
     // Always show count/speed/size selectors regardless of multiple tables setting
-    sidebarBody.appendChild(appleSelector);
-    sidebarBody.appendChild(speedSelector);
-    sidebarBody.appendChild(sizeSelector);
+    leftCol.appendChild(appleSelector);
+    leftCol.appendChild(speedSelector);
+    leftCol.appendChild(sizeSelector);
     
     // Add options section (refresh and time travel buttons)
     var optionsSelector = document.createElement('div');
@@ -1433,17 +1436,22 @@ function generateTableSelector(){
     optionsButtonGroup.appendChild(timeTravelButton);
     
     optionsSelector.appendChild(optionsButtonGroup);
-    sidebarBody.appendChild(optionsSelector);
+    leftCol.appendChild(optionsSelector);
+
+    // Right column: game modes, run modes, time-travel tools
+    populateSidebarSettingsExtras(rightCol);
+
     sidebar.appendChild(sidebarBody);
     
     // Data section removed - no longer needed since only scripts handle API calls
     
-    // Add sidebar to page
+    // Add sidebar to page — park tools first so rebuild doesn't destroy them
+    parkSettingsTools();
     var existingSidebar = document.querySelector('.table-selector');
     if(existingSidebar){
         existingSidebar.remove();
     }
-    // Clicking the collapsed strip expands Category Settings
+    // Clicking the collapsed strip expands Settings
     sidebar.addEventListener('click', function(e) {
         if (!isCategoryCollapsed) return;
         if (e.target.closest('#categoryCollapseBtn')) return;
@@ -1451,7 +1459,79 @@ function generateTableSelector(){
     });
 
     document.body.insertBefore(sidebar, document.querySelector('.container'));
+    mountSettingsTools(rightCol);
     applyPanelCollapseState();
+}
+
+function parkSettingsTools() {
+    var tools = document.getElementById('settingsTools');
+    if (!tools) return;
+    var host = document.getElementById('settingsToolsHost');
+    if (!host) {
+        host = document.createElement('div');
+        host.id = 'settingsToolsHost';
+        host.setAttribute('hidden', '');
+        document.body.appendChild(host);
+    }
+    host.appendChild(tools);
+}
+
+function mountSettingsTools(rightCol) {
+    var tools = document.getElementById('settingsTools');
+    if (!tools || !rightCol) return;
+    var toolsWrap = document.createElement('div');
+    toolsWrap.setAttribute('class', 'settings-panel-section settings-tools-section');
+    var toolsLabel = document.createElement('label');
+    toolsLabel.textContent = 'Time Travel';
+    toolsWrap.appendChild(toolsLabel);
+    toolsWrap.appendChild(tools);
+    rightCol.appendChild(toolsWrap);
+}
+
+function populateSidebarSettingsExtras(rightCol) {
+    // Game modes
+    var modeSection = document.createElement('div');
+    modeSection.setAttribute('class', 'settings-panel-section');
+    modeSection.innerHTML = '<label>Game Modes</label>';
+    var modeGroup = document.createElement('div');
+    modeGroup.setAttribute('class', 'button-group settings-mode-group');
+    for (var gamemode in gamemodes) {
+        modeGroup.appendChild(createOptionButton(gamemodes[gamemode]));
+    }
+    modeSection.appendChild(modeGroup);
+    rightCol.appendChild(modeSection);
+
+    // Run modes — toggle chips matching sidebar theme
+    var runSection = document.createElement('div');
+    runSection.setAttribute('class', 'settings-panel-section');
+    runSection.innerHTML = '<label>Run Modes</label>';
+    var runGroup = document.createElement('div');
+    runGroup.setAttribute('class', 'button-group settings-run-group');
+    for (var runMode in runModes) {
+        (function (rm) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.setAttribute('class', 'table-option-btn settings-run-btn');
+            btn.setAttribute('data-run-mode', rm);
+            btn.textContent = runModes[rm].text;
+            if (runModes[rm].visible) btn.classList.add('active');
+            btn.addEventListener('click', function () {
+                if (isLoading) return;
+                runModes[rm].visible = !runModes[rm].visible;
+                btn.classList.toggle('active', !!runModes[rm].visible);
+                saveSettings();
+                switchMode(2);
+            });
+            runGroup.appendChild(btn);
+        })(runMode);
+    }
+    runSection.appendChild(runGroup);
+    rightCol.appendChild(runSection);
+}
+
+// Legacy stub kept so older callers don't break — extras now live in the sidebar
+function populateSettingsModalOptionButtons() {
+    // no-op: game/run mode controls are built in populateSidebarSettingsExtras
 }
 
 function generateRanglist(){

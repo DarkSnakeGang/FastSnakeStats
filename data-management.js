@@ -80,17 +80,17 @@ function applyPanelCollapseState() {
     if (categoryToggle) {
         // Only a close control when open; collapsed tab is label-only
         categoryToggle.textContent = '◀';
-        categoryToggle.setAttribute('title', 'Hide Category Settings');
+        categoryToggle.setAttribute('title', 'Hide Settings');
         categoryToggle.setAttribute('aria-expanded', String(!isCategoryCollapsed));
-        categoryToggle.setAttribute('aria-label', 'Hide Category Settings');
+        categoryToggle.setAttribute('aria-label', 'Hide Settings');
         categoryToggle.hidden = !!isCategoryCollapsed;
     }
 
     var categoryTitle = document.querySelector('.category-settings-title');
     if (categoryTitle) {
-        categoryTitle.textContent = isCategoryCollapsed ? '⚙️' : 'Category Settings';
-        categoryTitle.setAttribute('aria-label', isCategoryCollapsed ? 'Show Category Settings' : 'Category Settings');
-        categoryTitle.setAttribute('title', isCategoryCollapsed ? 'Show Category Settings' : 'Category Settings');
+        categoryTitle.textContent = isCategoryCollapsed ? '⚙️' : 'Settings';
+        categoryTitle.setAttribute('aria-label', isCategoryCollapsed ? 'Show Settings' : 'Settings');
+        categoryTitle.setAttribute('title', isCategoryCollapsed ? 'Show Settings' : 'Settings');
     }
 
     var summaryToggle = document.getElementById('summaryCollapseBtn');

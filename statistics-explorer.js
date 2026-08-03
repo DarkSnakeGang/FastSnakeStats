@@ -8,6 +8,7 @@ var statsExplorerImproveWindow = '30d';
 var statsExplorerHeatMetric = 'flips';
 var statsExplorerHeatYear = null; // set from data
 var statsExplorerLongevityMode = 'standing'; // 'all' | 'standing'
+var statsExplorerLongevityUntied = false; // when true, only sole (untied) holds
 var statsExplorerUnheldTier = 'All'; // 'All' | Free…Inhuman
 // Independent progression filters (not Category Settings)
 var statsProgApple = '1 Apple';
@@ -649,16 +650,20 @@ function getLongevityRows() {
     var raw = statsExplorerData && statsExplorerData.longevity;
     if (!raw) return [];
     // New shape: { all, standing }; legacy: flat array or timed variants
+    var rows;
     if (Array.isArray(raw)) {
-        if (statsExplorerLongevityMode === 'standing') {
-            return raw.filter(function (r) { return r.stillStanding; });
-        }
-        return raw;
+        rows = statsExplorerLongevityMode === 'standing'
+            ? raw.filter(function (r) { return r.stillStanding; })
+            : raw;
+    } else if (statsExplorerLongevityMode === 'standing') {
+        rows = raw.standing || [];
+    } else {
+        rows = raw.all || [];
     }
-    if (statsExplorerLongevityMode === 'standing') {
-        return raw.standing || [];
+    if (statsExplorerLongevityUntied) {
+        rows = rows.filter(function (r) { return (r.tiedHolders || 1) <= 1; });
     }
-    return raw.all || [];
+    return rows;
 }
 
 function renderLongevityView(body) {
@@ -679,6 +684,24 @@ function renderLongevityView(body) {
         bar.appendChild(chip);
     });
     body.appendChild(bar);
+
+    var untiedBar = document.createElement('div');
+    untiedBar.className = 'stats-explorer-chips';
+    [
+        { id: false, label: 'All holds' },
+        { id: true, label: 'Untied only' }
+    ].forEach(function (opt) {
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'stats-explorer-chip' + (opt.id === statsExplorerLongevityUntied ? ' active' : '');
+        chip.textContent = opt.label;
+        chip.addEventListener('click', function () {
+            statsExplorerLongevityUntied = opt.id;
+            renderStatisticsExplorerContent(body);
+        });
+        untiedBar.appendChild(chip);
+    });
+    body.appendChild(untiedBar);
 
     appendListFilters(body);
 
