@@ -23,6 +23,10 @@ function toggleDarkMode() {
         mobileToggleBtn.textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
         mobileToggleBtn.setAttribute('title', isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode');
     }
+
+    if (typeof refreshUsernameColors === 'function') {
+        refreshUsernameColors();
+    }
 }
 
 // Update time travel button status (available, missing, disabled)

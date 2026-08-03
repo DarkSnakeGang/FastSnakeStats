@@ -33,6 +33,10 @@ function mobileToggleDarkMode() {
         mobileToggleBtn.innerHTML = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
         mobileToggleBtn.setAttribute('title', isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode');
     }
+
+    if (typeof refreshUsernameColors === 'function') {
+        refreshUsernameColors();
+    }
 }
 
 async function mobileToggleTimeTravel() {

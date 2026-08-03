@@ -354,42 +354,24 @@ function createTimeElement(times, isHighScore = false){
     return span;
 }
 
-function parseHexColor(hex) {
-    if (!hex || typeof hex !== 'string') return null;
-    var h = hex.trim().replace('#', '');
-    if (h.length === 3) {
-        h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
-    }
-    if (!/^[0-9a-fA-F]{6}$/.test(h)) return null;
-    return {
-        r: parseInt(h.slice(0, 2), 16),
-        g: parseInt(h.slice(2, 4), 16),
-        b: parseInt(h.slice(4, 6), 16)
-    };
+/**
+ * Resolve a Speedrun.com name-style color pair.
+ * Always prefer the SRC "dark" (bright) swatch — green cells in every theme.
+ * Never theme-switch and never invent a non-SRC fallback when a swatch exists.
+ */
+function pickNameStyleColor(pair) {
+    if (!pair) return null;
+    if (typeof pair === 'string') return pair;
+    return pair.dark || pair.light || null;
 }
 
-function relativeLuminance(hex) {
-    var rgb = parseHexColor(hex);
-    if (!rgb) return 0.5;
-    function toLinear(c) {
-        c /= 255;
-        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-    }
-    return 0.2126 * toLinear(rgb.r) + 0.7152 * toLinear(rgb.g) + 0.0722 * toLinear(rgb.b);
-}
-
-/** Black outline by default; white only if fill is nearly black. */
-function sharpContrastOutline(fillHex) {
-    return relativeLuminance(fillHex) < 0.08 ? '#ffffff' : '#000000';
-}
-
-/** 0-blur drop-shadow ring — sharp, does not fill letter counters. */
-function sharpOutlineFilter(outlineHex) {
+/** Thin black outline — same for every username (solid + gradient). */
+function snakeNameOutlineFilter() {
     return (
-        'drop-shadow(1px 0 0 ' + outlineHex + ') ' +
-        'drop-shadow(-1px 0 0 ' + outlineHex + ') ' +
-        'drop-shadow(0 1px 0 ' + outlineHex + ') ' +
-        'drop-shadow(0 -1px 0 ' + outlineHex + ')'
+        'drop-shadow(1px 0 0 #000) ' +
+        'drop-shadow(-1px 0 0 #000) ' +
+        'drop-shadow(0 1px 0 #000) ' +
+        'drop-shadow(0 -1px 0 #000)'
     );
 }
 
@@ -402,38 +384,71 @@ function clearNameEffects(span) {
     span.style.webkitBackgroundClip = '';
     span.style.backgroundClip = '';
     span.style.webkitTextFillColor = '';
+    span.style.removeProperty('color');
 }
 
+/**
+ * Apply SRC name-style colors + thin Snake outline.
+ * Same result in light/dark and on mobile/desktop — prefers SRC colors only.
+ */
 function applyUsernameColors(span, nameStyle) {
     clearNameEffects(span);
     span.style.display = 'inline-block';
+    span.style.fontWeight = '700';
+    span.style.fontFamily = 'Arial, Helvetica, sans-serif';
+
+    if (nameStyle) {
+        try {
+            span.dataset.nameStyle = JSON.stringify(nameStyle);
+        } catch (e) { /* ignore */ }
+    }
+
+    var outline = snakeNameOutlineFilter();
+    var fill = null;
 
     if (!nameStyle) {
-        span.style.color = '#ffffff';
-        span.style.filter = sharpOutlineFilter('#000000');
-        return;
+        fill = '#ffffff';
+        span.style.setProperty('color', fill, 'important');
+    } else if (nameStyle.style === 'gradient' && nameStyle['color-from'] && nameStyle['color-to']) {
+        var colorFrom = pickNameStyleColor(nameStyle['color-from']) || '#ffffff';
+        var colorTo = pickNameStyleColor(nameStyle['color-to']) || colorFrom;
+        fill = colorFrom;
+        if (colorFrom.toLowerCase() === colorTo.toLowerCase()) {
+            span.style.setProperty('color', colorFrom, 'important');
+        } else {
+            span.style.background = 'linear-gradient(90deg, ' + colorFrom + ', ' + colorTo + ')';
+            span.style.webkitBackgroundClip = 'text';
+            span.style.backgroundClip = 'text';
+            span.style.webkitTextFillColor = 'transparent';
+            span.style.setProperty('color', colorFrom, 'important');
+        }
+    } else if (nameStyle.color) {
+        fill = pickNameStyleColor(nameStyle.color) || '#ffffff';
+        span.style.setProperty('color', fill, 'important');
+    } else {
+        fill = '#ffffff';
+        span.style.setProperty('color', fill, 'important');
     }
 
-    if (nameStyle.style === 'gradient' && nameStyle['color-from'] && nameStyle['color-to']) {
-        var colorFrom = nameStyle['color-from'].dark || nameStyle['color-from'].light;
-        var colorTo = nameStyle['color-to'].dark || nameStyle['color-to'].light;
-        var midL = (relativeLuminance(colorFrom) + relativeLuminance(colorTo)) / 2;
-        var outline = midL < 0.08 ? '#ffffff' : '#000000';
-        span.style.background = 'linear-gradient(90deg, ' + colorFrom + ', ' + colorTo + ')';
-        span.style.webkitBackgroundClip = 'text';
-        span.style.backgroundClip = 'text';
-        span.style.webkitTextFillColor = 'transparent';
-        span.style.color = colorFrom;
-        span.style.filter = sharpOutlineFilter(outline);
-    } else if (nameStyle.color) {
-        var fill = nameStyle.color.dark || nameStyle.color.light || '#ffffff';
-        var outline = sharpContrastOutline(fill);
-        span.style.color = fill;
-        span.style.filter = sharpOutlineFilter(outline);
-    } else {
-        span.style.color = '#ffffff';
-        span.style.filter = sharpOutlineFilter('#000000');
+    // Identical thin outline for every user
+    span.style.filter = outline;
+
+    // Keep parent link from forcing white over the SRC color
+    var parent = span.parentElement;
+    if (parent && parent.tagName === 'A' && fill) {
+        parent.style.setProperty('color', fill, 'important');
+        parent.style.textDecoration = 'none';
     }
+
+    return fill;
+}
+
+function refreshUsernameColors() {
+    document.querySelectorAll('span.name[data-name-style]').forEach(function (span) {
+        try {
+            applyUsernameColors(span, JSON.parse(span.dataset.nameStyle));
+        } catch (e) { /* ignore bad payload */ }
+    });
 }
 
 function createNameElement(user){
@@ -447,23 +462,28 @@ function createNameElement(user){
     a.setAttribute('href', `https://www.speedrun.com/user/${playerName}`);
     a.setAttribute('target','_blank');
     
+    var nameStyle = user['name-style'] || user.nameStyle || null;
+
     // Check if this is a user with names.international (GitHub cache format)
     if(user.names && user.names.international){
         span.appendChild(document.createTextNode(user.names.international));
-        applyUsernameColors(span, user['name-style']);
+        a.appendChild(span);
+        applyUsernameColors(span, nameStyle);
     }
     // Legacy format check (user.rel == "user")
     else if(user.rel == "user"){
         span.appendChild(document.createTextNode(user.names.international));
-        applyUsernameColors(span, user['name-style']);
+        a.appendChild(span);
+        applyUsernameColors(span, nameStyle);
     }
     else{
         // Fallback for other formats
         span.appendChild(document.createTextNode(user.name || "Unknown Player"));
-        span.style.color = "#000000";
+        span.style.setProperty('color', '#ffffff', 'important');
+        span.style.filter = snakeNameOutlineFilter();
+        a.appendChild(span);
     }
 
-    a.appendChild(span);
     return a;
 }
 

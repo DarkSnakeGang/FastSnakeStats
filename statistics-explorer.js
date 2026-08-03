@@ -9,7 +9,7 @@ var statsExplorerImproveWindow = '30d';
 var statsExplorerHeatMetric = 'flips';
 var statsExplorerHeatYear = null; // set from data
 var statsExplorerLongevityMode = 'standing'; // 'all' | 'standing'
-var statsExplorerLongevityUntied = false; // when true, only sole (untied) holds
+var statsExplorerLongevityUntied = true; // default: only sole (untied) holds
 var statsExplorerUnheldTier = 'All'; // 'All' | Free…Inhuman
 // Independent progression filters (not Category Settings)
 var statsProgApple = '1 Apple';
@@ -678,40 +678,31 @@ function getLongevityRows() {
 
 function renderLongevityView(body) {
     var bar = document.createElement('div');
-    bar.className = 'stats-explorer-chips';
+    bar.className = 'stats-explorer-chips stats-longevity-chips';
     [
-        { id: 'all', label: 'All-time' },
-        { id: 'standing', label: 'Still standing' }
+        { group: 'mode', id: 'all', label: 'All-time' },
+        { group: 'mode', id: 'standing', label: 'Still standing' },
+        { group: 'tied', id: false, label: 'All holds' },
+        { group: 'tied', id: true, label: 'Untied only' }
     ].forEach(function (opt) {
         var chip = document.createElement('button');
         chip.type = 'button';
-        chip.className = 'stats-explorer-chip' + (opt.id === statsExplorerLongevityMode ? ' active' : '');
+        var active = opt.group === 'mode'
+            ? opt.id === statsExplorerLongevityMode
+            : opt.id === statsExplorerLongevityUntied;
+        chip.className = 'stats-explorer-chip' + (active ? ' active' : '');
         chip.textContent = opt.label;
         chip.addEventListener('click', function () {
-            statsExplorerLongevityMode = opt.id;
+            if (opt.group === 'mode') {
+                statsExplorerLongevityMode = opt.id;
+            } else {
+                statsExplorerLongevityUntied = opt.id;
+            }
             renderStatisticsExplorerContent(body);
         });
         bar.appendChild(chip);
     });
     body.appendChild(bar);
-
-    var untiedBar = document.createElement('div');
-    untiedBar.className = 'stats-explorer-chips';
-    [
-        { id: false, label: 'All holds' },
-        { id: true, label: 'Untied only' }
-    ].forEach(function (opt) {
-        var chip = document.createElement('button');
-        chip.type = 'button';
-        chip.className = 'stats-explorer-chip' + (opt.id === statsExplorerLongevityUntied ? ' active' : '');
-        chip.textContent = opt.label;
-        chip.addEventListener('click', function () {
-            statsExplorerLongevityUntied = opt.id;
-            renderStatisticsExplorerContent(body);
-        });
-        untiedBar.appendChild(chip);
-    });
-    body.appendChild(untiedBar);
 
     appendListFilters(body);
 
@@ -1033,25 +1024,33 @@ function renderHeatmapView(body) {
     }
 
     var controls = document.createElement('div');
-    controls.className = 'stats-explorer-filters';
+    controls.className = 'stats-explorer-filters stats-heatmap-controls';
     controls.appendChild(createStatsSelect('Year', statsExplorerHeatYear, years, function (v) {
         statsExplorerHeatYear = v;
         renderStatisticsExplorerContent(body);
     }, true));
 
     var metricWrap = document.createElement('div');
-    metricWrap.className = 'stats-explorer-chips';
+    metricWrap.className = 'stats-explorer-select-wrap stats-heatmap-metric-wrap';
+    var metricLab = document.createElement('span');
+    metricLab.className = 'stats-explorer-select-label';
+    metricLab.textContent = 'Metric';
+    metricWrap.appendChild(metricLab);
+    var metricChips = document.createElement('div');
+    metricChips.className = 'stats-explorer-chips stats-heatmap-metric-chips';
     ['flips', 'newWrs'].forEach(function (m) {
         var chip = document.createElement('button');
         chip.type = 'button';
-        chip.className = 'stats-explorer-chip' + (m === statsExplorerHeatMetric ? ' active' : '');
+        chip.className = 'stats-explorer-chip stats-heatmap-metric-chip' +
+            (m === statsExplorerHeatMetric ? ' active' : '');
         chip.textContent = m === 'flips' ? 'WR flips' : 'New WRs';
         chip.addEventListener('click', function () {
             statsExplorerHeatMetric = m;
             renderStatisticsExplorerContent(body);
         });
-        metricWrap.appendChild(chip);
+        metricChips.appendChild(chip);
     });
+    metricWrap.appendChild(metricChips);
     controls.appendChild(metricWrap);
     body.appendChild(controls);
 
@@ -1083,7 +1082,14 @@ function renderHeatmapView(body) {
         cell.className = 'stats-heatmap-cell';
         var v = d[statsExplorerHeatMetric] || 0;
         var intensity = maxVal ? v / maxVal : 0;
-        cell.style.backgroundColor = 'rgba(87, 138, 52, ' + (0.12 + intensity * 0.88) + ')';
+        var isLight = !document.body.classList.contains('dark-mode');
+        if (isLight) {
+            // Stronger opaque greens so cells stay distinct on frosted glass
+            var lightAlpha = 0.28 + intensity * 0.72;
+            cell.style.backgroundColor = 'rgba(40, 92, 18, ' + lightAlpha + ')';
+        } else {
+            cell.style.backgroundColor = 'rgba(87, 138, 52, ' + (0.12 + intensity * 0.88) + ')';
+        }
         cell.title = d.date + ': flips ' + d.flips + ', new WRs ' + d.newWrs;
         cell.addEventListener('click', function () {
             detail.textContent = d.date + ' — flips: ' + d.flips + ', new WRs: ' + d.newWrs;

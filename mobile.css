@@ -3,7 +3,8 @@
 /* ======================================== */
 
 /* Mobile Individual Refresh Button Styles */
-.mobile-individual-refresh-btn {
+@media (max-width: 1023px) {
+.mobile-main .mobile-individual-refresh-btn {
 	width: 40px !important;
 	height: 40px !important;
 	min-width: 40px !important;
@@ -22,37 +23,47 @@
 	box-shadow: none !important;
 }
 
-.mobile-individual-refresh-btn:hover {
+.mobile-main .mobile-individual-refresh-btn:hover {
 	background: rgba(0, 0, 0, 0.3) !important;
 	box-shadow: none !important;
 }
 
 /* Dark mode mobile refresh button */
-body.dark-mode .mobile-individual-refresh-btn {
+body.dark-mode .mobile-main .mobile-individual-refresh-btn {
 	background: rgba(255, 255, 255, 0.1) !important;
 	border: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
-body.dark-mode .mobile-individual-refresh-btn:hover {
+body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 	background: rgba(255, 255, 255, 0.2) !important;
 }
+} /* end refresh-button media */
 
-	/* Mobile-specific variables */
+	/* Mobile-specific variables — match desktop brand palette */
 	@media (max-width: 1023px) {
 		:root {
-			--mobile-primary: #0d6efd;
+			--mobile-primary: #4DC1F9;
+			--mobile-primary-hover: #3BA8E0;
+			--mobile-brand: #4C792D;
+			--mobile-brand-light: #578A34;
+			--mobile-brand-dark: #1e3a15;
+			--mobile-brand-mid: #2d4a1f;
+			--mobile-active: #007bff;
+			--mobile-active-hover: #0056b3;
 			--mobile-secondary: #6c757d;
-			--mobile-text: #333;
-			--mobile-border: rgba(0, 0, 0, 0.1);
-			--title-color: #ffffff;
-			--shadow: rgba(0, 0, 0, 0.5);
+			--mobile-text: #ffffff;
+			--mobile-border: rgba(255, 255, 255, 0.2);
+			--title-color: #E9DC00;
+			--shadow: rgba(0, 0, 0, 0.2);
 		}
 
 		body.dark-mode {
 			--mobile-text: #ffffff;
 			--mobile-border: rgba(255, 255, 255, 0.1);
-			--title-color: #ffffff;
-			--shadow: rgba(0, 0, 0, 0.8);
+			--title-color: #E9DC00;
+			--shadow: rgba(0, 0, 0, 0.4);
+			--mobile-brand-dark: #1e3a15;
+			--mobile-brand-mid: #2d4a1f;
 		}
 
 	/* Hide all desktop elements on mobile */
@@ -79,7 +90,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	/* Ensure mobile header h1 is visible */
 	.mobile-header h1 {
 		display: block !important;
-		color: var(--title-color);
+		color: #fff;
 		font-size: 28px;
 		margin: 0;
 		text-shadow: 2px 2px 4px var(--shadow);
@@ -106,15 +117,15 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		-ms-text-size-adjust: 100%;
 	}
 
-	/* Mobile Header */
+	/* Mobile Header — match desktop green bar */
 	.mobile-header {
 		position: fixed;
 		top: 0;
 		left: 0;
 		right: 0;
-		background: rgba(0, 0, 0, 0.3);
-		backdrop-filter: blur(20px);
-		border-bottom: 1px solid var(--mobile-border);
+		background: linear-gradient(135deg, #4C792D, #578A34);
+		backdrop-filter: none;
+		border-bottom: 2px solid #578A34;
 		z-index: 1000;
 		padding: 8px 20px;
 		display: flex !important;
@@ -122,6 +133,12 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		justify-content: center;
 		visibility: visible !important;
 		opacity: 1 !important;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+	}
+
+	body.dark-mode .mobile-header {
+		background: linear-gradient(135deg, #1e3a15, #2d4a1f);
+		border-bottom-color: #2d4a1f;
 	}
 
 	.mobile-header-content {
@@ -149,20 +166,25 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		left: 0 !important;
 		right: 0 !important;
 		z-index: 1000 !important;
-		background: rgba(0, 0, 0, 0.1) !important;
-		backdrop-filter: blur(20px) !important;
-		border-top: 1px solid var(--mobile-border) !important;
+		background: rgba(255, 255, 255, 0.15) !important;
+		backdrop-filter: blur(15px) !important;
+		border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
 		padding: 8px 4px calc(8px + env(safe-area-inset-bottom)) !important;
 		display: flex !important;
 		flex-direction: row !important;
 		justify-content: space-around !important;
 		align-items: center !important;
-		box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1) !important;
+		box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15) !important;
 		width: 100% !important;
 		max-width: 100vw !important;
 		visibility: visible !important;
 		opacity: 1 !important;
 		box-sizing: border-box !important;
+	}
+
+	body.dark-mode .mobile-nav {
+		background: rgba(0, 0, 0, 0.35) !important;
+		border-top-color: rgba(255, 255, 255, 0.1) !important;
 	}
 
 	.mobile-nav-item {
@@ -186,21 +208,30 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-nav-item.active {
-		background: #28a745;
+		background: #4C792D;
 		color: white !important;
 		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+		box-shadow: 0 4px 12px rgba(76, 121, 45, 0.35);
 	}
 
 	.mobile-nav-item:hover {
-		background: rgba(13, 110, 253, 0.1);
+		background: rgba(255, 255, 255, 0.12);
 		transform: translateY(-1px);
 	}
 
 	.mobile-nav-item.active:hover {
-		background: #28a745;
+		background: #578A34;
 		color: white !important;
 		transform: translateY(-2px);
+	}
+
+	body.dark-mode .mobile-nav-item.active {
+		background: #2d4a1f;
+		box-shadow: 0 4px 12px rgba(30, 58, 21, 0.45);
+	}
+
+	body.dark-mode .mobile-nav-item.active:hover {
+		background: #3d5a2f;
 	}
 
 	.mobile-nav-item svg {
@@ -250,14 +281,25 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 
 	.mobile-form-input:focus {
 		outline: none;
-		border-color: var(--mobile-primary);
-		box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+		border-color: rgba(77, 193, 249, 0.7);
+		box-shadow: 0 0 0 2px rgba(77, 193, 249, 0.2);
 		background: transparent !important;
 	}
 
-	/* Mobile Inline Search Container */
+	/* Time Travel search — match desktop Settings glass */
 	.mobile-inline-search-container {
 		width: 100%;
+		padding: 14px;
+		border-radius: 14px;
+		background: rgba(255, 255, 255, 0.15);
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		backdrop-filter: blur(15px);
+		box-sizing: border-box;
+	}
+
+	body.dark-mode .mobile-inline-search-container {
+		background: rgba(0, 0, 0, 0.25);
+		border-color: rgba(255, 255, 255, 0.1);
 	}
 
 	.mobile-date-search-row {
@@ -278,10 +320,38 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	.mobile-date-picker-group .mobile-form-label,
 	.mobile-username-search-group .mobile-form-label {
 		font-size: 12px;
+		font-weight: 600;
 		margin-bottom: 6px;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
+		color: #fff;
+		opacity: 0.9;
+	}
+
+	.mobile-inline-search-container .mobile-form-input {
+		height: 40px;
+		min-height: 40px;
+		padding: 8px 12px;
+		font-size: 13px;
+		line-height: 1.3;
+		border-radius: 8px;
+		border: 1px solid rgba(255, 255, 255, 0.25);
+		background: rgba(0, 0, 0, 0.4) !important;
+		color: #fff !important;
+		color-scheme: dark;
+		box-shadow: none;
+	}
+
+	.mobile-inline-search-container .mobile-form-input::placeholder {
+		color: rgba(255, 255, 255, 0.55);
+	}
+
+	.mobile-inline-search-container .mobile-form-input:focus {
+		outline: none;
+		border-color: rgba(77, 193, 249, 0.7);
+		background: rgba(0, 0, 0, 0.5) !important;
+		box-shadow: 0 0 0 2px rgba(77, 193, 249, 0.2);
 	}
 
 	/* Mobile Username Search Container */
@@ -298,52 +368,55 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-search-btn {
-		background: var(--mobile-primary);
-		color: white;
-		border: none;
-		border-radius: 12px;
-		padding: 12px;
+		flex: 0 0 40px;
+		width: 40px;
+		height: 40px;
+		min-width: 40px;
+		padding: 0;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		background: rgba(0, 0, 0, 0.35);
+		border: 1px solid rgba(255, 255, 255, 0.22);
+		border-radius: 8px;
+		color: #fff;
 		font-size: 16px;
 		font-weight: 600;
 		cursor: pointer;
 		transition: all 0.2s ease;
-		min-width: 48px;
-		height: 48px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
 		-webkit-tap-highlight-color: transparent;
+		box-shadow: none;
 	}
 
 	.mobile-search-btn:hover {
-		background: #0b5ed7;
-		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+		background: rgba(0, 0, 0, 0.5);
+		transform: none;
+		box-shadow: none;
 	}
 
-	/* Mobile Peak Dates Container */
+	/* Mobile Peak Dates Container — match desktop Settings profile */
 	.mobile-peak-dates-container {
 		margin-top: 12px;
-		padding: 12px;
-		background: rgba(255, 255, 255, 0.05);
-		border-radius: 12px;
-		border: 1px solid var(--mobile-border);
+		padding: 0;
+		background: transparent;
+		border-radius: 0;
+		border: none;
 	}
 
 	.mobile-peak-dates-buttons {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
-		gap: 8px;
-		margin-bottom: 4px;
+		gap: 6px;
+		margin-bottom: 10px;
 	}
 
 	.mobile-peak-date-btn {
-		background: #007bff;
-		color: white;
-		border: 1px solid #0056b3;
-		padding: 10px 12px;
-		border-radius: 6px;
-		font-size: 13px;
+		background: rgba(0, 0, 0, 0.28);
+		color: #fff;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		padding: 8px 10px;
+		border-radius: 8px;
+		font-size: 12px;
 		font-weight: 600;
 		cursor: pointer;
 		transition: all 0.2s ease;
@@ -354,53 +427,57 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		white-space: normal;
 		line-height: 1.3;
 		overflow-wrap: anywhere;
+		box-shadow: none;
 	}
 
 	.mobile-peak-date-btn:hover {
-		background: #0056b3;
-		transform: translateY(-1px);
-		box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+		background: rgba(0, 0, 0, 0.4);
+		transform: none;
+		box-shadow: none;
 	}
 
 	.mobile-peak-dates-buttons #mobileLatestDataBtn {
 		grid-column: 1 / -1;
 	}
 
-	/* Dark mode styles for mobile peak date buttons */
 	body.dark-mode .mobile-peak-date-btn {
-		background: #2d4a1f;
-		color: #e0e0e0;
-		box-shadow: 0 2px 6px rgba(45, 74, 31, 0.3);
+		background: rgba(0, 0, 0, 0.28);
+		color: #fff;
+		box-shadow: none;
 	}
 
 	body.dark-mode .mobile-peak-date-btn:hover {
-		background: #3d5a2f;
-		box-shadow: 0 3px 10px rgba(45, 74, 31, 0.4);
+		background: rgba(0, 0, 0, 0.4);
+		box-shadow: none;
 	}
 
 	.mobile-peak-dates-container .player-search-profile {
-		margin-bottom: 12px;
+		margin-bottom: 8px;
+		padding: 8px 10px;
+		background: rgba(0, 0, 0, 0.22);
+		border: 1px solid rgba(255, 255, 255, 0.14);
+		border-radius: 10px;
 	}
 
 	.mobile-peak-dates-container .player-search-name {
-		font-size: 16px;
+		font-size: 14px;
 		font-weight: 700;
-		color: var(--mobile-text);
-		margin-bottom: 8px;
+		color: #fff;
+		margin-bottom: 6px;
 	}
 
 	.mobile-peak-dates-container .player-search-summary {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 4px 10px;
-		font-size: 12px;
-		color: var(--mobile-text);
-		opacity: 0.9;
+		font-size: 11px;
+		color: rgba(255, 255, 255, 0.88);
+		opacity: 1;
 		margin-bottom: 0;
 	}
 
 	.mobile-peak-dates-container .player-search-longevity {
-		margin-top: 12px;
+		margin-top: 0;
 	}
 
 	.mobile-peak-dates-container .player-longevity-grid {
@@ -411,40 +488,45 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-peak-dates-container .player-longevity-card {
-		padding: 10px;
-		background: rgba(0, 0, 0, 0.04);
-		border: 1px solid var(--mobile-border);
+		padding: 8px;
+		background: rgba(0, 0, 0, 0.2);
+		border: 1px solid rgba(255, 255, 255, 0.12);
 		border-radius: 8px;
+		min-width: 0;
 	}
 
 	body.dark-mode .mobile-peak-dates-container .player-longevity-card {
-		background: rgba(255, 255, 255, 0.05);
+		background: rgba(0, 0, 0, 0.2);
 		border-color: rgba(255, 255, 255, 0.12);
 	}
 
 	.mobile-peak-dates-container .player-longevity-label {
-		font-size: 11px;
+		font-size: 10px;
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 		opacity: 0.7;
 		margin-bottom: 4px;
+		color: rgba(255, 255, 255, 0.9);
 	}
 
 	.mobile-peak-dates-container .player-longevity-days {
 		font-size: 14px;
 		font-weight: 700;
+		color: #fff;
 	}
 
 	.mobile-peak-dates-container .player-longevity-mode {
-		font-size: 13px;
+		font-size: 12px;
 		font-weight: 600;
+		color: #fff;
 		margin-top: 4px;
 	}
 
 	.mobile-peak-dates-container .player-longevity-details {
-		font-size: 12px;
+		font-size: 11px;
 		line-height: 1.4;
-		opacity: 0.88;
+		color: rgba(255, 255, 255, 0.82);
+		opacity: 1;
 		margin-top: 2px;
 		white-space: normal;
 		overflow-wrap: anywhere;
@@ -452,9 +534,10 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 
 	.mobile-peak-dates-container .player-longevity-meta,
 	.mobile-peak-dates-container .player-longevity-empty {
-		font-size: 12px;
+		font-size: 11px;
 		line-height: 1.4;
-		opacity: 0.88;
+		color: rgba(255, 255, 255, 0.82);
+		opacity: 1;
 		margin-top: 6px;
 		white-space: normal;
 		overflow-wrap: anywhere;
@@ -467,7 +550,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-peak-dates-container .player-longevity-meta a.stats-run-link {
-		color: #3b82f6;
+		color: #9ecbff;
 	}
 
 	/* Remove the nth-child rule since we're using flex-basis now */
@@ -494,9 +577,9 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-btn:hover {
-		background: #0b5ed7;
+		background: var(--mobile-active-hover);
 		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+		box-shadow: 0 4px 12px rgba(76, 121, 45, 0.3);
 	}
 
 	/* Mobile Icon-Only Settings Buttons */
@@ -545,7 +628,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		background: var(--mobile-primary);
 		color: white;
 		border: 2px solid rgba(255, 255, 255, 0.3);
-		box-shadow: 0 6px 16px rgba(13, 110, 253, 0.3);
+		box-shadow: 0 6px 16px rgba(76, 121, 45, 0.3);
 	}
 
 	/* Dark mode support for mobile icon buttons */
@@ -647,7 +730,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-links a {
-		background: #0d6efd;
+		background: var(--mobile-active);
 		color: white;
 		text-decoration: none;
 		padding: 12px 16px;
@@ -658,9 +741,9 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-links a:hover {
-		background: #0b5ed7;
+		background: var(--mobile-active-hover);
 		transform: translateY(-1px);
-		box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+		box-shadow: 0 4px 12px rgba(76, 121, 45, 0.3);
 	}
 
 	/* Dark mode for mobile modal */
@@ -690,7 +773,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 
 	/* Mobile Button Styling - Simplified */
 	.mobile-option-btn {
-		background: #0d6efd;
+		background: var(--mobile-active);
 		color: white;
 		border: none;
 		border-radius: 8px;
@@ -700,14 +783,14 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		cursor: pointer;
 		transition: all 0.2s ease;
 		-webkit-tap-highlight-color: transparent;
-		box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+		box-shadow: 0 2px 8px rgba(76, 121, 45, 0.3);
 		min-width: 100px;
 	}
 
 	.mobile-option-btn:hover {
-		background: #0b5ed7;
+		background: var(--mobile-active-hover);
 		transform: translateY(-1px);
-		box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+		box-shadow: 0 4px 12px rgba(76, 121, 45, 0.4);
 	}
 
 	.mobile-option-btn:active {
@@ -782,7 +865,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 
 	.mobile-table-wrapper th,
 	.mobile-multiple-tables-container th {
-		background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+		background: linear-gradient(135deg, #4C792D, #578A34);
 		color: white;
 		padding: 2px 1px;
 		text-align: center;
@@ -790,6 +873,25 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		font-size: 11px;
 		border: 1px solid rgba(255, 255, 255, 0.2);
 		white-space: nowrap;
+	}
+
+	body.dark-mode .mobile-table-wrapper th,
+	body.dark-mode .mobile-multiple-tables-container th,
+	body.dark-mode .mobile-summary-wrapper th {
+		background: linear-gradient(135deg, #1e3a15, #2d4a1f);
+	}
+
+	body.dark-mode .mobile-table-wrapper .result,
+	body.dark-mode .mobile-multiple-tables-container .result,
+	body.dark-mode .mobile-summary-wrapper .ranglist-count-cell,
+	body.dark-mode .mobile-summary-wrapper .ranglist-percentage-cell,
+	body.dark-mode .mobile-summary-wrapper .ranglist-overall-cell {
+		background-color: #1e3a15 !important;
+	}
+
+	body.dark-mode .mobile-table-wrapper .result:hover,
+	body.dark-mode .mobile-multiple-tables-container .result:hover {
+		background-color: #2d4a1f !important;
 	}
 
 	.mobile-table-wrapper td,
@@ -800,6 +902,23 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		vertical-align: middle;
 		font-size: 11px;
 		white-space: nowrap;
+	}
+
+	/* Same SRC username styling as desktop — do not force white on name links */
+	.mobile-table-wrapper td a:has(.name),
+	.mobile-multiple-tables-container td a:has(.name),
+	.mobile-summary-wrapper td a:has(.name) {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.mobile-table-wrapper .name,
+	.mobile-multiple-tables-container .name,
+	.mobile-summary-wrapper .name {
+		font-weight: 700;
+		font-family: Arial, Helvetica, sans-serif;
+		font-size: 12px;
+		line-height: 1.25;
 	}
 
 	/* Game Mode Icon Cells - Mobile Only Override */
@@ -883,13 +1002,13 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	/* Mobile Record Cell Styling - Dark Blue for Light Mode */
 	.mobile-table-wrapper .result,
 	.mobile-multiple-tables-container .result {
-		background-color: #1e3a8a !important; /* Dark blue */
+		background-color: #4C792D !important;
 		width: 100px;
 	}
 
 	.mobile-table-wrapper .result:hover,
 	.mobile-multiple-tables-container .result:hover {
-		background-color: #1e40af !important; /* Slightly lighter blue on hover */
+		background-color: #578A34 !important;
 		transition: all 0.2s ease;
 	}
 
@@ -917,7 +1036,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-summary-wrapper th {
-		background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+		background: linear-gradient(135deg, #4C792D, #578A34);
 		color: white;
 		padding: 3px 1px;
 		text-align: center;
@@ -959,7 +1078,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-summary-wrapper tr:hover td {
-		background: rgba(13, 110, 253, 0.1);
+		background: rgba(76, 121, 45, 0.15);
 		transition: background 0.2s ease;
 	}
 
@@ -970,21 +1089,21 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		font-weight: 600;
 		color: #ffffff;
 		font-size: 10px;
-		background-color: #1e3a8a !important; /* Dark blue background - same as record cells */
+		background-color: #4C792D !important;
 	}
 
 	.mobile-summary-wrapper .ranglist-count-cell {
 		font-weight: 700;
 		color: #ffffff !important;
 		font-size: 10px;
-		background-color: #1e3a8a !important; /* Dark blue background - same as record cells */
+		background-color: #4C792D !important;
 	}
 
 	.mobile-summary-wrapper .ranglist-percentage-cell {
 		font-weight: 700;
 		color: #ffffff !important;
 		font-size: 10px;
-		background-color: #1e3a8a !important; /* Dark blue background - same as record cells */
+		background-color: #4C792D !important;
 	}
 
 	.mobile-summary-wrapper .ranglist-panel-header,
@@ -1017,7 +1136,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		box-sizing: border-box;
 		width: 100%;
 		max-width: 100%;
-		overflow-x: clip;
+		overflow-x: visible;
 	}
 
 	.mobile-main .mobile-stats-explorer .stats-explorer-tabs {
@@ -1037,13 +1156,13 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 
 	.mobile-main .mobile-stats-explorer .stats-explorer-tab {
 		flex: 0 0 auto;
-		background: rgba(0, 0, 0, 0.06);
-		border: 1px solid var(--mobile-border);
+		background: rgba(0, 0, 0, 0.18);
+		border: 1px solid rgba(255, 255, 255, 0.22);
 		border-radius: 999px;
 		padding: 8px 14px;
 		font-size: 13px;
 		font-weight: 600;
-		color: var(--mobile-text);
+		color: #fff;
 		cursor: pointer;
 		white-space: nowrap;
 		-webkit-tap-highlight-color: transparent;
@@ -1157,9 +1276,9 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 
 	.mobile-main .mobile-stats-explorer .stats-explorer-chip {
 		flex: 0 0 auto;
-		background: rgba(0, 0, 0, 0.05);
-		border: 1px solid var(--mobile-border);
-		color: var(--mobile-text);
+		background: rgba(0, 0, 0, 0.18);
+		border: 1px solid rgba(255, 255, 255, 0.22);
+		color: #fff;
 		border-radius: 999px;
 		padding: 6px 12px;
 		font-size: 12px;
@@ -1200,35 +1319,36 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 
 	.mobile-main .mobile-stats-explorer .stats-explorer-select-label {
 		font-size: 11px;
-		opacity: 0.7;
+		opacity: 0.85;
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 		font-weight: 600;
+		color: #fff;
 	}
 
 	.mobile-main .mobile-stats-explorer .stats-explorer-select {
 		width: 100%;
-		background: rgba(0, 0, 0, 0.04);
-		border: 1px solid var(--mobile-border);
-		color: var(--mobile-text);
+		background: rgba(0, 0, 0, 0.28);
+		border: 1px solid rgba(255, 255, 255, 0.25);
+		color: #fff;
 		border-radius: 10px;
 		padding: 10px 12px;
 		font-size: 16px; /* avoid iOS zoom */
 		max-width: 100%;
 		box-sizing: border-box;
-		color-scheme: light;
+		color-scheme: dark;
 	}
 
 	body.dark-mode .mobile-main .mobile-stats-explorer .stats-explorer-select {
-		background: rgba(0, 0, 0, 0.35);
+		background: rgba(0, 0, 0, 0.45);
 		border-color: rgba(255, 255, 255, 0.2);
 		color: #eee;
 		color-scheme: dark;
 	}
 
 	.mobile-main .mobile-stats-explorer .stats-explorer-select option {
-		background: #fff;
-		color: #111;
+		background: #2a3540;
+		color: #fff;
 	}
 
 	body.dark-mode .mobile-main .mobile-stats-explorer .stats-explorer-select option {
@@ -1240,13 +1360,14 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	.mobile-main .mobile-stats-explorer .stats-explorer-loading,
 	.mobile-main .mobile-stats-explorer .stats-explorer-meta {
 		padding: 12px 2px;
-		opacity: 0.85;
+		opacity: 0.9;
 		font-size: 13px;
 		line-height: 1.4;
 		max-width: 100%;
 		overflow-wrap: anywhere;
 		word-break: break-word;
 		white-space: normal;
+		color: #fff;
 	}
 
 	.mobile-main .mobile-stats-explorer .stats-unheld-free-meme {
@@ -1425,6 +1546,17 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		cursor: pointer;
 	}
 
+	body:not(.dark-mode) .mobile-main .mobile-stats-explorer .stats-heatmap-grid {
+		background: rgba(0, 0, 0, 0.12);
+		padding: 4px;
+		border-radius: 8px;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+	}
+
+	body:not(.dark-mode) .mobile-main .mobile-stats-explorer .stats-heatmap-cell {
+		box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+	}
+
 	.mobile-main .mobile-stats-explorer .stats-heatmap-detail {
 		margin-bottom: 8px;
 		opacity: 0.9;
@@ -1476,8 +1608,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		margin-bottom: 2px;
 	}
 	
-	/* Comprehensive mobile table size override - catch all tables */
-	.mobile-main table,
+	/* Comprehensive mobile table size override - records tables only (not Statistics explorer) */
 	.mobile-main .mobile-table-wrapper table,
 	.mobile-main .mobile-multiple-tables-container table,
 	.mobile-main .multiple-tables-container table,
@@ -1486,6 +1617,54 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		max-width: 100vw !important;
 		min-width: auto !important;
 		table-layout: fixed !important;
+	}
+
+	/* Statistics explorer tables must keep natural column widths + horizontal scroll */
+	.mobile-main .mobile-stats-explorer .stats-table-scroll {
+		display: block !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		overflow-x: auto !important;
+		overflow-y: visible !important;
+		-webkit-overflow-scrolling: touch;
+		overscroll-behavior-x: contain;
+		margin: 0 !important;
+		padding: 0 0 12px !important;
+		box-sizing: border-box !important;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-explorer-table {
+		width: max-content !important;
+		min-width: 860px !important;
+		max-width: none !important;
+		border-collapse: separate !important;
+		border-spacing: 0 !important;
+		table-layout: auto !important;
+		font-size: 12px !important;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-explorer-table th,
+	.mobile-main .mobile-stats-explorer .stats-explorer-table td {
+		padding: 8px 12px !important;
+		white-space: nowrap !important;
+		vertical-align: middle !important;
+		min-width: 5.5em !important;
+		width: auto !important;
+		max-width: none !important;
+		overflow: visible !important;
+		text-overflow: clip !important;
+		line-height: 1.35 !important;
+		box-sizing: border-box !important;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-explorer-table th:nth-child(1),
+	.mobile-main .mobile-stats-explorer .stats-explorer-table td:nth-child(1) {
+		min-width: 7.5em !important;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-explorer-table th:last-child,
+	.mobile-main .mobile-stats-explorer .stats-explorer-table td:last-child {
+		min-width: 11em !important;
 	}
 	
 	/* Ensure all mobile table containers are properly sized */
@@ -1519,7 +1698,12 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 
 	/* Mobile Settings Styles */
 	.mobile-settings-content {
-		padding: 20px 0;
+		padding: 20px 12px;
+	}
+
+	.mobile-settings-content > h2 {
+		color: var(--title-color) !important;
+		text-shadow: 1px 1px 2px var(--shadow);
 	}
 
 	.mobile-form-group {
@@ -1530,7 +1714,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		display: block;
 		font-size: 16px;
 		font-weight: 600;
-		color: var(--mobile-text);
+		color: #fff;
 		margin-bottom: 12px;
 	}
 
@@ -1541,16 +1725,22 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-category-section {
-		background: transparent;
+		background: rgba(255, 255, 255, 0.15);
 		border-radius: 12px;
 		padding: 16px;
-		border: 1px solid var(--mobile-border);
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		backdrop-filter: blur(15px);
+	}
+
+	body.dark-mode .mobile-category-section {
+		background: rgba(0, 0, 0, 0.25);
+		border-color: rgba(255, 255, 255, 0.1);
 	}
 
 	.mobile-category-title {
 		font-size: 18px;
 		font-weight: 700;
-		color: var(--mobile-text);
+		color: #fff;
 		margin: 0 0 16px 0;
 		text-align: center;
 	}
@@ -1567,15 +1757,21 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	.mobile-options-section {
 		margin-top: 24px;
 		padding: 20px 16px;
-		background: rgba(0, 0, 0, 0.02);
+		background: rgba(255, 255, 255, 0.15);
 		border-radius: 16px;
-		border: 1px solid var(--mobile-border);
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		backdrop-filter: blur(15px);
+	}
+
+	body.dark-mode .mobile-options-section {
+		background: rgba(0, 0, 0, 0.25);
+		border-color: rgba(255, 255, 255, 0.1);
 	}
 
 	.mobile-options-title {
 		font-size: 18px;
 		font-weight: 700;
-		color: var(--mobile-text);
+		color: #fff;
 		margin: 0 0 20px 0;
 		text-align: center;
 	}
@@ -1588,10 +1784,10 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-option-btn {
-		background: rgba(255, 255, 255, 0.05) !important;
-		color: var(--mobile-text);
-		border: 2px solid var(--mobile-border);
-		border-radius: 16px;
+		background: rgba(0, 0, 0, 0.22) !important;
+		color: #fff;
+		border: 1px solid rgba(255, 255, 255, 0.22);
+		border-radius: 12px;
 		padding: 16px 12px;
 		font-size: 14px;
 		font-weight: 600;
@@ -1605,25 +1801,25 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 		-webkit-tap-highlight-color: transparent;
 		text-align: center;
 		line-height: 1.3;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 	}
 
 	.mobile-option-btn:hover {
-		background: rgba(0, 0, 0, 0.08) !important;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-		border-color: var(--mobile-primary);
+		background: rgba(0, 0, 0, 0.35) !important;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+		border-color: rgba(255, 255, 255, 0.35);
 	}
 
 	.mobile-option-btn.active {
-		background: var(--mobile-primary) !important;
+		background: #4C792D !important;
 		color: white !important;
-		border-color: var(--mobile-primary) !important;
-		box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+		border-color: #578A34 !important;
+		box-shadow: 0 4px 12px rgba(76, 121, 45, 0.35);
 	}
 
 	.mobile-option-btn.active:hover {
-		background: #0b5ed7 !important;
-		box-shadow: 0 6px 16px rgba(13, 110, 253, 0.4);
+		background: #578A34 !important;
+		box-shadow: 0 6px 16px rgba(76, 121, 45, 0.4);
 	}
 
 	/* Mobile Time Travel Button - Enhanced Mobile Style */
@@ -1643,10 +1839,10 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-option-btn#mobileTimeTravelBtn.active {
-		background: linear-gradient(135deg, #28a745, #20c997) !important;
+		background: linear-gradient(135deg, #4C792D, #578A34) !important;
 		color: white !important;
-		border: 2px solid rgba(40, 167, 69, 0.3) !important;
-		box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3) !important;
+		border: 2px solid rgba(76, 121, 45, 0.35) !important;
+		box-shadow: 0 4px 12px rgba(76, 121, 45, 0.35) !important;
 	}
 
 	.mobile-option-btn#mobileTimeTravelBtn:hover {
@@ -1655,8 +1851,8 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-option-btn#mobileTimeTravelBtn.active:hover {
-		background: linear-gradient(135deg, #218838, #1ea085) !important;
-		box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4) !important;
+		background: linear-gradient(135deg, #578A34, #4C792D) !important;
+		box-shadow: 0 6px 16px rgba(76, 121, 45, 0.4) !important;
 	}
 
 	/* Mobile Multiple Tables Button - Enhanced Mobile Style */
@@ -1676,10 +1872,10 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-option-btn#mobileMultipleTablesToggle.active {
-		background: linear-gradient(135deg, #28a745, #20c997) !important;
+		background: linear-gradient(135deg, #4C792D, #578A34) !important;
 		color: white !important;
-		border: 2px solid rgba(40, 167, 69, 0.3) !important;
-		box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3) !important;
+		border: 2px solid rgba(76, 121, 45, 0.35) !important;
+		box-shadow: 0 4px 12px rgba(76, 121, 45, 0.35) !important;
 	}
 
 	.mobile-option-btn#mobileMultipleTablesToggle:hover {
@@ -1688,8 +1884,8 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-option-btn#mobileMultipleTablesToggle.active:hover {
-		background: linear-gradient(135deg, #218838, #1ea085) !important;
-		box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4) !important;
+		background: linear-gradient(135deg, #578A34, #4C792D) !important;
+		box-shadow: 0 6px 16px rgba(76, 121, 45, 0.4) !important;
 	}
 
 	/* Mobile Reset Button - Enhanced Mobile Style */
@@ -1736,7 +1932,7 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 
 	/* Dark mode support for mobile buttons - enhanced */
 	body.dark-mode .mobile-options-section {
-		background: rgba(255, 255, 255, 0.02);
+		background: rgba(0, 0, 0, 0.25);
 		border-color: rgba(255, 255, 255, 0.1);
 	}
 
@@ -1756,9 +1952,9 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	body.dark-mode .mobile-option-btn#mobileTimeTravelBtn.active {
-		background: linear-gradient(135deg, #28a745, #20c997) !important;
-		border: 2px solid rgba(40, 167, 69, 0.4) !important;
-		box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4) !important;
+		background: linear-gradient(135deg, #4C792D, #578A34) !important;
+		border: 2px solid rgba(76, 121, 45, 0.4) !important;
+		box-shadow: 0 4px 12px rgba(76, 121, 45, 0.4) !important;
 	}
 
 	body.dark-mode .mobile-option-btn#mobileTimeTravelBtn:hover {
@@ -1767,8 +1963,8 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	body.dark-mode .mobile-option-btn#mobileTimeTravelBtn.active:hover {
-		background: linear-gradient(135deg, #218838, #1ea085) !important;
-		box-shadow: 0 6px 16px rgba(40, 167, 69, 0.5) !important;
+		background: linear-gradient(135deg, #578A34, #4C792D) !important;
+		box-shadow: 0 6px 16px rgba(76, 121, 45, 0.5) !important;
 	}
 
 	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle {
@@ -1778,9 +1974,9 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle.active {
-		background: linear-gradient(135deg, #28a745, #20c997) !important;
-		border: 2px solid rgba(40, 167, 69, 0.4) !important;
-		box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4) !important;
+		background: linear-gradient(135deg, #4C792D, #578A34) !important;
+		border: 2px solid rgba(76, 121, 45, 0.4) !important;
+		box-shadow: 0 4px 12px rgba(76, 121, 45, 0.4) !important;
 	}
 
 	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle:hover {
@@ -1789,8 +1985,8 @@ body.dark-mode .mobile-individual-refresh-btn:hover {
 	}
 
 	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle.active:hover {
-		background: linear-gradient(135deg, #218838, #1ea085) !important;
-		box-shadow: 0 6px 16px rgba(40, 167, 69, 0.5) !important;
+		background: linear-gradient(135deg, #578A34, #4C792D) !important;
+		box-shadow: 0 6px 16px rgba(76, 121, 45, 0.5) !important;
 	}
 
 	/* Dark mode support for mobile reset button */

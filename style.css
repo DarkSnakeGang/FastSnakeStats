@@ -57,6 +57,28 @@ body.dark-mode .container table {
 	background-color: #2d4a1f;
 }
 
+body.dark-mode .container table.mode1 {
+	background-color: #243d1c;
+	border-color: #243d1c;
+}
+
+body.dark-mode .container table.mode2 {
+	background-color: #4a2e22;
+	border-color: #4a2e22;
+}
+
+body.dark-mode .container .mode1 th,
+body.dark-mode .container .mode1 td {
+	border-color: #243d1c;
+	background-color: #1a2e14;
+}
+
+body.dark-mode .container .mode2 th,
+body.dark-mode .container .mode2 td {
+	border-color: #4a2e22;
+	background-color: #3a241c;
+}
+
 /* Sidebar header with buttons */
 .sidebar-header {
 	display: flex;
@@ -85,8 +107,8 @@ body.dark-mode .container table {
 .sidebar-info-btn,
 .sidebar-settings-btn,
 .table-selector .category-collapse-btn {
-	background: rgba(0, 0, 0, 0.2);
-	border: 1px solid rgba(0, 0, 0, 0.3);
+	background: rgba(255, 255, 255, 0.16);
+	border: 1px solid rgba(255, 255, 255, 0.32);
 	border-radius: 8px;
 	padding: 8px;
 	cursor: pointer;
@@ -99,7 +121,7 @@ body.dark-mode .container table {
 	width: auto;
 	height: auto;
 	min-width: 0;
-	color: inherit;
+	color: #fff;
 	box-sizing: border-box;
 	flex-shrink: 0;
 }
@@ -107,7 +129,8 @@ body.dark-mode .container table {
 .sidebar-info-btn:hover,
 .sidebar-settings-btn:hover,
 .table-selector .category-collapse-btn:hover {
-	background: rgba(0, 0, 0, 0.3);
+	background: rgba(255, 255, 255, 0.28);
+	border-color: rgba(255, 255, 255, 0.45);
 }
 
 /* Play Now — always-visible left edge tab above Category Settings collapse */
@@ -155,10 +178,11 @@ body.dark-mode .container thead {
 body.dark-mode .container th,
 body.dark-mode .container td {
 	border-color: #2d4a1f;
+	background-color: #1e3a15;
 }
 
 body.dark-mode .container td:hover {
-	background-color: rgba(255,255,255,0.05);
+	background-color: #243d1c;
 }
 
 body.dark-mode .result {
@@ -166,12 +190,53 @@ body.dark-mode .result {
 }
 
 body.dark-mode .result:hover {
+	background-color: #243d1c;
+}
+
+body.dark-mode .ranglist-wrapper table {
+	border-color: #2d4a1f;
 	background-color: #2d4a1f;
+}
+
+body.dark-mode .ranglist-wrapper thead {
+	background: linear-gradient(135deg, #1e3a15, #2d4a1f);
+}
+
+body.dark-mode .ranglist-wrapper th,
+body.dark-mode .ranglist-wrapper td {
+	border-color: #2d4a1f;
+	background-color: #1e3a15;
+}
+
+body.dark-mode .ranglist-wrapper td:hover {
+	background-color: #243d1c;
+}
+
+body.dark-mode .ranglist-wrapper table.mode1 {
+	background-color: #243d1c;
+	border-color: #243d1c;
+}
+
+body.dark-mode .ranglist-wrapper .mode1 th,
+body.dark-mode .ranglist-wrapper .mode1 td {
+	border-color: #243d1c;
+	background-color: #1a2e14;
+}
+
+body.dark-mode .ranglist-wrapper table.mode2 {
+	background-color: #4a2e22;
+	border-color: #4a2e22;
+}
+
+body.dark-mode .ranglist-wrapper .mode2 th,
+body.dark-mode .ranglist-wrapper .mode2 td {
+	border-color: #4a2e22;
+	background-color: #3a241c;
 }
 
 body {
 	background-color: var(--bg-color);
-	background-image: linear-gradient(135deg, var(--bg-color) 0%, rgba(77, 193, 249, 0.8) 100%);
+	background-image: linear-gradient(135deg, #4DC1F9 0%, #3BA8E0 100%);
 	background-attachment: fixed;
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	text-align: center;
@@ -180,6 +245,11 @@ body {
 	color: var(--text-color);
 	min-height: 100vh;
 	overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+body.dark-mode {
+	background-color: #1a1a1a;
+	background-image: linear-gradient(135deg, #1a1a1a 0%, rgba(77, 193, 249, 0.8) 100%);
 }
 
 h1{
@@ -606,11 +676,12 @@ h2{
 	color: #9ecbff;
 }
 
-/* Shared open-state collapse button — matches sidebar settings/info buttons */
+/* Shared open-state collapse button — light chrome on dark glass panels */
 .panel-collapse-btn,
-.ranglist-panel-header .summary-collapse-btn {
-	background: rgba(0, 0, 0, 0.2);
-	border: 1px solid rgba(0, 0, 0, 0.3);
+.ranglist-panel-header .summary-collapse-btn,
+.stats-explorer-header .stats-explorer-collapse-btn {
+	background: rgba(255, 255, 255, 0.12);
+	border: 1px solid rgba(255, 255, 255, 0.28);
 	border-radius: 8px;
 	padding: 8px;
 	cursor: pointer;
@@ -623,14 +694,16 @@ h2{
 	width: auto;
 	height: auto;
 	min-width: 0;
-	color: inherit;
+	color: #fff;
 	flex-shrink: 0;
 	box-sizing: border-box;
 }
 
 .panel-collapse-btn:hover,
-.ranglist-panel-header .summary-collapse-btn:hover {
-	background: rgba(0, 0, 0, 0.3);
+.ranglist-panel-header .summary-collapse-btn:hover,
+.stats-explorer-header .stats-explorer-collapse-btn:hover {
+	background: rgba(255, 255, 255, 0.22);
+	border-color: rgba(255, 255, 255, 0.42);
 }
 
 /* Dark mode toggle button */
@@ -1234,6 +1307,16 @@ body.dark-mode .stop-resume-btn {
 	text-decoration: none;
 }
 
+/* Username links — color comes from SRC inline styles on .name */
+.container td a:has(.name),
+.ranglist-wrapper td a:has(.name),
+.mobile-table-wrapper td a:has(.name),
+.mobile-multiple-tables-container td a:has(.name),
+.mobile-summary-wrapper td a:has(.name) {
+	color: inherit;
+	text-decoration: none;
+}
+
 .result{
 	/*background-color: #50712B;*/
 	background-color: #4C792D;
@@ -1299,9 +1382,12 @@ body.dark-mode .player-separator {
 .name{
 	margin-left: 4px;
 	margin-right: 4px;
-	font-weight: bold;
+	font-weight: 700;
 	font-size: 14px;
-	line-height: 1.2;
+	line-height: 1.25;
+	font-family: Arial, Helvetica, sans-serif;
+	letter-spacing: 0.2px;
+	/* color + outline applied in JS from SRC name-style — same all themes */
 }
 
 .percentage{
@@ -1715,8 +1801,8 @@ body.dark-mode .search-btn:hover {
   background: linear-gradient(135deg, #5a6578, #3d4758);
 }
 
-/* Peak dates container */
-.peak-dates-container {
+/* Peak dates + player search profile — desktop Settings only */
+.table-selector .peak-dates-container {
   margin-top: 15px;
   padding: 15px;
   background: rgba(255, 255, 255, 0.1);
@@ -1724,14 +1810,14 @@ body.dark-mode .search-btn:hover {
   border: 1px solid rgba(77, 193, 249, 0.2);
 }
 
-.peak-dates-buttons {
+.table-selector .peak-dates-buttons {
   display: flex;
   flex-direction: column;
   gap: 8px;
   flex-wrap: nowrap;
 }
 
-.peak-date-btn {
+.table-selector .peak-date-btn {
   background: #007bff;
   color: white;
   border: 1px solid #0056b3;
@@ -1750,35 +1836,33 @@ body.dark-mode .search-btn:hover {
   overflow-wrap: anywhere;
 }
 
-.peak-date-btn:hover {
+.table-selector .peak-date-btn:hover {
   background: #0056b3;
   box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
 }
 
-/* Dark mode styles for peak date buttons */
-body.dark-mode .peak-date-btn {
+body.dark-mode .table-selector .peak-date-btn {
   background: linear-gradient(135deg, #2d4a1f, #1e3a15);
   color: #e0e0e0;
   box-shadow: 0 2px 8px rgba(45, 74, 31, 0.3);
 }
 
-body.dark-mode .peak-date-btn:hover {
+body.dark-mode .table-selector .peak-date-btn:hover {
   background: linear-gradient(135deg, #3d5a2f, #2d4a1f);
   box-shadow: 0 4px 12px rgba(45, 74, 31, 0.4);
 }
 
-/* Player search profile (career + longevity) */
-.player-search-profile {
+.table-selector .player-search-profile {
   margin-bottom: 12px;
 }
 
-.player-search-name {
+.table-selector .player-search-name {
   font-size: 16px;
   font-weight: 700;
   margin-bottom: 8px;
 }
 
-.player-search-summary {
+.table-selector .player-search-summary {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 14px;
@@ -1787,30 +1871,30 @@ body.dark-mode .peak-date-btn:hover {
   margin-bottom: 0;
 }
 
-.player-search-longevity {
+.table-selector .player-search-longevity {
   margin-top: 12px;
 }
 
-.player-longevity-grid {
+.table-selector .player-longevity-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-bottom: 4px;
 }
 
-.player-longevity-card {
+.table-selector .player-longevity-card {
   padding: 10px;
   background: rgba(0, 0, 0, 0.06);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 8px;
 }
 
-body.dark-mode .player-longevity-card {
+body.dark-mode .table-selector .player-longevity-card {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-.player-longevity-label {
+.table-selector .player-longevity-label {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -1818,18 +1902,18 @@ body.dark-mode .player-longevity-card {
   margin-bottom: 4px;
 }
 
-.player-longevity-days {
+.table-selector .player-longevity-days {
   font-size: 14px;
   font-weight: 700;
 }
 
-.player-longevity-mode {
+.table-selector .player-longevity-mode {
   font-size: 13px;
   font-weight: 600;
   margin-top: 4px;
 }
 
-.player-longevity-details {
+.table-selector .player-longevity-details {
   font-size: 12px;
   line-height: 1.4;
   opacity: 0.88;
@@ -1838,8 +1922,8 @@ body.dark-mode .player-longevity-card {
   overflow-wrap: anywhere;
 }
 
-.player-longevity-meta,
-.player-longevity-empty {
+.table-selector .player-longevity-meta,
+.table-selector .player-longevity-empty {
   font-size: 12px;
   line-height: 1.4;
   opacity: 0.88;
@@ -1848,14 +1932,14 @@ body.dark-mode .player-longevity-card {
   overflow-wrap: anywhere;
 }
 
-.player-longevity-meta {
+.table-selector .player-longevity-meta {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
 @media (max-width: 520px) {
-  .player-longevity-grid {
+  .table-selector .player-longevity-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -2117,7 +2201,7 @@ body.dark-mode .username-search-container input[type="text"]:focus {
   border-color: var(--button-bg);
 }
 
-body.dark-mode .peak-dates-container {
+body.dark-mode .table-selector .peak-dates-container {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(77, 193, 249, 0.3);
 }
@@ -2759,6 +2843,16 @@ body.dark-mode .quick-fetch-btn:disabled {
 		overflow: visible;
 	}
 
+	.stats-explorer-wrapper .stats-longevity-chips {
+		flex-wrap: nowrap;
+		gap: 6px;
+	}
+
+	.stats-explorer-wrapper .stats-longevity-chips .stats-explorer-chip {
+		flex: 0 0 auto;
+		white-space: nowrap;
+	}
+
 	.stats-explorer-wrapper .stats-explorer-table {
 		width: 100%;
 		min-width: 0;
@@ -2971,6 +3065,45 @@ body.dark-mode .quick-fetch-btn:disabled {
 		opacity: 0.9;
 	}
 
+	.stats-heatmap-controls {
+		align-items: flex-end;
+		gap: 10px;
+	}
+
+	.stats-heatmap-metric-wrap {
+		flex: 0 0 auto;
+		width: auto;
+		max-width: none;
+	}
+
+	.stats-heatmap-metric-chips {
+		display: flex;
+		flex-wrap: nowrap;
+		gap: 6px;
+		margin: 0;
+	}
+
+	.stats-heatmap-metric-chip {
+		border-radius: 6px;
+		padding: 5px 10px;
+		font-size: 12px;
+		font-weight: 500;
+		line-height: 1.25;
+		height: 30px;
+		box-sizing: border-box;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		white-space: nowrap;
+	}
+
+	.stats-heatmap-controls .stats-explorer-select {
+		height: 30px;
+		box-sizing: border-box;
+		padding: 4px 8px;
+		font-size: 12px;
+	}
+
 	.ranglist-panel-header {
 		display: flex;
 		align-items: center;
@@ -3052,6 +3185,158 @@ body.dark-mode .quick-fetch-btn:disabled {
 		font-size: 0.9rem;
 	}
 
+	/* Light mode — Rankings + Statistics match Settings frosted glass */
+	body:not(.dark-mode) .table-wrapper.ranglist-wrapper,
+	body:not(.dark-mode) .stats-explorer-wrapper {
+		background: rgba(255, 255, 255, 0.15) !important;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		box-shadow: 0 8px 32px var(--shadow);
+		backdrop-filter: blur(15px);
+		color: #fff;
+	}
+
+	body:not(.dark-mode) .ranglist-panel-title,
+	body:not(.dark-mode) .stats-explorer-title {
+		color: var(--title-color);
+		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+	}
+
+	body:not(.dark-mode) .ranglist-wrapper .panel-collapse-btn,
+	body:not(.dark-mode) .ranglist-wrapper .summary-collapse-btn,
+	body:not(.dark-mode) .stats-explorer-wrapper .panel-collapse-btn,
+	body:not(.dark-mode) .stats-explorer-wrapper .stats-explorer-collapse-btn {
+		background: rgba(255, 255, 255, 0.16);
+		border: 1px solid rgba(255, 255, 255, 0.32);
+		color: #fff;
+	}
+
+	body:not(.dark-mode) .ranglist-wrapper .panel-collapse-btn:hover,
+	body:not(.dark-mode) .ranglist-wrapper .summary-collapse-btn:hover,
+	body:not(.dark-mode) .stats-explorer-wrapper .panel-collapse-btn:hover,
+	body:not(.dark-mode) .stats-explorer-wrapper .stats-explorer-collapse-btn:hover {
+		background: rgba(255, 255, 255, 0.28);
+		border-color: rgba(255, 255, 255, 0.45);
+	}
+
+	body:not(.dark-mode) .stats-explorer-body {
+		color: #fff;
+	}
+
+	body:not(.dark-mode) .stats-explorer-tab,
+	body:not(.dark-mode) .stats-explorer-chip {
+		background: rgba(0, 0, 0, 0.18);
+		border: 1px solid rgba(255, 255, 255, 0.22);
+		color: #fff;
+	}
+
+	body:not(.dark-mode) .stats-explorer-tab.active,
+	body:not(.dark-mode) .stats-explorer-tab:hover,
+	body:not(.dark-mode) .stats-explorer-chip.active,
+	body:not(.dark-mode) .stats-explorer-chip:hover {
+		background: rgba(76, 121, 45, 0.85);
+		border-color: rgba(255, 255, 255, 0.35);
+		color: #fff;
+	}
+
+	body:not(.dark-mode) .stats-explorer-select-label {
+		color: rgba(255, 255, 255, 0.85);
+		opacity: 1;
+	}
+
+	body:not(.dark-mode) .stats-explorer-select {
+		background: rgba(0, 0, 0, 0.28);
+		border: 1px solid rgba(255, 255, 255, 0.25);
+		color: #fff;
+		color-scheme: dark;
+	}
+
+	body:not(.dark-mode) .stats-explorer-select option {
+		background: #2a3540;
+		color: #fff;
+	}
+
+	body:not(.dark-mode) .stats-explorer-table th,
+	body:not(.dark-mode) .stats-explorer-table td {
+		border-bottom-color: rgba(255, 255, 255, 0.18);
+		color: #fff;
+	}
+
+	body:not(.dark-mode) .stats-explorer-table a.stats-run-link {
+		color: #c7e0ff;
+	}
+
+	body:not(.dark-mode) .stats-explorer-empty,
+	body:not(.dark-mode) .stats-explorer-loading,
+	body:not(.dark-mode) .stats-explorer-meta,
+	body:not(.dark-mode) .stats-heatmap-detail,
+	body:not(.dark-mode) .stats-heatmap-year-label {
+		color: rgba(255, 255, 255, 0.9);
+		opacity: 0.95;
+	}
+
+	body:not(.dark-mode) .stats-heatmap-grid {
+		background: rgba(0, 0, 0, 0.18);
+		padding: 5px;
+		border-radius: 8px;
+		border: 1px solid rgba(255, 255, 255, 0.16);
+	}
+
+	body:not(.dark-mode) .stats-heatmap-cell {
+		box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+	}
+
+	body:not(.dark-mode) .stats-heatmap-cell:hover {
+		outline: 2px solid rgba(255, 255, 255, 0.65);
+		outline-offset: 0;
+		z-index: 1;
+		position: relative;
+	}
+
+	body:not(.dark-mode) .stats-axis {
+		stroke: rgba(255, 255, 255, 0.4);
+	}
+
+	body:not(.dark-mode) .stats-axis-grid {
+		stroke: rgba(255, 255, 255, 0.12);
+	}
+
+	body:not(.dark-mode) .stats-line {
+		stroke: #8fd14f;
+	}
+
+	body:not(.dark-mode) .stats-point {
+		fill: #c6f28a;
+	}
+
+	body:not(.dark-mode) .stats-axis-label,
+	body:not(.dark-mode) .stats-axis-y-label {
+		fill: rgba(255, 255, 255, 0.75);
+	}
+
+	body:not(.dark-mode) .stats-explorer-tooltip {
+		background: rgba(0, 0, 0, 0.78);
+		color: #fff;
+		border: 1px solid rgba(255, 255, 255, 0.18);
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+	}
+
+	body:not(.dark-mode) .stats-explorer-tooltip a.stats-run-link {
+		color: #c7e0ff;
+	}
+
+	body:not(.dark-mode) .stats-bar-track {
+		background: rgba(0, 0, 0, 0.2);
+	}
+
+	body:not(.dark-mode) .stats-bar-delta {
+		color: #c6f28a;
+	}
+
+	body:not(.dark-mode) .stats-bar-name,
+	body:not(.dark-mode) .stats-bar-row {
+		color: #fff;
+	}
+
 	.snake-mods-btn {
 		display: flex !important;
 	}
@@ -3130,6 +3415,7 @@ body.dark-mode .quick-fetch-btn:disabled {
 		display: none !important;
 	}
 
+	body.summary-collapsed .table-wrapper.ranglist-wrapper,
 	body.summary-collapsed .ranglist-wrapper {
 		top: 50% !important;
 		transform: translateY(-50%) !important;
@@ -3147,10 +3433,23 @@ body.dark-mode .quick-fetch-btn:disabled {
 		border: 1px solid rgba(255, 255, 255, 0.2) !important;
 		border-right: none !important;
 		box-shadow: -4px 0 18px rgba(0, 0, 0, 0.35) !important;
+		backdrop-filter: none !important;
 		cursor: pointer;
 	}
 
+	/* Beat light-mode frosted glass on collapsed Rankings tab */
+	body:not(.dark-mode).summary-collapsed .table-wrapper.ranglist-wrapper,
+	body:not(.dark-mode).summary-collapsed .ranglist-wrapper {
+		background: linear-gradient(180deg, #4C792D, #2d4a1f) !important;
+		border: 1px solid rgba(255, 255, 255, 0.2) !important;
+		border-right: none !important;
+		box-shadow: -4px 0 18px rgba(0, 0, 0, 0.35) !important;
+		backdrop-filter: none !important;
+		color: #fff;
+	}
+
 	/* Both right tabs collapsed — Rankings sits above Statistics (same gap as Play / Category) */
+	body.summary-collapsed.stats-explorer-collapsed .table-wrapper.ranglist-wrapper,
 	body.summary-collapsed.stats-explorer-collapsed .ranglist-wrapper {
 		top: calc(50% - 144px) !important;
 		transform: none !important;
@@ -3233,8 +3532,18 @@ body.dark-mode .quick-fetch-btn:disabled {
 		border: 1px solid rgba(255, 255, 255, 0.2) !important;
 		border-right: none !important;
 		box-shadow: -4px 0 18px rgba(0, 0, 0, 0.35) !important;
+		backdrop-filter: none !important;
 		cursor: pointer;
 		overflow: hidden !important;
+	}
+
+	body:not(.dark-mode).stats-explorer-collapsed .stats-explorer-wrapper {
+		background: linear-gradient(180deg, #4C792D, #2d4a1f) !important;
+		border: 1px solid rgba(255, 255, 255, 0.2) !important;
+		border-right: none !important;
+		box-shadow: -4px 0 18px rgba(0, 0, 0, 0.35) !important;
+		backdrop-filter: none !important;
+		color: #fff;
 	}
 
 	body.stats-explorer-collapsed .stats-explorer-header {
