@@ -13,7 +13,7 @@ var statsExplorerLongevityTiedMode = 'untied'; // 'all' | 'untied' | 'tied'
 var statsExplorerUnheldTier = 'All'; // 'All' | Free…Inhuman
 var statsExplorerPlayerId = null;
 var statsExplorerPlayerName = '';
-var statsExplorerPlayerHoldMode = 'present'; // 'all' | 'present' | 'old'
+var statsExplorerPlayerHoldMode = 'present'; // 'all' | 'present' | 'old' | 'latest'
 var statsExplorerPlayerTiedMode = 'all'; // 'all' | 'untied' | 'tied' — present only
 var statsExplorerPlayerDefaultApplied = false;
 var statsExplorerPlayerShowMeme = false;
@@ -781,6 +781,8 @@ function getPlayerHoldRows(playerId) {
     var rows = (raw && Array.isArray(raw.all))
         ? raw.all
         : (Array.isArray(raw) ? raw : []);
+    var latestMode = statsExplorerPlayerHoldMode === 'latest';
+    var oldMode = statsExplorerPlayerHoldMode === 'old';
     return rows.filter(function (r) {
         if (!r || r.playerId !== playerId) return false;
         if (statsExplorerPlayerHoldMode === 'present') {
@@ -789,9 +791,23 @@ function getPlayerHoldRows(playerId) {
             if (statsExplorerPlayerTiedMode === 'tied') return (r.tiedHolders || 1) > 1;
             return true;
         }
-        if (statsExplorerPlayerHoldMode === 'old') return !r.stillStanding;
+        if (oldMode) return !r.stillStanding;
+        // 'all' and 'latest' — every hold
         return true;
     }).slice().sort(function (a, b) {
+        if (oldMode) {
+            // Most recently taken WR first (end date closest to today)
+            return String(b.end || '').localeCompare(String(a.end || '')) ||
+                (b.days || 0) - (a.days || 0) ||
+                String(a.start || '').localeCompare(String(b.start || ''));
+        }
+        if (latestMode) {
+            // Most recently acquired WR first (start date)
+            var byStart = String(b.start || '').localeCompare(String(a.start || ''));
+            if (byStart) return byStart;
+            if (!!a.stillStanding !== !!b.stillStanding) return a.stillStanding ? -1 : 1;
+            return (b.days || 0) - (a.days || 0);
+        }
         return (b.days || 0) - (a.days || 0) ||
             String(a.start || '').localeCompare(String(b.start || ''));
     });
@@ -980,6 +996,7 @@ function renderPlayerView(body) {
         { group: 'hold', id: 'all', label: 'All' },
         { group: 'hold', id: 'present', label: 'Present' },
         { group: 'hold', id: 'old', label: 'Old' },
+        { group: 'hold', id: 'latest', label: 'Latest activity' },
         { group: 'tied', id: 'all', label: 'All holds' },
         { group: 'tied', id: 'untied', label: 'Untied only' },
         { group: 'tied', id: 'tied', label: 'Tied only' }
@@ -1012,19 +1029,24 @@ function renderPlayerView(body) {
     var rows = filterRowsByListFilters(allRows);
     var modeLabel = statsExplorerPlayerHoldMode === 'present'
         ? 'present'
-        : (statsExplorerPlayerHoldMode === 'old' ? 'old' : 'all');
+        : (statsExplorerPlayerHoldMode === 'old'
+            ? 'old'
+            : (statsExplorerPlayerHoldMode === 'latest' ? 'latest' : 'all'));
     var tiedLabel = '';
     if (statsExplorerPlayerHoldMode === 'present' && statsExplorerPlayerTiedMode === 'untied') {
         tiedLabel = ' · untied';
     } else if (statsExplorerPlayerHoldMode === 'present' && statsExplorerPlayerTiedMode === 'tied') {
         tiedLabel = ' · tied';
     }
+    var sortHint = statsExplorerPlayerHoldMode === 'old'
+        ? 'most recently taken first'
+        : (statsExplorerPlayerHoldMode === 'latest' ? 'newest first' : 'longest first');
     var meta = document.createElement('div');
     meta.className = 'stats-explorer-meta';
     meta.textContent = statsExplorerPlayerName + ' · ' + rows.length + ' ' +
         modeLabel + ' hold' + (rows.length === 1 ? '' : 's') + tiedLabel +
         (rows.length !== allRows.length ? ' · ' + allRows.length + ' before filters' : '') +
-        ' · longest first';
+        ' · ' + sortHint;
     body.appendChild(meta);
 
     if (!rows.length) {
