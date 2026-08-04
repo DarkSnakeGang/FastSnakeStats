@@ -913,10 +913,23 @@ function renderPlayerView(body) {
     });
 
     if (!statsExplorerPlayerId) {
+        var emptyWrap = document.createElement('div');
+        emptyWrap.className = 'stats-player-empty';
+
+        var memeWrap = document.createElement('div');
+        memeWrap.className = 'stats-player-empty-meme';
+        var meme = document.createElement('img');
+        meme.src = 'assets/player-search-sacrifice.gif';
+        meme.alt = 'Sacrifice your physical and mental health for Google Snake world records';
+        memeWrap.appendChild(meme);
+        emptyWrap.appendChild(memeWrap);
+
         var hint = document.createElement('div');
         hint.className = 'stats-explorer-meta';
         hint.textContent = 'Search and select a player to see all WR holds, longest first.';
-        body.appendChild(hint);
+        emptyWrap.appendChild(hint);
+
+        body.appendChild(emptyWrap);
         return;
     }
 
