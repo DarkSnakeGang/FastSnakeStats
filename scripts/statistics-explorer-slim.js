@@ -60,8 +60,9 @@ function slimDailyData(date, data) {
         const runKey = extractRunKey(topRun);
         const weblink = extractWeblink(topRun);
 
-        const tiedIds = [];
-        const tiedNames = [];
+        /** @type {{ id: string, name: string, weblink: string|null }[]} */
+        const tied = [];
+        const seenTied = new Set();
         for (let i = 0; i < runs.length; i++) {
             const run = runs[i];
             const t = (run.times && run.times.primary) || '';
@@ -69,15 +70,20 @@ function slimDailyData(date, data) {
             if (!run.players || !run.players.data) continue;
             for (const p of run.players.data) {
                 const pid = extractPlayerId(p);
-                if (!pid) continue;
-                tiedIds.push(pid);
-                tiedNames.push(extractPlayerName(p));
+                if (!pid || seenTied.has(pid)) continue;
+                seenTied.add(pid);
+                tied.push({
+                    id: pid,
+                    name: extractPlayerName(p),
+                    weblink: extractWeblink(run)
+                });
             }
         }
-        if (tiedIds.length === 0) {
-            tiedIds.push(playerId);
-            tiedNames.push(playerName);
+        if (tied.length === 0) {
+            tied.push({ id: playerId, name: playerName, weblink });
         }
+
+        const tiedIds = tied.map((t) => t.id);
 
         /** @type {Record<string, { n: number, name: string }>} */
         const playerIncrements = Object.create(null);
@@ -106,8 +112,9 @@ function slimDailyData(date, data) {
             playerName,
             runKey,
             weblink,
+            tied,
             tiedIds,
-            tiedHolderCount: tiedIds.length,
+            tiedHolderCount: tied.length,
             playerIncrements
         });
     }

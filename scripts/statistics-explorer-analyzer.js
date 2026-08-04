@@ -16,7 +16,7 @@ const { slimDailyData } = require('./statistics-explorer-slim');
  */
 
 /** Bump whenever scoring / legends / hold logic changes (forces full rebuild). */
-const ANALYZER_VERSION = 11;
+const ANALYZER_VERSION = 12;
 
 const DIFFICULTY_TIERS = ['Free', 'Warmup', 'Easy', 'Medium', 'Hard', 'Mythic', 'Lottery', 'Inhuman'];
 
@@ -173,8 +173,8 @@ class StatisticsExplorerAnalyzer {
             prevTop[key] = v;
         }
         const openHolds = {};
-        for (const [key, v] of this.openHolds) {
-            openHolds[key] = v;
+        for (const [key, byPlayer] of this.openHolds) {
+            openHolds[key] = Object.fromEntries(byPlayer);
         }
         const playerDaily = {};
         for (const [pid, info] of this.playerDaily) {
@@ -202,7 +202,15 @@ class StatisticsExplorerAnalyzer {
         this.activityHeatmap = state.activityHeatmap || [];
 
         this.prevTop = new Map(Object.entries(state.prevTop || {}));
-        this.openHolds = new Map(Object.entries(state.openHolds || {}));
+        this.openHolds = new Map();
+        for (const [key, byPlayer] of Object.entries(state.openHolds || {})) {
+            // v12+: category -> { playerId: hold }; legacy v11: category -> hold
+            if (byPlayer && byPlayer.playerId && byPlayer.start) {
+                this.openHolds.set(key, new Map([[byPlayer.playerId, byPlayer]]));
+            } else {
+                this.openHolds.set(key, new Map(Object.entries(byPlayer || {})));
+            }
+        }
         this.progression = new Map(Object.entries(state.progression || {}));
 
         this.categoryMeta = new Map();
@@ -289,12 +297,14 @@ class StatisticsExplorerAnalyzer {
         return this.categoryMeta.get(key);
     }
 
-    closeHold(key, endDate, stillStanding = false) {
-        const hold = this.openHolds.get(key);
+    closePlayerHold(categoryKey, playerId, endDate, stillStanding = false) {
+        const byPlayer = this.openHolds.get(categoryKey);
+        if (!byPlayer) return;
+        const hold = byPlayer.get(playerId);
         if (!hold) return;
         const days = this.daysBetween(hold.start, endDate);
         this.completedHolds.push({
-            category: key,
+            category: categoryKey,
             playerId: hold.playerId,
             playerName: hold.playerName,
             time: hold.primary,
@@ -305,7 +315,63 @@ class StatisticsExplorerAnalyzer {
             stillStanding: !!stillStanding,
             tiedHolders: hold.tiedHolders || 1
         });
-        this.openHolds.delete(key);
+        byPlayer.delete(playerId);
+        if (byPlayer.size === 0) this.openHolds.delete(categoryKey);
+    }
+
+    closeCategoryHolds(categoryKey, endDate, stillStanding = false) {
+        const byPlayer = this.openHolds.get(categoryKey);
+        if (!byPlayer) return;
+        for (const playerId of Array.from(byPlayer.keys())) {
+            this.closePlayerHold(categoryKey, playerId, endDate, stillStanding);
+        }
+    }
+
+    openPlayerHold(categoryKey, holder, primary, tiedHolderCount, date) {
+        let byPlayer = this.openHolds.get(categoryKey);
+        if (!byPlayer) {
+            byPlayer = new Map();
+            this.openHolds.set(categoryKey, byPlayer);
+        }
+        byPlayer.set(holder.id, {
+            playerId: holder.id,
+            playerName: holder.name,
+            primary,
+            weblink: holder.weblink || null,
+            start: date,
+            tiedHolders: tiedHolderCount
+        });
+    }
+
+    /**
+     * Resolve tied holder list from slim category (v12 `tied` or legacy tiedIds).
+     */
+    getTiedHolders(cat) {
+        if (Array.isArray(cat.tied) && cat.tied.length) {
+            return cat.tied.filter((t) => t && t.id).map((t) => ({
+                id: t.id,
+                name: t.name || 'Unknown',
+                weblink: t.weblink || null
+            }));
+        }
+        const ids = cat.tiedIds || [];
+        if (ids.length) {
+            return ids.map((id, i) => ({
+                id,
+                name: (cat.tiedNames && cat.tiedNames[i]) || cat.playerName || 'Unknown',
+                weblink: i === 0 ? (cat.weblink || null) : null
+            }));
+        }
+        return [{
+            id: cat.playerId || 'unknown',
+            name: cat.playerName || 'Unknown',
+            weblink: cat.weblink || null
+        }];
+    }
+
+    closeHold(key, endDate, stillStanding = false) {
+        // Back-compat alias: close every open holder for the category
+        this.closeCategoryHolds(key, endDate, stillStanding);
     }
 
     processDate(date) {
@@ -347,24 +413,20 @@ class StatisticsExplorerAnalyzer {
             const playerName = cat.playerName;
             const runKey = cat.runKey;
             const weblink = cat.weblink;
-            const tiedHolderCount = cat.tiedHolderCount || 1;
 
             const meta = this.ensureCategoryMeta(categoryKey);
             meta.daysWithRecord++;
 
-            const tiedIds = cat.tiedIds || [];
-            for (let i = 0; i < tiedIds.length; i++) {
-                meta.holders.add(tiedIds[i]);
-            }
-            if (tiedIds.length === 0) {
-                meta.holders.add(playerId);
+            const tiedHolders = this.getTiedHolders(cat);
+            const tiedHolderCount = tiedHolders.length;
+            for (let i = 0; i < tiedHolders.length; i++) {
+                meta.holders.add(tiedHolders[i].id);
             }
             meta.currentTiedHolders = tiedHolderCount;
 
             const prev = this.prevTop.get(categoryKey);
-            // WR change = different player or time. Do not use SRC run id — duplicate
-            // board entries with the same time/player oscillate ids and inflate flips.
-            const changed = !prev || prev.primary !== primary || prev.playerId !== playerId;
+            // Flip only when the WR time changes — tied roster churn is not a flip
+            const timeChanged = prev && prev.primary !== primary;
 
             if (!prev) {
                 if (!this.progression.has(categoryKey)) this.progression.set(categoryKey, []);
@@ -375,19 +437,13 @@ class StatisticsExplorerAnalyzer {
                     i: playerId,
                     w: weblink || null
                 });
-                this.openHolds.set(categoryKey, {
-                    playerId,
-                    playerName,
-                    primary,
-                    weblink,
-                    runKey,
-                    start: date,
-                    tiedHolders: tiedHolderCount
-                });
-            } else if (changed) {
+                for (let i = 0; i < tiedHolders.length; i++) {
+                    this.openPlayerHold(categoryKey, tiedHolders[i], primary, tiedHolderCount, date);
+                }
+            } else if (timeChanged) {
                 flips++;
                 meta.flips++;
-                this.closeHold(categoryKey, date);
+                this.closeCategoryHolds(categoryKey, date);
                 if (!this.progression.has(categoryKey)) this.progression.set(categoryKey, []);
                 this.progression.get(categoryKey).push({
                     d: date,
@@ -396,25 +452,27 @@ class StatisticsExplorerAnalyzer {
                     i: playerId,
                     w: weblink || null
                 });
-                this.openHolds.set(categoryKey, {
-                    playerId,
-                    playerName,
-                    primary,
-                    weblink,
-                    runKey,
-                    start: date,
-                    tiedHolders: tiedHolderCount
-                });
+                for (let i = 0; i < tiedHolders.length; i++) {
+                    this.openPlayerHold(categoryKey, tiedHolders[i], primary, tiedHolderCount, date);
+                }
             } else {
-                // Same player+time (retime/id swap): keep hold, refresh display fields
-                const hold = this.openHolds.get(categoryKey);
-                if (hold) {
-                    hold.primary = primary;
-                    hold.playerName = playerName;
-                    hold.playerId = playerId;
-                    hold.runKey = runKey;
-                    hold.tiedHolders = tiedHolderCount;
-                    if (weblink) hold.weblink = weblink;
+                // Same WR time: sync per-player holds to current tied roster
+                const byPlayer = this.openHolds.get(categoryKey) || new Map();
+                const tiedIds = new Set(tiedHolders.map((t) => t.id));
+                for (const pid of Array.from(byPlayer.keys())) {
+                    if (!tiedIds.has(pid)) this.closePlayerHold(categoryKey, pid, date);
+                }
+                for (let i = 0; i < tiedHolders.length; i++) {
+                    const holder = tiedHolders[i];
+                    const existing = (this.openHolds.get(categoryKey) || new Map()).get(holder.id);
+                    if (!existing) {
+                        this.openPlayerHold(categoryKey, holder, primary, tiedHolderCount, date);
+                    } else {
+                        existing.playerName = holder.name;
+                        existing.primary = primary;
+                        existing.tiedHolders = tiedHolderCount;
+                        if (holder.weblink) existing.weblink = holder.weblink;
+                    }
                 }
             }
 
@@ -542,9 +600,15 @@ class StatisticsExplorerAnalyzer {
         return Array.from(this.categoryMeta.entries())
             .filter(([, meta]) => meta.daysWithRecord > 0)
             .map(([category, meta]) => {
-                const hold = this.openHolds.get(category);
-                const holdStart = hold ? hold.start : null;
-                const holdDays = hold ? this.daysBetween(hold.start, lastDate) : 0;
+                const byPlayer = this.openHolds.get(category);
+                let holdStart = null;
+                let holdDays = 0;
+                if (byPlayer && byPlayer.size) {
+                    for (const hold of byPlayer.values()) {
+                        if (!holdStart || hold.start < holdStart) holdStart = hold.start;
+                    }
+                    holdDays = this.daysBetween(holdStart, lastDate);
+                }
                 const tiedNow = meta.currentTiedHolders || 1;
                 // Unique holders over history, with current ties ensuring multi-way WRs aren't undersold
                 const holders = Math.max(meta.holders.size, tiedNow);
@@ -601,23 +665,25 @@ class StatisticsExplorerAnalyzer {
             });
         }
 
-        for (const [category, hold] of this.openHolds.entries()) {
+        for (const [category, byPlayer] of this.openHolds.entries()) {
             if (!this.isUnicornCategory(category)) continue;
             const scored = this.scoreCategory(category);
-            rows.push({
-                category,
-                tier: scored.tier,
-                score: Math.round(scored.score * 10) / 10,
-                playerId: hold.playerId,
-                playerName: hold.playerName,
-                time: hold.primary,
-                weblink: hold.weblink || null,
-                start: hold.start,
-                end: lastDate,
-                days: this.daysBetween(hold.start, lastDate),
-                stillStanding: true,
-                cheese50Small: this.isCheese50Small(category)
-            });
+            for (const hold of byPlayer.values()) {
+                rows.push({
+                    category,
+                    tier: scored.tier,
+                    score: Math.round(scored.score * 10) / 10,
+                    playerId: hold.playerId,
+                    playerName: hold.playerName,
+                    time: hold.primary,
+                    weblink: hold.weblink || null,
+                    start: hold.start,
+                    end: lastDate,
+                    days: this.daysBetween(hold.start, lastDate),
+                    stillStanding: true,
+                    cheese50Small: this.isCheese50Small(category)
+                });
+            }
         }
 
         rows.sort((a, b) => {
@@ -692,22 +758,24 @@ class StatisticsExplorerAnalyzer {
             });
         }
 
-        for (const [category, hold] of this.openHolds.entries()) {
-            if (!this.qualifiesForLegends(category, hold.primary)) continue;
-            const scored = this.scoreCategory(category);
-            rows.push({
-                category,
-                tier: scored.tier,
-                score: Math.round(scored.score * 10) / 10,
-                playerId: hold.playerId,
-                playerName: hold.playerName,
-                time: hold.primary,
-                weblink: hold.weblink || null,
-                start: hold.start,
-                end: lastDate,
-                days: this.daysBetween(hold.start, lastDate),
-                stillStanding: true
-            });
+        for (const [category, byPlayer] of this.openHolds.entries()) {
+            for (const hold of byPlayer.values()) {
+                if (!this.qualifiesForLegends(category, hold.primary)) continue;
+                const scored = this.scoreCategory(category);
+                rows.push({
+                    category,
+                    tier: scored.tier,
+                    score: Math.round(scored.score * 10) / 10,
+                    playerId: hold.playerId,
+                    playerName: hold.playerName,
+                    time: hold.primary,
+                    weblink: hold.weblink || null,
+                    start: hold.start,
+                    end: lastDate,
+                    days: this.daysBetween(hold.start, lastDate),
+                    stillStanding: true
+                });
+            }
         }
 
         rows.sort((a, b) =>
