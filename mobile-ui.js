@@ -1598,6 +1598,7 @@ function showBasicMobileStatisticsSection() {
         { id: 'progression', label: 'Progression' },
         { id: 'longevity', label: 'Longevity' },
         { id: 'career', label: 'Career' },
+        { id: 'player', label: 'Player' },
         { id: 'improving', label: 'Improving' },
         { id: 'contested', label: 'Contested' },
         { id: 'stale', label: 'Stale' },

@@ -1370,6 +1370,17 @@ body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 		color: #fff;
 	}
 
+	.mobile-main .mobile-stats-explorer .stats-player-search {
+		max-width: none;
+		width: 100%;
+		margin-bottom: 12px;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-player-search-input {
+		font-size: 16px;
+		padding: 10px 12px;
+	}
+
 	.mobile-main .mobile-stats-explorer .stats-unheld-free-meme {
 		margin: 8px 0 14px;
 		text-align: center;

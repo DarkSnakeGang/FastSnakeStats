@@ -11,6 +11,11 @@ var statsExplorerHeatYear = null; // set from data
 var statsExplorerLongevityMode = 'standing'; // 'all' | 'standing'
 var statsExplorerLongevityTiedMode = 'untied'; // 'all' | 'untied' | 'tied'
 var statsExplorerUnheldTier = 'All'; // 'All' | Free…Inhuman
+var statsExplorerPlayerId = null;
+var statsExplorerPlayerName = '';
+var statsExplorerPlayerHoldMode = 'all'; // 'all' | 'present' | 'old'
+var statsExplorerPlayerTiedMode = 'all'; // 'all' | 'untied' | 'tied' — present only
+var statsExplorerPlayersCache = null;
 // Independent progression filters (not Category Settings)
 var statsProgApple = '1 Apple';
 var statsProgSpeed = 'Normal';
@@ -31,6 +36,7 @@ var STATS_TABS = [
     { id: 'progression', label: 'Progression' },
     { id: 'longevity', label: 'Longevity' },
     { id: 'career', label: 'Career' },
+    { id: 'player', label: 'Player' },
     { id: 'improving', label: 'Improving' },
     { id: 'contested', label: 'Contested' },
     { id: 'stale', label: 'Stale' },
@@ -238,6 +244,7 @@ async function loadStatisticsExplorerData() {
             var localRes = await fetch('time-travel-cache/metadata/statistics-explorer.json');
             if (localRes.ok) {
                 statsExplorerData = await localRes.json();
+                statsExplorerPlayersCache = null;
                 return statsExplorerData;
             }
         } catch (e) { /* try remote */ }
@@ -247,6 +254,7 @@ async function loadStatisticsExplorerData() {
             var remoteRes = await fetch(base + '/time-travel-cache/metadata/statistics-explorer.json');
             if (remoteRes.ok) {
                 statsExplorerData = await remoteRes.json();
+                statsExplorerPlayersCache = null;
                 return statsExplorerData;
             }
         } catch (e2) {
@@ -415,6 +423,9 @@ function renderStatisticsExplorerContent(targetBody) {
             break;
         case 'career':
             renderCareerView(body);
+            break;
+        case 'player':
+            renderPlayerView(body);
             break;
         case 'improving':
             renderImprovingView(body);
@@ -739,6 +750,250 @@ function renderLongevityView(body) {
     renderListView(body, filtered, 'longevity');
 }
 
+function getStatsExplorerPlayers() {
+    if (statsExplorerPlayersCache) return statsExplorerPlayersCache;
+    var byId = {};
+    var raw = statsExplorerData && statsExplorerData.longevity;
+    var rows = (raw && Array.isArray(raw.all))
+        ? raw.all
+        : (Array.isArray(raw) ? raw : []);
+    rows.forEach(function (r) {
+        if (!r || !r.playerId) return;
+        byId[r.playerId] = r.playerName || r.playerId;
+    });
+    (statsExplorerData.career || []).forEach(function (r) {
+        if (!r || !r.playerId) return;
+        if (!byId[r.playerId]) byId[r.playerId] = r.playerName || r.playerId;
+    });
+    statsExplorerPlayersCache = Object.keys(byId).map(function (id) {
+        return { id: id, name: byId[id] };
+    }).sort(function (a, b) {
+        return String(a.name).localeCompare(String(b.name));
+    });
+    return statsExplorerPlayersCache;
+}
+
+function getPlayerHoldRows(playerId) {
+    if (!playerId) return [];
+    var raw = statsExplorerData && statsExplorerData.longevity;
+    var rows = (raw && Array.isArray(raw.all))
+        ? raw.all
+        : (Array.isArray(raw) ? raw : []);
+    return rows.filter(function (r) {
+        if (!r || r.playerId !== playerId) return false;
+        if (statsExplorerPlayerHoldMode === 'present') {
+            if (!r.stillStanding) return false;
+            if (statsExplorerPlayerTiedMode === 'untied') return (r.tiedHolders || 1) <= 1;
+            if (statsExplorerPlayerTiedMode === 'tied') return (r.tiedHolders || 1) > 1;
+            return true;
+        }
+        if (statsExplorerPlayerHoldMode === 'old') return !r.stillStanding;
+        return true;
+    }).slice().sort(function (a, b) {
+        return (b.days || 0) - (a.days || 0) ||
+            String(a.start || '').localeCompare(String(b.start || ''));
+    });
+}
+
+function filterPlayerSuggestions(query, limit) {
+    var q = String(query || '').trim().toLowerCase();
+    var players = getStatsExplorerPlayers();
+    if (!q) return players.slice(0, limit || 12);
+    var starts = [];
+    var contains = [];
+    for (var i = 0; i < players.length; i++) {
+        var name = String(players[i].name || '').toLowerCase();
+        if (name === q) {
+            starts.unshift(players[i]);
+        } else if (name.indexOf(q) === 0) {
+            starts.push(players[i]);
+        } else if (name.indexOf(q) !== -1) {
+            contains.push(players[i]);
+        }
+        if (starts.length + contains.length >= (limit || 12) * 2) break;
+    }
+    return starts.concat(contains).slice(0, limit || 12);
+}
+
+function selectStatsExplorerPlayer(player) {
+    if (!player) {
+        statsExplorerPlayerId = null;
+        statsExplorerPlayerName = '';
+        return;
+    }
+    statsExplorerPlayerId = player.id;
+    statsExplorerPlayerName = player.name || '';
+}
+
+function renderPlayerView(body) {
+    var searchWrap = document.createElement('div');
+    searchWrap.className = 'stats-player-search';
+
+    var label = document.createElement('label');
+    label.className = 'stats-explorer-select-label';
+    label.setAttribute('for', 'statsPlayerSearch');
+    label.textContent = 'Player';
+    searchWrap.appendChild(label);
+
+    var inputWrap = document.createElement('div');
+    inputWrap.className = 'stats-player-search-input-wrap';
+
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.id = 'statsPlayerSearch';
+    input.className = 'stats-player-search-input';
+    input.setAttribute('autocomplete', 'off');
+    input.setAttribute('spellcheck', 'false');
+    input.placeholder = 'Search player…';
+    input.value = statsExplorerPlayerName || '';
+    inputWrap.appendChild(input);
+
+    var suggestions = document.createElement('div');
+    suggestions.className = 'stats-player-suggestions';
+    suggestions.hidden = true;
+    inputWrap.appendChild(suggestions);
+    searchWrap.appendChild(inputWrap);
+    body.appendChild(searchWrap);
+
+    function hideSuggestions() {
+        suggestions.hidden = true;
+        suggestions.innerHTML = '';
+    }
+
+    function showSuggestions(list) {
+        suggestions.innerHTML = '';
+        if (!list.length) {
+            hideSuggestions();
+            return;
+        }
+        list.forEach(function (p) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'stats-player-suggestion';
+            btn.textContent = p.name;
+            btn.addEventListener('mousedown', function (e) {
+                e.preventDefault();
+                selectStatsExplorerPlayer(p);
+                input.value = p.name;
+                hideSuggestions();
+                renderStatisticsExplorerContent(body);
+            });
+            suggestions.appendChild(btn);
+        });
+        suggestions.hidden = false;
+    }
+
+    input.addEventListener('input', function () {
+        var q = input.value;
+        if (statsExplorerPlayerId && q !== statsExplorerPlayerName) {
+            statsExplorerPlayerId = null;
+            statsExplorerPlayerName = '';
+        }
+        showSuggestions(filterPlayerSuggestions(q, 12));
+    });
+    input.addEventListener('focus', function () {
+        showSuggestions(filterPlayerSuggestions(input.value, 12));
+    });
+    input.addEventListener('blur', function () {
+        setTimeout(hideSuggestions, 150);
+    });
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            var list = filterPlayerSuggestions(input.value, 1);
+            if (list.length) {
+                selectStatsExplorerPlayer(list[0]);
+                input.value = list[0].name;
+                hideSuggestions();
+                renderStatisticsExplorerContent(body);
+            }
+        } else if (e.key === 'Escape') {
+            hideSuggestions();
+        }
+    });
+
+    if (!statsExplorerPlayerId) {
+        var hint = document.createElement('div');
+        hint.className = 'stats-explorer-meta';
+        hint.textContent = 'Search and select a player to see all WR holds, longest first.';
+        body.appendChild(hint);
+        return;
+    }
+
+    var chipBar = document.createElement('div');
+    chipBar.className = 'stats-explorer-chips stats-longevity-chips';
+    [
+        { group: 'hold', id: 'all', label: 'All' },
+        { group: 'hold', id: 'present', label: 'Present' },
+        { group: 'hold', id: 'old', label: 'Old' },
+        { group: 'tied', id: 'all', label: 'All holds' },
+        { group: 'tied', id: 'untied', label: 'Untied only' },
+        { group: 'tied', id: 'tied', label: 'Tied only' }
+    ].forEach(function (opt) {
+        // Tied/untied only apply to present records
+        if (opt.group === 'tied' && statsExplorerPlayerHoldMode !== 'present') return;
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        var active = opt.group === 'hold'
+            ? opt.id === statsExplorerPlayerHoldMode
+            : opt.id === statsExplorerPlayerTiedMode;
+        chip.className = 'stats-explorer-chip' + (active ? ' active' : '');
+        chip.textContent = opt.label;
+        chip.addEventListener('click', function () {
+            if (opt.group === 'hold') {
+                statsExplorerPlayerHoldMode = opt.id;
+                if (opt.id !== 'present') statsExplorerPlayerTiedMode = 'all';
+            } else {
+                statsExplorerPlayerTiedMode = opt.id;
+            }
+            renderStatisticsExplorerContent(body);
+        });
+        chipBar.appendChild(chip);
+    });
+    body.appendChild(chipBar);
+
+    appendListFilters(body);
+
+    var allRows = getPlayerHoldRows(statsExplorerPlayerId);
+    var rows = filterRowsByListFilters(allRows);
+    var modeLabel = statsExplorerPlayerHoldMode === 'present'
+        ? 'present'
+        : (statsExplorerPlayerHoldMode === 'old' ? 'old' : 'all');
+    var tiedLabel = '';
+    if (statsExplorerPlayerHoldMode === 'present' && statsExplorerPlayerTiedMode === 'untied') {
+        tiedLabel = ' · untied';
+    } else if (statsExplorerPlayerHoldMode === 'present' && statsExplorerPlayerTiedMode === 'tied') {
+        tiedLabel = ' · tied';
+    }
+    var meta = document.createElement('div');
+    meta.className = 'stats-explorer-meta';
+    meta.textContent = statsExplorerPlayerName + ' · ' + rows.length + ' ' +
+        modeLabel + ' hold' + (rows.length === 1 ? '' : 's') + tiedLabel +
+        (rows.length !== allRows.length ? ' · ' + allRows.length + ' before filters' : '') +
+        ' · longest first';
+    body.appendChild(meta);
+
+    if (!rows.length) {
+        var empty = document.createElement('div');
+        empty.className = 'stats-explorer-empty';
+        empty.textContent = allRows.length
+            ? 'No holds match these filters.'
+            : (statsExplorerPlayerHoldMode === 'present'
+                ? (statsExplorerPlayerTiedMode === 'untied'
+                    ? 'No untied present holds for this player.'
+                    : (statsExplorerPlayerTiedMode === 'tied'
+                        ? 'No tied present holds for this player.'
+                        : 'No present holds for this player.'))
+                : (statsExplorerPlayerHoldMode === 'old'
+                    ? 'No old holds for this player.'
+                    : 'No holds found for this player.'));
+        body.appendChild(empty);
+        return;
+    }
+
+    renderListView(body, rows, 'player', true);
+}
+
 function getCareerMetrics(row) {
     if (!row) {
         return { wrDays: 0, bestAll: null, bestStanding: null };
@@ -914,7 +1169,9 @@ function renderListView(body, rows, kind, showAll) {
     table.className = 'stats-explorer-table';
     var thead = document.createElement('thead');
     var hr = document.createElement('tr');
-    var headers = kind === 'longevity'
+    var headers = kind === 'player'
+        ? ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Time', 'Days', 'Range']
+        : kind === 'longevity'
         ? ['Player', 'Mode', 'Count', 'Speed', 'Size', 'Run', 'Time', 'Days', 'Range']
         : kind === 'stale'
             ? ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Days', 'Flips', 'Holders']
@@ -946,7 +1203,16 @@ function renderListView(body, rows, kind, showAll) {
         };
         var tr = document.createElement('tr');
         tr.title = row.category || '';
-        if (kind === 'longevity') {
+        if (kind === 'player') {
+            var playerRange = row.stillStanding
+                ? row.start + ' → present'
+                : row.start + ' → ' + row.end;
+            tr.innerHTML =
+                formatCategoryFiveCellsHtml(parsed) +
+                '<td>' + formatHoldTimeCell(row, parsed) + '</td>' +
+                '<td>' + row.days + '</td>' +
+                '<td>' + escapeHtml(playerRange) + '</td>';
+        } else if (kind === 'longevity') {
             var range = row.stillStanding
                 ? row.start + ' → present'
                 : row.start + ' → ' + row.end;

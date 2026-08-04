@@ -2943,6 +2943,83 @@ body.dark-mode .quick-fetch-btn:disabled {
 		margin-top: 2px;
 	}
 
+	.stats-player-search {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 6px;
+		margin: 0 0 10px;
+		max-width: 320px;
+	}
+
+	.stats-player-search-input-wrap {
+		position: relative;
+	}
+
+	.stats-player-search-input {
+		width: 100%;
+		box-sizing: border-box;
+		padding: 8px 10px;
+		border-radius: 8px;
+		border: 1px solid rgba(255, 255, 255, 0.25);
+		background: rgba(0, 0, 0, 0.25);
+		color: #fff;
+		font-size: 13px;
+	}
+
+	.stats-player-search-input:focus {
+		outline: none;
+		border-color: rgba(77, 193, 249, 0.55);
+		box-shadow: 0 0 0 2px rgba(77, 193, 249, 0.2);
+	}
+
+	.stats-player-suggestions {
+		position: absolute;
+		z-index: 40;
+		left: 0;
+		right: 0;
+		top: calc(100% + 4px);
+		max-height: 220px;
+		overflow-y: auto;
+		background: rgba(28, 32, 40, 0.98);
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		border-radius: 8px;
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+	}
+
+	.stats-player-suggestion {
+		display: block;
+		width: 100%;
+		text-align: left;
+		border: none;
+		background: transparent;
+		color: #fff;
+		padding: 8px 10px;
+		font-size: 13px;
+		cursor: pointer;
+	}
+
+	.stats-player-suggestion:hover,
+	.stats-player-suggestion:focus {
+		background: rgba(76, 121, 45, 0.85);
+		outline: none;
+	}
+
+	body:not(.dark-mode) .stats-player-search-input {
+		background: rgba(255, 255, 255, 0.85);
+		color: #222;
+		border-color: rgba(0, 0, 0, 0.18);
+	}
+
+	body:not(.dark-mode) .stats-player-suggestions {
+		background: #fff;
+		border-color: rgba(0, 0, 0, 0.15);
+	}
+
+	body:not(.dark-mode) .stats-player-suggestion {
+		color: #222;
+	}
+
 	.stats-cat-icon {
 		width: 18px;
 		height: 18px;
