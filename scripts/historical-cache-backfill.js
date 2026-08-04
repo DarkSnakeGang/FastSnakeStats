@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { isIgnoredPlayerName, isIgnoredPlayer, shouldSkipBoardFetch } = require('../ignored-players');
 
 // Import the WorldRecordFetcher logic
 class HistoricalCacheBackfill {
@@ -82,6 +83,43 @@ class HistoricalCacheBackfill {
         return this.gameMetadata;
     }
 
+    // Guest players have no SRC user id — key them by display name.
+    buildGuestPlayer(name) {
+        const guestName = (name && String(name).trim()) || 'Anonymous';
+        const cacheKey = `guest:${guestName}`;
+        if (this.playerCache.has(cacheKey)) {
+            return this.playerCache.get(cacheKey);
+        }
+        const playerInfo = {
+            id: cacheKey,
+            name: guestName,
+            isGuest: true,
+            // Guests have no SRC user profile page
+            weblink: null,
+            nameStyle: {
+                style: 'solid',
+                color: { dark: '#9e9e9e', light: '#9e9e9e' }
+            }
+        };
+        this.playerCache.set(cacheKey, playerInfo);
+        return playerInfo;
+    }
+
+    // Resolve a leaderboard player ref (registered user or guest)
+    async resolvePlayerFromRef(playerRef) {
+        if (!playerRef) return null;
+        if (playerRef.rel === 'guest' || (!playerRef.id && playerRef.name)) {
+            if (isIgnoredPlayerName(playerRef.name)) return null;
+            return this.buildGuestPlayer(playerRef.name);
+        }
+        if (playerRef.id) {
+            const player = await this.getPlayerData(playerRef.id);
+            if (player && isIgnoredPlayer(player)) return null;
+            return player;
+        }
+        return null;
+    }
+
     // Fetch player data by ID (with caching)
     async getPlayerData(playerId) {
         // Check cache first
@@ -105,6 +143,7 @@ class HistoricalCacheBackfill {
                     const playerInfo = {
                         id: playerData.data.id,
                         name: playerName,
+                        isGuest: false,
                         weblink: `https://www.speedrun.com/user/${playerName}`,
                         nameStyle: playerData.data["name-style"] || {
                             style: "solid",
@@ -335,6 +374,10 @@ class HistoricalCacheBackfill {
             // Highscore records only for highscore modes
             for (let levelIndex = 0; levelIndex < highscoreLevels.length; levelIndex++) {
                 for (let modeIndex = 0; modeIndex < highscoreModes.length; modeIndex++) {
+                    const mode = highscoreModes[modeIndex];
+                    if (shouldSkipBoardFetch(combo[0], allModeNames[mode], 'High Score')) {
+                        continue;
+                    }
                     totalRequests++;
                 }
             }
@@ -374,10 +417,16 @@ class HistoricalCacheBackfill {
                 const level = highscoreLevels[levelIndex];
                 for (let modeIndex = 0; modeIndex < highscoreModes.length; modeIndex++) {
                     const mode = highscoreModes[modeIndex];
+                    const modeName = allModeNames[mode];
+
+                    // Closed / no-submit boards (Statue HS + 10a/Bomb)
+                    if (shouldSkipBoardFetch(count, modeName, 'High Score')) {
+                        continue;
+                    }
                     
                     allRequests.push({
                         count, speed, size, mode, level, date,
-                        key: `${count}|${speed}|${size}|${allModeNames[mode]}|High Score`
+                        key: `${count}|${speed}|${size}|${modeName}|High Score`
                     });
                 }
             }
@@ -651,26 +700,18 @@ class HistoricalCacheBackfill {
                 
                 for (const run of leaderboardData.data.runs) {
                     if (run.run.times.primary === bestTime) {
-                        let playerId = null;
                         let runData = null;
+                        let playerRef = null;
                         
                         // Check for the correct structure: run.run.players[0] (array)
                         if (run.run && run.run.players && Array.isArray(run.run.players) && run.run.players.length > 0) {
-                            const playerRef = run.run.players[0];
-                            
-                            // Player reference should have an 'id' field
-                            if (playerRef && playerRef.id) {
-                                playerId = playerRef.id;
-                                runData = run.run;
-                            } else {
-                                continue; // Skip this run if player reference is missing
-                            }
+                            playerRef = run.run.players[0];
+                            runData = run.run;
                         } else {
                             continue; // Skip this run if player data structure is wrong
                         }
                         
-                        // Fetch the full player data using the ID
-                        const player = await this.getPlayerData(playerId);
+                        const player = await this.resolvePlayerFromRef(playerRef);
                         
                         if (player) {
                             const processedRun = {
@@ -681,8 +722,9 @@ class HistoricalCacheBackfill {
                                 players: {
                                     data: [{
                                         id: player.id,
+                                        rel: player.isGuest ? 'guest' : 'user',
                                         names: { international: player.name },
-                                        weblink: `https://www.speedrun.com/user/${player.name}`,
+                                        weblink: player.weblink,
                                         "name-style": player.nameStyle
                                     }]
                                 },
@@ -698,7 +740,7 @@ class HistoricalCacheBackfill {
                 }
                 
                 return {
-                    success: true,
+                    success: tiedRuns.length > 0,
                     runs: tiedRuns,
                     settings: [count, speed, size, mode, level]
                 };

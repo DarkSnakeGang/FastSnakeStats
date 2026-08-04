@@ -4,8 +4,11 @@
  * and JSON.parse can run in parallel worker threads.
  */
 
+const { isIgnoredPlayer, isIgnoredRun, filterIgnoredRuns } = require('../ignored-players');
+
 function extractPlayerId(playerData) {
     if (!playerData) return null;
+    if (isIgnoredPlayer(playerData)) return null;
     return playerData.id || null;
 }
 
@@ -51,10 +54,17 @@ function slimDailyData(date, data) {
             continue;
         }
 
-        const runs = categoryData.runs;
+        const runs = filterIgnoredRuns(categoryData.runs);
+        if (runs.length === 0) {
+            continue;
+        }
+
         const topRun = runs[0];
         const primary = (topRun.times && topRun.times.primary) || '';
         const playerData = topRun.players && topRun.players.data && topRun.players.data[0];
+        if (!playerData || isIgnoredPlayer(playerData)) {
+            continue;
+        }
         const playerId = extractPlayerId(playerData) || 'unknown';
         const playerName = extractPlayerName(playerData);
         const runKey = extractRunKey(topRun);
@@ -65,10 +75,12 @@ function slimDailyData(date, data) {
         const seenTied = new Set();
         for (let i = 0; i < runs.length; i++) {
             const run = runs[i];
+            if (isIgnoredRun(run)) continue;
             const t = (run.times && run.times.primary) || '';
             if (t !== primary) break;
             if (!run.players || !run.players.data) continue;
             for (const p of run.players.data) {
+                if (isIgnoredPlayer(p)) continue;
                 const pid = extractPlayerId(p);
                 if (!pid || seenTied.has(pid)) continue;
                 seenTied.add(pid);
@@ -80,7 +92,7 @@ function slimDailyData(date, data) {
             }
         }
         if (tied.length === 0) {
-            tied.push({ id: playerId, name: playerName, weblink });
+            continue;
         }
 
         const tiedIds = tied.map((t) => t.id);

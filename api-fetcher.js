@@ -12,6 +12,20 @@ function safeDateToISOString(date) {
     return new Date().toISOString(); // fallback
 }
 
+/** Build cache-shaped player entry from WorldRecordFetcher player object (user or guest). */
+function buildPlayerDataEntry(player) {
+    const isGuest = !!(player && player.id && String(player.id).indexOf('guest:') === 0);
+    return {
+        names: { international: player.name },
+        id: player.id,
+        rel: isGuest ? 'guest' : 'user',
+        weblink: isGuest ? null : `https://www.speedrun.com/user/${player.name}`,
+        'name-style': player.nameStyle || (isGuest
+            ? { style: 'solid', color: { dark: '#9e9e9e', light: '#9e9e9e' } }
+            : { style: 'solid', color: { dark: '#ffffff' } })
+    };
+}
+
 function makeAPIrequest(requestURL, callback){
     // Add id to solve query issue
     hasQuery = requestURL.includes("?")
@@ -288,8 +302,11 @@ async function quickFetchWorldRecords() {
             // worldRecords needs to be in the old format (arrays) for calculateRanglist()
             worldRecords = {};
             for (const [key, record] of Object.entries(cacheData)) {
-                if (Array.isArray(record) && record.length > 0) {
-                    worldRecords[key] = record;
+                const runs = (typeof filterIgnoredRuns === 'function')
+                    ? filterIgnoredRuns(record)
+                    : record;
+                if (Array.isArray(runs) && runs.length > 0) {
+                    worldRecords[key] = runs;
                 } else {
                     worldRecords[key] = [];
                 }
@@ -318,7 +335,10 @@ async function quickFetchWorldRecords() {
             
             // Convert cache data to bestRuns format
             for (const [key, record] of Object.entries(cacheData)) {
-                if (Array.isArray(record) && record.length > 0) {
+                const runs = (typeof filterIgnoredRuns === 'function')
+                    ? filterIgnoredRuns(record)
+                    : record;
+                if (Array.isArray(runs) && runs.length > 0) {
                     // Parse the key: "1 Apple|Normal|Standard|Classic|25 Apples"
                     const parts = key.split('|');
                     if (parts.length === 5) {
@@ -332,7 +352,7 @@ async function quickFetchWorldRecords() {
                         // Store the runs (weblink is handled in createNameElement)
                         bestRuns[count][speed][size][gamemode][runMode] = {
                             success: true,
-                            runs: record,
+                            runs: runs,
                             settings: [count, speed, size, gamemode, runMode]
                         };
                     }
@@ -445,24 +465,14 @@ async function refreshSpecificTable(settings) {
                         let convertedRuns = [];
                         
                         for (const run of record.runs) {
+                        if (typeof isIgnoredPlayer === 'function' && isIgnoredPlayer(run.player)) continue;
                             let convertedRun = {
                                 times: { primary: run.time.raw },
                                 date: safeDateToISOString(run.date),
                                 id: run.runId,
                                 weblink: run.weblink,
                                 players: {
-                                    data: [{
-                                        names: { international: run.player.name },
-                                        id: run.player.id,
-                                        rel: "user",
-                                        weblink: `https://www.speedrun.com/user/${run.player.name}`,
-                                        "name-style": run.player.nameStyle || {
-                                            style: "solid",
-                                            color: {
-                                                dark: "#ffffff"
-                                            }
-                                        }
-                                    }]
+                                    data: [buildPlayerDataEntry(run.player)]
                                 },
                                 values: {} // We'll need to reconstruct this if needed
                             };
@@ -505,24 +515,14 @@ async function refreshSpecificTable(settings) {
                         let convertedRuns = [];
                         
                         for (const run of record.runs) {
+                        if (typeof isIgnoredPlayer === 'function' && isIgnoredPlayer(run.player)) continue;
                             let convertedRun = {
                                 times: { primary: run.time.raw },
                                 date: safeDateToISOString(run.date),
                                 id: run.runId,
                                 weblink: run.weblink,
                                 players: {
-                                    data: [{
-                                        names: { international: run.player.name },
-                                        id: run.player.id,
-                                        rel: "user",
-                                        weblink: `https://www.speedrun.com/user/${run.player.name}`,
-                                        "name-style": run.player.nameStyle || {
-                                            style: "solid",
-                                            color: {
-                                                dark: "#ffffff"
-                                            }
-                                        }
-                                    }]
+                                    data: [buildPlayerDataEntry(run.player)]
                                 },
                                 values: {} // We'll need to reconstruct this if needed
                             };
@@ -770,6 +770,10 @@ async function getAllWorldRecordsForCurrentSettings() {
             const level = highscoreLevels[levelIndex];
             for (let modeIndex = 0; modeIndex < selectedHighscoreModes.length; modeIndex++) {
                 const mode = selectedHighscoreModes[modeIndex];
+                if (typeof shouldSkipBoardFetch === 'function' &&
+                    shouldSkipBoardFetch(combo[0], modeNames[mode], 'High Score')) {
+                    continue;
+                }
                 
                 allRequests.push({
                     level: level,
@@ -839,25 +843,15 @@ async function getAllWorldRecordsForCurrentSettings() {
                     let convertedRuns = [];
                     
                     for (const run of record.runs) {
+                        if (typeof isIgnoredPlayer === 'function' && isIgnoredPlayer(run.player)) continue;
                         let convertedRun = {
                             times: { primary: run.time.raw },
                             date: safeDateToISOString(run.date),
                             id: run.runId,
                             weblink: run.weblink,
                             players: {
-                                data: [{
-                                    names: { international: run.player.name },
-                                    id: run.player.id,
-                                    rel: "user",
-                                    weblink: `https://www.speedrun.com/user/${run.player.name}`,
-                                    "name-style": run.player.nameStyle || {
-                                        style: "solid",
-                                        color: {
-                                            dark: "#ffffff"
-                                        }
-                                    }
-                                }]
-                            },
+                                    data: [buildPlayerDataEntry(run.player)]
+                                },
                             values: {} // We'll need to reconstruct this if needed
                         };
                         convertedRuns.push(convertedRun);
@@ -941,25 +935,15 @@ async function getAllWorldRecordsForCurrentSettings() {
                         let convertedRuns = [];
                         
                         for (const run of record.runs) {
+                        if (typeof isIgnoredPlayer === 'function' && isIgnoredPlayer(run.player)) continue;
                             let convertedRun = {
                                 times: { primary: run.time.raw },
                                 date: safeDateToISOString(run.date),
                                 id: run.runId,
                         weblink: run.weblink,
                         players: {
-                            data: [{
-                                names: { international: run.player.name },
-                                id: run.player.id,
-                                rel: "user",
-                                weblink: `https://www.speedrun.com/user/${run.player.name}`,
-                                "name-style": run.player.nameStyle || {
-                                    style: "solid",
-                                    color: {
-                                        dark: "#ffffff"
-                                    }
-                                }
-                            }]
-                        },
+                                    data: [buildPlayerDataEntry(run.player)]
+                                },
                         values: {} // We'll need to reconstruct this if needed
                     };
                     convertedRuns.push(convertedRun);
@@ -1159,6 +1143,10 @@ async function getAllWorldRecordsForDate(date) {
             const level = highscoreLevels[levelIndex];
             for (let modeIndex = 0; modeIndex < selectedHighscoreModes.length; modeIndex++) {
                 const mode = selectedHighscoreModes[modeIndex];
+                if (typeof shouldSkipBoardFetch === 'function' &&
+                    shouldSkipBoardFetch(combo[0], modeNames[mode], 'High Score')) {
+                    continue;
+                }
                 
                 allRequests.push({
                     level: level,
@@ -1221,25 +1209,15 @@ async function getAllWorldRecordsForDate(date) {
                 let convertedRuns = [];
                 
                 for (const run of record.runs) {
+                        if (typeof isIgnoredPlayer === 'function' && isIgnoredPlayer(run.player)) continue;
                     let convertedRun = {
                         times: { primary: run.time.raw },
                         date: safeDateToISOString(run.date),
                         id: run.runId,
                         weblink: run.weblink,
                         players: {
-                            data: [{
-                                names: { international: run.player.name },
-                                id: run.player.id,
-                                rel: "user",
-                                weblink: `https://www.speedrun.com/user/${run.player.name}`,
-                                "name-style": run.player.nameStyle || {
-                                    style: "solid",
-                                    color: {
-                                        dark: "#ffffff"
-                                    }
-                                }
-                            }]
-                        },
+                                    data: [buildPlayerDataEntry(run.player)]
+                                },
                         values: {} // We'll need to reconstruct this if needed
                     };
                     convertedRuns.push(convertedRun);

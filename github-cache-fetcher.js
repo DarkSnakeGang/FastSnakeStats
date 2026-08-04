@@ -124,6 +124,9 @@ class GitHubCacheFetcher {
                 const convertedRuns = record.runs.map(run => {
                     // Check if this is already in the correct format
                     if (run.players && run.players.data && Array.isArray(run.players.data) && run.players.data.length > 0) {
+                        if (typeof isIgnoredRun === 'function' && isIgnoredRun(run)) {
+                            return null;
+                        }
                         // Already in correct format, return as is
                         return {
                             times: run.times,

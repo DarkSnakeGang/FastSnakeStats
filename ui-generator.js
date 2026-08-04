@@ -218,6 +218,13 @@ function calculateRanglist(){
             continue;
         }
 
+        if (typeof filterIgnoredRuns === 'function') {
+            runs = filterIgnoredRuns(runs);
+        }
+        if(!runs || runs.length === 0){
+            continue;
+        }
+
         var inSelection = false;
         
         // When multiple tables is disabled, only count the currently selected board
@@ -520,12 +527,25 @@ function createNameElement(user){
     span.setAttribute('class', 'name');
     var a = document.createElement('a');
     
-    // Always use player name for weblink
-    const playerName = user.names && user.names.international ? user.names.international : 'unknown';
-    a.setAttribute('href', `https://www.speedrun.com/user/${playerName}`);
-    a.setAttribute('target','_blank');
+    const playerName = user.names && user.names.international
+        ? user.names.international
+        : (user.name || 'unknown');
+    const isGuest = user.rel === 'guest' ||
+        (user.id && String(user.id).indexOf('guest:') === 0);
+
+    // Guests have no SRC user profile; prefer stored weblink, else skip fake /user/ links
+    if (user.weblink) {
+        a.setAttribute('href', user.weblink);
+        a.setAttribute('target', '_blank');
+    } else if (!isGuest) {
+        a.setAttribute('href', `https://www.speedrun.com/user/${playerName}`);
+        a.setAttribute('target', '_blank');
+    }
     
     var nameStyle = user['name-style'] || user.nameStyle || null;
+    if (isGuest && !nameStyle) {
+        nameStyle = { style: 'solid', color: { dark: '#9e9e9e', light: '#9e9e9e' } };
+    }
 
     // Check if this is a user with names.international (GitHub cache format)
     if(user.names && user.names.international){
@@ -536,6 +556,11 @@ function createNameElement(user){
     // Legacy format check (user.rel == "user")
     else if(user.rel == "user"){
         span.appendChild(document.createTextNode(user.names.international));
+        a.appendChild(span);
+        applyUsernameColors(span, nameStyle);
+    }
+    else if(user.rel == "guest" || isGuest){
+        span.appendChild(document.createTextNode(playerName));
         a.appendChild(span);
         applyUsernameColors(span, nameStyle);
     }

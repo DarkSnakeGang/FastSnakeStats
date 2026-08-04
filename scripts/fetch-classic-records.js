@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { isIgnoredPlayerName, isIgnoredPlayer } = require('../ignored-players');
 
 // Import the WorldRecordFetcher logic
 class ClassicRecordFetcher {
@@ -74,6 +75,41 @@ class ClassicRecordFetcher {
         return this.gameMetadata;
     }
 
+    // Guest players have no SRC user id — key them by display name.
+    buildGuestPlayer(name) {
+        const guestName = (name && String(name).trim()) || 'Anonymous';
+        const cacheKey = `guest:${guestName}`;
+        if (this.playerCache.has(cacheKey)) {
+            return this.playerCache.get(cacheKey);
+        }
+        const playerInfo = {
+            id: cacheKey,
+            name: guestName,
+            isGuest: true,
+            weblink: null,
+            nameStyle: {
+                style: 'solid',
+                color: { dark: '#9e9e9e', light: '#9e9e9e' }
+            }
+        };
+        this.playerCache.set(cacheKey, playerInfo);
+        return playerInfo;
+    }
+
+    async resolvePlayerFromRef(playerRef) {
+        if (!playerRef) return null;
+        if (playerRef.rel === 'guest' || (!playerRef.id && playerRef.name)) {
+            if (isIgnoredPlayerName(playerRef.name)) return null;
+            return this.buildGuestPlayer(playerRef.name);
+        }
+        if (playerRef.id) {
+            const player = await this.getPlayerData(playerRef.id);
+            if (player && isIgnoredPlayer(player)) return null;
+            return player;
+        }
+        return null;
+    }
+
     // Fetch player data by ID (with caching)
     async getPlayerData(playerId) {
         if (this.playerCache.has(playerId)) {
@@ -96,6 +132,7 @@ class ClassicRecordFetcher {
                     const playerInfo = {
                         id: playerData.data.id,
                         name: playerName,
+                        isGuest: false,
                         weblink: `https://www.speedrun.com/user/${playerName}`,
                         nameStyle: playerData.data["name-style"] || {
                             style: "solid",
@@ -262,23 +299,17 @@ class ClassicRecordFetcher {
                 
                 for (const run of leaderboardData.data.runs) {
                     if (run.run.times.primary === bestTime) {
-                        let playerId = null;
                         let runData = null;
+                        let playerRef = null;
                         
                         if (run.run && run.run.players && Array.isArray(run.run.players) && run.run.players.length > 0) {
-                            const playerRef = run.run.players[0];
-                            
-                            if (playerRef && playerRef.id) {
-                                playerId = playerRef.id;
-                                runData = run.run;
-                            } else {
-                                continue;
-                            }
+                            playerRef = run.run.players[0];
+                            runData = run.run;
                         } else {
                             continue;
                         }
                         
-                        const player = await this.getPlayerData(playerId);
+                        const player = await this.resolvePlayerFromRef(playerRef);
                         
                         if (player) {
                             const processedRun = {
@@ -289,8 +320,9 @@ class ClassicRecordFetcher {
                                 players: {
                                     data: [{
                                         id: player.id,
+                                        rel: player.isGuest ? 'guest' : 'user',
                                         names: { international: player.name },
-                                        weblink: `https://www.speedrun.com/user/${player.name}`,
+                                        weblink: player.weblink,
                                         "name-style": player.nameStyle
                                     }]
                                 },
@@ -305,7 +337,7 @@ class ClassicRecordFetcher {
                 }
                 
                 return {
-                    success: true,
+                    success: tiedRuns.length > 0,
                     runs: tiedRuns,
                     settings: ["1 Apple", "Normal", "Standard", 0, level]
                 };

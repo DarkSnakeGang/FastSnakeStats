@@ -189,6 +189,41 @@ class WorldRecordFetcher {
         return time;
     }
 
+    // Guest players have no SRC user id — key them by display name.
+    buildGuestPlayer(name) {
+        const guestName = (name && String(name).trim()) || 'Anonymous';
+        return {
+            name: guestName,
+            id: `guest:${guestName}`,
+            isGuest: true,
+            nameStyle: {
+                style: 'solid',
+                color: {
+                    dark: '#9e9e9e',
+                    light: '#9e9e9e'
+                }
+            }
+        };
+    }
+
+    async resolvePlayerFromRef(playerRef) {
+        if (!playerRef) return null;
+        if (playerRef.rel === 'guest' || (!playerRef.id && playerRef.name)) {
+            if (typeof isIgnoredPlayerName === 'function' && isIgnoredPlayerName(playerRef.name)) {
+                return null;
+            }
+            return this.buildGuestPlayer(playerRef.name);
+        }
+        if (playerRef.id) {
+            const player = await this.getPlayerData(playerRef.id);
+            if (player && typeof isIgnoredPlayer === 'function' && isIgnoredPlayer(player)) {
+                return null;
+            }
+            return player;
+        }
+        return null;
+    }
+
     // Fetch player data by ID
     async getPlayerData(playerId) {
         try {
@@ -209,6 +244,7 @@ class WorldRecordFetcher {
                     return {
                         name: playerName,
                         id: playerData.data.id,
+                        isGuest: false,
                         nameStyle: playerData.data["name-style"] || {
                             style: "solid",
                             color: {
@@ -223,6 +259,7 @@ class WorldRecordFetcher {
             return {
                 name: `Player ${playerId.substring(0, 8)}`,
                 id: playerId,
+                isGuest: false,
                 nameStyle: {
                     style: "solid",
                     color: {
@@ -235,6 +272,7 @@ class WorldRecordFetcher {
             return {
                 name: `Player ${playerId.substring(0, 8)}`,
                 id: playerId,
+                isGuest: false,
                 nameStyle: {
                     style: "solid",
                     color: {
@@ -274,11 +312,26 @@ class WorldRecordFetcher {
             const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
             const modeName = modeNames[mode];
             const categoryName = level === "H" ? modeName : `${level} Apples`;
+            const countName = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count];
+
+            if (typeof shouldSkipBoardFetch === 'function' &&
+                shouldSkipBoardFetch(countName, modeName, level === 'H' ? 'High Score' : level)) {
+                return {
+                    success: false,
+                    runs: [],
+                    category: `${modeName} - ${categoryName} (${countName}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
+                    settings: {
+                        count: countName,
+                        speed: ["Normal", "Fast", "Slow"][speed],
+                        size: ["Standard", "Small", "Large"][size]
+                    }
+                };
+            }
             
             const settings = [
                 modeName,
                 categoryName,
-                ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count],
+                countName,
                 ["Normal", "Fast", "Slow"][speed],
                 ["Standard", "Small", "Large"][size]
             ];
@@ -402,26 +455,19 @@ class WorldRecordFetcher {
                         await this.decodeRunVariables(run.run.values);
                     }
                     
-                    let playerId = null;
                     let runData = null;
+                    let playerRef = null;
                     
                     // Check for the correct structure: run.run.players[0] (array)
                     if (run.run && run.run.players && Array.isArray(run.run.players) && run.run.players.length > 0) {
-                        const playerRef = run.run.players[0];
-                        
-                        // Player reference should have an 'id' field
-                        if (playerRef && playerRef.id) {
-                            playerId = playerRef.id;
-                            runData = run.run;
-                        } else {
-                            continue; // Skip this run if player reference is missing
-                        }
+                        playerRef = run.run.players[0];
+                        runData = run.run;
                     } else {
                         continue; // Skip this run if player data structure is wrong
                     }
                     
-                    // Fetch the full player data using the ID
-                    const player = await this.getPlayerData(playerId);
+                    const player = await this.resolvePlayerFromRef(playerRef);
+                    if (!player) continue;
                     
                     tiedRuns.push({
                         player: {
@@ -444,7 +490,7 @@ class WorldRecordFetcher {
             }
             
             const result = {
-                success: true,
+                success: tiedRuns.length > 0,
                 runs: tiedRuns,
                 category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
                 settings: {
@@ -487,11 +533,27 @@ class WorldRecordFetcher {
             const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
             const modeName = modeNames[mode];
             const categoryName = level === "H" ? modeName : `${level} Apples`;
+            const countName = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count];
+
+            if (typeof shouldSkipBoardFetch === 'function' &&
+                shouldSkipBoardFetch(countName, modeName, level === 'H' ? 'High Score' : level)) {
+                return {
+                    success: false,
+                    runs: [],
+                    category: `${modeName} - ${categoryName} (${countName}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
+                    settings: {
+                        count: countName,
+                        speed: ["Normal", "Fast", "Slow"][speed],
+                        size: ["Standard", "Small", "Large"][size]
+                    },
+                    date: date
+                };
+            }
             
             const settings = [
                 modeName,
                 categoryName,
-                ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count],
+                countName,
                 ["Normal", "Fast", "Slow"][speed],
                 ["Standard", "Small", "Large"][size]
             ];
@@ -615,26 +677,19 @@ class WorldRecordFetcher {
                         await this.decodeRunVariables(run.run.values);
                     }
                     
-                    let playerId = null;
                     let runData = null;
+                    let playerRef = null;
                     
                     // Check for the correct structure: run.run.players[0] (array)
                     if (run.run && run.run.players && Array.isArray(run.run.players) && run.run.players.length > 0) {
-                        const playerRef = run.run.players[0];
-                        
-                        // Player reference should have an 'id' field
-                        if (playerRef && playerRef.id) {
-                            playerId = playerRef.id;
-                            runData = run.run;
-                        } else {
-                            continue; // Skip this run if player reference is missing
-                        }
+                        playerRef = run.run.players[0];
+                        runData = run.run;
                     } else {
                         continue; // Skip this run if player data structure is wrong
                     }
                     
-                    // Fetch the full player data using the ID
-                    const player = await this.getPlayerData(playerId);
+                    const player = await this.resolvePlayerFromRef(playerRef);
+                    if (!player) continue;
                     
                     tiedRuns.push({
                         player: {
@@ -657,7 +712,7 @@ class WorldRecordFetcher {
             }
             
             const result = {
-                success: true,
+                success: tiedRuns.length > 0,
                 runs: tiedRuns,
                 category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
                 settings: {

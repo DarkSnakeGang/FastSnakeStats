@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { isIgnoredPlayer, filterIgnoredRuns } = require('../ignored-players');
 
 class PlayerStatsAnalyzer {
     constructor() {
@@ -29,6 +30,9 @@ class PlayerStatsAnalyzer {
 
     // Extract player ID from player data
     extractPlayerId(playerData) {
+        if (!playerData || isIgnoredPlayer(playerData)) {
+            return null;
+        }
         if (playerData.rel === 'user') {
             return playerData.id;
         } else if (playerData.id) {
@@ -68,11 +72,16 @@ class PlayerStatsAnalyzer {
                     continue;
                 }
 
+                const runs = filterIgnoredRuns(categoryData.runs);
+                if (runs.length === 0) {
+                    continue;
+                }
+
                 // Count records for this category
-                totalRecordsForDate += categoryData.runs.length;
+                totalRecordsForDate += runs.length;
 
                 // Process each run
-                for (const run of categoryData.runs) {
+                for (const run of runs) {
                     if (!run.players || !run.players.data) {
                         continue;
                     }

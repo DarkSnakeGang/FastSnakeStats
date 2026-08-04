@@ -3,6 +3,7 @@ const path = require('path');
 const os = require('os');
 const { Worker } = require('worker_threads');
 const { slimDailyData } = require('./statistics-explorer-slim');
+const { shouldSkipBoardFetch } = require('../ignored-players');
 
 /**
  * Scans daily time-travel cache and emits compact statistics-explorer.json
@@ -16,7 +17,7 @@ const { slimDailyData } = require('./statistics-explorer-slim');
  */
 
 /** Bump whenever scoring / legends / hold logic changes (forces full rebuild). */
-const ANALYZER_VERSION = 13;
+const ANALYZER_VERSION = 14;
 
 const DIFFICULTY_TIERS = ['Free', 'Warmup', 'Easy', 'Medium', 'Hard', 'Mythic', 'Lottery', 'Inhuman'];
 
@@ -110,6 +111,10 @@ class StatisticsExplorerAnalyzer {
 
     extractPlayerId(playerData) {
         if (!playerData) return null;
+        try {
+            const { isIgnoredPlayer } = require('../ignored-players');
+            if (isIgnoredPlayer(playerData)) return null;
+        } catch (e) { /* ignore */ }
         return playerData.id || null;
     }
 
@@ -809,6 +814,8 @@ class StatisticsExplorerAnalyzer {
                             keys.push(`${apple}|${speed}|${size}|${mode}|${run}`);
                         }
                         if (HIGHSCORE_MODES.has(mode)) {
+                            // Closed boards (no submissions) — not "unheld"
+                            if (shouldSkipBoardFetch(apple, mode, 'High Score')) continue;
                             keys.push(`${apple}|${speed}|${size}|${mode}|High Score`);
                         }
                     }
