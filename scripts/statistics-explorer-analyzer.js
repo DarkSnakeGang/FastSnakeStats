@@ -16,7 +16,7 @@ const { slimDailyData } = require('./statistics-explorer-slim');
  */
 
 /** Bump whenever scoring / legends / hold logic changes (forces full rebuild). */
-const ANALYZER_VERSION = 12;
+const ANALYZER_VERSION = 13;
 
 const DIFFICULTY_TIERS = ['Free', 'Warmup', 'Easy', 'Medium', 'Hard', 'Mythic', 'Lottery', 'Inhuman'];
 
@@ -404,10 +404,12 @@ class StatisticsExplorerAnalyzer {
         let flips = 0;
         const playerCounts = new Map();
         const categories = slim.categories || [];
+        const seenCategories = new Set();
 
         for (let c = 0; c < categories.length; c++) {
             const cat = categories[c];
             const categoryKey = cat.key;
+            seenCategories.add(categoryKey);
             const primary = cat.primary;
             const playerId = cat.playerId;
             const playerName = cat.playerName;
@@ -487,6 +489,13 @@ class StatisticsExplorerAnalyzer {
                 } else {
                     this.playerDaily.get(pid).name = inc.name;
                 }
+            }
+        }
+
+        // Board empty / missing today → end open holds (keeps "present" aligned with latest cache)
+        for (const key of Array.from(this.openHolds.keys())) {
+            if (!seenCategories.has(key)) {
+                this.closeCategoryHolds(key, date, false);
             }
         }
 

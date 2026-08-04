@@ -13,8 +13,10 @@ var statsExplorerLongevityTiedMode = 'untied'; // 'all' | 'untied' | 'tied'
 var statsExplorerUnheldTier = 'All'; // 'All' | Free…Inhuman
 var statsExplorerPlayerId = null;
 var statsExplorerPlayerName = '';
-var statsExplorerPlayerHoldMode = 'all'; // 'all' | 'present' | 'old'
+var statsExplorerPlayerHoldMode = 'present'; // 'all' | 'present' | 'old'
 var statsExplorerPlayerTiedMode = 'all'; // 'all' | 'untied' | 'tied' — present only
+var statsExplorerPlayerDefaultApplied = false;
+var statsExplorerPlayerShowMeme = false;
 var statsExplorerPlayersCache = null;
 // Independent progression filters (not Category Settings)
 var statsProgApple = '1 Apple';
@@ -825,7 +827,42 @@ function selectStatsExplorerPlayer(player) {
     statsExplorerPlayerName = player.name || '';
 }
 
+/** Player with the most currently standing WR holds (present rankings #1). */
+function getTopPresentWrPlayer() {
+    var rows = (statsExplorerData && statsExplorerData.career) || [];
+    var best = null;
+    for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        if (!row || !row.playerId) continue;
+        var n = row.standingHolds || 0;
+        if (!best || n > best.standingHolds ||
+            (n === best.standingHolds && String(row.playerName || '').localeCompare(String(best.name || '')) < 0)) {
+            best = {
+                id: row.playerId,
+                name: row.playerName || row.playerId,
+                standingHolds: n
+            };
+        }
+    }
+    return best && best.standingHolds > 0 ? { id: best.id, name: best.name } : null;
+}
+
+function applyPlayerTabDefault() {
+    if (statsExplorerPlayerDefaultApplied || statsExplorerPlayerId) return;
+    statsExplorerPlayerDefaultApplied = true;
+    // 1/16: empty state meme; otherwise preselect current #1 by present WR count
+    if (Math.random() < 1 / 16) {
+        statsExplorerPlayerShowMeme = true;
+        return;
+    }
+    statsExplorerPlayerShowMeme = false;
+    var top = getTopPresentWrPlayer();
+    if (top) selectStatsExplorerPlayer(top);
+}
+
 function renderPlayerView(body) {
+    applyPlayerTabDefault();
+
     var searchWrap = document.createElement('div');
     searchWrap.className = 'stats-player-search';
 
@@ -874,6 +911,7 @@ function renderPlayerView(body) {
             btn.addEventListener('mousedown', function (e) {
                 e.preventDefault();
                 selectStatsExplorerPlayer(p);
+                statsExplorerPlayerShowMeme = false;
                 input.value = p.name;
                 hideSuggestions();
                 renderStatisticsExplorerContent(body);
@@ -903,6 +941,7 @@ function renderPlayerView(body) {
             var list = filterPlayerSuggestions(input.value, 1);
             if (list.length) {
                 selectStatsExplorerPlayer(list[0]);
+                statsExplorerPlayerShowMeme = false;
                 input.value = list[0].name;
                 hideSuggestions();
                 renderStatisticsExplorerContent(body);
@@ -916,13 +955,15 @@ function renderPlayerView(body) {
         var emptyWrap = document.createElement('div');
         emptyWrap.className = 'stats-player-empty';
 
-        var memeWrap = document.createElement('div');
-        memeWrap.className = 'stats-player-empty-meme';
-        var meme = document.createElement('img');
-        meme.src = 'assets/player-search-sacrifice.gif';
-        meme.alt = 'Sacrifice your physical and mental health for Google Snake world records';
-        memeWrap.appendChild(meme);
-        emptyWrap.appendChild(memeWrap);
+        if (statsExplorerPlayerShowMeme) {
+            var memeWrap = document.createElement('div');
+            memeWrap.className = 'stats-player-empty-meme';
+            var meme = document.createElement('img');
+            meme.src = 'assets/player-search-sacrifice.gif';
+            meme.alt = 'Sacrifice your physical and mental health for Google Snake world records';
+            memeWrap.appendChild(meme);
+            emptyWrap.appendChild(memeWrap);
+        }
 
         var hint = document.createElement('div');
         hint.className = 'stats-explorer-meta';
