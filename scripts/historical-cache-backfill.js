@@ -2,11 +2,22 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const { isIgnoredPlayerName, isIgnoredPlayer, shouldSkipBoardFetch } = require('../ignored-players');
+const {
+    TALLY_CE_HIGHSCORE_MODES,
+    CE_GAME_ID,
+    CE_TALLY_HS_CATEGORY_ID,
+    CE_VAR_SPEED,
+    CE_VAR_SIZE,
+    CE_VAR_MODE,
+    isTallyCount,
+    isTallyCeHighscoreMode
+} = require('../tally-boards');
 
 // Import the WorldRecordFetcher logic
 class HistoricalCacheBackfill {
     constructor() {
         this.gameID = 'o1y9pyk6'; // Google Snake game ID
+        this.ceGameID = CE_GAME_ID;
         this.baseURL = 'https://www.speedrun.com/api/v1';
         this.cacheDir = 'time-travel-cache/daily';
         this.lastFailureTime = 0;
@@ -39,6 +50,12 @@ class HistoricalCacheBackfill {
         variables: null,
         levels: null,
         categories: null,
+        isInitialized: false
+    };
+
+    // Category Extensions metadata (Tally High Score non-typical modes)
+    ceMetadata = {
+        variables: null,
         isInitialized: false
     };
 
@@ -75,12 +92,36 @@ class HistoricalCacheBackfill {
         }
     }
 
+    async initializeCeMetadata() {
+        if (this.ceMetadata.isInitialized) return;
+        const variables = await this.fetchAPI(`${this.baseURL}/games/${this.ceGameID}/variables`);
+        this.ceMetadata.variables = variables;
+        this.ceMetadata.isInitialized = true;
+    }
+
     // Get cached metadata
     getGameMetadata() {
         if (!this.gameMetadata.isInitialized) {
             throw new Error('Game metadata not initialized. Call initializeGameMetadata() first.');
         }
         return this.gameMetadata;
+    }
+
+    /** SRC date=YYYY-MM-DD is start-of-day UTC; use end-of-day so the named date includes that day's runs. */
+    srcDateParam(date) {
+        if (!date) return null;
+        if (/T/.test(String(date))) return String(date);
+        return `${date}T23:59:59Z`;
+    }
+
+    /** Resolve a CE variable value id by variable id + label */
+    resolveCeVarValue(variableId, label) {
+        const variables = this.ceMetadata.variables && this.ceMetadata.variables.data;
+        if (!variables) return null;
+        const v = variables.find((x) => x.id === variableId);
+        if (!v || !v.values || !v.values.values) return null;
+        const entry = Object.entries(v.values.values).find(([, val]) => val.label === label);
+        return entry ? entry[0] : null;
     }
 
     // Guest players have no SRC user id — key them by display name.
@@ -256,6 +297,11 @@ class HistoricalCacheBackfill {
         const date20251124 = new Date('2025-11-24');
         date20251124.setHours(0, 0, 0, 0);
         const is20251124OrLater = dateObj >= date20251124;
+
+        // Tally added 2026-08-04
+        const date20260804 = new Date('2026-08-04');
+        date20260804.setHours(0, 0, 0, 0);
+        const is20260804OrLater = dateObj >= date20260804;
         
         // Define all possible combinations
         let combinations = [
@@ -327,6 +373,22 @@ class HistoricalCacheBackfill {
             ]);
         }
 
+        // Add Tally combinations for 2026-08-04 or later
+        if (is20260804OrLater) {
+            await this.initializeCeMetadata();
+            combinations = combinations.concat([
+                ['Tally', 'Normal', 'Standard'],
+                ['Tally', 'Normal', 'Small'],
+                ['Tally', 'Normal', 'Large'],
+                ['Tally', 'Fast', 'Standard'],
+                ['Tally', 'Fast', 'Small'],
+                ['Tally', 'Fast', 'Large'],
+                ['Tally', 'Slow', 'Standard'],
+                ['Tally', 'Slow', 'Small'],
+                ['Tally', 'Slow', 'Large']
+            ]);
+        }
+
         // Use the same modes and levels as the website
         const allModeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
         
@@ -380,6 +442,12 @@ class HistoricalCacheBackfill {
                     }
                     totalRequests++;
                 }
+                // Tally: also count CE non-typical HS modes
+                if (isTallyCount(combo[0])) {
+                    for (const modeName of TALLY_CE_HIGHSCORE_MODES) {
+                        if (modeNames.includes(modeName)) totalRequests++;
+                    }
+                }
             }
         }
 
@@ -428,6 +496,19 @@ class HistoricalCacheBackfill {
                         count, speed, size, mode, level, date,
                         key: `${count}|${speed}|${size}|${modeName}|High Score`
                     });
+                }
+
+                // Tally High Score for non-typical modes (CE category rkl4elqd)
+                if (isTallyCount(count)) {
+                    for (const modeName of TALLY_CE_HIGHSCORE_MODES) {
+                        const mode = allModeNames.indexOf(modeName);
+                        if (mode < 0 || !modeNames.includes(modeName)) continue;
+                        allRequests.push({
+                            count, speed, size, mode, level, date,
+                            key: `${count}|${speed}|${size}|${modeName}|High Score`,
+                            ceTallyHs: true
+                        });
+                    }
                 }
             }
         }
@@ -514,7 +595,8 @@ class HistoricalCacheBackfill {
                      
                      const record = await this.fetchWorldRecord(
                          request.count, request.speed, request.size, 
-                         request.mode, request.level, request.date
+                         request.mode, request.level, request.date,
+                         { ceTallyHs: !!request.ceTallyHs }
                      );
                      
                      cacheData.records[request.key] = record;
@@ -559,7 +641,7 @@ class HistoricalCacheBackfill {
     }
 
     // Fetch a single world record (using WorldRecordFetcher's approach)
-    async fetchWorldRecord(count, speed, size, mode, level, date) {
+    async fetchWorldRecord(count, speed, size, mode, level, date, options = {}) {
         try {
             // Check if date is too early (before or equal to 2018-10-23)
             if (date && new Date(date) <= new Date('2018-10-23')) {
@@ -570,16 +652,40 @@ class HistoricalCacheBackfill {
                     message: "no submissions for this date or prior"
                 };
             }
-            
+
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
+            const modeName = modeNames[mode];
+
+            // Tally High Score for non-typical modes → CE category id rkl4elqd
+            const useCeTallyHs = !!(options.ceTallyHs ||
+                (isTallyCount(count) && level === 'H' && isTallyCeHighscoreMode(modeName)));
+
+            let leaderboardUrl;
+
+            if (useCeTallyHs) {
+                await this.initializeCeMetadata();
+                const speedId = this.resolveCeVarValue(CE_VAR_SPEED, speed);
+                const sizeId = this.resolveCeVarValue(CE_VAR_SIZE, size);
+                const modeId = this.resolveCeVarValue(CE_VAR_MODE, modeName);
+                if (!speedId || !sizeId || !modeId) {
+                    console.error(`❌ CE Tally HS var lookup failed for ${count}|${speed}|${size}|${modeName}`);
+                    return {
+                        success: false,
+                        runs: [],
+                        settings: [count, speed, size, mode, level],
+                        error: 'CE Tally HS variable lookup failed'
+                    };
+                }
+                leaderboardUrl =
+                    `${this.baseURL}/leaderboards/${this.ceGameID}/category/${CE_TALLY_HS_CATEGORY_ID}` +
+                    `?top=1&var-${CE_VAR_SPEED}=${speedId}&var-${CE_VAR_SIZE}=${sizeId}&var-${CE_VAR_MODE}=${modeId}`;
+                if (date) leaderboardUrl += `&date=${this.srcDateParam(date)}`;
+            } else {
             // Step 1: Get cached game metadata
             const metadata = this.getGameMetadata();
             const variables = metadata.variables;
             const levels = metadata.levels;
             const categories = metadata.categories;
-            
-            // Step 2: Find the level ID for the mode (using includes like WorldRecordFetcher)
-            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
-            const modeName = modeNames[mode];
             
             const levelData = levels.data.find(l => l.name.includes(modeName));
             if (!levelData) {
@@ -605,16 +711,12 @@ class HistoricalCacheBackfill {
                 };
             }
             
-            // console.log(`✅ Found level: ${levelData.name} (ID: ${levelData.id})`);
-            // console.log(`✅ Found category: ${categoryData.name} (ID: ${categoryData.id})`);
-            
             // Step 4: Build variable parameters (exactly like WorldRecordFetcher)
             const params = [];
             
             // Count variable - "Multi Apple Amount" (matching WorldRecordFetcher.js approach)
             const countVar = variables.data.find(v => v.name === "Multi Apple Amount");
             if (countVar && countVar.values && countVar.values.values) {
-                const countNames = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"];
                 const countValueEntry = Object.entries(countVar.values.values).find(([key, value]) => value.label === count);
                 if (countValueEntry) {
                     const [valueId, valueObj] = countValueEntry;
@@ -659,10 +761,7 @@ class HistoricalCacheBackfill {
                 }
             }
             
-            // console.log(`🔧 Variable parameters: ${params.join(', ')}`);
-            
             // Step 5: Build leaderboard URL
-            let leaderboardUrl;
             if (level === "H") {
                 leaderboardUrl = `${this.baseURL}/leaderboards/${this.gameID}/category/${categoryData.id}?top=1`;
             } else {
@@ -677,8 +776,9 @@ class HistoricalCacheBackfill {
             
             // Add date parameter if specified
             if (date) {
-                leaderboardUrl += `&date=${date}`;
+                leaderboardUrl += `&date=${this.srcDateParam(date)}`;
             }
+            } // end main-game path
             
             // Step 6: Get leaderboard
             // console.log(`🔍 Fetching: ${leaderboardUrl}`);

@@ -18,6 +18,11 @@ class WorldRecordFetcher {
         categories: null,
         isInitialized: false
     };
+
+    static ceMetadata = {
+        variables: null,
+        isInitialized: false
+    };
     
     // Static method to reset API call counter
     static resetApiCallCounter() {
@@ -71,6 +76,77 @@ class WorldRecordFetcher {
             throw new Error('Game metadata not initialized. Call WorldRecordFetcher.initializeGameMetadata() first.');
         }
         return WorldRecordFetcher.gameMetadata;
+    }
+
+    async initializeCeMetadata() {
+        if (WorldRecordFetcher.ceMetadata.isInitialized) return;
+        const ceId = (typeof CE_GAME_ID !== 'undefined') ? CE_GAME_ID : '9dow0go1';
+        const variables = await this.fetchAPI(`https://www.speedrun.com/api/v1/games/${ceId}/variables`);
+        WorldRecordFetcher.ceMetadata.variables = variables;
+        WorldRecordFetcher.ceMetadata.isInitialized = true;
+    }
+
+    resolveCeVarValue(variableId, label) {
+        const variables = WorldRecordFetcher.ceMetadata.variables && WorldRecordFetcher.ceMetadata.variables.data;
+        if (!variables) return null;
+        const v = variables.find((x) => x.id === variableId);
+        if (!v || !v.values || !v.values.values) return null;
+        const entry = Object.entries(v.values.values).find(([, val]) => val.label === label);
+        return entry ? entry[0] : null;
+    }
+
+    /**
+     * Tally High Score for non-typical modes — CE category id rkl4elqd (never by name).
+     */
+    async fetchCeTallyHighScore(modeName, speedName, sizeName, date) {
+        await this.initializeCeMetadata();
+        const speedVar = (typeof CE_VAR_SPEED !== 'undefined') ? CE_VAR_SPEED : 'gnx3m4gn';
+        const sizeVar = (typeof CE_VAR_SIZE !== 'undefined') ? CE_VAR_SIZE : 'ql6mkzw8';
+        const modeVar = (typeof CE_VAR_MODE !== 'undefined') ? CE_VAR_MODE : 'onvxz158';
+        const catId = (typeof CE_TALLY_HS_CATEGORY_ID !== 'undefined') ? CE_TALLY_HS_CATEGORY_ID : 'rkl4elqd';
+        const ceId = (typeof CE_GAME_ID !== 'undefined') ? CE_GAME_ID : '9dow0go1';
+
+        const speedId = this.resolveCeVarValue(speedVar, speedName);
+        const sizeId = this.resolveCeVarValue(sizeVar, sizeName);
+        const modeId = this.resolveCeVarValue(modeVar, modeName);
+        if (!speedId || !sizeId || !modeId) {
+            return { success: false, runs: [], settings: { count: 'Tally', speed: speedName, size: sizeName } };
+        }
+
+        let url = `https://www.speedrun.com/api/v1/leaderboards/${ceId}/category/${catId}` +
+            `?top=1&var-${speedVar}=${speedId}&var-${sizeVar}=${sizeId}&var-${modeVar}=${modeId}`;
+        if (date) {
+            const d = /T/.test(String(date)) ? String(date) : `${date}T23:59:59Z`;
+            url += `&date=${d}`;
+        }
+
+        const leaderboard = await this.fetchAPI(url);
+        if (!leaderboard || !leaderboard.data || !leaderboard.data.runs || !leaderboard.data.runs.length) {
+            return { success: false, runs: [], settings: { count: 'Tally', speed: speedName, size: sizeName }, date };
+        }
+
+        const bestTime = leaderboard.data.runs[0].run.times.primary;
+        const tiedRuns = [];
+        for (const run of leaderboard.data.runs) {
+            if (run.run.times.primary !== bestTime) break;
+            if (!run.run.players || !run.run.players.length) continue;
+            const player = await this.resolvePlayerFromRef(run.run.players[0]);
+            if (!player) continue;
+            tiedRuns.push({
+                player: { name: player.name, id: player.id, nameStyle: player.nameStyle },
+                time: { raw: run.run.times.primary, formatted: this.formatTime(run.run.times.primary) },
+                date: new Date(run.run.date),
+                runId: run.run.id,
+                weblink: run.run.weblink
+            });
+        }
+        return {
+            success: tiedRuns.length > 0,
+            runs: tiedRuns,
+            category: `${modeName} - High Score (Tally, ${speedName}, ${sizeName})`,
+            settings: { count: 'Tally', speed: speedName, size: sizeName },
+            date
+        };
     }
     
     // Simple API request function with retry logic
@@ -312,7 +388,7 @@ class WorldRecordFetcher {
             const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
             const modeName = modeNames[mode];
             const categoryName = level === "H" ? modeName : `${level} Apples`;
-            const countName = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count];
+            const countName = (typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"])[count];
 
             if (typeof shouldSkipBoardFetch === 'function' &&
                 shouldSkipBoardFetch(countName, modeName, level === 'H' ? 'High Score' : level)) {
@@ -326,6 +402,20 @@ class WorldRecordFetcher {
                         size: ["Standard", "Small", "Large"][size]
                     }
                 };
+            }
+
+            const speedName = ["Normal", "Fast", "Slow"][speed];
+            const sizeName = ["Standard", "Small", "Large"][size];
+
+            // Tally HS on non-typical modes → CE category rkl4elqd
+            if (level === 'H' && countName === 'Tally' &&
+                typeof isTallyCeHighscoreMode === 'function' && isTallyCeHighscoreMode(modeName)) {
+                const ceResult = await this.fetchCeTallyHighScore(modeName, speedName, sizeName);
+                if (window.cacheManager) {
+                    const cacheKey = window.cacheManager.getCacheKey([modeName, modeName, countName, speedName, sizeName]);
+                    window.cacheManager.updateCacheIfChanged(cacheKey, ceResult);
+                }
+                return ceResult;
             }
             
             const settings = [
@@ -367,7 +457,7 @@ class WorldRecordFetcher {
             // Count variable - "Multi Apple Amount"
             const countVar = variables.data.find(v => v.name === "Multi Apple Amount");
             if (countVar && countVar.values && countVar.values.values) {
-                const countNames = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"];
+                const countNames = (typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"]);
                 const countValueEntry = Object.entries(countVar.values.values).find(([key, value]) => value.label === countNames[count]);
                 if (countValueEntry) {
                     const [valueId, valueObj] = countValueEntry;
@@ -428,9 +518,9 @@ class WorldRecordFetcher {
                 const emptyResult = {
                     success: false,
                     message: "No world record found",
-                    category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
+                    category: `${modeName} - ${categoryName} (${(typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"])[count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
                     settings: {
-                        count: ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count],
+                        count: (typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"])[count],
                         speed: ["Normal", "Fast", "Slow"][speed],
                         size: ["Standard", "Small", "Large"][size]
                     }
@@ -492,9 +582,9 @@ class WorldRecordFetcher {
             const result = {
                 success: tiedRuns.length > 0,
                 runs: tiedRuns,
-                category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
+                category: `${modeName} - ${categoryName} (${(typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"])[count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
                 settings: {
-                    count: ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count],
+                    count: (typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"])[count],
                     speed: ["Normal", "Fast", "Slow"][speed],
                     size: ["Standard", "Small", "Large"][size]
                 }
@@ -516,9 +606,9 @@ class WorldRecordFetcher {
             return {
                 success: false,
                 error: error.message,
-                category: `${modeNames[mode]} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
+                category: `${modeNames[mode]} - ${categoryName} (${(typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"])[count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
                 settings: {
-                    count: ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count],
+                    count: (typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"])[count],
                     speed: ["Normal", "Fast", "Slow"][speed],
                     size: ["Standard", "Small", "Large"][size]
                 }
@@ -533,7 +623,7 @@ class WorldRecordFetcher {
             const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
             const modeName = modeNames[mode];
             const categoryName = level === "H" ? modeName : `${level} Apples`;
-            const countName = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count];
+            const countName = (typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"])[count];
 
             if (typeof shouldSkipBoardFetch === 'function' &&
                 shouldSkipBoardFetch(countName, modeName, level === 'H' ? 'High Score' : level)) {
@@ -549,13 +639,28 @@ class WorldRecordFetcher {
                     date: date
                 };
             }
+
+            const speedName = ["Normal", "Fast", "Slow"][speed];
+            const sizeName = ["Standard", "Small", "Large"][size];
+
+            // Tally HS on non-typical modes → CE category rkl4elqd
+            if (level === 'H' && countName === 'Tally' &&
+                typeof isTallyCeHighscoreMode === 'function' && isTallyCeHighscoreMode(modeName)) {
+                const ceResult = await this.fetchCeTallyHighScore(modeName, speedName, sizeName, date);
+                if (window.cacheManager) {
+                    const cacheKey = window.cacheManager.getCacheKey(
+                        [modeName, modeName, countName, speedName, sizeName], date);
+                    window.cacheManager.updateCacheIfChanged(cacheKey, ceResult);
+                }
+                return ceResult;
+            }
             
             const settings = [
                 modeName,
                 categoryName,
                 countName,
-                ["Normal", "Fast", "Slow"][speed],
-                ["Standard", "Small", "Large"][size]
+                speedName,
+                sizeName
             ];
             const cacheKey = window.cacheManager.getCacheKey(settings, date);
             const cachedData = window.cacheManager.getCachedData(cacheKey);
@@ -589,7 +694,7 @@ class WorldRecordFetcher {
             // Count variable - "Multi Apple Amount"
             const countVar = variables.data.find(v => v.name === "Multi Apple Amount");
             if (countVar && countVar.values && countVar.values.values) {
-                const countNames = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"];
+                const countNames = (typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"]);
                 const countValueEntry = Object.entries(countVar.values.values).find(([key, value]) => value.label === countNames[count]);
                 if (countValueEntry) {
                     const [valueId, valueObj] = countValueEntry;
@@ -630,9 +735,11 @@ class WorldRecordFetcher {
             // Step 5: Build leaderboard URL with date filter
             let leaderboardUrl;
             if (level === "H") {
-                leaderboardUrl = `https://www.speedrun.com/api/v1/leaderboards/${this.gameID}/category/${categoryData.id}?top=10&date=${date}`;
+                const d = /T/.test(String(date)) ? String(date) : `${date}T23:59:59Z`;
+                leaderboardUrl = `https://www.speedrun.com/api/v1/leaderboards/${this.gameID}/category/${categoryData.id}?top=10&date=${d}`;
             } else {
-                leaderboardUrl = `https://www.speedrun.com/api/v1/leaderboards/${this.gameID}/level/${levelData.id}/${categoryData.id}?top=10&date=${date}`;
+                const d = /T/.test(String(date)) ? String(date) : `${date}T23:59:59Z`;
+                leaderboardUrl = `https://www.speedrun.com/api/v1/leaderboards/${this.gameID}/level/${levelData.id}/${categoryData.id}?top=10&date=${d}`;
             }
             
             // Only add parameters if they have valid values (not undefined)
@@ -649,9 +756,9 @@ class WorldRecordFetcher {
                 const emptyResult = {
                     success: false,
                     message: "No world record found for this date",
-                    category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
+                    category: `${modeName} - ${categoryName} (${(typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"])[count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
                     settings: {
-                        count: ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count],
+                        count: (typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"])[count],
                         speed: ["Normal", "Fast", "Slow"][speed],
                         size: ["Standard", "Small", "Large"][size]
                     },
@@ -714,9 +821,9 @@ class WorldRecordFetcher {
             const result = {
                 success: tiedRuns.length > 0,
                 runs: tiedRuns,
-                category: `${modeName} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
+                category: `${modeName} - ${categoryName} (${(typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"])[count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
                 settings: {
-                    count: ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count],
+                    count: (typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"])[count],
                     speed: ["Normal", "Fast", "Slow"][speed],
                     size: ["Standard", "Small", "Large"][size]
                 },
@@ -739,9 +846,9 @@ class WorldRecordFetcher {
             return {
                 success: false,
                 error: error.message,
-                category: `${modeNames[mode]} - ${categoryName} (${["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
+                category: `${modeNames[mode]} - ${categoryName} (${(typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"])[count]}, ${["Normal", "Fast", "Slow"][speed]}, ${["Standard", "Small", "Large"][size]})`,
                 settings: {
-                    count: ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][count],
+                    count: (typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"])[count],
                     speed: ["Normal", "Fast", "Slow"][speed],
                     size: ["Standard", "Small", "Large"][size]
                 },
@@ -776,7 +883,7 @@ class WorldRecordFetcher {
             const settings = [
                 modeName,
                 categoryName,
-                ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"][request.count],
+                (typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"])[request.count],
                 ["Normal", "Fast", "Slow"][request.speed],
                 ["Standard", "Small", "Large"][request.size]
             ];

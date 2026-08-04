@@ -1015,10 +1015,13 @@ body:not(.dark-mode) .container td {
 	justify-content: center;
 }
 
-/* Keep apple-amount icons on a single row without squeezing */
+/* Apple-amount icons may wrap to a second row (7 counts) */
 .settings-col-left > div:first-child .button-group {
-	flex-wrap: nowrap;
+	flex-wrap: wrap;
 	justify-content: center;
+	max-width: 260px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .table-option-btn {

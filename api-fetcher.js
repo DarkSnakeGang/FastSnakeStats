@@ -316,7 +316,7 @@ async function quickFetchWorldRecords() {
             bestRuns = {};
             
             // Initialize the structure (include all gamemodes so new modes always get table rows)
-            const countNames = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"];
+            const countNames = (typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"]);
             const speedNames = ["Normal", "Fast", "Slow"];
             const sizeNames = ["Standard", "Small", "Large"];
             
@@ -425,7 +425,7 @@ async function refreshSpecificTable(settings) {
         }
         
         // Map combination to indices
-        const countNames = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"];
+        const countNames = (typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"]);
         const speedNames = ["Normal", "Fast", "Slow"];
         const sizeNames = ["Standard", "Small", "Large"];
         
@@ -727,7 +727,7 @@ async function getAllWorldRecordsForCurrentSettings() {
         const combo = selectedCombinations[comboIndex];
         
         // Map combination to indices
-        const countNames = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"];
+        const countNames = (typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"]);
         const speedNames = ["Normal", "Fast", "Slow"];
         const sizeNames = ["Standard", "Small", "Large"];
         
@@ -785,6 +785,30 @@ async function getAllWorldRecordsForCurrentSettings() {
                     modeName: modeNames[mode],
                     levelName: "High Score"
                 });
+            }
+
+            // Tally: also fetch CE High Score for non-typical modes
+            if (combo[0] === 'Tally' &&
+                (isMultipleTablesEnabled || (runModes["High Score"] && runModes["High Score"].visible)) &&
+                typeof TALLY_CE_HIGHSCORE_MODES !== 'undefined') {
+                for (let ci = 0; ci < TALLY_CE_HIGHSCORE_MODES.length; ci++) {
+                    const modeName = TALLY_CE_HIGHSCORE_MODES[ci];
+                    if (!isMultipleTablesEnabled && gamemodes[modeName] && !gamemodes[modeName].visible) {
+                        continue;
+                    }
+                    const mode = modeNames.indexOf(modeName);
+                    if (mode < 0) continue;
+                    allRequests.push({
+                        level: level,
+                        mode: mode,
+                        count: count,
+                        speed: speed,
+                        size: size,
+                        combo: combo,
+                        modeName: modeName,
+                        levelName: "High Score"
+                    });
+                }
             }
         }
     }
@@ -1099,7 +1123,7 @@ async function getAllWorldRecordsForDate(date) {
         const combo = selectedCombinations[comboIndex];
         
         // Map combination to indices
-        const countNames = ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb"];
+        const countNames = (typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"]);
         const speedNames = ["Normal", "Fast", "Slow"];
         const sizeNames = ["Standard", "Small", "Large"];
         
@@ -1159,6 +1183,31 @@ async function getAllWorldRecordsForDate(date) {
                     levelName: "High Score",
                     date: date
                 });
+            }
+
+            // Tally: also fetch CE High Score for non-typical modes
+            if (combo[0] === 'Tally' &&
+                (isMultipleTablesEnabled || (runModes["High Score"] && runModes["High Score"].visible)) &&
+                typeof TALLY_CE_HIGHSCORE_MODES !== 'undefined') {
+                for (let ci = 0; ci < TALLY_CE_HIGHSCORE_MODES.length; ci++) {
+                    const modeName = TALLY_CE_HIGHSCORE_MODES[ci];
+                    if (!isMultipleTablesEnabled && gamemodes[modeName] && !gamemodes[modeName].visible) {
+                        continue;
+                    }
+                    const mode = modeNames.indexOf(modeName);
+                    if (mode < 0) continue;
+                    allRequests.push({
+                        level: level,
+                        mode: mode,
+                        count: count,
+                        speed: speed,
+                        size: size,
+                        combo: combo,
+                        modeName: modeName,
+                        levelName: "High Score",
+                        date: date
+                    });
+                }
             }
         }
     }

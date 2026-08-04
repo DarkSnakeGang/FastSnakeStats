@@ -13,7 +13,7 @@
         root.shouldSkipBoardFetch = api.shouldSkipBoardFetch;
     }
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
-    var COUNT_NAMES = ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb'];
+    var COUNT_NAMES = ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb', 'Tally'];
     var MODE_NAMES = [
         'Classic', 'Wall', 'Portal', 'Cheese', 'Borderless', 'Twin', 'Winged',
         'Yin Yang', 'Key', 'Sokoban', 'Poison', 'Dimension', 'Minesweeper',

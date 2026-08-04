@@ -131,7 +131,7 @@ function normalizeListFilters() {
 function appendListFilters(body) {
     normalizeListFilters();
 
-    var appleOpts = ['All'].concat(typeof appleAmounts !== 'undefined' ? Object.keys(appleAmounts) : ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb']);
+    var appleOpts = ['All'].concat(typeof appleAmounts !== 'undefined' ? Object.keys(appleAmounts) : ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb', 'Tally']);
     var speedOpts = ['All'].concat(typeof speeds !== 'undefined' ? Object.keys(speeds) : ['Normal', 'Fast', 'Slow']);
     var sizeOpts = ['All'].concat(typeof sizes !== 'undefined' ? Object.keys(sizes) : ['Standard', 'Small', 'Large']);
     if (statsListRunMode === '100 Apples') {
@@ -461,7 +461,7 @@ function renderStatisticsExplorerContent(targetBody) {
 function renderProgressionView(body) {
     normalizeProgressionFilters();
 
-    var appleOpts = typeof appleAmounts !== 'undefined' ? Object.keys(appleAmounts) : ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb'];
+    var appleOpts = typeof appleAmounts !== 'undefined' ? Object.keys(appleAmounts) : ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb', 'Tally'];
     var speedOpts = typeof speeds !== 'undefined' ? Object.keys(speeds) : ['Normal', 'Fast', 'Slow'];
     var sizeOpts = typeof sizes !== 'undefined' ? Object.keys(sizes) : ['Standard', 'Small', 'Large'];
     if (statsProgRunMode === '100 Apples') {

@@ -4,6 +4,7 @@ const os = require('os');
 const { Worker } = require('worker_threads');
 const { slimDailyData } = require('./statistics-explorer-slim');
 const { shouldSkipBoardFetch } = require('../ignored-players');
+const { isTallyCeHighscoreMode } = require('../tally-boards');
 
 /**
  * Scans daily time-travel cache and emits compact statistics-explorer.json
@@ -17,7 +18,7 @@ const { shouldSkipBoardFetch } = require('../ignored-players');
  */
 
 /** Bump whenever scoring / legends / hold logic changes (forces full rebuild). */
-const ANALYZER_VERSION = 14;
+const ANALYZER_VERSION = 15;
 
 const DIFFICULTY_TIERS = ['Free', 'Warmup', 'Easy', 'Medium', 'Hard', 'Mythic', 'Lottery', 'Inhuman'];
 
@@ -46,9 +47,9 @@ const MODE_BASE_TIER = {
     Bridge: 'Medium'
 };
 
-const COUNT_MORE_EASIER = ['Bomb', '10 Apples', '5 Apples', 'Dice', '3 Apples', '1 Apple'];
-const COUNT_LESS_EASIER = ['1 Apple', '3 Apples', 'Dice', '5 Apples', '10 Apples', 'Bomb'];
-const COUNT_POISON = ['1 Apple', 'Dice', '3 Apples', '5 Apples', '10 Apples', 'Bomb'];
+const COUNT_MORE_EASIER = ['Bomb', '10 Apples', '5 Apples', 'Dice', '3 Apples', '1 Apple', 'Tally'];
+const COUNT_LESS_EASIER = ['Tally', '1 Apple', '3 Apples', 'Dice', '5 Apples', '10 Apples', 'Bomb'];
+const COUNT_POISON = ['Tally', '1 Apple', 'Dice', '3 Apples', '5 Apples', '10 Apples', 'Bomb'];
 const COUNT_LESS_EASIER_MODES = new Set([
     'Portal', 'Key', 'Sokoban', 'Minesweeper', 'Shield', 'Hotdog'
 ]);
@@ -58,7 +59,7 @@ const HIGHSCORE_MODES = new Set([
     'Statue', 'Shield', 'Hotdog', 'Gate', 'Bridge'
 ]);
 
-const APPLE_AMOUNTS = ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb'];
+const APPLE_AMOUNTS = ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb', 'Tally'];
 const SPEED_NAMES = ['Normal', 'Fast', 'Slow'];
 const SIZE_NAMES = ['Standard', 'Small', 'Large'];
 const MODE_NAMES = [
@@ -817,6 +818,8 @@ class StatisticsExplorerAnalyzer {
                             // Closed boards (no submissions) — not "unheld"
                             if (shouldSkipBoardFetch(apple, mode, 'High Score')) continue;
                             keys.push(`${apple}|${speed}|${size}|${mode}|High Score`);
+                        } else if (apple === 'Tally' && isTallyCeHighscoreMode(mode)) {
+                            keys.push(`${apple}|${speed}|${size}|${mode}|High Score`);
                         }
                     }
                 }
@@ -845,7 +848,7 @@ class StatisticsExplorerAnalyzer {
         // Peaceful is always Free — no overrides apply
         if (mode === 'Peaceful') return 'Free';
 
-        let tier = MODE_BASE_TIER[mode] || 'Medium';
+        let tier = apple === 'Tally' ? 'Hard' : (MODE_BASE_TIER[mode] || 'Medium');
 
         if (mode === 'Wall' && run === 'All Apples') {
             // Fast + above Small (Standard/Large) → Inhuman

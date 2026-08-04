@@ -592,16 +592,18 @@ function generateTableContent(table, settings, specificGamemode = null) {
     for(gamemode in gamemodes){
         if(gamemodes[gamemode] && gamemodes[gamemode].visible){
             thisBoardRuns[gamemode] = {};
-            for(runMode in runModes){
+            for(const runMode of orderedRunModes){
                 if(runModes[runMode] && runModes[runMode].visible){
                     // Don't show "100 Apples" for "Small" size
                     if(runMode === "100 Apples" && settings[2] === "Small"){
                         continue;
                     }
                     
-                    // Only show "High Score" column for highscore modes
-                    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge"];
-                    if(runMode === "High Score" && !highscoreModes.includes(gamemode)){
+                    // Only show "High Score" column for highscore modes (or Tally CE modes)
+                    if(runMode === "High Score" &&
+                        !(typeof shouldShowHighScoreColumn === 'function'
+                            ? shouldShowHighScoreColumn(settings[0], gamemode)
+                            : ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge"].includes(gamemode))){
                         continue;
                     }
                     
@@ -618,6 +620,10 @@ function generateTableContent(table, settings, specificGamemode = null) {
             }
         }
     }
+    // Keep columns in canonical order (25 → 50 → 100 → All → High Score)
+    thisBoardRunModes = orderedRunModes.filter(function (rm) {
+        return thisBoardRunModes.indexOf(rm) !== -1;
+    });
     
     // Create thead
     var thead = document.createElement('thead');
@@ -751,15 +757,17 @@ function generateLeaderboard(settings, specificGamemode = null){
     }
     
     // Find all run modes that have data for this combination
-    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge"];
      
      // Use ordered gamemodes for consistent row ordering
      for(const gamemode of orderedGamemodes){
          if(thisBoardRuns[gamemode] && gamemodes[gamemode].visible){
              for(const runMode of orderedRunModes){
                  if(thisBoardRuns[gamemode][runMode]){
-                     // Only show "High Score" column for highscore modes
-                     if(runMode === "High Score" && !highscoreModes.includes(gamemode)){
+                     // Only show "High Score" column for highscore modes (or Tally CE modes)
+                     if(runMode === "High Score" &&
+                         !(typeof shouldShowHighScoreColumn === 'function'
+                             ? shouldShowHighScoreColumn(settings[0], gamemode)
+                             : ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge"].includes(gamemode))){
                          continue;
                      }
                      // Don't show "100 Apples" for "Small" size
@@ -773,6 +781,10 @@ function generateLeaderboard(settings, specificGamemode = null){
              }
          }
      }
+    // Keep columns in canonical order (25 → 50 → 100 → All → High Score)
+    thisBoardRunModes = orderedRunModes.filter(function (rm) {
+        return thisBoardRunModes.indexOf(rm) !== -1;
+    });
     
     //create thead
     var thead = document.createElement('thead');
@@ -907,15 +919,17 @@ function generateLeaderboardForMultiple(settings, container){
     }
     
     // Find all run modes that have data for this combination
-    const highscoreModes = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge"];
     
     // Use ordered gamemodes for consistent row ordering
     for(const gamemode of orderedGamemodes){
         if(thisBoardRuns[gamemode] && gamemodes[gamemode].visible){
             for(const runMode of orderedRunModes){
                 if(thisBoardRuns[gamemode][runMode]){
-                    // Only show "High Score" column for highscore modes
-                    if(runMode === "High Score" && !highscoreModes.includes(gamemode)){
+                    // Only show "High Score" column for highscore modes (or Tally CE modes)
+                    if(runMode === "High Score" &&
+                        !(typeof shouldShowHighScoreColumn === 'function'
+                            ? shouldShowHighScoreColumn(settings[0], gamemode)
+                            : ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge"].includes(gamemode))){
                         continue;
                     }
                     // Don't show "100 Apples" for "Small" size
@@ -929,6 +943,10 @@ function generateLeaderboardForMultiple(settings, container){
             }
         }
     }
+    // Keep columns in canonical order (25 → 50 → 100 → All → High Score)
+    thisBoardRunModes = orderedRunModes.filter(function (rm) {
+        return thisBoardRunModes.indexOf(rm) !== -1;
+    });
     
     //create thead
     var thead = document.createElement('thead');
