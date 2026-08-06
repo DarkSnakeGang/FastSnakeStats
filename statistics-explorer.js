@@ -35,6 +35,7 @@ var statsListSize = 'All';
 var statsListGamemode = 'All';
 var statsListRunMode = 'All';
 var STATS_LIST_DISPLAY_LIMIT = 50;
+var statsWasMasteryFilterContext = false;
 
 var STATS_MASTERY_MODE_GROUPS = ['High score modes only', 'Excluding Peaceful'];
 var STATS_HIGHSCORE_MODES = ['Wall', 'Portal', 'Key', 'Sokoban', 'Poison', 'Minesweeper', 'Statue', 'Shield', 'Hotdog', 'Gate', 'Bridge'];
@@ -124,6 +125,14 @@ function isMasteryFilterContext() {
         (statsExplorerActiveTab === 'player' && statsExplorerPlayerHoldMode === 'mastery');
 }
 
+function ensureMasteryModeDefault() {
+    var now = isMasteryFilterContext();
+    if (now && !statsWasMasteryFilterContext && statsListGamemode === 'All') {
+        statsListGamemode = 'High score modes only';
+    }
+    statsWasMasteryFilterContext = now;
+}
+
 function getListGamemodeOptions() {
     var names = typeof gamemodes !== 'undefined' ? Object.keys(gamemodes) : [];
     if (statsListRunMode === 'High Score') {
@@ -147,6 +156,7 @@ function normalizeListFilters() {
 }
 
 function appendListFilters(body) {
+    ensureMasteryModeDefault();
     normalizeListFilters();
 
     var appleOpts = ['All'].concat(typeof appleAmounts !== 'undefined' ? Object.keys(appleAmounts) : ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb', 'Tally']);
