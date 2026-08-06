@@ -18,7 +18,7 @@ const { isTallyCeHighscoreMode } = require('../tally-boards');
  */
 
 /** Bump whenever scoring / legends / hold logic changes (forces full rebuild). */
-const ANALYZER_VERSION = 17;
+const ANALYZER_VERSION = 18;
 
 const DIFFICULTY_TIERS = ['Free', 'Warmup', 'Easy', 'Medium', 'Hard', 'Mythic', 'Lottery', 'Inhuman'];
 
@@ -860,17 +860,13 @@ class StatisticsExplorerAnalyzer {
             : (MODE_BASE_TIER[mode] || 'Medium');
 
         if (mode === 'Wall' && run === 'All Apples') {
-            // Fast + above Small (Standard/Large) → Inhuman
-            if ((size === 'Standard' || size === 'Large') && speed === 'Fast') {
+            // Standard / Large (any speed) → Inhuman; Small Fast → Mythic; other Small → Hard
+            if (size === 'Standard' || size === 'Large') {
                 tier = 'Inhuman';
-            } else if (size === 'Standard' || size === 'Large') {
-                tier = 'Lottery';
-            } else if (size === 'Small' && speed === 'Normal') {
-                tier = 'Hard';
-            } else if (size === 'Small' && speed === 'Slow') {
-                tier = 'Hard';
             } else if (size === 'Small' && speed === 'Fast') {
                 tier = 'Mythic';
+            } else if (size === 'Small') {
+                tier = 'Hard';
             }
         } else if (mode === 'Cheese' && run === '50 Apples' && size === 'Small') {
             // 10a/Bomb → Warmup; all other counts → Lottery

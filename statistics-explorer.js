@@ -4,6 +4,8 @@
 var statsExplorerData = null;
 var statsExplorerLoading = false;
 var statsExplorerLoadPromise = null;
+var masteryChallengeData = null;
+var masteryChallengeLoadPromise = null;
 var statsExplorerActiveTab = 'progression';
 var statsExplorerImproveWindow = '30d';
 var statsExplorerHeatMetric = 'flips';
@@ -15,7 +17,7 @@ var statsExplorerUnheldTier = 'All'; // 'All' | Free…Inhuman
 var statsExplorerLegendsFilter = 'all'; // 'all' | 'legends' | 'unicorns'
 var statsExplorerPlayerId = null;
 var statsExplorerPlayerName = '';
-var statsExplorerPlayerHoldMode = 'present'; // 'all' | 'present' | 'old' | 'latest'
+var statsExplorerPlayerHoldMode = 'present'; // 'all' | 'present' | 'old' | 'latest' | 'mastery'
 var statsExplorerPlayerTiedMode = 'all'; // 'all' | 'untied' | 'tied' — present only
 var statsExplorerPlayerDefaultApplied = false;
 var statsExplorerPlayerShowMeme = false;
@@ -41,6 +43,7 @@ var STATS_TABS = [
     { id: 'longevity', label: 'Longevity' },
     { id: 'career', label: 'Career' },
     { id: 'player', label: 'Player' },
+    { id: 'mastery', label: 'Mastery' },
     { id: 'improving', label: 'Improving' },
     { id: 'contested', label: 'Contested' },
     { id: 'stale', label: 'Stale' },
@@ -280,6 +283,39 @@ async function loadStatisticsExplorerData() {
     }
 }
 
+async function loadMasteryChallengeData() {
+    if (masteryChallengeData) return masteryChallengeData;
+    if (masteryChallengeLoadPromise) return masteryChallengeLoadPromise;
+
+    masteryChallengeLoadPromise = (async function () {
+        try {
+            var localRes = await fetch('time-travel-cache/metadata/mastery-challenge.json');
+            if (localRes.ok) {
+                masteryChallengeData = await localRes.json();
+                return masteryChallengeData;
+            }
+        } catch (e) { /* try remote */ }
+        try {
+            var base = (window.githubCacheFetcher && window.githubCacheFetcher.baseURL) ||
+                'https://raw.githubusercontent.com/DarkSnakeGang/FastSnakeStats/refs/heads/main';
+            var remoteRes = await fetch(base + '/time-travel-cache/metadata/mastery-challenge.json');
+            if (remoteRes.ok) {
+                masteryChallengeData = await remoteRes.json();
+                return masteryChallengeData;
+            }
+        } catch (e2) {
+            console.error('Failed to load mastery challenge data', e2);
+        }
+        return null;
+    })();
+
+    try {
+        return await masteryChallengeLoadPromise;
+    } finally {
+        masteryChallengeLoadPromise = null;
+    }
+}
+
 function applyStatsExplorerCollapseState() {
     document.body.classList.toggle('stats-explorer-collapsed', !!isStatsExplorerCollapsed);
     var btn = document.getElementById('statsExplorerCollapseBtn');
@@ -409,7 +445,9 @@ function ensureStatisticsExplorer() {
 
     applyStatsExplorerCollapseState();
     loadStatisticsExplorerData().then(function () {
-        renderStatisticsExplorerContent();
+        loadMasteryChallengeData().then(function () {
+            renderStatisticsExplorerContent();
+        });
     });
 }
 
@@ -435,6 +473,9 @@ function renderStatisticsExplorerContent(targetBody) {
             break;
         case 'player':
             renderPlayerView(body);
+            break;
+        case 'mastery':
+            renderMasteryView(body);
             break;
         case 'improving':
             renderImprovingView(body);
@@ -1006,11 +1047,12 @@ function renderPlayerView(body) {
         { group: 'hold', id: 'present', label: 'Present' },
         { group: 'hold', id: 'old', label: 'Old' },
         { group: 'hold', id: 'latest', label: 'Latest activity' },
+        { group: 'hold', id: 'mastery', label: 'Mastery' },
         { group: 'tied', id: 'all', label: 'All holds' },
         { group: 'tied', id: 'untied', label: 'Untied only' },
         { group: 'tied', id: 'tied', label: 'Tied only' }
     ].forEach(function (opt) {
-        // Tied/untied only apply to present records
+        // Tied/untied only apply to present WR records
         if (opt.group === 'tied' && statsExplorerPlayerHoldMode !== 'present') return;
         var chip = document.createElement('button');
         chip.type = 'button';
@@ -1031,6 +1073,11 @@ function renderPlayerView(body) {
         chipBar.appendChild(chip);
     });
     body.appendChild(chipBar);
+
+    if (statsExplorerPlayerHoldMode === 'mastery') {
+        renderPlayerMasteryView(body);
+        return;
+    }
 
     appendListFilters(body);
 
@@ -1077,6 +1124,268 @@ function renderPlayerView(body) {
     }
 
     renderListView(body, rows, 'player', true);
+}
+
+function renderPlayerMasteryView(body) {
+    appendListFilters(body);
+
+    var boardCount = getMasteryBoardCount();
+    var entry = getMasteryPlayerEntry(statsExplorerPlayerId);
+    var allRows = (entry && entry.completed ? entry.completed : []).map(function (item) {
+        if (typeof item === 'string') {
+            return { category: item, weblink: null, time: null };
+        }
+        return {
+            category: item.category || item,
+            weblink: item.weblink || null,
+            runId: item.runId || null,
+            time: item.time || null
+        };
+    });
+    var rows = filterRowsByListFilters(allRows).slice().sort(function (a, b) {
+        return String(a.category).localeCompare(String(b.category));
+    });
+
+    var filteredMetrics = summarizeMasteryRows(rows);
+    var meta = document.createElement('div');
+    meta.className = 'stats-explorer-meta';
+    meta.textContent = statsExplorerPlayerName + ' · Mastery ' +
+        rows.length + ' / ' + countMasteryFilterUniverse() +
+        ' · N ' + filteredMetrics.bySpeed.Normal +
+        ' · F ' + filteredMetrics.bySpeed.Fast +
+        ' · S ' + filteredMetrics.bySpeed.Slow +
+        ' · Std ' + filteredMetrics.bySize.Standard +
+        ' · Sm ' + filteredMetrics.bySize.Small +
+        ' · Lg ' + filteredMetrics.bySize.Large +
+        (rows.length !== allRows.length ? ' · ' + allRows.length + ' unfiltered' : '') +
+        ' · All Apples';
+    body.appendChild(meta);
+
+    if (!masteryChallengeData) {
+        var missing = document.createElement('div');
+        missing.className = 'stats-explorer-empty';
+        missing.textContent = 'Mastery data not loaded yet.';
+        body.appendChild(missing);
+        return;
+    }
+
+    if (!rows.length) {
+        var empty = document.createElement('div');
+        empty.className = 'stats-explorer-empty';
+        empty.textContent = allRows.length
+            ? 'No mastery boards match these filters.'
+            : 'No mastery completions for this player.';
+        body.appendChild(empty);
+        return;
+    }
+
+    renderListView(body, rows, 'mastery', true);
+}
+
+function summarizeMasteryRows(rows) {
+    var bySpeed = { Normal: 0, Fast: 0, Slow: 0 };
+    var bySize = { Standard: 0, Small: 0, Large: 0 };
+    (rows || []).forEach(function (row) {
+        var p = parseCategoryKey(row.category);
+        if (!p) return;
+        if (bySpeed[p.speed] != null) bySpeed[p.speed]++;
+        if (bySize[p.size] != null) bySize[p.size]++;
+    });
+    return { bySpeed: bySpeed, bySize: bySize, total: (rows || []).length };
+}
+
+function countMasteryFilterUniverse() {
+    var apples = statsListApple === 'All'
+        ? ((masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.appleAmounts) ||
+            ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb', 'Tally'])
+        : [statsListApple];
+    var speeds = statsListSpeed === 'All'
+        ? ((masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.speeds) ||
+            ['Normal', 'Fast', 'Slow'])
+        : [statsListSpeed];
+    var sizes = statsListSize === 'All'
+        ? ((masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.sizes) ||
+            ['Standard', 'Small', 'Large'])
+        : [statsListSize];
+    var modes = statsListGamemode === 'All'
+        ? ((masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.modes) || [])
+        : [statsListGamemode];
+    if (statsListRunMode !== 'All' && statsListRunMode !== 'All Apples' && statsListRunMode !== 'Timed') {
+        return 0;
+    }
+    return apples.length * speeds.length * sizes.length * modes.length;
+}
+
+function buildFilteredMasteryLeaderboard() {
+    var byPlayer = (masteryChallengeData && masteryChallengeData.byPlayer) || {};
+    var rows = [];
+    Object.keys(byPlayer).forEach(function (playerId) {
+        var entry = byPlayer[playerId];
+        var completed = (entry.completed || []).map(function (item) {
+            if (typeof item === 'string') return { category: item };
+            return item;
+        });
+        var matched = filterRowsByListFilters(completed);
+        if (!matched.length) return;
+        var metrics = summarizeMasteryRows(matched);
+        rows.push({
+            playerId: playerId,
+            playerName: entry.playerName,
+            total: matched.length,
+            bySpeed: metrics.bySpeed,
+            bySize: metrics.bySize
+        });
+    });
+    rows.sort(function (a, b) {
+        return b.total - a.total || String(a.playerName).localeCompare(String(b.playerName));
+    });
+    return rows;
+}
+
+function getMasteryAppleFilterOptions() {
+    return statsListApple === 'All'
+        ? ((masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.appleAmounts) ||
+            ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb', 'Tally'])
+        : [statsListApple];
+}
+
+function buildCommunityMasteryRow() {
+    var byPlayer = (masteryChallengeData && masteryChallengeData.byPlayer) || {};
+    var seen = {};
+    Object.keys(byPlayer).forEach(function (playerId) {
+        var completed = (byPlayer[playerId].completed || []).map(function (item) {
+            if (typeof item === 'string') return { category: item };
+            return item;
+        });
+        filterRowsByListFilters(completed).forEach(function (row) {
+            if (row.category) seen[row.category] = true;
+        });
+    });
+    var unionRows = Object.keys(seen).map(function (category) {
+        return { category: category };
+    });
+    var metrics = summarizeMasteryRows(unionRows);
+    return {
+        playerId: null,
+        playerName: 'Community Mastery',
+        community: true,
+        total: unionRows.length,
+        bySpeed: metrics.bySpeed,
+        bySize: metrics.bySize,
+        categories: seen
+    };
+}
+
+function countInhumanMasteryUniverse() {
+    var list = (masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.inhumanBoards) || [];
+    return list.filter(function (category) {
+        return rowMatchesListFilters({ category: category });
+    }).length;
+}
+
+function countCommunityInhumanMastery(categorySet) {
+    var list = (masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.inhumanBoards) || [];
+    var n = 0;
+    list.forEach(function (category) {
+        if (categorySet && categorySet[category]) n++;
+    });
+    return n;
+}
+
+function renderMasteryView(body) {
+    if (!masteryChallengeData) {
+        var empty = document.createElement('div');
+        empty.className = 'stats-explorer-empty';
+        empty.textContent = 'Mastery data not available yet. Run node scripts/mastery-challenge-fetcher.js (range or full backfill).';
+        body.appendChild(empty);
+        return;
+    }
+
+    appendListFilters(body);
+
+    var boardCount = countMasteryFilterUniverse();
+    var community = buildCommunityMasteryRow();
+    var inhumanMax = countInhumanMasteryUniverse();
+    var inhumanHave = countCommunityInhumanMastery(community.categories);
+    var rows = buildFilteredMasteryLeaderboard();
+
+    var meta = document.createElement('div');
+    meta.className = 'stats-explorer-meta';
+    meta.textContent = 'All Apples completions · ' + rows.length + ' players · max ' + boardCount +
+        ' for current filters · Inhuman: ' + inhumanHave + ' / ' + inhumanMax;
+    body.appendChild(meta);
+
+    if (!rows.length && !community.total) {
+        var none = document.createElement('div');
+        none.className = 'stats-explorer-empty';
+        none.textContent = 'No mastery completions match these filters.';
+        body.appendChild(none);
+        return;
+    }
+
+    var table = document.createElement('table');
+    table.className = 'stats-explorer-table';
+    var thead = document.createElement('thead');
+    var hr = document.createElement('tr');
+    ['#', 'Player', 'Total', 'Normal', 'Fast', 'Slow', 'Std', 'Small', 'Large'].forEach(function (h) {
+        var th = document.createElement('th');
+        th.textContent = h;
+        hr.appendChild(th);
+    });
+    thead.appendChild(hr);
+    table.appendChild(thead);
+    var tbody = document.createElement('tbody');
+
+    function appendMasteryLeaderRow(row, rankLabel) {
+        var tr = document.createElement('tr');
+        if (row.community) tr.className = 'stats-mastery-community-row';
+        var rankTd = document.createElement('td');
+        rankTd.textContent = rankLabel;
+        tr.appendChild(rankTd);
+
+        var nameTd = document.createElement('td');
+        if (row.community) {
+            nameTd.textContent = row.playerName;
+            nameTd.className = 'stats-mastery-community-name';
+        } else {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'stats-run-link stats-mastery-player-link';
+            btn.textContent = row.playerName || '—';
+            btn.addEventListener('click', function () {
+                openMasteryPlayer(row.playerId, row.playerName);
+            });
+            nameTd.appendChild(btn);
+        }
+        tr.appendChild(nameTd);
+
+        var bs = row.bySpeed || {};
+        var bz = row.bySize || {};
+        var totalTd = document.createElement('td');
+        totalTd.textContent = String(row.total) + ' / ' + boardCount;
+        tr.appendChild(totalTd);
+        ['Normal', 'Fast', 'Slow'].forEach(function (key) {
+            var td = document.createElement('td');
+            td.textContent = String(bs[key] || 0);
+            tr.appendChild(td);
+        });
+        ['Standard', 'Small', 'Large'].forEach(function (key) {
+            var td = document.createElement('td');
+            td.textContent = String(bz[key] || 0);
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    }
+
+    appendMasteryLeaderRow(community, '0');
+    rows.forEach(function (row, idx) {
+        appendMasteryLeaderRow(row, String(idx + 1));
+    });
+    table.appendChild(tbody);
+    var scroll = document.createElement('div');
+    scroll.className = 'stats-table-scroll';
+    scroll.appendChild(table);
+    body.appendChild(scroll);
 }
 
 function getCareerMetrics(row) {
@@ -1224,6 +1533,39 @@ function renderCareerView(body) {
     body.appendChild(scroll);
 }
 
+function getMasteryBoardCount() {
+    return (masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.boardCount) || 1386;
+}
+
+function getMasteryPlayerEntry(playerId) {
+    if (!masteryChallengeData || !playerId) return null;
+    var by = masteryChallengeData.byPlayer || {};
+    return by[playerId] || null;
+}
+
+function openMasteryPlayer(playerId, playerName) {
+    selectStatsExplorerPlayer({ id: playerId, name: playerName || playerId });
+    statsExplorerPlayerShowMeme = false;
+    statsExplorerPlayerHoldMode = 'mastery';
+    statsExplorerPlayerTiedMode = 'all';
+    statsExplorerActiveTab = 'player';
+    var wrap = document.querySelector('.stats-explorer-wrapper');
+    if (wrap) {
+        Array.prototype.forEach.call(wrap.querySelectorAll('.stats-explorer-tab'), function (el) {
+            el.classList.toggle('active', el.dataset.tab === 'player');
+        });
+    }
+    var mobileTabs = document.getElementById('mobileStatsTabs');
+    if (mobileTabs) {
+        Array.prototype.forEach.call(mobileTabs.querySelectorAll('.stats-explorer-tab'), function (el) {
+            el.classList.toggle('active', el.dataset.tab === 'player');
+        });
+    }
+    var body = document.getElementById('statsExplorerBody') ||
+        document.getElementById('mobileStatsExplorerBody');
+    renderStatisticsExplorerContent(body);
+}
+
 function renderFilteredListTab(body, allRows, kind, sortHint) {
     appendListFilters(body);
     var filtered = filterRowsByListFilters(allRows);
@@ -1295,7 +1637,7 @@ function renderListView(body, rows, kind, showAll) {
         empty.className = 'stats-explorer-empty';
         empty.textContent = kind === 'longevity' && statsExplorerLongevityMode === 'standing'
             ? 'No still-standing records match these filters.'
-            : (kind === 'longevity' || kind === 'contested' || kind === 'stale' || kind === 'popularity' || kind === 'unheld')
+            : (kind === 'longevity' || kind === 'contested' || kind === 'stale' || kind === 'popularity' || kind === 'unheld' || kind === 'mastery')
                 ? 'No categories match these filters.'
                 : 'No data available.';
         body.appendChild(empty);
@@ -1315,9 +1657,11 @@ function renderListView(body, rows, kind, showAll) {
                 ? ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Flips', 'Holders']
                 : kind === 'unheld'
                     ? ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Tier']
-                    : kind === 'legends'
-                        ? ['Player', 'Mode', 'Count', 'Speed', 'Size', 'Run', 'Time', 'Score', 'Days', 'Range', 'Type']
-                        : ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Holders', 'Days'];
+                    : kind === 'mastery'
+                        ? ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Time']
+                        : kind === 'legends'
+                            ? ['Player', 'Mode', 'Count', 'Speed', 'Size', 'Run', 'Time', 'Score', 'Days', 'Range', 'Type']
+                            : ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Holders', 'Days'];
     headers.forEach(function (h) {
         var th = document.createElement('th');
         th.textContent = h;
@@ -1371,6 +1715,10 @@ function renderListView(body, rows, kind, showAll) {
             tr.innerHTML =
                 formatCategoryFiveCellsHtml(parsed) +
                 '<td>' + escapeHtml(row.tier || '') + '</td>';
+        } else if (kind === 'mastery') {
+            tr.innerHTML =
+                formatCategoryFiveCellsHtml(parsed) +
+                '<td>' + formatHoldTimeCell({ time: row.time, weblink: row.weblink }, parsed) + '</td>';
         } else if (kind === 'legends') {
             var legRange = row.stillStanding
                 ? row.start + ' → present'
@@ -1689,6 +2037,7 @@ window.applyStatsExplorerCollapseState = applyStatsExplorerCollapseState;
 window.syncRightPanelsSideBySide = syncRightPanelsSideBySide;
 window.renderStatisticsExplorerContent = renderStatisticsExplorerContent;
 window.loadStatisticsExplorerData = loadStatisticsExplorerData;
+window.loadMasteryChallengeData = loadMasteryChallengeData;
 window.STATS_TABS = STATS_TABS;
 window.formatCategoryPartHtml = formatCategoryPartHtml;
 window.formatCategoryInlineHtml = formatCategoryInlineHtml;

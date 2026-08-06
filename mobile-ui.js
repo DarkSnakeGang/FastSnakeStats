@@ -1599,6 +1599,7 @@ function showBasicMobileStatisticsSection() {
         { id: 'longevity', label: 'Longevity' },
         { id: 'career', label: 'Career' },
         { id: 'player', label: 'Player' },
+        { id: 'mastery', label: 'Mastery' },
         { id: 'improving', label: 'Improving' },
         { id: 'contested', label: 'Contested' },
         { id: 'stale', label: 'Stale' },
@@ -1642,14 +1643,18 @@ function showBasicMobileStatisticsSection() {
     }
 
     const body = document.getElementById('mobileStatsExplorerBody');
-    if (typeof loadStatisticsExplorerData === 'function') {
-        loadStatisticsExplorerData().then(function () {
-            if (mobileState.currentSection !== 'statistics') return;
-            if (typeof renderStatisticsExplorerContent === 'function') {
-                renderStatisticsExplorerContent(body);
-            }
-        });
-    }
+    const loadExplorer = typeof loadStatisticsExplorerData === 'function'
+        ? loadStatisticsExplorerData()
+        : Promise.resolve();
+    const loadMastery = typeof loadMasteryChallengeData === 'function'
+        ? loadMasteryChallengeData()
+        : Promise.resolve();
+    Promise.all([loadExplorer, loadMastery]).then(function () {
+        if (mobileState.currentSection !== 'statistics') return;
+        if (typeof renderStatisticsExplorerContent === 'function') {
+            renderStatisticsExplorerContent(body);
+        }
+    });
 }
 
 // Export functions for use in other modules

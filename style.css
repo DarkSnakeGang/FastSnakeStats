@@ -3113,6 +3113,36 @@ body.dark-mode .quick-fetch-btn:disabled {
 		text-decoration: underline;
 	}
 
+	.stats-explorer-table button.stats-mastery-player-link {
+		background: none;
+		border: none;
+		padding: 0;
+		margin: 0;
+		color: #7eb8ff;
+		cursor: pointer;
+		font: inherit;
+		text-align: left;
+	}
+
+	.stats-explorer-table button.stats-mastery-player-link:hover {
+		text-decoration: underline;
+	}
+
+	.stats-mastery-player-block {
+		margin: 0 0 12px;
+		padding: 8px 4px 4px;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+	}
+
+	.stats-explorer-table tr.stats-mastery-community-row td {
+		font-weight: 600;
+		background: rgba(255, 255, 255, 0.06);
+	}
+
+	.stats-mastery-community-name {
+		letter-spacing: 0.02em;
+	}
+
 	.stats-explorer-empty,
 	.stats-explorer-loading,
 	.stats-explorer-meta {
@@ -3495,6 +3525,18 @@ body.dark-mode .quick-fetch-btn:disabled {
 
 	body:not(.dark-mode) .stats-explorer-table a.stats-run-link {
 		color: #c7e0ff;
+	}
+
+	body:not(.dark-mode) .stats-explorer-table button.stats-mastery-player-link {
+		color: #1a5fb4;
+	}
+
+	body:not(.dark-mode) .stats-mastery-player-block {
+		border-bottom-color: rgba(0, 0, 0, 0.12);
+	}
+
+	body:not(.dark-mode) .stats-explorer-table tr.stats-mastery-community-row td {
+		background: rgba(0, 0, 0, 0.05);
 	}
 
 	body:not(.dark-mode) .stats-explorer-empty,
