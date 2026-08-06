@@ -15,7 +15,6 @@ var statsExplorerLongevityTiedMode = 'untied'; // 'all' | 'untied' | 'tied'
 var statsExplorerPopularityTiedMode = 'all'; // 'all' | 'untied' | 'tied'
 var statsExplorerUnheldTier = 'All'; // 'All' | Free…Inhuman
 var statsExplorerLegendsFilter = 'all'; // 'all' | 'legends' | 'unicorns'
-var statsExplorerMasteryModeFilter = 'all'; // 'all' | 'highscore' | 'no-peaceful'
 var statsExplorerPlayerId = null;
 var statsExplorerPlayerName = '';
 var statsExplorerPlayerHoldMode = 'present'; // 'all' | 'present' | 'old' | 'latest' | 'mastery'
@@ -37,6 +36,7 @@ var statsListGamemode = 'All';
 var statsListRunMode = 'All';
 var STATS_LIST_DISPLAY_LIMIT = 50;
 
+var STATS_MASTERY_MODE_GROUPS = ['High score modes only', 'Excluding Peaceful'];
 var STATS_HIGHSCORE_MODES = ['Wall', 'Portal', 'Key', 'Sokoban', 'Poison', 'Minesweeper', 'Statue', 'Shield', 'Hotdog', 'Gate', 'Bridge'];
 
 var STATS_TABS = [
@@ -119,6 +119,11 @@ function createStatsSelect(labelText, value, options, onChange, compact) {
     return wrap;
 }
 
+function isMasteryFilterContext() {
+    return statsExplorerActiveTab === 'mastery' ||
+        (statsExplorerActiveTab === 'player' && statsExplorerPlayerHoldMode === 'mastery');
+}
+
 function getListGamemodeOptions() {
     var names = typeof gamemodes !== 'undefined' ? Object.keys(gamemodes) : [];
     if (statsListRunMode === 'High Score') {
@@ -133,7 +138,9 @@ function normalizeListFilters() {
     }
     if (statsListGamemode !== 'All') {
         var modes = getListGamemodeOptions();
-        if (modes.indexOf(statsListGamemode) === -1) {
+        var ok = modes.indexOf(statsListGamemode) !== -1 ||
+            (isMasteryFilterContext() && STATS_MASTERY_MODE_GROUPS.indexOf(statsListGamemode) !== -1);
+        if (!ok) {
             statsListGamemode = 'All';
         }
     }
@@ -149,7 +156,11 @@ function appendListFilters(body) {
         sizeOpts = sizeOpts.filter(function (s) { return s !== 'Small'; });
     }
     var runOpts = ['All', 'Timed'].concat(typeof runModes !== 'undefined' ? Object.keys(runModes) : ['25 Apples', '50 Apples', '100 Apples', 'All Apples', 'High Score']);
-    var modeOpts = ['All'].concat(getListGamemodeOptions());
+    var modeOpts = ['All'];
+    if (isMasteryFilterContext()) {
+        modeOpts = modeOpts.concat(STATS_MASTERY_MODE_GROUPS);
+    }
+    modeOpts = modeOpts.concat(getListGamemodeOptions());
 
     var filters = document.createElement('div');
     filters.className = 'stats-explorer-filters';
@@ -177,6 +188,17 @@ function appendListFilters(body) {
     body.appendChild(filters);
 }
 
+function gamemodeMatchesListFilter(gamemode) {
+    if (statsListGamemode === 'All') return true;
+    if (statsListGamemode === 'High score modes only') {
+        return STATS_HIGHSCORE_MODES.indexOf(gamemode) !== -1;
+    }
+    if (statsListGamemode === 'Excluding Peaceful') {
+        return gamemode !== 'Peaceful';
+    }
+    return gamemode === statsListGamemode;
+}
+
 function rowMatchesListFilters(row) {
     var parsed = parseCategoryKey(row.category);
     if (!parsed) return false;
@@ -188,7 +210,7 @@ function rowMatchesListFilters(row) {
     } else if (statsListRunMode !== 'All' && parsed.runMode !== statsListRunMode) {
         return false;
     }
-    if (statsListGamemode !== 'All' && parsed.gamemode !== statsListGamemode) return false;
+    if (!gamemodeMatchesListFilter(parsed.gamemode)) return false;
     return true;
 }
 
@@ -1127,22 +1149,7 @@ function renderPlayerView(body) {
     renderListView(body, rows, 'player', true);
 }
 
-function appendMasteryModeFilter(body) {
-    var filters = document.createElement('div');
-    filters.className = 'stats-explorer-filters';
-    filters.appendChild(createStatsSelect('Modes', statsExplorerMasteryModeFilter, [
-        { value: 'all', label: 'All modes' },
-        { value: 'highscore', label: 'High score modes only' },
-        { value: 'no-peaceful', label: 'Excluding Peaceful' }
-    ], function (v) {
-        statsExplorerMasteryModeFilter = v;
-        renderStatisticsExplorerContent(body);
-    }, true));
-    body.appendChild(filters);
-}
-
 function renderPlayerMasteryView(body) {
-    appendMasteryModeFilter(body);
     appendListFilters(body);
 
     var boardCount = getMasteryBoardCount();
@@ -1158,7 +1165,7 @@ function renderPlayerMasteryView(body) {
             time: item.time || null
         };
     });
-    var rows = filterMasteryRows(allRows).slice().sort(function (a, b) {
+    var rows = filterRowsByListFilters(allRows).slice().sort(function (a, b) {
         return String(a.category).localeCompare(String(b.category));
     });
 
@@ -1205,25 +1212,18 @@ function getMasteryAllModeNames() {
             'Arrow', 'Hotdog', 'Magnet', 'Gate', 'Bridge', 'Peaceful'];
 }
 
-function getMasteryModeFilterOptions() {
+function getMasteryModesForFilter() {
     var all = getMasteryAllModeNames();
-    if (statsExplorerMasteryModeFilter === 'highscore') {
+    if (statsListGamemode === 'High score modes only') {
         return all.filter(function (m) { return STATS_HIGHSCORE_MODES.indexOf(m) !== -1; });
     }
-    if (statsExplorerMasteryModeFilter === 'no-peaceful') {
+    if (statsListGamemode === 'Excluding Peaceful') {
         return all.filter(function (m) { return m !== 'Peaceful'; });
     }
-    return all.slice();
-}
-
-function rowMatchesMasteryModeFilter(row) {
-    var parsed = parseCategoryKey(row.category);
-    if (!parsed) return false;
-    return getMasteryModeFilterOptions().indexOf(parsed.gamemode) !== -1;
-}
-
-function filterMasteryRows(rows) {
-    return filterRowsByListFilters(rows).filter(rowMatchesMasteryModeFilter);
+    if (statsListGamemode === 'All') {
+        return all.slice();
+    }
+    return all.indexOf(statsListGamemode) !== -1 ? [statsListGamemode] : [];
 }
 
 function summarizeMasteryRows(rows) {
@@ -1251,10 +1251,7 @@ function countMasteryFilterUniverse() {
         ? ((masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.sizes) ||
             ['Standard', 'Small', 'Large'])
         : [statsListSize];
-    var allowedModes = getMasteryModeFilterOptions();
-    var modes = statsListGamemode === 'All'
-        ? allowedModes
-        : (allowedModes.indexOf(statsListGamemode) !== -1 ? [statsListGamemode] : []);
+    var modes = getMasteryModesForFilter();
     if (statsListRunMode !== 'All' && statsListRunMode !== 'All Apples' && statsListRunMode !== 'Timed') {
         return 0;
     }
@@ -1270,7 +1267,7 @@ function buildFilteredMasteryLeaderboard() {
             if (typeof item === 'string') return { category: item };
             return item;
         });
-        var matched = filterMasteryRows(completed);
+        var matched = filterRowsByListFilters(completed);
         if (!matched.length) return;
         var metrics = summarizeMasteryRows(matched);
         rows.push({
@@ -1302,7 +1299,7 @@ function buildCommunityMasteryRow() {
             if (typeof item === 'string') return { category: item };
             return item;
         });
-        filterMasteryRows(completed).forEach(function (row) {
+        filterRowsByListFilters(completed).forEach(function (row) {
             if (row.category) seen[row.category] = true;
         });
     });
@@ -1324,8 +1321,7 @@ function buildCommunityMasteryRow() {
 function countInhumanMasteryUniverse() {
     var list = (masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.inhumanBoards) || [];
     return list.filter(function (category) {
-        var row = { category: category };
-        return rowMatchesListFilters(row) && rowMatchesMasteryModeFilter(row);
+        return rowMatchesListFilters({ category: category });
     }).length;
 }
 
@@ -1333,10 +1329,7 @@ function countCommunityInhumanMastery(categorySet) {
     var list = (masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.inhumanBoards) || [];
     var n = 0;
     list.forEach(function (category) {
-        if (!(categorySet && categorySet[category])) return;
-        var row = { category: category };
-        if (!rowMatchesListFilters(row) || !rowMatchesMasteryModeFilter(row)) return;
-        n++;
+        if (categorySet && categorySet[category]) n++;
     });
     return n;
 }
@@ -1350,7 +1343,6 @@ function renderMasteryView(body) {
         return;
     }
 
-    appendMasteryModeFilter(body);
     appendListFilters(body);
 
     var boardCount = countMasteryFilterUniverse();
