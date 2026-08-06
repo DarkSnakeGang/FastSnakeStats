@@ -18,7 +18,7 @@ const { isTallyCeHighscoreMode } = require('../tally-boards');
  */
 
 /** Bump whenever scoring / legends / hold logic changes (forces full rebuild). */
-const ANALYZER_VERSION = 15;
+const ANALYZER_VERSION = 16;
 
 const DIFFICULTY_TIERS = ['Free', 'Warmup', 'Easy', 'Medium', 'Hard', 'Mythic', 'Lottery', 'Inhuman'];
 
@@ -848,7 +848,7 @@ class StatisticsExplorerAnalyzer {
         // Peaceful is always Free — no overrides apply
         if (mode === 'Peaceful') return 'Free';
 
-        let tier = apple === 'Tally' ? 'Hard' : (MODE_BASE_TIER[mode] || 'Medium');
+        let tier = apple === 'Tally' ? 'Medium' : (MODE_BASE_TIER[mode] || 'Medium');
 
         if (mode === 'Wall' && run === 'All Apples') {
             // Fast + above Small (Standard/Large) → Inhuman
