@@ -44,6 +44,10 @@ jobs:
     - name: Rebuild statistics explorer metadata
       run: node scripts/statistics-explorer-analyzer.js
       continue-on-error: true
+
+    - name: Sync mastery challenge (incremental; no-op until full backfill)
+      run: node scripts/mastery-challenge-fetcher.js --incremental
+      continue-on-error: true
       
     - name: Commit and push changes
       run: |
