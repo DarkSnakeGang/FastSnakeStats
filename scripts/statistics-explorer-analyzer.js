@@ -602,12 +602,18 @@ class StatisticsExplorerAnalyzer {
     buildPopularity() {
         return Array.from(this.categoryMeta.entries())
             .filter(([category]) => !this.isExcludedFromPopularity(category))
-            .map(([category, meta]) => ({
-                category,
-                uniqueHolders: meta.holders.size,
-                daysWithRecord: meta.daysWithRecord,
-                flips: meta.flips
-            }))
+            .map(([category, meta]) => {
+                const byPlayer = this.openHolds.get(category);
+                // Present WR tied count; 0 = no current holder (only shown under Both)
+                const tiedHolders = byPlayer && byPlayer.size ? byPlayer.size : 0;
+                return {
+                    category,
+                    uniqueHolders: meta.holders.size,
+                    daysWithRecord: meta.daysWithRecord,
+                    flips: meta.flips,
+                    tiedHolders
+                };
+            })
             .sort((a, b) => b.uniqueHolders - a.uniqueHolders || b.daysWithRecord - a.daysWithRecord);
     }
 

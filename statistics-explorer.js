@@ -10,6 +10,7 @@ var statsExplorerHeatMetric = 'flips';
 var statsExplorerHeatYear = null; // set from data
 var statsExplorerLongevityMode = 'standing'; // 'all' | 'standing'
 var statsExplorerLongevityTiedMode = 'untied'; // 'all' | 'untied' | 'tied'
+var statsExplorerPopularityTiedMode = 'all'; // 'all' | 'untied' | 'tied'
 var statsExplorerUnheldTier = 'All'; // 'All' | Free…Inhuman
 var statsExplorerLegendsFilter = 'all'; // 'all' | 'legends' | 'unicorns'
 var statsExplorerPlayerId = null;
@@ -445,7 +446,7 @@ function renderStatisticsExplorerContent(targetBody) {
             renderFilteredListTab(body, statsExplorerData.stale || [], 'stale', 'least contested first');
             break;
         case 'popularity':
-            renderFilteredListTab(body, statsExplorerData.popularity || [], 'popularity', 'most holders first');
+            renderPopularityView(body);
             break;
         case 'unicorns':
             // Legacy tab id → merged Legends tab
@@ -1235,6 +1236,57 @@ function renderFilteredListTab(body, allRows, kind, sortHint) {
         (sortHint ? ' · ' + sortHint : '');
     body.appendChild(meta);
     renderListView(body, filtered, kind);
+}
+
+function appendPopularityTiedChips(body) {
+    var bar = document.createElement('div');
+    bar.className = 'stats-explorer-chips stats-longevity-chips';
+    [
+        { id: 'all', label: 'Both' },
+        { id: 'untied', label: 'Untied' },
+        { id: 'tied', label: 'Tied' }
+    ].forEach(function (opt) {
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'stats-explorer-chip' + (opt.id === statsExplorerPopularityTiedMode ? ' active' : '');
+        chip.textContent = opt.label;
+        chip.addEventListener('click', function () {
+            statsExplorerPopularityTiedMode = opt.id;
+            renderStatisticsExplorerContent(body);
+        });
+        bar.appendChild(chip);
+    });
+    body.appendChild(bar);
+}
+
+function filterPopularityByTiedMode(rows) {
+    if (!rows || !rows.length) return [];
+    if (statsExplorerPopularityTiedMode === 'untied') {
+        return rows.filter(function (r) { return (r.tiedHolders || 0) === 1; });
+    }
+    if (statsExplorerPopularityTiedMode === 'tied') {
+        return rows.filter(function (r) { return (r.tiedHolders || 0) > 1; });
+    }
+    return rows;
+}
+
+function renderPopularityView(body) {
+    appendPopularityTiedChips(body);
+    appendListFilters(body);
+    var allRows = filterPopularityByTiedMode(statsExplorerData.popularity || []);
+    var filtered = filterRowsByListFilters(allRows);
+    var meta = document.createElement('div');
+    meta.className = 'stats-explorer-meta';
+    var shown = Math.min(filtered.length, STATS_LIST_DISPLAY_LIMIT);
+    var tiedHint = statsExplorerPopularityTiedMode === 'untied'
+        ? 'untied present WRs'
+        : (statsExplorerPopularityTiedMode === 'tied' ? 'tied present WRs' : 'most holders first');
+    meta.textContent = shown + ' shown' +
+        (filtered.length > STATS_LIST_DISPLAY_LIMIT ? ' · ' + filtered.length + ' match' : '') +
+        (filtered.length !== allRows.length ? ' · ' + allRows.length + ' total' : '') +
+        ' · ' + tiedHint;
+    body.appendChild(meta);
+    renderListView(body, filtered, 'popularity');
 }
 
 function renderListView(body, rows, kind, showAll) {
