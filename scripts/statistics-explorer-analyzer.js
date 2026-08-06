@@ -18,7 +18,7 @@ const { isTallyCeHighscoreMode } = require('../tally-boards');
  */
 
 /** Bump whenever scoring / legends / hold logic changes (forces full rebuild). */
-const ANALYZER_VERSION = 16;
+const ANALYZER_VERSION = 17;
 
 const DIFFICULTY_TIERS = ['Free', 'Warmup', 'Easy', 'Medium', 'Hard', 'Mythic', 'Lottery', 'Inhuman'];
 
@@ -848,7 +848,10 @@ class StatisticsExplorerAnalyzer {
         // Peaceful is always Free — no overrides apply
         if (mode === 'Peaceful') return 'Free';
 
-        let tier = apple === 'Tally' ? 'Medium' : (MODE_BASE_TIER[mode] || 'Medium');
+        // Tally defaults to Medium; Tally Winged is Hard
+        let tier = apple === 'Tally'
+            ? (mode === 'Winged' ? 'Hard' : 'Medium')
+            : (MODE_BASE_TIER[mode] || 'Medium');
 
         if (mode === 'Wall' && run === 'All Apples') {
             // Fast + above Small (Standard/Large) → Inhuman
@@ -926,8 +929,9 @@ class StatisticsExplorerAnalyzer {
         } else if (mode === 'Portal' && speed === 'Fast' && (size === 'Standard' || size === 'Large')) {
             // Fast Portal on Standard/Large is at least Hard
             tier = 'Hard';
-        } else if (mode === 'Winged' && speed === 'Fast') {
+        } else if (mode === 'Winged' && speed === 'Fast' && apple !== 'Tally') {
             // Fast Winged on Small is Easy; Standard/Large floored to Medium below
+            // (Tally Winged stays Hard base — do not downgrade)
             tier = 'Easy';
         }
 
