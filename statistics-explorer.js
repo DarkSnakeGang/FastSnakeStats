@@ -11,6 +11,7 @@ var statsExplorerHeatYear = null; // set from data
 var statsExplorerLongevityMode = 'standing'; // 'all' | 'standing'
 var statsExplorerLongevityTiedMode = 'untied'; // 'all' | 'untied' | 'tied'
 var statsExplorerUnheldTier = 'All'; // 'All' | Free…Inhuman
+var statsExplorerLegendsFilter = 'all'; // 'all' | 'legends' | 'unicorns'
 var statsExplorerPlayerId = null;
 var statsExplorerPlayerName = '';
 var statsExplorerPlayerHoldMode = 'present'; // 'all' | 'present' | 'old' | 'latest'
@@ -43,7 +44,6 @@ var STATS_TABS = [
     { id: 'contested', label: 'Contested' },
     { id: 'stale', label: 'Stale' },
     { id: 'popularity', label: 'Popularity' },
-    { id: 'unicorns', label: 'Unicorns' },
     { id: 'legends', label: 'Legends' },
     { id: 'unheld', label: 'Unheld' },
     { id: 'heatmap', label: 'Heatmap' }
@@ -96,9 +96,15 @@ function createStatsSelect(labelText, value, options, onChange, compact) {
     sel.className = 'stats-explorer-select';
     options.forEach(function (opt) {
         var o = document.createElement('option');
-        o.value = opt;
-        o.textContent = opt;
-        if (opt === value) o.selected = true;
+        if (opt && typeof opt === 'object') {
+            o.value = opt.value;
+            o.textContent = opt.label;
+            if (opt.value === value) o.selected = true;
+        } else {
+            o.value = opt;
+            o.textContent = opt;
+            if (opt === value) o.selected = true;
+        }
         sel.appendChild(o);
     });
     sel.addEventListener('change', function () {
@@ -442,7 +448,9 @@ function renderStatisticsExplorerContent(targetBody) {
             renderFilteredListTab(body, statsExplorerData.popularity || [], 'popularity', 'most holders first');
             break;
         case 'unicorns':
-            renderUnicornsView(body);
+            // Legacy tab id → merged Legends tab
+            statsExplorerActiveTab = 'legends';
+            renderLegendsView(body);
             break;
         case 'legends':
             renderLegendsView(body);
@@ -1255,11 +1263,9 @@ function renderListView(body, rows, kind, showAll) {
                 ? ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Flips', 'Holders']
                 : kind === 'unheld'
                     ? ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Tier']
-                    : kind === 'unicorns'
-                        ? ['Player', 'Mode', 'Count', 'Speed', 'Size', 'Run', 'Time', 'Days', 'Range']
-                        : kind === 'legends'
-                            ? ['Player', 'Mode', 'Count', 'Speed', 'Size', 'Run', 'Time', 'Score', 'Days', 'Range']
-                            : ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Holders', 'Days'];
+                    : kind === 'legends'
+                        ? ['Player', 'Mode', 'Count', 'Speed', 'Size', 'Run', 'Time', 'Score', 'Days', 'Range', 'Type']
+                        : ['Mode', 'Count', 'Speed', 'Size', 'Run', 'Holders', 'Days'];
     headers.forEach(function (h) {
         var th = document.createElement('th');
         th.textContent = h;
@@ -1313,16 +1319,6 @@ function renderListView(body, rows, kind, showAll) {
             tr.innerHTML =
                 formatCategoryFiveCellsHtml(parsed) +
                 '<td>' + escapeHtml(row.tier || '') + '</td>';
-        } else if (kind === 'unicorns') {
-            var uniRange = row.stillStanding
-                ? row.start + ' → present'
-                : row.start + ' → ' + row.end;
-            tr.innerHTML =
-                '<td>' + escapeHtml(row.playerName || '—') + '</td>' +
-                formatCategoryFiveCellsHtml(parsed) +
-                '<td>' + formatHoldTimeCell(row, parsed) + '</td>' +
-                '<td>' + row.days + '</td>' +
-                '<td>' + escapeHtml(uniRange) + '</td>';
         } else if (kind === 'legends') {
             var legRange = row.stillStanding
                 ? row.start + ' → present'
@@ -1333,7 +1329,8 @@ function renderListView(body, rows, kind, showAll) {
                 '<td>' + formatHoldTimeCell(row, parsed) + '</td>' +
                 '<td>' + (row.score != null ? row.score : '—') + '</td>' +
                 '<td>' + row.days + '</td>' +
-                '<td>' + escapeHtml(legRange) + '</td>';
+                '<td>' + escapeHtml(legRange) + '</td>' +
+                '<td>' + escapeHtml(row.legendType || '—') + '</td>';
         } else {
             tr.innerHTML =
                 formatCategoryFiveCellsHtml(parsed) +
@@ -1349,22 +1346,48 @@ function renderListView(body, rows, kind, showAll) {
     body.appendChild(scroll);
 }
 
-function renderUnicornsView(body) {
-    var rows = statsExplorerData.unicorns || [];
-    var standing = rows.filter(function (r) { return r.stillStanding; }).length;
-    var meta = document.createElement('div');
-    meta.className = 'stats-explorer-meta';
-    meta.textContent = rows.length + ' holds · ' + standing + ' still standing · Lottery · present first';
-    body.appendChild(meta);
-    renderListView(body, rows, 'unicorns', true);
+function tagLegendRows(rows, typeLabel) {
+    return (rows || []).map(function (r) {
+        return Object.assign({}, r, { legendType: typeLabel });
+    });
+}
+
+function getLegendsFilterRows() {
+    var legends = tagLegendRows(statsExplorerData.legends || [], 'Legend');
+    var unicorns = tagLegendRows(statsExplorerData.unicorns || [], 'Unicorn');
+    if (statsExplorerLegendsFilter === 'legends') return legends;
+    if (statsExplorerLegendsFilter === 'unicorns') return unicorns;
+    return legends.concat(unicorns).sort(function (a, b) {
+        var scoreDiff = (b.score || 0) - (a.score || 0);
+        if (scoreDiff) return scoreDiff;
+        if (a.stillStanding !== b.stillStanding) return a.stillStanding ? -1 : 1;
+        return (b.days || 0) - (a.days || 0) || String(a.start || '').localeCompare(String(b.start || ''));
+    });
 }
 
 function renderLegendsView(body) {
-    var rows = statsExplorerData.legends || [];
+    var filters = document.createElement('div');
+    filters.className = 'stats-explorer-filters';
+    filters.appendChild(createStatsSelect('Show', statsExplorerLegendsFilter, [
+        { value: 'all', label: 'All (Both)' },
+        { value: 'legends', label: 'Legends' },
+        { value: 'unicorns', label: 'Unicorns' }
+    ], function (v) {
+        statsExplorerLegendsFilter = v;
+        renderStatisticsExplorerContent(body);
+    }));
+    body.appendChild(filters);
+
+    var rows = getLegendsFilterRows();
     var standing = rows.filter(function (r) { return r.stillStanding; }).length;
     var meta = document.createElement('div');
     meta.className = 'stats-explorer-meta';
-    meta.textContent = rows.length + ' Mythic holds · ' + standing + ' still standing · hardest first';
+    var hint = statsExplorerLegendsFilter === 'unicorns'
+        ? 'Lottery · present first'
+        : statsExplorerLegendsFilter === 'legends'
+            ? 'Mythic · hardest first'
+            : 'Mythic + Lottery · hardest first';
+    meta.textContent = rows.length + ' holds · ' + standing + ' still standing · ' + hint;
     body.appendChild(meta);
     renderListView(body, rows, 'legends', true);
 }
