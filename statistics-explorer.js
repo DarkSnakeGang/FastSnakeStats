@@ -1369,13 +1369,13 @@ function renderLegendsView(body) {
     var filters = document.createElement('div');
     filters.className = 'stats-explorer-filters';
     filters.appendChild(createStatsSelect('Show', statsExplorerLegendsFilter, [
-        { value: 'all', label: 'All (Both)' },
+        { value: 'all', label: 'All' },
         { value: 'legends', label: 'Legends' },
         { value: 'unicorns', label: 'Unicorns' }
     ], function (v) {
         statsExplorerLegendsFilter = v;
         renderStatisticsExplorerContent(body);
-    }));
+    }, true));
     body.appendChild(filters);
 
     var rows = getLegendsFilterRows();

@@ -2851,7 +2851,7 @@ body.dark-mode .quick-fetch-btn:disabled {
 	.stats-explorer-select-wrap--compact {
 		flex: 0 0 auto;
 		width: auto;
-		max-width: 5.5rem;
+		max-width: 9rem;
 	}
 
 	.stats-explorer-select-label {
@@ -2873,8 +2873,8 @@ body.dark-mode .quick-fetch-btn:disabled {
 	}
 
 	.stats-explorer-select-wrap--compact .stats-explorer-select {
-		width: auto;
-		min-width: 4.5rem;
+		width: 100%;
+		min-width: 7rem;
 	}
 
 	/* Keep desktop Statistics panel layout independent of mobile explorer styles */
@@ -2910,7 +2910,7 @@ body.dark-mode .quick-fetch-btn:disabled {
 
 	.stats-explorer-wrapper .stats-explorer-select-wrap--compact {
 		flex: 0 0 auto;
-		max-width: 5.5rem;
+		max-width: 9rem;
 	}
 
 	.stats-explorer-wrapper .stats-explorer-chips {
