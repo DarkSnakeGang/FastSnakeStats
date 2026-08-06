@@ -15,6 +15,7 @@ var statsExplorerLongevityTiedMode = 'untied'; // 'all' | 'untied' | 'tied'
 var statsExplorerPopularityTiedMode = 'all'; // 'all' | 'untied' | 'tied'
 var statsExplorerUnheldTier = 'All'; // 'All' | Free…Inhuman
 var statsExplorerLegendsFilter = 'all'; // 'all' | 'legends' | 'unicorns'
+var statsExplorerMasteryModeFilter = 'all'; // 'all' | 'highscore' | 'no-peaceful'
 var statsExplorerPlayerId = null;
 var statsExplorerPlayerName = '';
 var statsExplorerPlayerHoldMode = 'present'; // 'all' | 'present' | 'old' | 'latest' | 'mastery'
@@ -1126,7 +1127,22 @@ function renderPlayerView(body) {
     renderListView(body, rows, 'player', true);
 }
 
+function appendMasteryModeFilter(body) {
+    var filters = document.createElement('div');
+    filters.className = 'stats-explorer-filters';
+    filters.appendChild(createStatsSelect('Modes', statsExplorerMasteryModeFilter, [
+        { value: 'all', label: 'All modes' },
+        { value: 'highscore', label: 'High score modes only' },
+        { value: 'no-peaceful', label: 'Excluding Peaceful' }
+    ], function (v) {
+        statsExplorerMasteryModeFilter = v;
+        renderStatisticsExplorerContent(body);
+    }, true));
+    body.appendChild(filters);
+}
+
 function renderPlayerMasteryView(body) {
+    appendMasteryModeFilter(body);
     appendListFilters(body);
 
     var boardCount = getMasteryBoardCount();
@@ -1142,7 +1158,7 @@ function renderPlayerMasteryView(body) {
             time: item.time || null
         };
     });
-    var rows = filterRowsByListFilters(allRows).slice().sort(function (a, b) {
+    var rows = filterMasteryRows(allRows).slice().sort(function (a, b) {
         return String(a.category).localeCompare(String(b.category));
     });
 
@@ -1182,6 +1198,34 @@ function renderPlayerMasteryView(body) {
     renderListView(body, rows, 'mastery', true);
 }
 
+function getMasteryAllModeNames() {
+    return (masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.modes) ||
+        ['Classic', 'Wall', 'Portal', 'Cheese', 'Borderless', 'Twin', 'Winged', 'Yin Yang',
+            'Key', 'Sokoban', 'Poison', 'Dimension', 'Minesweeper', 'Statue', 'Light', 'Shield',
+            'Arrow', 'Hotdog', 'Magnet', 'Gate', 'Bridge', 'Peaceful'];
+}
+
+function getMasteryModeFilterOptions() {
+    var all = getMasteryAllModeNames();
+    if (statsExplorerMasteryModeFilter === 'highscore') {
+        return all.filter(function (m) { return STATS_HIGHSCORE_MODES.indexOf(m) !== -1; });
+    }
+    if (statsExplorerMasteryModeFilter === 'no-peaceful') {
+        return all.filter(function (m) { return m !== 'Peaceful'; });
+    }
+    return all.slice();
+}
+
+function rowMatchesMasteryModeFilter(row) {
+    var parsed = parseCategoryKey(row.category);
+    if (!parsed) return false;
+    return getMasteryModeFilterOptions().indexOf(parsed.gamemode) !== -1;
+}
+
+function filterMasteryRows(rows) {
+    return filterRowsByListFilters(rows).filter(rowMatchesMasteryModeFilter);
+}
+
 function summarizeMasteryRows(rows) {
     var bySpeed = { Normal: 0, Fast: 0, Slow: 0 };
     var bySize = { Standard: 0, Small: 0, Large: 0 };
@@ -1207,9 +1251,10 @@ function countMasteryFilterUniverse() {
         ? ((masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.sizes) ||
             ['Standard', 'Small', 'Large'])
         : [statsListSize];
+    var allowedModes = getMasteryModeFilterOptions();
     var modes = statsListGamemode === 'All'
-        ? ((masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.modes) || [])
-        : [statsListGamemode];
+        ? allowedModes
+        : (allowedModes.indexOf(statsListGamemode) !== -1 ? [statsListGamemode] : []);
     if (statsListRunMode !== 'All' && statsListRunMode !== 'All Apples' && statsListRunMode !== 'Timed') {
         return 0;
     }
@@ -1225,7 +1270,7 @@ function buildFilteredMasteryLeaderboard() {
             if (typeof item === 'string') return { category: item };
             return item;
         });
-        var matched = filterRowsByListFilters(completed);
+        var matched = filterMasteryRows(completed);
         if (!matched.length) return;
         var metrics = summarizeMasteryRows(matched);
         rows.push({
@@ -1257,7 +1302,7 @@ function buildCommunityMasteryRow() {
             if (typeof item === 'string') return { category: item };
             return item;
         });
-        filterRowsByListFilters(completed).forEach(function (row) {
+        filterMasteryRows(completed).forEach(function (row) {
             if (row.category) seen[row.category] = true;
         });
     });
@@ -1279,7 +1324,8 @@ function buildCommunityMasteryRow() {
 function countInhumanMasteryUniverse() {
     var list = (masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.inhumanBoards) || [];
     return list.filter(function (category) {
-        return rowMatchesListFilters({ category: category });
+        var row = { category: category };
+        return rowMatchesListFilters(row) && rowMatchesMasteryModeFilter(row);
     }).length;
 }
 
@@ -1287,7 +1333,10 @@ function countCommunityInhumanMastery(categorySet) {
     var list = (masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.inhumanBoards) || [];
     var n = 0;
     list.forEach(function (category) {
-        if (categorySet && categorySet[category]) n++;
+        if (!(categorySet && categorySet[category])) return;
+        var row = { category: category };
+        if (!rowMatchesListFilters(row) || !rowMatchesMasteryModeFilter(row)) return;
+        n++;
     });
     return n;
 }
@@ -1301,6 +1350,7 @@ function renderMasteryView(body) {
         return;
     }
 
+    appendMasteryModeFilter(body);
     appendListFilters(body);
 
     var boardCount = countMasteryFilterUniverse();
