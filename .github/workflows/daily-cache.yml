@@ -45,24 +45,30 @@ jobs:
       run: node scripts/mastery-challenge-fetcher.js --incremental
       continue-on-error: true
 
-    - name: Sync verified runs archive (incremental; no-op until full backfill)
+    - name: Sync verified runs archive (incremental)
+      id: runs-sync
       run: node scripts/runs-archive-fetcher.js --incremental
       continue-on-error: true
 
-    - name: Rebuild FSS stats (runs archive when ready, else legacy daily)
-      run: |
-        if [ -f time-travel-cache/metadata/runs-archive-state.json ] && \
-           node -e "const s=require('./time-travel-cache/metadata/runs-archive-state.json'); process.exit(s.backfillComplete?0:1)"; then
-          echo "Using runs archive for FSS stats"
-          node scripts/derive-runs-timelines.js
-          node scripts/player-stats-analyzer.js --from-runs
-          node scripts/statistics-explorer-analyzer.js --from-runs --full
-        else
-          echo "Runs archive not ready — using legacy daily cache for stats"
-          node scripts/player-stats-analyzer.js
-          node scripts/statistics-explorer-analyzer.js
-        fi
+    - name: Rebuild FSS runs-derived timelines and stats
+      id: fss-rebuild
+      if: steps.runs-sync.outcome == 'success'
       continue-on-error: true
+      run: |
+        if [ ! -f time-travel-cache/metadata/runs-archive-state.json ]; then
+          echo "Missing runs-archive-state.json — cannot rebuild FSS stats"
+          exit 1
+        fi
+        if ! node -e "const s=require('./time-travel-cache/metadata/runs-archive-state.json'); process.exit(s.backfillComplete?0:1)"; then
+          echo "Runs archive backfill incomplete — skipping FSS stats (will not overwrite with legacy daily)"
+          exit 0
+        fi
+        echo "Deriving WR timelines from runs archive…"
+        node scripts/derive-runs-timelines.js
+        echo "Rebuilding player stats from runs…"
+        node scripts/player-stats-analyzer.js --from-runs
+        echo "Rebuilding statistics explorer from runs…"
+        node scripts/statistics-explorer-analyzer.js --from-runs --full
       
     - name: Commit and push changes
       run: |
@@ -73,3 +79,16 @@ jobs:
         git push origin main
       env:
         GITHUB_TOKEN: ${{ secrets.FSSGSM_TOKEN }}
+
+    - name: Report FSS pipeline status
+      if: always()
+      run: |
+        if [ "${{ steps.runs-sync.outcome }}" != "success" ]; then
+          echo "Runs archive sync failed — FSS timelines/stats were not refreshed from SRC"
+          exit 1
+        fi
+        if [ "${{ steps.fss-rebuild.outcome }}" = "failure" ]; then
+          echo "Runs sync OK but FSS derive/stats rebuild failed — backup Analyze Player Statistics should retry"
+          exit 1
+        fi
+        echo "Runs sync and FSS rebuild completed successfully"

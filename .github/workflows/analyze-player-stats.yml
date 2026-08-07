@@ -1,9 +1,10 @@
 name: Analyze Player Statistics
 
 on:
-  # Run after update-available-dates workflow completes
+  # Backup rebuild after daily cache (runs fetch + derive + stats already run there).
+  # Kept so a partial daily commit still gets runs-derived stats without touching legacy daily.
   workflow_run:
-    workflows: ["Update Available Dates Metadata"]
+    workflows: ["Daily Cache Collection"]
     types: [completed]
     branches: [main]
   
@@ -14,8 +15,9 @@ jobs:
   analyze-player-stats:
     runs-on: ubuntu-latest
     
-    # Run on manual dispatch, or when the triggering workflow succeeded
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    # Manual, or after daily cache finishes (success or failure).
+    # Failure path covers "runs committed but derive/stats rebuild failed".
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure' }}
         
     steps:
     - name: Checkout repository
@@ -26,27 +28,35 @@ jobs:
       with:
         node-version: '24'
     
-    - name: Rebuild FSS stats (runs archive when ready, else legacy daily)
+    - name: Rebuild FSS stats from runs archive
       run: |
-        if [ -f time-travel-cache/metadata/runs-archive-state.json ] && \
-           node -e "const s=require('./time-travel-cache/metadata/runs-archive-state.json'); process.exit(s.backfillComplete?0:1)"; then
-          echo "Using runs archive for FSS stats"
-          node scripts/player-stats-analyzer.js --from-runs
-          node scripts/statistics-explorer-analyzer.js --from-runs --full
-        else
-          echo "Runs archive not ready — using legacy daily cache for stats"
-          node scripts/player-stats-analyzer.js
-          node scripts/statistics-explorer-analyzer.js
+        if [ ! -f time-travel-cache/metadata/runs-archive-state.json ]; then
+          echo "Missing runs-archive-state.json — skipping"
+          exit 0
         fi
+        if ! node -e "const s=require('./time-travel-cache/metadata/runs-archive-state.json'); process.exit(s.backfillComplete?0:1)"; then
+          echo "Runs archive backfill incomplete — skipping (will not overwrite with legacy daily)"
+          exit 0
+        fi
+        echo "Deriving WR timelines from runs archive…"
+        node scripts/derive-runs-timelines.js
+        echo "Rebuilding player stats from runs…"
+        node scripts/player-stats-analyzer.js --from-runs
+        echo "Rebuilding statistics explorer from runs…"
+        node scripts/statistics-explorer-analyzer.js --from-runs --full
     
     - name: Check for changes
       id: check-changes
       run: |
-        if git diff --quiet time-travel-cache/metadata/player-stats.json time-travel-cache/metadata/statistics-explorer.json; then
-          echo "No changes detected in stats metadata"
+        if git diff --quiet \
+            time-travel-cache/metadata/player-stats.json \
+            time-travel-cache/metadata/statistics-explorer.json \
+            time-travel-cache/metadata/available-dates-runs.json \
+            time-travel-cache/runs-derived/wr-timelines.json; then
+          echo "No changes detected in runs-derived FSS metadata"
           echo "has-changes=false" >> $GITHUB_OUTPUT
         else
-          echo "Changes detected in stats metadata"
+          echo "Changes detected in runs-derived FSS metadata"
           echo "has-changes=true" >> $GITHUB_OUTPUT
         fi
     
@@ -55,7 +65,11 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add time-travel-cache/metadata/player-stats.json time-travel-cache/metadata/statistics-explorer.json
+        git add \
+          time-travel-cache/metadata/player-stats.json \
+          time-travel-cache/metadata/statistics-explorer.json \
+          time-travel-cache/metadata/available-dates-runs.json \
+          time-travel-cache/runs-derived/wr-timelines.json
         git commit -m "Update player and explorer statistics [skip ci]"
         git push
     
