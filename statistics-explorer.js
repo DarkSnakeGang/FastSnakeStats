@@ -127,8 +127,15 @@ function isMasteryFilterContext() {
 
 function ensureMasteryModeDefault() {
     var now = isMasteryFilterContext();
-    if (now && !statsWasMasteryFilterContext && statsListGamemode === 'All') {
-        statsListGamemode = 'High score modes only';
+    if (now && !statsWasMasteryFilterContext) {
+        if (statsListGamemode === 'All') {
+            statsListGamemode = 'High score modes only';
+        }
+        if (statsListSize === 'All') {
+            statsListSize = 'Small';
+        }
+        // Mastery is All Apples only — ignore leftover Run filters from other tabs
+        statsListRunMode = 'All Apples';
     }
     statsWasMasteryFilterContext = now;
 }
@@ -159,6 +166,7 @@ function appendListFilters(body) {
     ensureMasteryModeDefault();
     normalizeListFilters();
 
+    var mastery = isMasteryFilterContext();
     var appleOpts = ['All'].concat(typeof appleAmounts !== 'undefined' ? Object.keys(appleAmounts) : ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb', 'Tally']);
     var speedOpts = ['All'].concat(typeof speeds !== 'undefined' ? Object.keys(speeds) : ['Normal', 'Fast', 'Slow']);
     var sizeOpts = ['All'].concat(typeof sizes !== 'undefined' ? Object.keys(sizes) : ['Standard', 'Small', 'Large']);
@@ -167,7 +175,7 @@ function appendListFilters(body) {
     }
     var runOpts = ['All', 'Timed'].concat(typeof runModes !== 'undefined' ? Object.keys(runModes) : ['25 Apples', '50 Apples', '100 Apples', 'All Apples', 'High Score']);
     var modeOpts = ['All'];
-    if (isMasteryFilterContext()) {
+    if (mastery) {
         modeOpts = modeOpts.concat(STATS_MASTERY_MODE_GROUPS);
     }
     modeOpts = modeOpts.concat(getListGamemodeOptions());
@@ -186,11 +194,13 @@ function appendListFilters(body) {
         statsListSize = v;
         renderStatisticsExplorerContent(body);
     }));
-    filters.appendChild(createStatsSelect('Run', statsListRunMode, runOpts, function (v) {
-        statsListRunMode = v;
-        normalizeListFilters();
-        renderStatisticsExplorerContent(body);
-    }));
+    if (!mastery) {
+        filters.appendChild(createStatsSelect('Run', statsListRunMode, runOpts, function (v) {
+            statsListRunMode = v;
+            normalizeListFilters();
+            renderStatisticsExplorerContent(body);
+        }));
+    }
     filters.appendChild(createStatsSelect('Mode', statsListGamemode, modeOpts, function (v) {
         statsListGamemode = v;
         renderStatisticsExplorerContent(body);
