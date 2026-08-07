@@ -38,6 +38,7 @@ var STATS_LIST_DISPLAY_LIMIT = 50;
 var statsWasMasteryFilterContext = false;
 
 var STATS_MASTERY_MODE_GROUPS = ['High score modes only', 'Excluding Peaceful'];
+var STATS_LIST_MODE_GROUPS = ['High score modes only']; // shared Mode filter on list-filter tabs
 var STATS_HIGHSCORE_MODES = ['Wall', 'Portal', 'Key', 'Sokoban', 'Poison', 'Minesweeper', 'Statue', 'Shield', 'Hotdog', 'Gate', 'Bridge'];
 
 var STATS_TABS = [
@@ -155,6 +156,7 @@ function normalizeListFilters() {
     if (statsListGamemode !== 'All') {
         var modes = getListGamemodeOptions();
         var ok = modes.indexOf(statsListGamemode) !== -1 ||
+            STATS_LIST_MODE_GROUPS.indexOf(statsListGamemode) !== -1 ||
             (isMasteryFilterContext() && STATS_MASTERY_MODE_GROUPS.indexOf(statsListGamemode) !== -1);
         if (!ok) {
             statsListGamemode = 'All';
@@ -174,9 +176,12 @@ function appendListFilters(body) {
         sizeOpts = sizeOpts.filter(function (s) { return s !== 'Small'; });
     }
     var runOpts = ['All', 'Timed'].concat(typeof runModes !== 'undefined' ? Object.keys(runModes) : ['25 Apples', '50 Apples', '100 Apples', 'All Apples', 'High Score']);
-    var modeOpts = ['All'];
+    var modeOpts = ['All'].concat(STATS_LIST_MODE_GROUPS);
     if (mastery) {
-        modeOpts = modeOpts.concat(STATS_MASTERY_MODE_GROUPS);
+        // Excluding Peaceful is mastery-only; High score modes only already in STATS_LIST_MODE_GROUPS
+        STATS_MASTERY_MODE_GROUPS.forEach(function (g) {
+            if (modeOpts.indexOf(g) === -1) modeOpts.push(g);
+        });
     }
     modeOpts = modeOpts.concat(getListGamemodeOptions());
 
