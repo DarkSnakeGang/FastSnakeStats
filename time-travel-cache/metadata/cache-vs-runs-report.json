@@ -1,0 +1,1190 @@
+{
+  "generatedAt": "2026-08-07T17:38:57.956Z",
+  "summary": "Legacy daily/ is /leaderboards?date= snapshots (WR each day). Runs-derived uses unique verified runs with WR-as-of by play date. Differences are expected.",
+  "expectedDifferenceClasses": [
+    "Verify lag — play date vs leaderboard date= snapshot",
+    "Deleted / rejected / vanished runs still in old daily files",
+    "Guests / ignored players filter differences",
+    "Duplicate day counting in legacy player-stats vs unique run ids",
+    "Coverage gaps (Dice/Bomb/Tally cutoffs, CE Tally HS, backfill holes)",
+    "Ties / ordering",
+    "High Score / CE routing"
+  ],
+  "playerStats": {
+    "source": "runs-derived",
+    "topPlayer": {
+      "name": "Nat_Cat",
+      "totalRecords": 1058,
+      "peak": {
+        "date": "2026-05-02",
+        "count": 453
+      }
+    }
+  },
+  "dates": [
+    {
+      "date": "2018-10-24",
+      "boardsCompared": 4728,
+      "match": 1,
+      "differ": 0,
+      "onlyCache": 0,
+      "onlyRuns": 0,
+      "examples": {
+        "differ": [],
+        "onlyCache": [],
+        "onlyRuns": []
+      }
+    },
+    {
+      "date": "2020-05-14",
+      "boardsCompared": 4728,
+      "match": 20,
+      "differ": 0,
+      "onlyCache": 0,
+      "onlyRuns": 0,
+      "examples": {
+        "differ": [],
+        "onlyCache": [],
+        "onlyRuns": []
+      }
+    },
+    {
+      "date": "2021-12-04",
+      "boardsCompared": 4642,
+      "match": 837,
+      "differ": 12,
+      "onlyCache": 0,
+      "onlyRuns": 174,
+      "examples": {
+        "differ": [
+          {
+            "category": "1 Apple|Slow|Standard|Classic|50 Apples",
+            "cacheIds": [
+              "m78np2wz"
+            ],
+            "runsIds": [
+              "m7w1vn9z"
+            ],
+            "cacheTime": "PT1M43.959S",
+            "runsTime": "PT1M42.882S"
+          },
+          {
+            "category": "1 Apple|Slow|Standard|Cheese|50 Apples",
+            "cacheIds": [
+              "zx65k4kz"
+            ],
+            "runsIds": [
+              "ydw8o2xm"
+            ],
+            "cacheTime": "PT1M44.139S",
+            "runsTime": "PT1M42.163S"
+          },
+          {
+            "category": "3 Apples|Fast|Large|Wall|25 Apples",
+            "cacheIds": [
+              "y27wv86z"
+            ],
+            "runsIds": [
+              "z04ejpey"
+            ],
+            "cacheTime": "PT17.730S",
+            "runsTime": "PT17.018S"
+          },
+          {
+            "category": "3 Apples|Slow|Small|Sokoban|25 Apples",
+            "cacheIds": [
+              "y8ev355y"
+            ],
+            "runsIds": [
+              "mr6j5v8m"
+            ],
+            "cacheTime": "PT54.224S",
+            "runsTime": "PT53.685S"
+          },
+          {
+            "category": "3 Apples|Slow|Small|Sokoban|50 Apples",
+            "cacheIds": [
+              "y8ekv75y"
+            ],
+            "runsIds": [
+              "zxl95qkz"
+            ],
+            "cacheTime": "PT6M37.523S",
+            "runsTime": "PT5M30.731S"
+          },
+          {
+            "category": "3 Apples|Slow|Small|Sokoban|High Score",
+            "cacheIds": [
+              "m77w23em"
+            ],
+            "runsIds": [
+              "m36920gm"
+            ],
+            "cacheTime": "PT0.053S",
+            "runsTime": "PT0.054S"
+          },
+          {
+            "category": "5 Apples|Fast|Standard|Wall|50 Apples",
+            "cacheIds": [
+              "y4r4rrqz"
+            ],
+            "runsIds": [
+              "y243gj9z"
+            ],
+            "cacheTime": "PT24.235S",
+            "runsTime": "PT22.720S"
+          },
+          {
+            "category": "5 Apples|Fast|Standard|Wall|25 Apples",
+            "cacheIds": [
+              "zq15ow8m"
+            ],
+            "runsIds": [
+              "yog4nddm"
+            ],
+            "cacheTime": "PT9.266S",
+            "runsTime": "PT9.177S"
+          },
+          {
+            "category": "5 Apples|Fast|Small|Wall|50 Apples",
+            "cacheIds": [
+              "mkg6lv1y"
+            ],
+            "runsIds": [
+              "y8j37nwz"
+            ],
+            "cacheTime": "PT19.691S",
+            "runsTime": "PT17.018S"
+          },
+          {
+            "category": "5 Apples|Fast|Small|Wall|High Score",
+            "cacheIds": [
+              "me4ljo3y"
+            ],
+            "runsIds": [
+              "zgd312jz"
+            ],
+            "cacheTime": "PT0.068S",
+            "runsTime": "PT0.069S"
+          },
+          {
+            "category": "5 Apples|Slow|Large|Classic|All Apples",
+            "cacheIds": [
+              "ylr8glny"
+            ],
+            "runsIds": [
+              "y2096w7m"
+            ],
+            "cacheTime": "PT19M45.568S",
+            "runsTime": "PT17M10.437S"
+          },
+          {
+            "category": "5 Apples|Slow|Standard|Wall|High Score",
+            "cacheIds": [
+              "yo78pr1m"
+            ],
+            "runsIds": [
+              "y9lorg2y"
+            ],
+            "cacheTime": "PT0.120S",
+            "runsTime": "PT0.125S"
+          }
+        ],
+        "onlyCache": [],
+        "onlyRuns": [
+          {
+            "category": "1 Apple|Normal|Standard|Peaceful|25 Apples",
+            "runsIds": [
+              "zqv3ko9m"
+            ],
+            "runsTime": "PT24.570S"
+          },
+          {
+            "category": "1 Apple|Normal|Standard|Peaceful|50 Apples",
+            "runsIds": [
+              "y65n1gpz"
+            ],
+            "runsTime": "PT59.010S"
+          },
+          {
+            "category": "1 Apple|Normal|Standard|Peaceful|All Apples",
+            "runsIds": [
+              "zxo495gz"
+            ],
+            "runsTime": "PT5M36.960S"
+          },
+          {
+            "category": "1 Apple|Normal|Small|Peaceful|50 Apples",
+            "runsIds": [
+              "y93l4kny"
+            ],
+            "runsTime": "PT38.340S"
+          },
+          {
+            "category": "1 Apple|Normal|Small|Peaceful|All Apples",
+            "runsIds": [
+              "m77p6d5m"
+            ],
+            "runsTime": "PT1M15.195S"
+          },
+          {
+            "category": "1 Apple|Normal|Small|Peaceful|25 Apples",
+            "runsIds": [
+              "zgrd49vm"
+            ],
+            "runsTime": "PT18.495S"
+          },
+          {
+            "category": "1 Apple|Normal|Standard|Peaceful|100 Apples",
+            "runsIds": [
+              "mrn7x67y"
+            ],
+            "runsTime": "PT2M6.090S"
+          },
+          {
+            "category": "1 Apple|Normal|Large|Yin Yang|All Apples",
+            "runsIds": [
+              "ylr5ggxy"
+            ],
+            "runsTime": "PT14M0.105S"
+          },
+          {
+            "category": "1 Apple|Normal|Large|Key|100 Apples",
+            "runsIds": [
+              "y69w3pqy"
+            ],
+            "runsTime": "PT7M50.610S"
+          },
+          {
+            "category": "1 Apple|Normal|Large|Peaceful|100 Apples",
+            "runsIds": [
+              "y69dr7jy"
+            ],
+            "runsTime": "PT3M6.435S"
+          },
+          {
+            "category": "1 Apple|Normal|Large|Key|High Score",
+            "runsIds": [
+              "mk5x3qvm"
+            ],
+            "runsTime": "PT0.192S"
+          },
+          {
+            "category": "1 Apple|Normal|Large|Peaceful|25 Apples",
+            "runsIds": [
+              "m77klrwm"
+            ],
+            "runsTime": "PT34.965S"
+          },
+          {
+            "category": "1 Apple|Normal|Large|Peaceful|50 Apples",
+            "runsIds": [
+              "y69d6r1y"
+            ],
+            "runsTime": "PT1M24.510S"
+          },
+          {
+            "category": "1 Apple|Normal|Large|Peaceful|All Apples",
+            "runsIds": [
+              "zgrxdoem"
+            ],
+            "runsTime": "PT15M21.105S"
+          },
+          {
+            "category": "1 Apple|Fast|Standard|Peaceful|100 Apples",
+            "runsIds": [
+              "mrnrk24y",
+              "zgg9endz"
+            ],
+            "runsTime": "PT1M38.188S"
+          },
+          {
+            "category": "1 Apple|Fast|Standard|Peaceful|50 Apples",
+            "runsIds": [
+              "m776po5m"
+            ],
+            "runsTime": "PT44.639S"
+          },
+          {
+            "category": "1 Apple|Fast|Standard|Peaceful|All Apples",
+            "runsIds": [
+              "yv15pg6y"
+            ],
+            "runsTime": "PT4M17.409S"
+          },
+          {
+            "category": "1 Apple|Fast|Standard|Peaceful|25 Apples",
+            "runsIds": [
+              "y8ejw1wy"
+            ],
+            "runsTime": "PT20.582S"
+          },
+          {
+            "category": "1 Apple|Fast|Small|Key|25 Apples",
+            "runsIds": [
+              "zgr64qvm"
+            ],
+            "runsTime": "PT36.531S"
+          },
+          {
+            "category": "1 Apple|Fast|Small|Peaceful|All Apples",
+            "runsIds": [
+              "zp89n4xy"
+            ],
+            "runsTime": "PT58.271S"
+          },
+          {
+            "category": "1 Apple|Fast|Small|Peaceful|25 Apples",
+            "runsIds": [
+              "y69dr6py"
+            ],
+            "runsTime": "PT15.057S"
+          },
+          {
+            "category": "1 Apple|Fast|Small|Key|High Score",
+            "runsIds": [
+              "ywko873y"
+            ],
+            "runsTime": "PT0.053S"
+          },
+          {
+            "category": "1 Apple|Fast|Small|Key|50 Apples",
+            "runsIds": [
+              "z1x6wggm"
+            ],
+            "runsTime": "PT1M45.227S"
+          },
+          {
+            "category": "1 Apple|Fast|Small|Peaceful|50 Apples",
+            "runsIds": [
+              "ylr730ny"
+            ],
+            "runsTime": "PT32.877S"
+          },
+          {
+            "category": "1 Apple|Fast|Large|Peaceful|50 Apples",
+            "runsIds": [
+              "zn162o7m"
+            ],
+            "runsTime": "PT1M0.053S"
+          },
+          {
+            "category": "1 Apple|Fast|Large|Peaceful|25 Apples",
+            "runsIds": [
+              "zxgpovey"
+            ],
+            "runsTime": "PT29.670S"
+          },
+          {
+            "category": "1 Apple|Fast|Large|Peaceful|All Apples",
+            "runsIds": [
+              "z0r2d69z"
+            ],
+            "runsTime": "PT11M56.898S"
+          },
+          {
+            "category": "1 Apple|Fast|Large|Peaceful|100 Apples",
+            "runsIds": [
+              "y8dlwvdz"
+            ],
+            "runsTime": "PT2M17.214S"
+          },
+          {
+            "category": "1 Apple|Fast|Large|Key|High Score",
+            "runsIds": [
+              "zgr1w0em"
+            ],
+            "runsTime": "PT0.120S"
+          },
+          {
+            "category": "1 Apple|Slow|Standard|Peaceful|All Apples",
+            "runsIds": [
+              "zxo18lkz"
+            ],
+            "runsTime": "PT7M8.585S"
+          },
+          {
+            "category": "1 Apple|Slow|Standard|Peaceful|25 Apples",
+            "runsIds": [
+              "yj5n7q7m"
+            ],
+            "runsTime": "PT35.730S"
+          },
+          {
+            "category": "1 Apple|Slow|Standard|Peaceful|50 Apples",
+            "runsIds": [
+              "y9lol0ry"
+            ],
+            "runsTime": "PT1M14.333S"
+          },
+          {
+            "category": "1 Apple|Slow|Standard|Peaceful|100 Apples",
+            "runsIds": [
+              "z1xegrwm"
+            ],
+            "runsTime": "PT2M45.186S"
+          },
+          {
+            "category": "1 Apple|Slow|Small|Peaceful|50 Apples",
+            "runsIds": [
+              "ywje0d2z"
+            ],
+            "runsTime": "PT53.505S"
+          },
+          {
+            "category": "1 Apple|Slow|Small|Peaceful|25 Apples",
+            "runsIds": [
+              "m369n16m"
+            ],
+            "runsTime": "PT24.418S"
+          },
+          {
+            "category": "1 Apple|Slow|Small|Peaceful|All Apples",
+            "runsIds": [
+              "y27o4q6z"
+            ],
+            "runsTime": "PT1M37.495S"
+          },
+          {
+            "category": "1 Apple|Slow|Large|Peaceful|25 Apples",
+            "runsIds": [
+              "y209vq7m"
+            ],
+            "runsTime": "PT48.119S"
+          },
+          {
+            "category": "1 Apple|Slow|Large|Peaceful|All Apples",
+            "runsIds": [
+              "mk7g7w3y"
+            ],
+            "runsTime": "PT21M3.333S"
+          },
+          {
+            "category": "1 Apple|Slow|Large|Peaceful|100 Apples",
+            "runsIds": [
+              "ydw89r0m"
+            ],
+            "runsTime": "PT3M49.824S"
+          },
+          {
+            "category": "1 Apple|Slow|Large|Peaceful|50 Apples",
+            "runsIds": [
+              "y6n365qz"
+            ],
+            "runsTime": "PT1M47.730S"
+          }
+        ]
+      }
+    },
+    {
+      "date": "2022-09-15",
+      "boardsCompared": 4642,
+      "match": 1385,
+      "differ": 2,
+      "onlyCache": 0,
+      "onlyRuns": 32,
+      "examples": {
+        "differ": [
+          {
+            "category": "5 Apples|Fast|Standard|Wall|50 Apples",
+            "cacheIds": [
+              "m7wowd4z"
+            ],
+            "runsIds": [
+              "y243gj9z"
+            ],
+            "cacheTime": "PT23.076S",
+            "runsTime": "PT22.720S"
+          },
+          {
+            "category": "5 Apples|Fast|Standard|Wall|25 Apples",
+            "cacheIds": [
+              "zq15ow8m"
+            ],
+            "runsIds": [
+              "yog4nddm"
+            ],
+            "cacheTime": "PT9.266S",
+            "runsTime": "PT9.177S"
+          }
+        ],
+        "onlyCache": [],
+        "onlyRuns": [
+          {
+            "category": "1 Apple|Normal|Large|Yin Yang|All Apples",
+            "runsIds": [
+              "ylr5ggxy"
+            ],
+            "runsTime": "PT14M0.105S"
+          },
+          {
+            "category": "1 Apple|Normal|Large|Key|100 Apples",
+            "runsIds": [
+              "y69w3pqy"
+            ],
+            "runsTime": "PT7M50.610S"
+          },
+          {
+            "category": "1 Apple|Normal|Large|Key|High Score",
+            "runsIds": [
+              "mk5x3qvm"
+            ],
+            "runsTime": "PT0.192S"
+          },
+          {
+            "category": "1 Apple|Fast|Large|Key|High Score",
+            "runsIds": [
+              "zgr1w0em"
+            ],
+            "runsTime": "PT0.120S"
+          },
+          {
+            "category": "3 Apples|Normal|Standard|Portal|100 Apples",
+            "runsIds": [
+              "zp85xxvy"
+            ],
+            "runsTime": "PT1M50.430S"
+          },
+          {
+            "category": "3 Apples|Normal|Standard|Portal|50 Apples",
+            "runsIds": [
+              "ylr5xdxy"
+            ],
+            "runsTime": "PT38.475S"
+          },
+          {
+            "category": "3 Apples|Normal|Standard|Sokoban|50 Apples",
+            "runsIds": [
+              "mrnwj47y"
+            ],
+            "runsTime": "PT1M53.265S"
+          },
+          {
+            "category": "3 Apples|Normal|Small|Sokoban|25 Apples",
+            "runsIds": [
+              "zn06w3ly"
+            ],
+            "runsTime": "PT36.045S"
+          },
+          {
+            "category": "3 Apples|Fast|Standard|Portal|50 Apples",
+            "runsIds": [
+              "yj5qn83m"
+            ],
+            "runsTime": "PT36.352S"
+          },
+          {
+            "category": "3 Apples|Fast|Standard|Portal|100 Apples",
+            "runsIds": [
+              "y698en6y"
+            ],
+            "runsTime": "PT2M32.271S"
+          },
+          {
+            "category": "3 Apples|Normal|Large|Sokoban|High Score",
+            "runsIds": [
+              "z07258ey"
+            ],
+            "runsTime": "PT0.220S"
+          },
+          {
+            "category": "3 Apples|Normal|Large|Key|High Score",
+            "runsIds": [
+              "y93g0jvy"
+            ],
+            "runsTime": "PT0.197S"
+          },
+          {
+            "category": "3 Apples|Fast|Standard|Portal|25 Apples",
+            "runsIds": [
+              "z5d6g5em"
+            ],
+            "runsTime": "PT14.523S"
+          },
+          {
+            "category": "3 Apples|Normal|Large|Portal|High Score",
+            "runsIds": [
+              "y8el265y"
+            ],
+            "runsTime": "PT0.252S"
+          },
+          {
+            "category": "3 Apples|Fast|Standard|Portal|High Score",
+            "runsIds": [
+              "ylr2k2ry"
+            ],
+            "runsTime": "PT0.103S"
+          },
+          {
+            "category": "3 Apples|Fast|Standard|Key|High Score",
+            "runsIds": [
+              "yo68kg0y"
+            ],
+            "runsTime": "PT0.149S"
+          },
+          {
+            "category": "3 Apples|Fast|Large|Wall|50 Apples",
+            "runsIds": [
+              "m77j1g5m"
+            ],
+            "runsTime": "PT41.966S"
+          },
+          {
+            "category": "3 Apples|Fast|Large|Portal|100 Apples",
+            "runsIds": [
+              "zp85xq8y"
+            ],
+            "runsTime": "PT1M56.453S"
+          },
+          {
+            "category": "3 Apples|Fast|Large|Portal|25 Apples",
+            "runsIds": [
+              "zn05x88y"
+            ],
+            "runsTime": "PT16.839S"
+          },
+          {
+            "category": "3 Apples|Fast|Large|Portal|High Score",
+            "runsIds": [
+              "y276549z"
+            ],
+            "runsTime": "PT0.153S"
+          },
+          {
+            "category": "3 Apples|Fast|Large|Sokoban|High Score",
+            "runsIds": [
+              "y69wr76y"
+            ],
+            "runsTime": "PT0.132S"
+          },
+          {
+            "category": "5 Apples|Normal|Small|Sokoban|50 Apples",
+            "runsIds": [
+              "y276976z"
+            ],
+            "runsTime": "PT1M32.880S"
+          },
+          {
+            "category": "5 Apples|Normal|Large|Sokoban|50 Apples",
+            "runsIds": [
+              "m37896wz"
+            ],
+            "runsTime": "PT1M55.695S"
+          },
+          {
+            "category": "5 Apples|Normal|Large|Portal|High Score",
+            "runsIds": [
+              "zn06ke8y"
+            ],
+            "runsTime": "PT0.217S"
+          },
+          {
+            "category": "5 Apples|Normal|Large|Key|High Score",
+            "runsIds": [
+              "zp8vr68y"
+            ],
+            "runsTime": "PT0.370S"
+          },
+          {
+            "category": "5 Apples|Normal|Large|Sokoban|High Score",
+            "runsIds": [
+              "y8el2o1y"
+            ],
+            "runsTime": "PT0.253S"
+          },
+          {
+            "category": "5 Apples|Fast|Standard|Portal|100 Apples",
+            "runsIds": [
+              "z07kqo9y"
+            ],
+            "runsTime": "PT4M7.608S"
+          },
+          {
+            "category": "5 Apples|Fast|Small|Sokoban|25 Apples",
+            "runsIds": [
+              "zxo0e0ez"
+            ],
+            "runsTime": "PT32.254S"
+          },
+          {
+            "category": "5 Apples|Fast|Standard|Sokoban|High Score",
+            "runsIds": [
+              "y69wr70y"
+            ],
+            "runsTime": "PT0.104S"
+          },
+          {
+            "category": "5 Apples|Fast|Large|Sokoban|100 Apples",
+            "runsIds": [
+              "ylrjgxry"
+            ],
+            "runsTime": "PT3M45.868S"
+          },
+          {
+            "category": "5 Apples|Fast|Large|Sokoban|50 Apples",
+            "runsIds": [
+              "m77lrl4m"
+            ],
+            "runsTime": "PT1M31.773S"
+          },
+          {
+            "category": "5 Apples|Fast|Large|Portal|High Score",
+            "runsIds": [
+              "y69w54py"
+            ],
+            "runsTime": "PT0.146S"
+          }
+        ]
+      }
+    },
+    {
+      "date": "2023-06-26",
+      "boardsCompared": 4728,
+      "match": 1650,
+      "differ": 13,
+      "onlyCache": 2,
+      "onlyRuns": 19,
+      "examples": {
+        "differ": [
+          {
+            "category": "3 Apples|Fast|Standard|Portal|25 Apples",
+            "cacheIds": [
+              "yv830k6m"
+            ],
+            "runsIds": [
+              "yvpr2poy"
+            ],
+            "cacheTime": "PT13.988S",
+            "runsTime": "PT11.583S"
+          },
+          {
+            "category": "5 Apples|Fast|Standard|Wall|25 Apples",
+            "cacheIds": [
+              "zq15ow8m"
+            ],
+            "runsIds": [
+              "yog4nddm"
+            ],
+            "cacheTime": "PT9.266S",
+            "runsTime": "PT9.177S"
+          },
+          {
+            "category": "5 Apples|Fast|Small|Classic|All Apples",
+            "cacheIds": [
+              "y962r2ny"
+            ],
+            "runsIds": [
+              "zxp0wkky"
+            ],
+            "cacheTime": "PT20.849S",
+            "runsTime": "PT19.691S"
+          },
+          {
+            "category": "Dice|Normal|Standard|Cheese|25 Apples",
+            "cacheIds": [
+              "z5p253nm"
+            ],
+            "runsIds": [
+              "z1lpr4wm"
+            ],
+            "cacheTime": "PT27.540S",
+            "runsTime": "PT23.355S"
+          },
+          {
+            "category": "Dice|Normal|Standard|Light|25 Apples",
+            "cacheIds": [
+              "yonrnedz"
+            ],
+            "runsIds": [
+              "y4oq75qz"
+            ],
+            "cacheTime": "PT24.435S",
+            "runsTime": "PT23.085S"
+          },
+          {
+            "category": "Dice|Normal|Small|Cheese|25 Apples",
+            "cacheIds": [
+              "z5pddjdm"
+            ],
+            "runsIds": [
+              "m70678wy"
+            ],
+            "cacheTime": "PT18.225S",
+            "runsTime": "PT15.525S"
+          },
+          {
+            "category": "Dice|Normal|Standard|Key|25 Apples",
+            "cacheIds": [
+              "mk0k21lz"
+            ],
+            "runsIds": [
+              "zx37ooqz"
+            ],
+            "cacheTime": "PT57.240S",
+            "runsTime": "PT49.545S"
+          },
+          {
+            "category": "Dice|Normal|Standard|Winged|25 Apples",
+            "cacheIds": [
+              "yonro61z"
+            ],
+            "runsIds": [
+              "y868j5xm"
+            ],
+            "cacheTime": "PT32.400S",
+            "runsTime": "PT28.350S"
+          },
+          {
+            "category": "Dice|Normal|Large|Cheese|25 Apples",
+            "cacheIds": [
+              "zpw9nrgy"
+            ],
+            "runsIds": [
+              "yvproo4y"
+            ],
+            "cacheTime": "PT37.260S",
+            "runsTime": "PT34.155S"
+          },
+          {
+            "category": "Dice|Normal|Large|Wall|25 Apples",
+            "cacheIds": [
+              "yl673vry"
+            ],
+            "runsIds": [
+              "zgepg40y"
+            ],
+            "cacheTime": "PT33.750S",
+            "runsTime": "PT33.615S"
+          },
+          {
+            "category": "Dice|Fast|Small|Classic|50 Apples",
+            "cacheIds": [
+              "z0j763jy"
+            ],
+            "runsIds": [
+              "yl67k7ry"
+            ],
+            "cacheTime": "PT40.540S",
+            "runsTime": "PT23.878S"
+          },
+          {
+            "category": "Dice|Fast|Small|Classic|25 Apples",
+            "cacheIds": [
+              "zgerrxny"
+            ],
+            "runsIds": [
+              "yj2plpgm"
+            ],
+            "cacheTime": "PT11.583S",
+            "runsTime": "PT9.266S"
+          },
+          {
+            "category": "Dice|Slow|Large|Classic|25 Apples",
+            "cacheIds": [
+              "ywrk353m"
+            ],
+            "runsIds": [
+              "ywr3d60m"
+            ],
+            "cacheTime": "PT49.914S",
+            "runsTime": "PT35.371S"
+          }
+        ],
+        "onlyCache": [
+          {
+            "category": "5 Apples|Normal|Small|Cheese|High Score",
+            "cacheIds": [
+              "ywwqw1py"
+            ],
+            "cacheTime": "PT0.050S"
+          },
+          {
+            "category": "5 Apples|Fast|Small|Cheese|High Score",
+            "cacheIds": [
+              "z08r8e4m"
+            ],
+            "cacheTime": "PT0.046S"
+          }
+        ],
+        "onlyRuns": [
+          {
+            "category": "1 Apple|Normal|Large|Yin Yang|All Apples",
+            "runsIds": [
+              "ylr5ggxy"
+            ],
+            "runsTime": "PT14M0.105S"
+          },
+          {
+            "category": "1 Apple|Normal|Large|Key|100 Apples",
+            "runsIds": [
+              "y69w3pqy"
+            ],
+            "runsTime": "PT7M50.610S"
+          },
+          {
+            "category": "1 Apple|Fast|Large|Key|High Score",
+            "runsIds": [
+              "zgr1w0em"
+            ],
+            "runsTime": "PT0.120S"
+          },
+          {
+            "category": "3 Apples|Normal|Standard|Sokoban|50 Apples",
+            "runsIds": [
+              "mrnwj47y"
+            ],
+            "runsTime": "PT1M53.265S"
+          },
+          {
+            "category": "3 Apples|Normal|Large|Portal|High Score",
+            "runsIds": [
+              "y8el265y"
+            ],
+            "runsTime": "PT0.252S"
+          },
+          {
+            "category": "3 Apples|Fast|Standard|Portal|100 Apples",
+            "runsIds": [
+              "y698en6y"
+            ],
+            "runsTime": "PT2M32.271S"
+          },
+          {
+            "category": "3 Apples|Normal|Large|Sokoban|High Score",
+            "runsIds": [
+              "z07258ey"
+            ],
+            "runsTime": "PT0.220S"
+          },
+          {
+            "category": "3 Apples|Fast|Standard|Key|High Score",
+            "runsIds": [
+              "yo68kg0y"
+            ],
+            "runsTime": "PT0.149S"
+          },
+          {
+            "category": "3 Apples|Fast|Standard|Portal|High Score",
+            "runsIds": [
+              "ylr2k2ry"
+            ],
+            "runsTime": "PT0.103S"
+          },
+          {
+            "category": "3 Apples|Fast|Large|Wall|50 Apples",
+            "runsIds": [
+              "m77j1g5m"
+            ],
+            "runsTime": "PT41.966S"
+          },
+          {
+            "category": "3 Apples|Fast|Large|Portal|100 Apples",
+            "runsIds": [
+              "zp85xq8y"
+            ],
+            "runsTime": "PT1M56.453S"
+          },
+          {
+            "category": "3 Apples|Fast|Large|Portal|High Score",
+            "runsIds": [
+              "y276549z"
+            ],
+            "runsTime": "PT0.153S"
+          },
+          {
+            "category": "5 Apples|Normal|Large|Sokoban|50 Apples",
+            "runsIds": [
+              "m37896wz"
+            ],
+            "runsTime": "PT1M55.695S"
+          },
+          {
+            "category": "5 Apples|Normal|Large|Sokoban|High Score",
+            "runsIds": [
+              "y8el2o1y"
+            ],
+            "runsTime": "PT0.253S"
+          },
+          {
+            "category": "5 Apples|Fast|Standard|Portal|100 Apples",
+            "runsIds": [
+              "z07kqo9y"
+            ],
+            "runsTime": "PT4M7.608S"
+          },
+          {
+            "category": "5 Apples|Normal|Large|Portal|High Score",
+            "runsIds": [
+              "zn06ke8y"
+            ],
+            "runsTime": "PT0.217S"
+          },
+          {
+            "category": "Dice|Normal|Standard|Dimension|25 Apples",
+            "runsIds": [
+              "z0jp738y"
+            ],
+            "runsTime": "PT37.665S"
+          },
+          {
+            "category": "Dice|Fast|Small|Classic|All Apples",
+            "runsIds": [
+              "mk0k351z"
+            ],
+            "runsTime": "PT36.887S"
+          },
+          {
+            "category": "Dice|Slow|Large|Classic|50 Apples",
+            "runsIds": [
+              "mel3613z"
+            ],
+            "runsTime": "PT1M21.515S"
+          }
+        ]
+      }
+    },
+    {
+      "date": "2025-01-15",
+      "boardsCompared": 4728,
+      "match": 2681,
+      "differ": 6,
+      "onlyCache": 7,
+      "onlyRuns": 0,
+      "examples": {
+        "differ": [
+          {
+            "category": "3 Apples|Fast|Standard|Key|50 Apples",
+            "cacheIds": [
+              "zgjgv2vz"
+            ],
+            "runsIds": [
+              "zpwkj7xy"
+            ],
+            "cacheTime": "PT51.588S",
+            "runsTime": "PT56.489S"
+          },
+          {
+            "category": "3 Apples|Slow|Standard|Magnet|25 Apples",
+            "cacheIds": [
+              "z089kj9m"
+            ],
+            "runsIds": [
+              "zgjg46jz"
+            ],
+            "cacheTime": "PT11.311S",
+            "runsTime": "PT10.234S"
+          },
+          {
+            "category": "Dice|Normal|Small|Portal|All Apples",
+            "cacheIds": [
+              "zp66jjgm"
+            ],
+            "runsIds": [
+              "yvedl5om"
+            ],
+            "cacheTime": "PT2M59.820S",
+            "runsTime": "PT1M53.940S"
+          },
+          {
+            "category": "Dice|Fast|Small|Key|High Score",
+            "cacheIds": [
+              "zg8n9ddy"
+            ],
+            "runsIds": [
+              "zx580qgm"
+            ],
+            "cacheTime": "PT0.081S",
+            "runsTime": "PT0.084S"
+          },
+          {
+            "category": "Dice|Slow|Small|Key|All Apples",
+            "cacheIds": [
+              "y2wkor6y"
+            ],
+            "runsIds": [
+              "y8od50dm"
+            ],
+            "cacheTime": "PT3M21.275S",
+            "runsTime": "PT3M19.300S"
+          },
+          {
+            "category": "Dice|Slow|Large|Light|100 Apples",
+            "cacheIds": [
+              "y4kjnd3m"
+            ],
+            "runsIds": [
+              "y8od5gxm"
+            ],
+            "cacheTime": "PT3M48.028S",
+            "runsTime": "PT3M39.589S"
+          }
+        ],
+        "onlyCache": [
+          {
+            "category": "1 Apple|Normal|Standard|Cheese|High Score",
+            "cacheIds": [
+              "ywwqwepy"
+            ],
+            "cacheTime": "PT0.060S"
+          },
+          {
+            "category": "3 Apples|Normal|Standard|Cheese|High Score",
+            "cacheIds": [
+              "zgjgj3vz"
+            ],
+            "cacheTime": "PT0.100S"
+          },
+          {
+            "category": "3 Apples|Fast|Small|Cheese|High Score",
+            "cacheIds": [
+              "ydvrvqwy"
+            ],
+            "cacheTime": "PT0.045S"
+          },
+          {
+            "category": "5 Apples|Normal|Standard|Cheese|High Score",
+            "cacheIds": [
+              "zpk1kn8y"
+            ],
+            "cacheTime": "PT0.104S"
+          },
+          {
+            "category": "5 Apples|Normal|Small|Cheese|High Score",
+            "cacheIds": [
+              "z5lrl5gy"
+            ],
+            "cacheTime": "PT0.051S"
+          },
+          {
+            "category": "5 Apples|Fast|Small|Cheese|High Score",
+            "cacheIds": [
+              "y4jrj5ny"
+            ],
+            "cacheTime": "PT0.051S"
+          },
+          {
+            "category": "Dice|Normal|Standard|Cheese|High Score",
+            "cacheIds": [
+              "z1vrvdgz"
+            ],
+            "cacheTime": "PT0.081S"
+          }
+        ],
+        "onlyRuns": []
+      }
+    },
+    {
+      "date": "2026-08-06",
+      "boardsCompared": 5847,
+      "match": 4423,
+      "differ": 0,
+      "onlyCache": 0,
+      "onlyRuns": 0,
+      "examples": {
+        "differ": [],
+        "onlyCache": [],
+        "onlyRuns": []
+      }
+    }
+  ]
+}

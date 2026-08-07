@@ -1254,6 +1254,9 @@ class StatisticsExplorerAnalyzer {
     }
 
     async run(options = {}) {
+        if (options.fromRuns) {
+            return this.runFromRuns(options);
+        }
         const t0 = Date.now();
         console.log('Starting statistics explorer analysis...');
         const dates = this.loadAvailableDates();
@@ -1297,7 +1300,108 @@ class StatisticsExplorerAnalyzer {
         }
 
         console.log(`Processed all ${dates.length} dates (${((Date.now() - t0) / 1000).toFixed(1)}s scan)`);
+        return this.finishOutput(dates, t0, { source: 'legacy-daily' });
+    }
 
+    slimFromTimelineTops(date, boardTops) {
+        const categories = [];
+        for (const [categoryKey, runs] of Object.entries(boardTops)) {
+            if (!runs || !runs.length) continue;
+            const top = runs[0];
+            if (!top.p || /^n\/a$/i.test(String(top.n || '').trim())) continue;
+            const primary = top.t || '';
+            const playerId = top.p;
+            const playerName = top.n || top.p;
+            const runKey = top.id ? `id:${top.id}` : `fallback:${playerId}|${primary}`;
+            const weblink = top.w || (top.id ? `https://www.speedrun.com/snake_game/run/${top.id}` : null);
+            const tied = [];
+            const seen = new Set();
+            for (const r of runs) {
+                if ((r.t || '') !== primary) break;
+                if (!r.p || seen.has(r.p)) continue;
+                if (/^n\/a$/i.test(String(r.n || '').trim())) continue;
+                seen.add(r.p);
+                tied.push({ id: r.p, name: r.n || r.p, weblink: r.w || null });
+            }
+            if (!tied.length) continue;
+
+            const playerIncrements = Object.create(null);
+            for (const r of runs) {
+                if (!r.p) continue;
+                const prev = playerIncrements[r.p];
+                if (prev) {
+                    prev.n += 1;
+                    prev.name = r.n || prev.name;
+                } else {
+                    playerIncrements[r.p] = { n: 1, name: r.n || r.p };
+                }
+            }
+
+            categories.push({
+                key: categoryKey,
+                primary,
+                playerId,
+                playerName,
+                runKey,
+                weblink,
+                tied,
+                tiedIds: tied.map((t) => t.id),
+                tiedHolderCount: tied.length,
+                playerIncrements
+            });
+        }
+        return { categories, newWrs: 0 };
+    }
+
+    async runFromRuns(options = {}) {
+        const t0 = Date.now();
+        console.log('Starting statistics explorer analysis from runs timelines…');
+        const { TIMELINES_FILE, AVAILABLE_DATES_FILE } = require('./derive-runs-timelines');
+        if (!fs.existsSync(TIMELINES_FILE) || !fs.existsSync(AVAILABLE_DATES_FILE)) {
+            throw new Error('Missing runs-derived timelines — run derive-runs-timelines.js first');
+        }
+
+        this.stateFile = path.join('time-travel-cache', 'metadata', 'statistics-explorer-state-runs.json');
+
+        const timelines = JSON.parse(fs.readFileSync(TIMELINES_FILE, 'utf8'));
+        const datesMeta = JSON.parse(fs.readFileSync(AVAILABLE_DATES_FILE, 'utf8'));
+        const dates = datesMeta.availableDates || [];
+        const boards = timelines.boards || {};
+        const boardKeys = Object.keys(boards);
+
+        this.resetAnalysisState();
+        const ptr = {};
+        for (const key of boardKeys) ptr[key] = -1;
+
+        for (let i = 0; i < dates.length; i++) {
+            const date = dates[i];
+            const tops = {};
+            let newWrs = 0;
+            for (const key of boardKeys) {
+                const tl = boards[key];
+                const prev = ptr[key];
+                while (ptr[key] + 1 < tl.length && tl[ptr[key] + 1].d <= date) {
+                    ptr[key]++;
+                }
+                if (ptr[key] < 0) continue;
+                if (ptr[key] !== prev && tl[ptr[key]].d === date) {
+                    newWrs += (tl[ptr[key]].runs || []).length;
+                }
+                tops[key] = tl[ptr[key]].runs || [];
+            }
+            const slim = this.slimFromTimelineTops(date, tops);
+            slim.newWrs = newWrs;
+            this.processSlimDate(date, slim);
+            if ((i + 1) % 100 === 0 || i + 1 === dates.length) {
+                console.log(`Processed ${i + 1}/${dates.length} dates…`);
+            }
+        }
+
+        console.log(`Processed all ${dates.length} dates (${((Date.now() - t0) / 1000).toFixed(1)}s scan)`);
+        return this.finishOutput(dates, t0, { source: 'runs-derived' });
+    }
+
+    finishOutput(dates, t0, meta = {}) {
         // Snapshot state BEFORE longevity closes open holds
         this.saveCheckpoint();
 
@@ -1309,11 +1413,11 @@ class StatisticsExplorerAnalyzer {
                 lastUpdated: new Date().toISOString(),
                 totalDates: dates.length,
                 dateRange: { earliest: firstDate, latest: lastDate },
-                analyzerVersion: ANALYZER_VERSION
+                analyzerVersion: ANALYZER_VERSION,
+                source: meta.source || 'legacy-daily'
             },
             activityHeatmap: this.activityHeatmap,
             contested: this.buildContested(),
-            // Before longevity closes open holds — need current hold age
             stale: this.buildStale(lastDate),
             popularity: this.buildPopularity(),
             unicorns: this.buildUnicorns(lastDate),
@@ -1342,6 +1446,7 @@ class StatisticsExplorerAnalyzer {
             `Progression keys: ${Object.keys(output.progression).length}`
         );
         console.log(`Statistics explorer analysis complete in ${((Date.now() - t0) / 1000).toFixed(1)}s.`);
+        return output;
     }
 }
 
@@ -1349,8 +1454,9 @@ if (require.main === module) {
     const args = process.argv.slice(2);
     const full = args.includes('--full');
     const sync = args.includes('--sync');
+    const fromRuns = args.includes('--from-runs');
     const analyzer = new StatisticsExplorerAnalyzer();
-    analyzer.run({ full, workers: !sync }).catch((error) => {
+    analyzer.run({ full, workers: !sync, fromRuns }).catch((error) => {
         console.error('Analysis failed:', error);
         process.exit(1);
     });

@@ -592,12 +592,113 @@ class MasteryChallengeFetcher {
         );
         return output;
     }
+    async runFromArchive() {
+        console.log('📚 Building mastery from runs archive (All Apples shards)…');
+        await this.initMaps();
+        const runsDir = path.join('time-travel-cache', 'runs');
+        if (!fs.existsSync(runsDir)) {
+            throw new Error('Runs archive missing');
+        }
+
+        const state = {
+            version: 1,
+            lastVerifyDate: null,
+            backfillComplete: true,
+            seenRunIds: {},
+            players: {}
+        };
+
+        let stored = 0;
+        for (const mode of MODE_NAMES) {
+            const file = path.join(runsDir, mode.replace(/[^\w.-]+/g, '_'), 'All_Apples.json');
+            // also try All Apples safe name
+            const candidates = [
+                path.join(runsDir, mode, 'All Apples.json'),
+                path.join(runsDir, mode.replace(/[^\w.-]+/g, '_'), 'All_Apples.json'),
+                path.join(runsDir, mode, 'All_Apples.json')
+            ];
+            let data = null;
+            for (const f of candidates) {
+                if (fs.existsSync(f)) {
+                    data = JSON.parse(fs.readFileSync(f, 'utf8'));
+                    break;
+                }
+            }
+            if (!data || !data.runs) continue;
+
+            for (const run of Object.values(data.runs)) {
+                // Reconstruct minimal run object for creditRun
+                const fake = {
+                    id: run.id,
+                    status: { status: 'verified', 'verify-date': run.verifyDate },
+                    date: run.date,
+                    submitted: run.submitted,
+                    weblink: run.weblink,
+                    times: { primary: run.time, primary_t: run.timeT },
+                    values: {},
+                    level: this.maps.levelByMode[mode],
+                    players: {
+                        data: [
+                            run.guest
+                                ? { rel: 'guest', name: run.playerName }
+                                : {
+                                      rel: 'user',
+                                      id: run.playerId,
+                                      names: { international: run.playerName }
+                                  }
+                        ]
+                    }
+                };
+                // creditRun classifies via values — inject labels by faking value map
+                // Prefer trusting archived category key
+                if (run.category && run.category.endsWith('|All Apples')) {
+                    if (state.seenRunIds[run.id]) continue;
+                    state.seenRunIds[run.id] = 1;
+                    const playerId = run.playerId;
+                    const playerName = run.playerName;
+                    if (!playerId) continue;
+                    if (!state.players[playerId]) {
+                        state.players[playerId] = { playerName, boards: {} };
+                    } else {
+                        state.players[playerId].playerName = playerName;
+                    }
+                    const existing = state.players[playerId].boards[run.category];
+                    const payload = {
+                        runId: run.id,
+                        weblink: run.weblink,
+                        time: run.time,
+                        timeT: run.timeT
+                    };
+                    if (
+                        !existing ||
+                        (run.timeT != null &&
+                            (existing.timeT == null || run.timeT < existing.timeT))
+                    ) {
+                        state.players[playerId].boards[run.category] = payload;
+                        stored++;
+                    }
+                }
+                if (run.verifyDate && (!state.lastVerifyDate || run.verifyDate > state.lastVerifyDate)) {
+                    state.lastVerifyDate = run.verifyDate;
+                }
+            }
+        }
+
+        this.saveState(state);
+        const output = this.saveOutput(state);
+        console.log(`✅ Mastery from archive: credits≈${stored} players=${output.leaderboard.length}`);
+        return output;
+    }
 }
 
 if (require.main === module) {
     const opts = parseArgs(process.argv.slice(2));
     const fetcher = new MasteryChallengeFetcher();
-    fetcher.run(opts).catch((err) => {
+    const fromArchive = process.argv.includes('--from-archive');
+    const runner = fromArchive
+        ? fetcher.runFromArchive()
+        : fetcher.run(opts);
+    runner.catch((err) => {
         console.error('Mastery fetch failed:', err);
         process.exit(1);
     });
