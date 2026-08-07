@@ -26,11 +26,18 @@ jobs:
       with:
         node-version: '24'
     
-    - name: Run player statistics analysis
-      run: node scripts/player-stats-analyzer.js
-
-    - name: Run statistics explorer analysis
-      run: node scripts/statistics-explorer-analyzer.js
+    - name: Rebuild FSS stats (runs archive when ready, else legacy daily)
+      run: |
+        if [ -f time-travel-cache/metadata/runs-archive-state.json ] && \
+           node -e "const s=require('./time-travel-cache/metadata/runs-archive-state.json'); process.exit(s.backfillComplete?0:1)"; then
+          echo "Using runs archive for FSS stats"
+          node scripts/player-stats-analyzer.js --from-runs
+          node scripts/statistics-explorer-analyzer.js --from-runs --full
+        else
+          echo "Runs archive not ready — using legacy daily cache for stats"
+          node scripts/player-stats-analyzer.js
+          node scripts/statistics-explorer-analyzer.js
+        fi
     
     - name: Check for changes
       id: check-changes
