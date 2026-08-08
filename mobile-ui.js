@@ -387,125 +387,82 @@ function setupMobileRecordsEventListeners() {
 }
 
 // Load mobile table data
+function withHiddenDesktopContainer(fn) {
+    const desktopContainer = document.querySelector('.container');
+    if (!desktopContainer) return null;
+    const prev = desktopContainer.getAttribute('style') || '';
+    // Keep layout generation working without flashing desktop UI on mobile
+    desktopContainer.setAttribute(
+        'style',
+        'display:flex !important;position:fixed !important;left:-10000px !important;top:0 !important;' +
+            'visibility:hidden !important;pointer-events:none !important;width:1200px !important;z-index:-1 !important;'
+    );
+    try {
+        return fn(desktopContainer);
+    } finally {
+        if (prev) desktopContainer.setAttribute('style', prev);
+        else {
+            desktopContainer.removeAttribute('style');
+            desktopContainer.style.display = 'none';
+        }
+    }
+}
+
 function loadMobileTableData() {
     const mobileTableContent = document.getElementById('mobileTableContent');
     if (!mobileTableContent) return;
 
     // Check if we're still on the records section before loading
     if (mobileState.currentSection !== 'records') {
-        //console.log('loadMobileTableData: Skipping table load - not on records section (current:', mobileState.currentSection, ')');
         return;
     }
-
-    //console.log('loadMobileTableData: Starting table load');
-    //console.log('worldRecords available:', typeof worldRecords !== 'undefined' && Object.keys(worldRecords).length > 0);
-    //console.log('isMultipleTablesEnabled:', typeof isMultipleTablesEnabled !== 'undefined' ? isMultipleTablesEnabled : 'undefined');
 
     // Check if we have world records data
     if (typeof worldRecords !== 'undefined' && Object.keys(worldRecords).length > 0) {
         if (typeof isMultipleTablesEnabled !== 'undefined' && isMultipleTablesEnabled) {
-            //console.log('Loading multiple tables...');
-            // For multiple tables, create a mobile-specific container
             const multipleTablesContainer = document.createElement('div');
             multipleTablesContainer.setAttribute('class', 'mobile-multiple-tables-container');
             mobileTableContent.innerHTML = '';
             mobileTableContent.appendChild(multipleTablesContainer);
-            
-            // Temporarily show the desktop container to generate tables
-            const desktopContainer = document.querySelector('.container');
-            if (desktopContainer) {
-                desktopContainer.style.display = 'flex';
-                
-                // Call the same function desktop uses for multiple tables
-                if (typeof generateMultipleTables === 'function') {
-                    //console.log('Calling generateMultipleTables...');
-                    generateMultipleTables();
-                    
-                    // Find and move the content immediately
-                    const multipleTablesElement = document.querySelector('.multiple-tables-container');
-                    //console.log('Found multiple tables element:', multipleTablesElement);
-                    
-                    if (multipleTablesElement) {
-                        // Clone the content and move it to mobile
-                        const clonedContent = multipleTablesElement.cloneNode(true);
-                        multipleTablesContainer.appendChild(clonedContent);
-                        
-                        // Add individual refresh buttons to mobile multiple tables
-                        addMobileIndividualRefreshButtons();
-                        
-                        // Hide the desktop container again
-                        desktopContainer.style.display = 'none';
-                        //console.log('Multiple tables loaded successfully');
-                    } else {
-                        //console.log('ERROR: Could not find .multiple-tables-container');
-                        mobileTableContent.innerHTML = `
-                            <div class="mobile-loading">
-                                <p>Error: Could not load multiple tables</p>
-                            </div>
-                        `;
-                        desktopContainer.style.display = 'none';
-                    }
-                }
-            } else {
-                //console.log('ERROR: Could not find .container');
+
+            const ok = withHiddenDesktopContainer(function () {
+                if (typeof generateMultipleTables !== 'function') return false;
+                generateMultipleTables();
+                const multipleTablesElement = document.querySelector('.multiple-tables-container');
+                if (!multipleTablesElement) return false;
+                multipleTablesContainer.appendChild(multipleTablesElement.cloneNode(true));
+                addMobileIndividualRefreshButtons();
+                return true;
+            });
+            if (!ok) {
                 mobileTableContent.innerHTML = `
                     <div class="mobile-loading">
-                        <p>Error: Could not find desktop container</p>
+                        <p>Error: Could not load multiple tables</p>
                     </div>
                 `;
             }
         } else {
-            //console.log('Loading single table...');
-            // For single table, create a mobile-specific wrapper
             const tableWrapper = document.createElement('div');
             tableWrapper.setAttribute('class', 'mobile-table-wrapper');
             mobileTableContent.innerHTML = '';
             mobileTableContent.appendChild(tableWrapper);
-            
-            // Temporarily show the desktop container to generate tables
-            const desktopContainer = document.querySelector('.container');
-            if (desktopContainer) {
-                desktopContainer.style.display = 'flex';
-                
-                // Call the same function desktop uses for single table
-                if (typeof generateLeaderboard === 'function' && typeof currentTableSettings !== 'undefined') {
-                    //console.log('Calling generateLeaderboard with settings:', currentTableSettings);
-                    generateLeaderboard(currentTableSettings);
-                    
-                    // Find and move the content immediately
-                    const mainTableElement = document.querySelector('.main-table-wrapper');
-                    //console.log('Found main table element:', mainTableElement);
-                    
-                    if (mainTableElement) {
-                        // Clone the content and move it to mobile
-                        const clonedTable = mainTableElement.cloneNode(true);
-                        tableWrapper.appendChild(clonedTable);
-                        
-                        // Hide the desktop container again
-                        desktopContainer.style.display = 'none';
-                        //console.log('Single table loaded successfully');
-                    } else {
-                        //console.log('ERROR: Could not find .main-table-wrapper');
-                        mobileTableContent.innerHTML = `
-                            <div class="mobile-loading">
-                                <p>Error: Could not load table</p>
-                            </div>
-                        `;
-                        desktopContainer.style.display = 'none';
-                    }
-                }
-            } else {
-                //console.log('ERROR: Could not find .container');
+
+            const ok = withHiddenDesktopContainer(function () {
+                if (typeof generateLeaderboard !== 'function' || typeof currentTableSettings === 'undefined') return false;
+                generateLeaderboard(currentTableSettings);
+                const mainTableElement = document.querySelector('.main-table-wrapper');
+                if (!mainTableElement) return false;
+                tableWrapper.appendChild(mainTableElement.cloneNode(true));
+                return true;
+            });
+            if (!ok) {
                 mobileTableContent.innerHTML = `
                     <div class="mobile-loading">
-                        <p>Error: Could not find desktop container</p>
+                        <p>Error: Could not load table</p>
                     </div>
                 `;
             }
         }
-        
-        // Update API progress after loading
-        // updateMobileApiProgress(); // This function is removed
     } else {
         //console.log('No world records data available, showing loading message');
         // Show loading message
@@ -609,7 +566,7 @@ function showBasicMobileSettingsSection() {
 
     mobileTablesContainer.innerHTML = `
         <div class="mobile-settings-content">
-            <h2 style="font-size: 24px; font-weight: 700; color: var(--mobile-text); margin-bottom: 20px; text-align: center;">Settings</h2>
+            <h2 class="mobile-card-title mobile-settings-title">Settings</h2>
             
                          <!-- Time Travel Date Picker and Player Search -->
              <div class="mobile-form-group">
@@ -1670,29 +1627,44 @@ function showBasicMobileStatisticsSection() {
                     btn.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
                 }
                 const body = document.getElementById('mobileStatsExplorerBody');
-                if (typeof renderStatisticsExplorerContent === 'function') {
-                    renderStatisticsExplorerContent(body);
-                }
+                ensureMobileStatsDatasets(statsExplorerActiveTab).then(function () {
+                    if (mobileState.currentSection !== 'statistics') return;
+                    if (typeof renderStatisticsExplorerContent === 'function') {
+                        renderStatisticsExplorerContent(body);
+                    }
+                });
             });
         });
     }
 
     const body = document.getElementById('mobileStatsExplorerBody');
-    const loadExplorer = typeof loadStatisticsExplorerData === 'function'
-        ? loadStatisticsExplorerData()
-        : Promise.resolve();
-    const loadMastery = typeof loadMasteryChallengeData === 'function'
-        ? loadMasteryChallengeData()
-        : Promise.resolve();
-    const loadChronicle = typeof loadChronicleData === 'function'
-        ? loadChronicleData()
-        : Promise.resolve();
-    Promise.all([loadExplorer, loadMastery, loadChronicle]).then(function () {
-        if (mobileState.currentSection !== 'statistics') return;
-        if (typeof renderStatisticsExplorerContent === 'function') {
-            renderStatisticsExplorerContent(body);
-        }
-    });
+    // Load explorer JSON first; mastery/chronicle only when those tabs are used
+    ensureMobileStatsDatasets(typeof statsExplorerActiveTab !== 'undefined' ? statsExplorerActiveTab : 'progression')
+        .then(function () {
+            if (mobileState.currentSection !== 'statistics') return;
+            if (typeof renderStatisticsExplorerContent === 'function') {
+                renderStatisticsExplorerContent(body);
+            }
+        });
+}
+
+/** Fetch only the stats datasets needed for the active mobile tab */
+function ensureMobileStatsDatasets(tabId) {
+    const loads = [];
+    if (typeof loadStatisticsExplorerData === 'function') {
+        loads.push(loadStatisticsExplorerData());
+    }
+    if (tabId === 'mastery' && typeof loadMasteryChallengeData === 'function') {
+        loads.push(loadMasteryChallengeData());
+    }
+    if (tabId === 'chronicle' && typeof loadChronicleData === 'function') {
+        loads.push(loadChronicleData());
+    }
+    // Player tab may show mastery hold mode
+    if (tabId === 'player' && typeof loadMasteryChallengeData === 'function') {
+        loads.push(loadMasteryChallengeData());
+    }
+    return Promise.all(loads);
 }
 
 // Export functions for use in other modules

@@ -6,7 +6,8 @@ loadSettings();
 applyPanelCollapseState();
 
 document.addEventListener('DOMContentLoaded', function() {
-    if (typeof ensureStatisticsExplorer === 'function') {
+    // Desktop only — mobile Statistics tab loads explorer JSON on demand
+    if (window.innerWidth > 1023 && typeof ensureStatisticsExplorer === 'function') {
         ensureStatisticsExplorer();
     }
 });

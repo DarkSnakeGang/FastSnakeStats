@@ -48,22 +48,28 @@ body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 			--mobile-brand-light: #578A34;
 			--mobile-brand-dark: #1e3a15;
 			--mobile-brand-mid: #2d4a1f;
-			--mobile-active: #007bff;
-			--mobile-active-hover: #0056b3;
-			--mobile-secondary: #6c757d;
+			--mobile-active: #4C792D;
+			--mobile-active-hover: #578A34;
+			--mobile-secondary: rgba(0, 0, 0, 0.28);
 			--mobile-text: #ffffff;
-			--mobile-border: rgba(255, 255, 255, 0.2);
+			--mobile-border: rgba(255, 255, 255, 0.22);
+			--mobile-surface: rgba(255, 255, 255, 0.14);
+			--mobile-surface-dark: rgba(0, 0, 0, 0.28);
 			--title-color: #E9DC00;
 			--shadow: rgba(0, 0, 0, 0.2);
 		}
 
 		body.dark-mode {
 			--mobile-text: #ffffff;
-			--mobile-border: rgba(255, 255, 255, 0.1);
+			--mobile-border: rgba(255, 255, 255, 0.12);
+			--mobile-surface: rgba(22, 32, 26, 0.88);
+			--mobile-surface-dark: rgba(0, 0, 0, 0.4);
 			--title-color: #E9DC00;
-			--shadow: rgba(0, 0, 0, 0.4);
+			--shadow: rgba(0, 0, 0, 0.45);
 			--mobile-brand-dark: #1e3a15;
 			--mobile-brand-mid: #2d4a1f;
+			--mobile-active: #4C792D;
+			--mobile-active-hover: #578A34;
 		}
 
 	/* Hide all desktop elements on mobile */
@@ -91,8 +97,10 @@ body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 	.mobile-header h1 {
 		display: block !important;
 		color: #fff;
-		font-size: 28px;
+		font-size: clamp(22px, 6vw, 28px);
 		margin: 0;
+		font-weight: 700;
+		letter-spacing: 0.01em;
 		text-shadow: 2px 2px 4px var(--shadow);
 	}
 
@@ -123,11 +131,11 @@ body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 		top: 0;
 		left: 0;
 		right: 0;
-		background: linear-gradient(135deg, #4C792D, #578A34);
+		background: linear-gradient(135deg, var(--mobile-brand), var(--mobile-brand-light));
 		backdrop-filter: none;
-		border-bottom: 2px solid #578A34;
+		border-bottom: 2px solid var(--mobile-brand-light);
 		z-index: 1000;
-		padding: 8px 20px;
+		padding: calc(8px + env(safe-area-inset-top, 0px)) 16px 8px;
 		display: flex !important;
 		align-items: center;
 		justify-content: center;
@@ -137,44 +145,42 @@ body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 	}
 
 	body.dark-mode .mobile-header {
-		background: linear-gradient(135deg, #1e3a15, #2d4a1f);
-		border-bottom-color: #2d4a1f;
+		background: linear-gradient(135deg, var(--mobile-brand-dark), var(--mobile-brand-mid));
+		border-bottom-color: var(--mobile-brand-mid);
 	}
 
 	.mobile-header-content {
 		display: flex;
 		align-items: center;
-		gap: 15px;
+		gap: 12px;
 		width: 100%;
 		justify-content: center;
 	}
 
 	.mobile-header-icon {
-		width: 40px;
-		height: 40px;
+		width: 36px;
+		height: 36px;
 		object-fit: contain;
+		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
 	}
 
-
-
-
-
-	/* Mobile Navigation */
+	/* Mobile Navigation — brand bar, no hover-lift */
 	.mobile-nav {
 		position: fixed !important;
-		bottom: -2px !important;
+		bottom: 0 !important;
 		left: 0 !important;
 		right: 0 !important;
 		z-index: 1000 !important;
-		background: rgba(255, 255, 255, 0.15) !important;
-		backdrop-filter: blur(15px) !important;
-		border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
-		padding: 8px 4px calc(8px + env(safe-area-inset-bottom)) !important;
+		background: rgba(76, 121, 45, 0.94) !important;
+		backdrop-filter: blur(12px) !important;
+		-webkit-backdrop-filter: blur(12px) !important;
+		border-top: 1px solid rgba(255, 255, 255, 0.18) !important;
+		padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px)) !important;
 		display: flex !important;
 		flex-direction: row !important;
 		justify-content: space-around !important;
 		align-items: center !important;
-		box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15) !important;
+		box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.2) !important;
 		width: 100% !important;
 		max-width: 100vw !important;
 		visibility: visible !important;
@@ -183,55 +189,57 @@ body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 	}
 
 	body.dark-mode .mobile-nav {
-		background: rgba(0, 0, 0, 0.35) !important;
+		background: rgba(30, 58, 21, 0.96) !important;
 		border-top-color: rgba(255, 255, 255, 0.1) !important;
 	}
 
 	.mobile-nav-item {
 		display: flex !important;
-		flex-direction: row !important;
+		flex-direction: column !important;
 		align-items: center !important;
 		gap: 2px !important;
-		padding: 4px 6px !important;
-		border-radius: 6px !important;
+		padding: 6px 4px !important;
+		border-radius: 10px !important;
 		cursor: pointer !important;
-		transition: all 0.2s ease !important;
-		color: white !important;
+		transition: background 0.15s ease !important;
+		color: rgba(255, 255, 255, 0.85) !important;
 		text-decoration: none !important;
-		min-width: 40px !important;
+		min-width: 0 !important;
 		justify-content: center !important;
 		-webkit-tap-highlight-color: transparent !important;
-		font-size: 16px !important;
+		font-size: 11px !important;
 		font-weight: 600 !important;
 		flex: 1 !important;
-		max-width: 80px !important;
+		max-width: none !important;
+		transform: none !important;
+		box-shadow: none !important;
 	}
 
 	.mobile-nav-item.active {
-		background: #4C792D;
-		color: white !important;
-		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(76, 121, 45, 0.35);
+		background: rgba(233, 220, 0, 0.22) !important;
+		color: #fff !important;
+		transform: none !important;
+		box-shadow: none !important;
 	}
 
 	.mobile-nav-item:hover {
-		background: rgba(255, 255, 255, 0.12);
-		transform: translateY(-1px);
+		background: rgba(255, 255, 255, 0.12) !important;
+		transform: none !important;
 	}
 
 	.mobile-nav-item.active:hover {
-		background: #578A34;
+		background: rgba(233, 220, 0, 0.28) !important;
 		color: white !important;
-		transform: translateY(-2px);
+		transform: none !important;
 	}
 
 	body.dark-mode .mobile-nav-item.active {
-		background: #2d4a1f;
-		box-shadow: 0 4px 12px rgba(30, 58, 21, 0.45);
+		background: rgba(233, 220, 0, 0.18) !important;
+		box-shadow: none !important;
 	}
 
 	body.dark-mode .mobile-nav-item.active:hover {
-		background: #3d5a2f;
+		background: rgba(233, 220, 0, 0.24) !important;
 	}
 
 	.mobile-nav-item svg {
@@ -239,20 +247,72 @@ body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-nav-item span {
-		font-size: 18px;
-		font-weight: 600;
+		font-size: 12px;
+		font-weight: 650;
+		line-height: 1.15;
+		white-space: nowrap;
 	}
 
 	/* Mobile Main Content */
 	.mobile-main {
-		margin-top: 60px;
-		margin-bottom: 80px;
-		padding: 5px;
-		min-height: 932px;
+		margin-top: calc(56px + env(safe-area-inset-top, 0px));
+		margin-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+		padding: 8px 8px 16px;
+		min-height: auto;
 		overflow-x: hidden;
 		overflow-y: auto;
 		width: 100%;
 		box-sizing: border-box;
+	}
+
+	.mobile-card {
+		margin: 0 0 10px;
+		padding: 0 4px;
+		background: transparent;
+		border: none;
+		box-shadow: none;
+	}
+
+	.mobile-card-header {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 8px;
+	}
+
+	.mobile-card-title {
+		margin: 0;
+		font-size: clamp(20px, 5.5vw, 26px);
+		font-weight: 700;
+		color: var(--title-color) !important;
+		text-align: center;
+		text-shadow: 1px 1px 2px var(--shadow);
+	}
+
+	.mobile-records-controls {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		justify-content: center;
+		align-items: center;
+		margin: 0 0 10px;
+	}
+
+	.mobile-records-controls .mobile-option-btn {
+		min-width: 0;
+		min-height: 40px;
+		padding: 8px 12px;
+		font-size: 13px;
+		border-radius: 10px;
+		background: var(--mobile-surface) !important;
+		border: 1px solid var(--mobile-border) !important;
+		color: #fff !important;
+		box-shadow: none !important;
+	}
+
+	.mobile-records-controls .mobile-option-btn.active {
+		background: var(--mobile-brand) !important;
+		border-color: var(--mobile-brand-light) !important;
 	}
 
 	/* Ensure mobile table containers can scroll horizontally if needed, but content fits properly */
@@ -773,35 +833,35 @@ body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 
 	/* Mobile Button Styling - Simplified */
 	.mobile-option-btn {
-		background: var(--mobile-active);
+		background: var(--mobile-brand);
 		color: white;
 		border: none;
-		border-radius: 8px;
-		padding: 10px 16px;
+		border-radius: 10px;
+		padding: 10px 14px;
 		font-size: 14px;
 		font-weight: 600;
 		cursor: pointer;
-		transition: all 0.2s ease;
+		transition: background 0.15s ease;
 		-webkit-tap-highlight-color: transparent;
-		box-shadow: 0 2px 8px rgba(76, 121, 45, 0.3);
+		box-shadow: 0 2px 8px rgba(76, 121, 45, 0.28);
 		min-width: 100px;
 	}
 
 	.mobile-option-btn:hover {
-		background: var(--mobile-active-hover);
-		transform: translateY(-1px);
-		box-shadow: 0 4px 12px rgba(76, 121, 45, 0.4);
+		background: var(--mobile-brand-light);
+		transform: none;
+		box-shadow: 0 3px 10px rgba(76, 121, 45, 0.35);
 	}
 
 	.mobile-option-btn:active {
-		transform: translateY(0);
+		transform: none;
 	}
 
 	.mobile-option-btn:disabled {
-		background: #6c757d;
+		background: rgba(0, 0, 0, 0.35);
 		cursor: not-allowed;
 		transform: none;
-		box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+		box-shadow: none;
 	}
 
 	.mobile-stop-resume-btn {
@@ -839,12 +899,12 @@ body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 		width: 100% !important;
 		max-width: 100% !important;
 		border-collapse: collapse;
-		font-size: 11px;
+		font-size: 12px;
 		background: transparent;
-		border: 1px solid #578A34;
-		border-radius: 4px;
+		border: 1px solid var(--mobile-brand-light);
+		border-radius: 8px;
 		overflow: hidden;
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 		table-layout: fixed;
 	}
 
@@ -993,23 +1053,24 @@ body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 	/* Ensure mobile table content respects viewport width */
 	.mobile-table-content .mobile-table-wrapper,
 	.mobile-table-content .mobile-multiple-tables-container {
-		width: 420px !important;
-		max-width: 420px !important;
+		width: 100% !important;
+		max-width: 100% !important;
 		margin: 0 auto !important;
 		overflow-x: auto;
 	}
 
-	/* Mobile Record Cell Styling - Dark Blue for Light Mode */
+	/* Mobile Record Cell Styling — snake green like desktop */
 	.mobile-table-wrapper .result,
 	.mobile-multiple-tables-container .result {
-		background-color: #4C792D !important;
-		width: 100px;
+		background-color: var(--mobile-brand) !important;
+		width: auto;
+		min-width: 72px;
 	}
 
 	.mobile-table-wrapper .result:hover,
 	.mobile-multiple-tables-container .result:hover {
-		background-color: #578A34 !important;
-		transition: all 0.2s ease;
+		background-color: var(--mobile-brand-light) !important;
+		transition: background 0.15s ease;
 	}
 
 	/* Mobile Summary Table Styling */
@@ -1712,9 +1773,42 @@ body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 		padding: 20px 12px;
 	}
 
-	.mobile-settings-content > h2 {
-		color: var(--title-color) !important;
-		text-shadow: 1px 1px 2px var(--shadow);
+	.mobile-settings-title {
+		margin-bottom: 18px !important;
+	}
+
+	.mobile-table-wrapper th,
+	.mobile-multiple-tables-container th {
+		padding: 4px 2px;
+		font-size: 11px;
+	}
+
+	.mobile-table-wrapper td,
+	.mobile-multiple-tables-container td {
+		padding: 3px 2px;
+		font-size: 12px;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-explorer-tabs {
+		gap: 6px;
+		padding: 4px 2px 8px;
+		scrollbar-width: thin;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-explorer-tab {
+		border-radius: 999px;
+		padding: 7px 12px;
+		font-size: 12px;
+		font-weight: 650;
+		background: var(--mobile-surface);
+		border: 1px solid var(--mobile-border);
+		color: #fff;
+	}
+
+	.mobile-main .mobile-stats-explorer .stats-explorer-tab.active {
+		background: var(--mobile-brand);
+		border-color: var(--mobile-brand-light);
+		color: #fff;
 	}
 
 	.mobile-form-group {
@@ -1831,129 +1925,77 @@ body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 	}
 
 	.mobile-option-btn {
-		background: rgba(0, 0, 0, 0.22) !important;
+		background: var(--mobile-surface) !important;
 		color: #fff;
-		border: 1px solid rgba(255, 255, 255, 0.22);
+		border: 1px solid var(--mobile-border);
 		border-radius: 12px;
-		padding: 16px 12px;
+		padding: 14px 12px;
 		font-size: 14px;
 		font-weight: 600;
 		cursor: pointer;
-		transition: all 0.3s ease;
+		transition: background 0.15s ease, border-color 0.15s ease;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		gap: 8px;
-		min-height: 52px;
+		min-height: 48px;
 		-webkit-tap-highlight-color: transparent;
 		text-align: center;
 		line-height: 1.3;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 	}
 
 	.mobile-option-btn:hover {
-		background: rgba(0, 0, 0, 0.35) !important;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-		border-color: rgba(255, 255, 255, 0.35);
+		background: rgba(0, 0, 0, 0.32) !important;
+		box-shadow: 0 3px 10px rgba(0, 0, 0, 0.16);
+		border-color: rgba(255, 255, 255, 0.32);
+		transform: none;
 	}
 
 	.mobile-option-btn.active {
-		background: #4C792D !important;
+		background: var(--mobile-brand) !important;
 		color: white !important;
-		border-color: #578A34 !important;
-		box-shadow: 0 4px 12px rgba(76, 121, 45, 0.35);
+		border-color: var(--mobile-brand-light) !important;
+		box-shadow: 0 3px 10px rgba(76, 121, 45, 0.35);
 	}
 
 	.mobile-option-btn.active:hover {
-		background: #578A34 !important;
-		box-shadow: 0 6px 16px rgba(76, 121, 45, 0.4);
+		background: var(--mobile-brand-light) !important;
 	}
 
-	/* Mobile Time Travel Button - Enhanced Mobile Style */
-	.mobile-option-btn#mobileTimeTravelBtn {
-		width: 100% !important;
-		min-width: auto !important;
-		height: 56px !important;
-		font-size: 15px !important;
-		font-weight: 700 !important;
-		background: linear-gradient(135deg, #8B0000, #B22222) !important;
-		color: white !important;
-		border: 2px solid rgba(139, 0, 0, 0.3) !important;
-		border-radius: 16px !important;
-		padding: 16px 20px !important;
-		transition: all 0.3s ease !important;
-		box-shadow: 0 4px 12px rgba(139, 0, 0, 0.3) !important;
-	}
-
-	.mobile-option-btn#mobileTimeTravelBtn.active {
-		background: linear-gradient(135deg, #4C792D, #578A34) !important;
-		color: white !important;
-		border: 2px solid rgba(76, 121, 45, 0.35) !important;
-		box-shadow: 0 4px 12px rgba(76, 121, 45, 0.35) !important;
-	}
-
-	.mobile-option-btn#mobileTimeTravelBtn:hover {
-		background: linear-gradient(135deg, #660000, #8B0000) !important;
-		box-shadow: 0 6px 16px rgba(139, 0, 0, 0.4) !important;
-	}
-
-	.mobile-option-btn#mobileTimeTravelBtn.active:hover {
-		background: linear-gradient(135deg, #578A34, #4C792D) !important;
-		box-shadow: 0 6px 16px rgba(76, 121, 45, 0.4) !important;
-	}
-
-	/* Mobile Multiple Tables Button - Enhanced Mobile Style */
-	.mobile-option-btn#mobileMultipleTablesToggle {
-		width: 100% !important;
-		min-width: auto !important;
-		height: 56px !important;
-		font-size: 15px !important;
-		font-weight: 700 !important;
-		background: linear-gradient(135deg, #8B0000, #B22222) !important;
-		color: white !important;
-		border: 2px solid rgba(139, 0, 0, 0.3) !important;
-		border-radius: 16px !important;
-		padding: 16px 20px !important;
-		transition: all 0.3s ease !important;
-		box-shadow: 0 4px 12px rgba(139, 0, 0, 0.3) !important;
-	}
-
-	.mobile-option-btn#mobileMultipleTablesToggle.active {
-		background: linear-gradient(135deg, #4C792D, #578A34) !important;
-		color: white !important;
-		border: 2px solid rgba(76, 121, 45, 0.35) !important;
-		box-shadow: 0 4px 12px rgba(76, 121, 45, 0.35) !important;
-	}
-
-	.mobile-option-btn#mobileMultipleTablesToggle:hover {
-		background: linear-gradient(135deg, #660000, #8B0000) !important;
-		box-shadow: 0 6px 16px rgba(139, 0, 0, 0.4) !important;
-	}
-
-	.mobile-option-btn#mobileMultipleTablesToggle.active:hover {
-		background: linear-gradient(135deg, #578A34, #4C792D) !important;
-		box-shadow: 0 6px 16px rgba(76, 121, 45, 0.4) !important;
-	}
-
-	/* Mobile Reset Button - Enhanced Mobile Style */
+	.mobile-option-btn#mobileTimeTravelBtn,
+	.mobile-option-btn#mobileMultipleTablesToggle,
 	.mobile-option-btn#mobileResetBtn {
 		width: 100% !important;
 		min-width: auto !important;
-		height: 56px !important;
-		font-size: 15px !important;
-		font-weight: 700 !important;
-		background: linear-gradient(135deg, #6c757d, #495057) !important;
+		height: auto !important;
+		min-height: 48px !important;
+		font-size: 14px !important;
+		font-weight: 650 !important;
+		background: var(--mobile-surface) !important;
 		color: white !important;
-		border: 2px solid rgba(108, 117, 125, 0.3) !important;
-		border-radius: 16px !important;
-		padding: 16px 20px !important;
-		transition: all 0.3s ease !important;
-		box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3) !important;
+		border: 1px solid var(--mobile-border) !important;
+		border-radius: 12px !important;
+		padding: 12px 14px !important;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
 	}
 
+	.mobile-option-btn#mobileTimeTravelBtn.active,
+	.mobile-option-btn#mobileMultipleTablesToggle.active {
+		background: linear-gradient(135deg, var(--mobile-brand), var(--mobile-brand-light)) !important;
+		border-color: rgba(87, 138, 52, 0.55) !important;
+		box-shadow: 0 3px 10px rgba(76, 121, 45, 0.35) !important;
+	}
+
+	.mobile-option-btn#mobileTimeTravelBtn:hover,
+	.mobile-option-btn#mobileMultipleTablesToggle:hover,
 	.mobile-option-btn#mobileResetBtn:hover {
-		background: linear-gradient(135deg, #5a6268, #343a40) !important;
-		box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4) !important;
+		background: rgba(0, 0, 0, 0.32) !important;
+	}
+
+	.mobile-option-btn#mobileTimeTravelBtn.active:hover,
+	.mobile-option-btn#mobileMultipleTablesToggle.active:hover {
+		background: linear-gradient(135deg, var(--mobile-brand-light), var(--mobile-brand)) !important;
 	}
 
 	.mobile-btn-group {
@@ -1977,74 +2019,25 @@ body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 		flex: 1;
 	}
 
-	/* Dark mode support for mobile buttons - enhanced */
 	body.dark-mode .mobile-options-section {
 		background: rgba(0, 0, 0, 0.25);
 		border-color: rgba(255, 255, 255, 0.1);
 	}
 
-	body.dark-mode .mobile-option-btn {
-		background: rgba(0, 0, 0, 0.2) !important;
-		border-color: rgba(255, 255, 255, 0.1);
-	}
-
-	body.dark-mode .mobile-option-btn:hover {
-		background: rgba(0, 0, 0, 0.3) !important;
-	}
-
-	body.dark-mode .mobile-option-btn#mobileTimeTravelBtn {
-		background: linear-gradient(135deg, #8B0000, #B22222) !important;
-		border: 2px solid rgba(139, 0, 0, 0.4) !important;
-		box-shadow: 0 4px 12px rgba(139, 0, 0, 0.4) !important;
-	}
-
-	body.dark-mode .mobile-option-btn#mobileTimeTravelBtn.active {
-		background: linear-gradient(135deg, #4C792D, #578A34) !important;
-		border: 2px solid rgba(76, 121, 45, 0.4) !important;
-		box-shadow: 0 4px 12px rgba(76, 121, 45, 0.4) !important;
-	}
-
-	body.dark-mode .mobile-option-btn#mobileTimeTravelBtn:hover {
-		background: linear-gradient(135deg, #660000, #8B0000) !important;
-		box-shadow: 0 6px 16px rgba(139, 0, 0, 0.5) !important;
-	}
-
-	body.dark-mode .mobile-option-btn#mobileTimeTravelBtn.active:hover {
-		background: linear-gradient(135deg, #578A34, #4C792D) !important;
-		box-shadow: 0 6px 16px rgba(76, 121, 45, 0.5) !important;
-	}
-
-	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle {
-		background: linear-gradient(135deg, #8B0000, #B22222) !important;
-		border: 2px solid rgba(139, 0, 0, 0.4) !important;
-		box-shadow: 0 4px 12px rgba(139, 0, 0, 0.4) !important;
-	}
-
-	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle.active {
-		background: linear-gradient(135deg, #4C792D, #578A34) !important;
-		border: 2px solid rgba(76, 121, 45, 0.4) !important;
-		box-shadow: 0 4px 12px rgba(76, 121, 45, 0.4) !important;
-	}
-
-	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle:hover {
-		background: linear-gradient(135deg, #660000, #8B0000) !important;
-		box-shadow: 0 6px 16px rgba(139, 0, 0, 0.5) !important;
-	}
-
-	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle.active:hover {
-		background: linear-gradient(135deg, #578A34, #4C792D) !important;
-		box-shadow: 0 6px 16px rgba(76, 121, 45, 0.5) !important;
-	}
-
-	/* Dark mode support for mobile reset button */
+	body.dark-mode .mobile-option-btn,
+	body.dark-mode .mobile-option-btn#mobileTimeTravelBtn,
+	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle,
 	body.dark-mode .mobile-option-btn#mobileResetBtn {
-		background: linear-gradient(135deg, #6c757d, #495057) !important;
-		border: 2px solid rgba(108, 117, 125, 0.4) !important;
-		box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4) !important;
+		background: var(--mobile-surface-dark) !important;
+		border-color: rgba(255, 255, 255, 0.12) !important;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
 	}
 
-	body.dark-mode .mobile-option-btn#mobileResetBtn:hover {
-		background: linear-gradient(135deg, #5a6268, #343a40) !important;
-		box-shadow: 0 6px 16px rgba(108, 117, 125, 0.5) !important;
+	body.dark-mode .mobile-option-btn.active,
+	body.dark-mode .mobile-option-btn#mobileTimeTravelBtn.active,
+	body.dark-mode .mobile-option-btn#mobileMultipleTablesToggle.active {
+		background: linear-gradient(135deg, var(--mobile-brand), var(--mobile-brand-light)) !important;
+		border-color: rgba(87, 138, 52, 0.5) !important;
 	}
+
 }

@@ -561,6 +561,10 @@ function syncRightPanelsSideBySide() {
 }
 
 function ensureStatisticsExplorer() {
+    // Mobile uses #mobileStatsExplorerBody — skip desktop panel + eager JSON fetch
+    if (typeof window !== 'undefined' && window.innerWidth <= 1023) {
+        return;
+    }
     if (document.querySelector('.stats-explorer-wrapper')) {
         applyStatsExplorerCollapseState();
         return;
