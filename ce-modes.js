@@ -57,11 +57,11 @@
 
     function getCeDisplayMode() {
         if (typeof ceDisplayMode !== 'undefined' && ceDisplayMode) return ceDisplayMode;
-        return 'off';
+        return 'mix';
     }
 
     function setCeDisplayMode(mode) {
-        if (mode !== 'off' && mode !== 'mix' && mode !== 'only') mode = 'off';
+        if (mode !== 'off' && mode !== 'mix' && mode !== 'only') mode = 'mix';
         if (typeof ceDisplayMode !== 'undefined') {
             ceDisplayMode = mode;
         }

@@ -66,7 +66,7 @@ var isDarkMode = false; // Default to light mode
 var isTimeTravelEnabled = false; // Time travel toggle state
 var selectedTimeTravelDate = ""; // Currently selected date for time travel
 var isMultipleTablesEnabled = false; // Multiple tables toggle state
-var ceDisplayMode = 'off'; // 'off' | 'mix' | 'only' — Category Extensions (Chess/Burger)
+var ceDisplayMode = 'mix'; // 'off' | 'mix' | 'only' — Category Extensions (Chess/Burger)
 var isCategoryCollapsed = false; // Desktop left Category Settings panel
 var isSummaryCollapsed = false; // Desktop right Rankings panel
 var isStatsExplorerCollapsed = true; // Desktop right Statistics panel (default collapsed)
@@ -197,7 +197,7 @@ function loadSettings() {
         if (storedCe === 'off' || storedCe === 'mix' || storedCe === 'only') {
             ceDisplayMode = storedCe;
         } else {
-            ceDisplayMode = 'off';
+            ceDisplayMode = 'mix';
         }
         if (typeof setCeDisplayMode === 'function') setCeDisplayMode(ceDisplayMode);
     }

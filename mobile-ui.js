@@ -381,7 +381,7 @@ function showBasicMobileRecordsSection() {
             <!-- Mobile Records Controls -->
             <div class="mobile-records-controls">
                 <button class="mobile-option-btn ce-display-btn" id="mobileCeDisplayToggle" title="Category Extensions (Chess/Burger)">
-                    🧩 CE: Off
+                    🧩 CE: Mix
                 </button>
                 <button class="mobile-option-btn" id="mobileInfoBtn">ℹ️ Info</button>
             </div>
@@ -678,7 +678,7 @@ function showBasicMobileSettingsSection() {
                             📊 Multiple Tables
                         </button>
                         <button class="mobile-option-btn ce-display-btn" id="mobileSettingsCeDisplayToggle" title="Category Extensions (Chess/Burger)">
-                            🧩 CE: Off
+                            🧩 CE: Mix
                         </button>
                         <button class="mobile-option-btn category-icons-toggle" id="mobileCategoryIconsToggle" title="Statistics categories use icons. Click to switch to text.">
                             🔣 Icons
