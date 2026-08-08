@@ -299,7 +299,13 @@ async function toggleCeDisplayMode() {
     } else {
         generateSingleTable();
     }
-    if (isLoading) return;
+    if (isLoading) {
+        // Initial Quick Fetch already in flight — paint mobile from current data/mode when ready
+        if (typeof refreshMobileWorldRecordsIfVisible === 'function') {
+            refreshMobileWorldRecordsIfVisible();
+        }
+        return;
+    }
     setLoadingState(true);
     try {
         saveSettings();
@@ -311,6 +317,14 @@ async function toggleCeDisplayMode() {
         }
         if (typeof refreshStatisticsExplorer === 'function') {
             refreshStatisticsExplorer();
+        }
+        if (typeof refreshMobileWorldRecordsIfVisible === 'function') {
+            refreshMobileWorldRecordsIfVisible();
+        }
+        // Rebuild Settings chips if user is on that tab (Chess/Burger visibility)
+        if (typeof mobileState !== 'undefined' && mobileState.currentSection === 'settings' &&
+            typeof showBasicMobileSettingsSection === 'function') {
+            showBasicMobileSettingsSection();
         }
     } catch (error) {
         console.error('Error after CE display toggle:', error);

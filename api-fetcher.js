@@ -402,6 +402,11 @@ async function quickFetchWorldRecords() {
             
             // Update button highlighting
             updateTableSelector();
+
+            // Mobile Records: paint from this single fetch (avoid a second Quick Fetch on mobile)
+            if (typeof refreshMobileWorldRecordsIfVisible === 'function') {
+                refreshMobileWorldRecordsIfVisible();
+            }
             
             // Data loaded successfully
             

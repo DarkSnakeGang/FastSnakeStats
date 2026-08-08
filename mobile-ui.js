@@ -5,7 +5,11 @@
 // Mobile state management
 let mobileState = {
     currentSection: 'records',
-    isInitialized: false
+    isInitialized: false,
+    // Keep Records DOM alive when switching tabs (avoids remount "Loading world records…" flash)
+    recordsPanelFrag: null,
+    recordsNeedsRefresh: false,
+    recordsSyncStarted: false
 };
 
 // Mobile-specific variables
@@ -114,40 +118,92 @@ function setMobileLoadingState(loading) {
     }
 }
 
-// Trigger initial records loading for mobile (equivalent to desktop initializeUI behavior)
-function triggerMobileInitialRecordsLoad() {
-    //console.log('Triggering mobile initial records load...');
-    
-    // First, ensure the mobile table structure is created
-    setTimeout(() => {
+function hasWorldRecordsData() {
+    return typeof worldRecords !== 'undefined' && Object.keys(worldRecords).length > 0;
+}
+
+/** Refresh mobile WR tables if Records is visible; otherwise mark parked panel dirty. No second network fetch. */
+function refreshMobileWorldRecordsIfVisible() {
+    if (window.innerWidth > 1023) return;
+    if (mobileState.currentSection === 'records' && document.getElementById('mobileTableContent')) {
         loadMobileTableData();
-    }, 100);
-    
-    // Then trigger the initial data loading
-    setTimeout(() => {
-        // Check if we need to load initial records
-        if (typeof worldRecords === 'undefined' || Object.keys(worldRecords).length === 0) {
-            //console.log('No world records found, triggering initial load...');
-            
-            // Call the same function that desktop uses for initial loading
-            if (typeof startWorldRecordsDownload === 'function') {
-                //console.log('Calling startWorldRecordsDownload...');
-                startWorldRecordsDownload();
-            } else if (typeof quickFetchWorldRecords === 'function') {
-                //console.log('Calling quickFetchWorldRecords...');
-                quickFetchWorldRecords();
-            } else {
-                console.error('No records loading function available');
-            }
-        } else {
-            //console.log('World records already available, no need for initial load');
-            // Even if records exist, refresh to ensure mobile display is updated
-            if (typeof quickFetchWorldRecords === 'function') {
-                //console.log('Refreshing existing records for mobile display...');
-                quickFetchWorldRecords();
+    } else {
+        mobileState.recordsNeedsRefresh = true;
+    }
+}
+window.refreshMobileWorldRecordsIfVisible = refreshMobileWorldRecordsIfVisible;
+
+/**
+ * Wait for main.js / startWorldRecordsDownload to populate worldRecords, then paint once.
+ * Does NOT start another Quick Fetch (that caused the mobile double-load).
+ */
+function syncMobileRecordsWhenReady() {
+    if (mobileState.recordsSyncStarted) {
+        if (hasWorldRecordsData()) refreshMobileWorldRecordsIfVisible();
+        return;
+    }
+    mobileState.recordsSyncStarted = true;
+
+    if (hasWorldRecordsData()) {
+        refreshMobileWorldRecordsIfVisible();
+        return;
+    }
+
+    let attempts = 0;
+    const maxAttempts = 120; // ~12s
+    const checkInterval = setInterval(() => {
+        attempts++;
+        if (hasWorldRecordsData()) {
+            clearInterval(checkInterval);
+            refreshMobileWorldRecordsIfVisible();
+        } else if (attempts >= maxAttempts) {
+            clearInterval(checkInterval);
+            if (mobileState.currentSection === 'records') {
+                const el = document.getElementById('mobileTableContent');
+                if (el && el.querySelector('.mobile-loading')) {
+                    el.innerHTML = `
+                        <div class="mobile-loading">
+                            <p>No world records found. Pull to refresh or try again later.</p>
+                        </div>
+                    `;
+                }
             }
         }
-    }, 200);
+    }, 100);
+}
+
+function parkMobileRecordsPanelIfNeeded() {
+    if (mobileState.currentSection !== 'records') return;
+    const container = document.getElementById('mobileTablesContainer');
+    if (!container) return;
+    const title = container.querySelector('.mobile-card .mobile-card-title');
+    if (!title || title.textContent !== 'World Records') return;
+
+    const frag = document.createDocumentFragment();
+    while (container.firstChild) {
+        frag.appendChild(container.firstChild);
+    }
+    mobileState.recordsPanelFrag = frag;
+}
+
+function tryRestoreMobileRecordsPanel() {
+    const container = document.getElementById('mobileTablesContainer');
+    if (!container || !mobileState.recordsPanelFrag) return false;
+
+    container.innerHTML = '';
+    container.appendChild(mobileState.recordsPanelFrag);
+    mobileState.recordsPanelFrag = null;
+
+    const ceBtn = document.getElementById('mobileCeDisplayToggle');
+    if (ceBtn && typeof applyCeDisplayButtonState === 'function') {
+        applyCeDisplayButtonState(ceBtn);
+    }
+
+    if (mobileState.recordsNeedsRefresh || !hasWorldRecordsData()) {
+        mobileState.recordsNeedsRefresh = false;
+        loadMobileTableData();
+    }
+    return true;
 }
 
 // Initialize mobile UI when DOM is loaded
@@ -194,20 +250,19 @@ function waitForDesktopSystem() {
             typeof isMultipleTablesEnabled !== 'undefined' &&
             typeof loadSettings === 'function') {
             clearInterval(checkInterval);
-            //console.log('Desktop system ready, showing mobile records...');
             
             // Initialize mobile run and game modes
             initializeMobileRunAndGameModes();
-            
-            // Mobile uses its own loading state system - no override needed
-            
-            showBasicMobileRecordsSection();
-            
-            // Update API progress display
-            // updateMobileApiProgress(); // This function is removed
-            
-            // Trigger initial records loading for mobile
-            triggerMobileInitialRecordsLoad();
+
+            // Never force Records over a tab the user already opened
+            if (mobileState.currentSection === 'records') {
+                if (!tryRestoreMobileRecordsPanel()) {
+                    showBasicMobileRecordsSection();
+                }
+            }
+
+            // Paint when main.js fetch finishes — do not start a second download
+            syncMobileRecordsWhenReady();
             
             // Update time travel message after mobile initialization
             if (typeof updateTimeTravelMessage === 'function') {
@@ -219,9 +274,11 @@ function waitForDesktopSystem() {
     // Timeout after 10 seconds
     setTimeout(() => {
         clearInterval(checkInterval);
-        //console.log('Desktop system not ready after timeout, showing loading state...');
-        
-        showBasicMobileRecordsSection();
+        if (mobileState.currentSection === 'records') {
+            if (!tryRestoreMobileRecordsPanel()) {
+                showBasicMobileRecordsSection();
+            }
+        }
     }, 10000);
 }
 
@@ -254,7 +311,12 @@ function setupMobileNavigation() {
 
 // Switch basic mobile section
 function switchBasicMobileSection(section) {
-    //console.log('Switching to mobile section:', section);
+    const previousSection = mobileState.currentSection;
+
+    // Park Records DOM so returning doesn't remount a loading placeholder
+    if (previousSection === 'records' && section !== 'records') {
+        parkMobileRecordsPanelIfNeeded();
+    }
     
     // Update navigation
     const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
@@ -274,16 +336,9 @@ function switchBasicMobileSection(section) {
             showBasicMobileSettingsSection();
             break;
         case 'records':
-            showBasicMobileRecordsSection();
-            // Refresh table when switching to records to ensure latest settings are applied
-            setTimeout(() => {
-                // Double-check we're still on records section before loading
-                if (mobileState.currentSection === 'records') {
-                    loadMobileTableData();
-                } else {
-                    //console.log('Navigation changed, skipping table load');
-                }
-            }, 100);
+            if (!tryRestoreMobileRecordsPanel()) {
+                showBasicMobileRecordsSection();
+            }
             break;
         case 'summary':
             showBasicMobileSummarySection();
@@ -297,30 +352,26 @@ function switchBasicMobileSection(section) {
             showBasicMobileStatisticsSection();
             break;
         default:
-            //console.log('Unknown mobile section:', section);
+            break;
     }
 }
 
 // Show basic mobile records section
 function showBasicMobileRecordsSection() {
-    //console.log('Showing mobile records section');
     const mobileTablesContainer = document.getElementById('mobileTablesContainer');
     if (!mobileTablesContainer) {
         console.error('Mobile tables container not found!');
         return;
     }
 
-    // Check if we already have records content specifically
+    // Already showing Records (e.g. still mounted)
     const existingRecordsContent = mobileTablesContainer.querySelector('.mobile-card .mobile-card-title');
     if (existingRecordsContent && existingRecordsContent.textContent === 'World Records') {
-        // If records content exists, update API progress and load table data
-        //console.log('Records content already exists, updating API progress and loading table');
-        // updateMobileApiProgress(); // This function is removed
         loadMobileTableData();
         return;
     }
 
-    // Create the records section with controls
+    const ready = hasWorldRecordsData();
     mobileTablesContainer.innerHTML = `
         <div class="mobile-card">
             <div class="mobile-card-header">
@@ -338,9 +389,11 @@ function showBasicMobileRecordsSection() {
         
         <!-- Mobile Table Container - Outside the card -->
         <div id="mobileTableContent" class="mobile-table-content">
+            ${ready ? '' : `
             <div class="mobile-loading">
                 <p>Loading world records...</p>
             </div>
+            `}
         </div>
     `;
 
@@ -362,13 +415,11 @@ function showBasicMobileRecordsSection() {
         }
     }
 
-    // Load the table data
-    loadMobileTableData();
-
-    // Set up periodic API progress updates
-    // setInterval(updateMobileApiProgress, 1000); // This function is removed
-    
-
+    if (ready) {
+        loadMobileTableData();
+    } else {
+        syncMobileRecordsWhenReady();
+    }
 }
 
 // Setup mobile records event listeners
@@ -626,6 +677,9 @@ function showBasicMobileSettingsSection() {
                         <button class="mobile-option-btn" id="mobileMultipleTablesToggle" title="Toggle multiple tables mode">
                             📊 Multiple Tables
                         </button>
+                        <button class="mobile-option-btn ce-display-btn" id="mobileSettingsCeDisplayToggle" title="Category Extensions (Chess/Burger)">
+                            🧩 CE: Off
+                        </button>
                         <button class="mobile-option-btn category-icons-toggle" id="mobileCategoryIconsToggle" title="Statistics categories use icons. Click to switch to text.">
                             🔣 Icons
                         </button>
@@ -851,6 +905,19 @@ function setupMobileSettingsEventListeners() {
         resetBtn.addEventListener('click', resetMobileSettings);
     }
 
+    // CE display (Chess / Burger)
+    const settingsCeBtn = document.getElementById('mobileSettingsCeDisplayToggle');
+    if (settingsCeBtn) {
+        if (typeof applyCeDisplayButtonState === 'function') {
+            applyCeDisplayButtonState(settingsCeBtn);
+        }
+        settingsCeBtn.addEventListener('click', async function () {
+            if (typeof toggleCeDisplayMode === 'function') {
+                await toggleCeDisplayMode();
+            }
+        });
+    }
+
     // Setup checkbox listeners
     setupMobileCheckboxListeners();
 
@@ -1040,11 +1107,10 @@ function saveMobileSettings() {
 
 // Refresh mobile table after settings change
 function refreshMobileTableAfterSettingsChange() {
-    // Only refresh if we're currently on the records tab
     if (mobileState.currentSection === 'records') {
-        //console.log('Refreshing mobile table after settings change');
-        // Reload the table data with new settings
-        showBasicMobileRecordsSection();
+        loadMobileTableData();
+    } else {
+        mobileState.recordsNeedsRefresh = true;
     }
 }
 
