@@ -1598,6 +1598,7 @@ function showBasicMobileStatisticsSection() {
         { id: 'progression', label: 'Progression' },
         { id: 'longevity', label: 'Longevity' },
         { id: 'career', label: 'Career' },
+        { id: 'chronicle', label: 'Chronicle' },
         { id: 'player', label: 'Player' },
         { id: 'mastery', label: 'Mastery' },
         { id: 'improving', label: 'Improving' },
@@ -1634,6 +1635,9 @@ function showBasicMobileStatisticsSection() {
                 tabs.querySelectorAll('.stats-explorer-tab').forEach(function (el) {
                     el.classList.toggle('active', el.dataset.tab === statsExplorerActiveTab);
                 });
+                if (typeof btn.scrollIntoView === 'function') {
+                    btn.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
+                }
                 const body = document.getElementById('mobileStatsExplorerBody');
                 if (typeof renderStatisticsExplorerContent === 'function') {
                     renderStatisticsExplorerContent(body);
@@ -1649,7 +1653,10 @@ function showBasicMobileStatisticsSection() {
     const loadMastery = typeof loadMasteryChallengeData === 'function'
         ? loadMasteryChallengeData()
         : Promise.resolve();
-    Promise.all([loadExplorer, loadMastery]).then(function () {
+    const loadChronicle = typeof loadChronicleData === 'function'
+        ? loadChronicleData()
+        : Promise.resolve();
+    Promise.all([loadExplorer, loadMastery, loadChronicle]).then(function () {
         if (mobileState.currentSection !== 'statistics') return;
         if (typeof renderStatisticsExplorerContent === 'function') {
             renderStatisticsExplorerContent(body);

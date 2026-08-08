@@ -6,6 +6,16 @@ var statsExplorerLoading = false;
 var statsExplorerLoadPromise = null;
 var masteryChallengeData = null;
 var masteryChallengeLoadPromise = null;
+var chronicleData = null;
+var chronicleLoadPromise = null;
+var chronicleEraDate = null;
+var chronicleEmpireId = null;
+var chronicleWarApple = '1 Apple';
+var chronicleWarSpeed = 'Normal';
+var chronicleWarSize = 'Standard';
+var chronicleWarGamemode = 'Classic';
+var chronicleWarRunMode = '25 Apples';
+var chronicleWarFiltersReady = false;
 var statsExplorerActiveTab = 'progression';
 var statsExplorerImproveWindow = '30d';
 var statsExplorerHeatMetric = 'flips';
@@ -45,6 +55,7 @@ var STATS_TABS = [
     { id: 'progression', label: 'Progression' },
     { id: 'longevity', label: 'Longevity' },
     { id: 'career', label: 'Career' },
+    { id: 'chronicle', label: 'Chronicle' },
     { id: 'player', label: 'Player' },
     { id: 'mastery', label: 'Mastery' },
     { id: 'improving', label: 'Improving' },
@@ -364,6 +375,120 @@ async function loadMasteryChallengeData() {
     }
 }
 
+async function loadChronicleData() {
+    if (chronicleData) return chronicleData;
+    if (chronicleLoadPromise) return chronicleLoadPromise;
+
+    chronicleLoadPromise = (async function () {
+        try {
+            var localRes = await fetch('time-travel-cache/metadata/chronicle.json');
+            if (localRes.ok) {
+                chronicleData = await localRes.json();
+                return chronicleData;
+            }
+        } catch (e) { /* try remote */ }
+        try {
+            var base = (window.githubCacheFetcher && window.githubCacheFetcher.baseURL) ||
+                'https://raw.githubusercontent.com/DarkSnakeGang/FastSnakeStats/refs/heads/main';
+            var remoteRes = await fetch(base + '/time-travel-cache/metadata/chronicle.json');
+            if (remoteRes.ok) {
+                chronicleData = await remoteRes.json();
+                return chronicleData;
+            }
+        } catch (e2) {
+            console.error('Failed to load chronicle data', e2);
+        }
+        return null;
+    })();
+
+    try {
+        return await chronicleLoadPromise;
+    } finally {
+        chronicleLoadPromise = null;
+    }
+}
+
+function ensureChronicleDefaults() {
+    if (!chronicleData || !chronicleData.meta) return;
+    var d = chronicleData.meta.defaults || {};
+    if (!chronicleEraDate) chronicleEraDate = d.eraDate || null;
+    if (!chronicleEmpireId) chronicleEmpireId = d.empireId || null;
+    if (!chronicleWarFiltersReady && d.warCategory) {
+        var parts = String(d.warCategory).split('|');
+        if (parts.length >= 5) {
+            chronicleWarApple = parts[0];
+            chronicleWarSpeed = parts[1];
+            chronicleWarSize = parts[2];
+            chronicleWarGamemode = parts[3];
+            chronicleWarRunMode = parts.slice(4).join('|');
+            chronicleWarFiltersReady = true;
+        }
+    }
+}
+
+function buildChronicleWarKey() {
+    return chronicleWarApple + '|' + chronicleWarSpeed + '|' + chronicleWarSize + '|' +
+        chronicleWarGamemode + '|' + chronicleWarRunMode;
+}
+
+function getChronicleWarModeOptions() {
+    var names = typeof gamemodes !== 'undefined' ? Object.keys(gamemodes) : [];
+    if (chronicleWarRunMode === 'High Score') {
+        return names.filter(function (n) { return STATS_HIGHSCORE_MODES.indexOf(n) !== -1; });
+    }
+    return names;
+}
+
+function normalizeChronicleWarFilters() {
+    if (chronicleWarRunMode === '100 Apples' && chronicleWarSize === 'Small') {
+        chronicleWarSize = 'Standard';
+    }
+    var modes = getChronicleWarModeOptions();
+    if (modes.indexOf(chronicleWarGamemode) === -1) {
+        chronicleWarGamemode = modes[0] || 'Classic';
+    }
+}
+
+function chronicleTravelTo(date) {
+    if (!date) return;
+    var isMobile = document.body.classList.contains('mobile-mode') ||
+        (window.innerWidth <= 1023 && document.getElementById('mobileDatePicker'));
+    if (isMobile && typeof setMobileTimeTravelDate === 'function') {
+        setMobileTimeTravelDate(date);
+        return;
+    }
+    if (typeof setTimeTravelDate === 'function') {
+        setTimeTravelDate(date);
+        return;
+    }
+    if (typeof window.setTimeTravelDate === 'function') {
+        window.setTimeTravelDate(date);
+    }
+}
+
+function createChronicleTravelBtn(date, label) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'stats-chronicle-travel';
+    btn.textContent = label || 'Travel here';
+    btn.title = date ? ('Time travel to ' + date) : '';
+    btn.disabled = !date;
+    btn.addEventListener('click', function () {
+        chronicleTravelTo(date);
+    });
+    return btn;
+}
+
+function createChronicleNameSpan(name, ns) {
+    var span = document.createElement('span');
+    span.className = 'stats-chronicle-player-name';
+    span.textContent = name || 'Unknown';
+    if (typeof applyUsernameColors === 'function' && ns) {
+        applyUsernameColors(span, ns);
+    }
+    return span;
+}
+
 function applyStatsExplorerCollapseState() {
     document.body.classList.toggle('stats-explorer-collapsed', !!isStatsExplorerCollapsed);
     var btn = document.getElementById('statsExplorerCollapseBtn');
@@ -466,6 +591,9 @@ function ensureStatisticsExplorer() {
             Array.prototype.forEach.call(tabs.querySelectorAll('.stats-explorer-tab'), function (el) {
                 el.classList.toggle('active', el.dataset.tab === tab.id);
             });
+            if (typeof b.scrollIntoView === 'function') {
+                b.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
+            }
             renderStatisticsExplorerContent(document.getElementById('statsExplorerBody'));
         });
         tabs.appendChild(b);
@@ -493,9 +621,9 @@ function ensureStatisticsExplorer() {
 
     applyStatsExplorerCollapseState();
     loadStatisticsExplorerData().then(function () {
-        loadMasteryChallengeData().then(function () {
-            renderStatisticsExplorerContent();
-        });
+        return Promise.all([loadMasteryChallengeData(), loadChronicleData()]);
+    }).then(function () {
+        renderStatisticsExplorerContent();
     });
 }
 
@@ -518,6 +646,9 @@ function renderStatisticsExplorerContent(targetBody) {
             break;
         case 'career':
             renderCareerView(body);
+            break;
+        case 'chronicle':
+            renderChronicleView(body);
             break;
         case 'player':
             renderPlayerView(body);
@@ -554,6 +685,538 @@ function renderStatisticsExplorerContent(targetBody) {
         default:
             body.textContent = 'Unknown view';
     }
+}
+
+function renderEmpireSparkline(series, peakDate) {
+    var wrap = document.createElement('div');
+    wrap.className = 'stats-explorer-chart stats-chronicle-sparkline';
+    if (!series || !series.length) {
+        wrap.textContent = 'No arc data.';
+        return wrap;
+    }
+    var w = 720, h = 160, padL = 44, padR = 16, padT = 12, padB = 28;
+    var values = series.map(function (p) { return p.c; });
+    var minV = 0;
+    var maxV = Math.max.apply(null, values);
+    if (maxV <= 0) maxV = 1;
+    var svgNS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    svg.setAttribute('class', 'stats-line-svg');
+    function xAt(i) {
+        if (series.length === 1) return padL + (w - padL - padR) / 2;
+        return padL + (i / (series.length - 1)) * (w - padL - padR);
+    }
+    function yAt(v) {
+        return padT + (1 - (v - minV) / (maxV - minV)) * (h - padT - padB);
+    }
+    var axis2 = document.createElementNS(svgNS, 'line');
+    axis2.setAttribute('x1', padL);
+    axis2.setAttribute('x2', w - padR);
+    axis2.setAttribute('y1', h - padB);
+    axis2.setAttribute('y2', h - padB);
+    axis2.setAttribute('class', 'stats-axis');
+    svg.appendChild(axis2);
+    var d = '';
+    series.forEach(function (p, i) {
+        var x = xAt(i), y = yAt(p.c);
+        d += (i === 0 ? 'M' : 'L') + x + ' ' + y + ' ';
+    });
+    var path = document.createElementNS(svgNS, 'path');
+    path.setAttribute('d', d.trim());
+    path.setAttribute('class', 'stats-line');
+    svg.appendChild(path);
+    series.forEach(function (p, i) {
+        if (peakDate && p.d === peakDate) {
+            var crown = document.createElementNS(svgNS, 'circle');
+            crown.setAttribute('cx', xAt(i));
+            crown.setAttribute('cy', yAt(p.c));
+            crown.setAttribute('r', 5);
+            crown.setAttribute('class', 'stats-chronicle-peak-dot');
+            svg.appendChild(crown);
+        }
+    });
+    var startLab = document.createElementNS(svgNS, 'text');
+    startLab.setAttribute('x', padL);
+    startLab.setAttribute('y', h - 8);
+    startLab.setAttribute('class', 'stats-axis-label');
+    startLab.textContent = series[0].d;
+    svg.appendChild(startLab);
+    var endLab = document.createElementNS(svgNS, 'text');
+    endLab.setAttribute('x', w - padR);
+    endLab.setAttribute('y', h - 8);
+    endLab.setAttribute('text-anchor', 'end');
+    endLab.setAttribute('class', 'stats-axis-label');
+    endLab.textContent = series[series.length - 1].d;
+    svg.appendChild(endLab);
+    wrap.appendChild(svg);
+    return wrap;
+}
+
+function fillChronicleEraDetails(container, era, travelSlot) {
+    container.innerHTML = '';
+    if (travelSlot) {
+        travelSlot.innerHTML = '';
+        if (era) travelSlot.appendChild(createChronicleTravelBtn(era.date, 'Travel here'));
+    }
+    if (!era) {
+        var empty = document.createElement('div');
+        empty.className = 'stats-explorer-empty';
+        empty.textContent = 'No loud days in Chronicle yet.';
+        container.appendChild(empty);
+        return;
+    }
+
+    var headline = document.createElement('div');
+    headline.className = 'stats-chronicle-headline';
+    var bits = [];
+    bits.push(era.flips + ' flip' + (era.flips === 1 ? '' : 's'));
+    bits.push(era.newWrs + ' new WR' + (era.newWrs === 1 ? '' : 's'));
+    if (era.debuts && era.debuts.length) {
+        bits.push(era.debuts.length + ' setting debut' + (era.debuts.length === 1 ? '' : 's'));
+    }
+    headline.innerHTML = '<strong>' + escapeHtml(era.date) + '</strong> — ' + bits.join(', ');
+    container.appendChild(headline);
+
+    if (era.debuts && era.debuts.length) {
+        var debutHead = document.createElement('div');
+        debutHead.className = 'stats-chronicle-subhead';
+        debutHead.textContent = 'Setting debuts';
+        container.appendChild(debutHead);
+        var debutList = document.createElement('ul');
+        debutList.className = 'stats-chronicle-list stats-chronicle-debuts';
+        era.debuts.forEach(function (d) {
+            var li = document.createElement('li');
+            li.className = 'stats-chronicle-list-item is-debut';
+            li.innerHTML = '<span class="stats-chronicle-debut-kind">' + escapeHtml(d.kindLabel || d.kind) + '</span> ' +
+                '<strong>' + escapeHtml(d.value) + '</strong>' +
+                (d.player ? ' — first verified run: ' + escapeHtml(d.player) : '');
+            debutList.appendChild(li);
+        });
+        container.appendChild(debutList);
+    }
+
+    if (era.topFlips && era.topFlips.length) {
+        var flipHead = document.createElement('div');
+        flipHead.className = 'stats-chronicle-subhead';
+        flipHead.textContent = 'WR flips that day';
+        container.appendChild(flipHead);
+        var flipHint = document.createElement('div');
+        flipHint.className = 'stats-chronicle-hint';
+        flipHint.textContent = 'Boards where the world record changed that day, hardest first — previous holder → new holder.';
+        container.appendChild(flipHint);
+        var flipList = document.createElement('ul');
+        flipList.className = 'stats-chronicle-list';
+        var flipsSorted = (era.topFlips || []).slice().sort(function (a, b) {
+            var sa = a.score != null ? a.score : 0;
+            var sb = b.score != null ? b.score : 0;
+            if (sb !== sa) return sb - sa;
+            return Number(b.tied) - Number(a.tied);
+        });
+        flipsSorted.forEach(function (f) {
+            var li = document.createElement('li');
+            li.className = 'stats-chronicle-list-item' + (f.tied ? ' is-tied' : '');
+            var cat = document.createElement('div');
+            cat.className = 'stats-chronicle-cat';
+            var parsedCat = parseCategoryKey(f.category);
+            if (typeof formatCategoryInlineHtml === 'function' && parsedCat) {
+                cat.innerHTML = formatCategoryInlineHtml(parsedCat);
+            } else {
+                cat.textContent = (f.category || '').replace(/\|/g, ' · ') || 'Unknown board';
+            }
+            if (f.tier) {
+                var tierBadge = document.createElement('span');
+                tierBadge.className = 'stats-chronicle-tier-badge';
+                tierBadge.textContent = f.tier;
+                cat.appendChild(document.createTextNode(' '));
+                cat.appendChild(tierBadge);
+            }
+            li.appendChild(cat);
+            var handoff = document.createElement('div');
+            handoff.className = 'stats-chronicle-handoff';
+            var fromLabel = f.from || 'unset';
+            var toLabel = f.to || 'unset';
+            handoff.textContent = fromLabel === toLabel
+                ? ('Still ' + toLabel + (f.tied ? ' (new tie)' : ' (same name, new run)'))
+                : ('Was ' + fromLabel + ' → now ' + toLabel);
+            if (f.tied) {
+                var tie = document.createElement('span');
+                tie.className = 'stats-chronicle-tie-badge';
+                tie.textContent = 'tie';
+                handoff.appendChild(document.createTextNode(' '));
+                handoff.appendChild(tie);
+            }
+            li.appendChild(handoff);
+            flipList.appendChild(li);
+        });
+        container.appendChild(flipList);
+    }
+
+    var movers = document.createElement('div');
+    movers.className = 'stats-chronicle-movers';
+    var gainCol = document.createElement('div');
+    gainCol.innerHTML = '<div class="stats-chronicle-subhead">Net gainers</div>';
+    (era.netGainers || []).forEach(function (m) {
+        var row = document.createElement('div');
+        row.className = 'stats-chronicle-mover up';
+        row.textContent = m.name + ' +' + m.delta + ' → ' + m.to;
+        gainCol.appendChild(row);
+    });
+    if (!(era.netGainers || []).length) gainCol.appendChild(document.createTextNode('—'));
+    var loseCol = document.createElement('div');
+    loseCol.innerHTML = '<div class="stats-chronicle-subhead">Net losers</div>';
+    (era.netLosers || []).forEach(function (m) {
+        var row = document.createElement('div');
+        row.className = 'stats-chronicle-mover down';
+        row.textContent = m.name + ' ' + m.delta + ' → ' + m.to;
+        loseCol.appendChild(row);
+    });
+    if (!(era.netLosers || []).length) loseCol.appendChild(document.createTextNode('—'));
+    movers.appendChild(gainCol);
+    movers.appendChild(loseCol);
+    container.appendChild(movers);
+}
+
+function slimTimelineRunForChronicle(r) {
+    return {
+        n: r.n || r.p || 'Unknown',
+        p: r.p || null,
+        t: r.t || null,
+        pt: r.pt,
+        id: r.id,
+        w: r.w,
+        g: !!r.g,
+        ns: r.ns || undefined
+    };
+}
+
+function buildChronicleWarEventsFromTimeline(tl) {
+    if (!tl || !tl.length) return [];
+    var full = tl.map(function (ev) {
+        return { d: ev.d, runs: (ev.runs || []).map(slimTimelineRunForChronicle) };
+    });
+    if (full.length <= 26) return { events: full, eventCount: full.length, truncated: false };
+    return {
+        events: [full[0]].concat(full.slice(-25)),
+        eventCount: full.length,
+        truncated: true
+    };
+}
+
+function renderChronicleWarReel(slot, category) {
+    slot.innerHTML = '';
+    var loading = document.createElement('div');
+    loading.className = 'stats-explorer-empty';
+    loading.textContent = 'Loading board history…';
+    slot.appendChild(loading);
+
+    var fetcher = window.githubCacheFetcher;
+    if (!fetcher || typeof fetcher.loadTimelines !== 'function') {
+        slot.innerHTML = '';
+        var missing = document.createElement('div');
+        missing.className = 'stats-explorer-empty';
+        missing.textContent = 'Timelines unavailable — cannot build war reel.';
+        slot.appendChild(missing);
+        return;
+    }
+
+    fetcher.loadTimelines().then(function (timelines) {
+        if (buildChronicleWarKey() !== category) return;
+        slot.innerHTML = '';
+        var boards = (timelines && timelines.boards) || {};
+        var tl = boards[category];
+        var meta = document.createElement('div');
+        meta.className = 'stats-chronicle-headline';
+        var catHtml = typeof formatCategoryInlineHtml === 'function'
+            ? formatCategoryInlineHtml(category)
+            : escapeHtml(category);
+        if (!tl || !tl.length) {
+            meta.innerHTML = catHtml + ' — no WR events yet.';
+            slot.appendChild(meta);
+            return;
+        }
+        var built = buildChronicleWarEventsFromTimeline(tl);
+        meta.innerHTML = catHtml + ' — ' + built.eventCount + ' events' +
+            (built.truncated ? ' (showing first + last 25)' : '');
+        slot.appendChild(meta);
+
+        var reel = document.createElement('ul');
+        reel.className = 'stats-chronicle-list stats-chronicle-reel';
+        built.events.forEach(function (ev, idx) {
+            var li = document.createElement('li');
+            var tied = ev.runs && ev.runs.length > 1;
+            li.className = 'stats-chronicle-list-item stats-chronicle-reel-item' + (tied ? ' is-tied' : '');
+            var top = document.createElement('div');
+            top.className = 'stats-chronicle-reel-top';
+            var when = document.createElement('span');
+            when.className = 'stats-chronicle-date-chip';
+            when.textContent = ev.d + (idx === 0 ? ' (first)' : '');
+            top.appendChild(when);
+            if (tied) {
+                var badge = document.createElement('span');
+                badge.className = 'stats-chronicle-tie-badge';
+                badge.textContent = ev.runs.length + '-way tie';
+                top.appendChild(badge);
+            }
+            top.appendChild(createChronicleTravelBtn(ev.d, 'Travel'));
+            li.appendChild(top);
+            var holders = document.createElement('div');
+            holders.className = 'stats-chronicle-holders';
+            (ev.runs || []).forEach(function (r, ri) {
+                if (ri) holders.appendChild(document.createTextNode(' · '));
+                holders.appendChild(createChronicleNameSpan(r.n, r.ns));
+                if (r.t) {
+                    var t = document.createElement('span');
+                    t.className = 'stats-chronicle-time';
+                    t.textContent = ' ' + formatPrimaryDisplay(r.t, /\|High Score$/.test(category));
+                    holders.appendChild(t);
+                }
+            });
+            li.appendChild(holders);
+            reel.appendChild(li);
+        });
+        slot.appendChild(reel);
+    }).catch(function () {
+        if (buildChronicleWarKey() !== category) return;
+        slot.innerHTML = '';
+        var err = document.createElement('div');
+        err.className = 'stats-explorer-empty';
+        err.textContent = 'Failed to load timelines for this board.';
+        slot.appendChild(err);
+    });
+}
+
+function renderChronicleView(body) {
+    ensureChronicleDefaults();
+    if (!chronicleData) {
+        var empty = document.createElement('div');
+        empty.className = 'stats-explorer-empty';
+        empty.textContent = 'Chronicle data not available yet. Run node scripts/chronicle-analyzer.js after the runs-derived stats rebuild.';
+        body.appendChild(empty);
+        return;
+    }
+
+    var eras = chronicleData.eras || [];
+    var empires = chronicleData.empires || [];
+    var erasChrono = eras.slice().sort(function (a, b) { return a.date.localeCompare(b.date); });
+
+    if (!chronicleEraDate && erasChrono.length) {
+        chronicleEraDate = erasChrono[erasChrono.length - 1].date;
+    }
+    if (!chronicleEmpireId && empires.length) chronicleEmpireId = empires[0].id;
+
+    var eraIdx = 0;
+    for (var ei = 0; ei < erasChrono.length; ei++) {
+        if (erasChrono[ei].date === chronicleEraDate) { eraIdx = ei; break; }
+    }
+    var era = erasChrono[eraIdx] || erasChrono[erasChrono.length - 1] || null;
+
+    var empire = null;
+    for (var pi = 0; pi < empires.length; pi++) {
+        if (empires[pi].id === chronicleEmpireId) { empire = empires[pi]; break; }
+    }
+    if (!empire && empires.length) empire = empires[0];
+
+    normalizeChronicleWarFilters();
+
+    var root = document.createElement('div');
+    root.className = 'stats-chronicle';
+
+    // —— Empire arcs (first) ——
+    var empPane = document.createElement('section');
+    empPane.className = 'stats-chronicle-pane stats-chronicle-empire';
+    var empHead = document.createElement('div');
+    empHead.className = 'stats-chronicle-pane-head';
+    var empTitle = document.createElement('h3');
+    empTitle.className = 'stats-chronicle-pane-title';
+    empTitle.textContent = 'Empire arcs';
+    empHead.appendChild(empTitle);
+    empPane.appendChild(empHead);
+
+    var empFilters = document.createElement('div');
+    empFilters.className = 'stats-explorer-filters';
+    var empOpts = empires.map(function (e) {
+        var drop = e.peakDrop || 0;
+        var peakC = e.peak ? e.peak.count : 0;
+        return {
+            value: e.id,
+            label: e.name + ' (−' + drop + ' from peak ' + peakC + ')'
+        };
+    });
+    empFilters.appendChild(createStatsSelect('Player', chronicleEmpireId || (empire && empire.id) || '', empOpts, function (v) {
+        chronicleEmpireId = v;
+        renderStatisticsExplorerContent(body);
+    }));
+    empPane.appendChild(empFilters);
+
+    if (!empire) {
+        var noEmp = document.createElement('div');
+        noEmp.className = 'stats-explorer-empty';
+        noEmp.textContent = 'No empire data.';
+        empPane.appendChild(noEmp);
+    } else {
+        var empSummary = document.createElement('div');
+        empSummary.className = 'stats-chronicle-headline';
+        var peakStr = empire.peak
+            ? (empire.peak.count + ' on ' + empire.peak.date)
+            : '—';
+        var latestStr = empire.latest
+            ? (empire.latest.count + ' on ' + empire.latest.date +
+                (empire.latest.percentage != null ? ' (' + empire.latest.percentage + '%)' : ''))
+            : '—';
+        empSummary.innerHTML = '<strong>' + escapeHtml(empire.name) + '</strong> — peak ' +
+            escapeHtml(String(peakStr)) + ', now ' + escapeHtml(String(latestStr)) +
+            ', drop <strong>' + escapeHtml(String(empire.peakDrop || 0)) + '</strong>';
+        empPane.appendChild(empSummary);
+
+        var empActions = document.createElement('div');
+        empActions.className = 'stats-chronicle-actions';
+        if (empire.peak && empire.peak.date) {
+            empActions.appendChild(createChronicleTravelBtn(empire.peak.date, 'Travel to peak'));
+        }
+        if (empire.latest && empire.latest.date) {
+            empActions.appendChild(createChronicleTravelBtn(empire.latest.date, 'Travel to latest'));
+        }
+        empPane.appendChild(empActions);
+
+        empPane.appendChild(renderEmpireSparkline(empire.series, empire.peak && empire.peak.date));
+
+        if (empire.turningPoints && empire.turningPoints.length) {
+            var tpHead = document.createElement('div');
+            tpHead.className = 'stats-chronicle-subhead';
+            tpHead.textContent = 'Turning points';
+            empPane.appendChild(tpHead);
+            var tpList = document.createElement('ul');
+            tpList.className = 'stats-chronicle-list';
+            empire.turningPoints.forEach(function (tp) {
+                var li = document.createElement('li');
+                li.className = 'stats-chronicle-list-item stats-chronicle-tp';
+                var sign = tp.delta > 0 ? '+' : '';
+                li.innerHTML = '<span>' + escapeHtml(tp.date) + '</span> ' +
+                    '<span class="' + (tp.delta >= 0 ? 'up' : 'down') + '">' +
+                    sign + tp.delta + '</span> ' +
+                    '<span>' + tp.from + ' → ' + tp.to + '</span>';
+                li.appendChild(createChronicleTravelBtn(tp.date, 'Travel'));
+                tpList.appendChild(li);
+            });
+            empPane.appendChild(tpList);
+        }
+    }
+    root.appendChild(empPane);
+
+    // —— Era newspaper ——
+    var eraPane = document.createElement('section');
+    eraPane.className = 'stats-chronicle-pane stats-chronicle-era';
+    var eraHead = document.createElement('div');
+    eraHead.className = 'stats-chronicle-pane-head';
+    var eraTitle = document.createElement('h3');
+    eraTitle.className = 'stats-chronicle-pane-title';
+    eraTitle.textContent = 'Era newspaper';
+    eraHead.appendChild(eraTitle);
+    var eraTravelSlot = document.createElement('div');
+    eraTravelSlot.className = 'stats-chronicle-travel-slot';
+    eraHead.appendChild(eraTravelSlot);
+    eraPane.appendChild(eraHead);
+
+    var eraBlurb = document.createElement('div');
+    eraBlurb.className = 'stats-chronicle-hint';
+    eraBlurb.textContent = 'Biggest story days in Snake WR history — flips, debuts, and who gained or lost records.';
+    eraPane.appendChild(eraBlurb);
+
+    var eraDetails = document.createElement('div');
+    eraDetails.className = 'stats-chronicle-era-details';
+
+    if (!erasChrono.length) {
+        fillChronicleEraDetails(eraDetails, null, eraTravelSlot);
+    } else {
+        var scrub = document.createElement('div');
+        scrub.className = 'stats-chronicle-scrub';
+        var scrubLab = document.createElement('label');
+        scrubLab.className = 'stats-chronicle-scrub-label';
+        scrubLab.textContent = 'Story days';
+        scrub.appendChild(scrubLab);
+        var range = document.createElement('input');
+        range.type = 'range';
+        range.min = '0';
+        range.max = String(Math.max(0, erasChrono.length - 1));
+        range.value = String(eraIdx);
+        range.step = '1';
+        range.className = 'stats-chronicle-range';
+        var dateChip = document.createElement('span');
+        dateChip.className = 'stats-chronicle-date-chip';
+        dateChip.textContent = era ? era.date : '';
+        range.addEventListener('input', function () {
+            var idx = Number(range.value);
+            var next = erasChrono[idx];
+            if (!next) return;
+            chronicleEraDate = next.date;
+            dateChip.textContent = next.date;
+            fillChronicleEraDetails(eraDetails, next, eraTravelSlot);
+        });
+        scrub.appendChild(range);
+        scrub.appendChild(dateChip);
+        eraPane.appendChild(scrub);
+        fillChronicleEraDetails(eraDetails, era, eraTravelSlot);
+    }
+    eraPane.appendChild(eraDetails);
+    root.appendChild(eraPane);
+
+    // —— Board war reel (5 filters) ——
+    var warPane = document.createElement('section');
+    warPane.className = 'stats-chronicle-pane stats-chronicle-war';
+    var warHead = document.createElement('div');
+    warHead.className = 'stats-chronicle-pane-head';
+    var warTitle = document.createElement('h3');
+    warTitle.className = 'stats-chronicle-pane-title';
+    warTitle.textContent = 'Board war reel';
+    warHead.appendChild(warTitle);
+    warPane.appendChild(warHead);
+
+    var warFilters = document.createElement('div');
+    warFilters.className = 'stats-explorer-filters';
+    var warSlot = document.createElement('div');
+    warSlot.className = 'stats-chronicle-war-slot';
+
+    function refreshWarFiltersAndReel() {
+        normalizeChronicleWarFilters();
+        warFilters.innerHTML = '';
+        var appleOpts2 = typeof appleAmounts !== 'undefined' ? Object.keys(appleAmounts) : ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb', 'Tally'];
+        var speedOpts2 = typeof speeds !== 'undefined' ? Object.keys(speeds) : ['Normal', 'Fast', 'Slow'];
+        var sizeOpts2 = typeof sizes !== 'undefined' ? Object.keys(sizes) : ['Standard', 'Small', 'Large'];
+        if (chronicleWarRunMode === '100 Apples') {
+            sizeOpts2 = sizeOpts2.filter(function (s) { return s !== 'Small'; });
+        }
+        var runOpts2 = typeof runModes !== 'undefined' ? Object.keys(runModes) : ['25 Apples', '50 Apples', '100 Apples', 'All Apples', 'High Score'];
+        var modeOpts2 = getChronicleWarModeOptions();
+        warFilters.appendChild(createStatsSelect('Count', chronicleWarApple, appleOpts2, function (v) {
+            chronicleWarApple = v;
+            refreshWarFiltersAndReel();
+        }));
+        warFilters.appendChild(createStatsSelect('Speed', chronicleWarSpeed, speedOpts2, function (v) {
+            chronicleWarSpeed = v;
+            refreshWarFiltersAndReel();
+        }));
+        warFilters.appendChild(createStatsSelect('Size', chronicleWarSize, sizeOpts2, function (v) {
+            chronicleWarSize = v;
+            refreshWarFiltersAndReel();
+        }));
+        warFilters.appendChild(createStatsSelect('Run', chronicleWarRunMode, runOpts2, function (v) {
+            chronicleWarRunMode = v;
+            refreshWarFiltersAndReel();
+        }));
+        warFilters.appendChild(createStatsSelect('Mode', chronicleWarGamemode, modeOpts2, function (v) {
+            chronicleWarGamemode = v;
+            refreshWarFiltersAndReel();
+        }));
+        renderChronicleWarReel(warSlot, buildChronicleWarKey());
+    }
+
+    refreshWarFiltersAndReel();
+    warPane.appendChild(warFilters);
+    warPane.appendChild(warSlot);
+    root.appendChild(warPane);
+
+    body.appendChild(root);
 }
 
 function renderProgressionView(body) {
@@ -1493,6 +2156,10 @@ function formatCategoryPartHtml(map, value) {
 
 function formatCategoryInlineHtml(parsed) {
     if (!parsed) return '—';
+    if (typeof parsed === 'string') {
+        parsed = parseCategoryKey(parsed);
+        if (!parsed) return '—';
+    }
     var parts = [
         formatCategoryPartHtml(typeof gamemodes !== 'undefined' ? gamemodes : null, parsed.gamemode),
         formatCategoryPartHtml(typeof appleAmounts !== 'undefined' ? appleAmounts : null, parsed.apple),
@@ -2105,6 +2772,7 @@ window.syncRightPanelsSideBySide = syncRightPanelsSideBySide;
 window.renderStatisticsExplorerContent = renderStatisticsExplorerContent;
 window.loadStatisticsExplorerData = loadStatisticsExplorerData;
 window.loadMasteryChallengeData = loadMasteryChallengeData;
+window.loadChronicleData = loadChronicleData;
 window.STATS_TABS = STATS_TABS;
 window.formatCategoryPartHtml = formatCategoryPartHtml;
 window.formatCategoryInlineHtml = formatCategoryInlineHtml;

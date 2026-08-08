@@ -69,6 +69,8 @@ jobs:
         node scripts/player-stats-analyzer.js --from-runs
         echo "Rebuilding statistics explorer from runs…"
         node scripts/statistics-explorer-analyzer.js --from-runs --full
+        echo "Building Chronicle…"
+        node scripts/chronicle-analyzer.js
       
     - name: Commit and push changes
       run: |

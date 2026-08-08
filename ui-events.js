@@ -1076,3 +1076,4 @@ async function setTimeTravelDate(date) {
         settingsModal.style.display = 'none';
     }
 }
+window.setTimeTravelDate = setTimeTravelDate;

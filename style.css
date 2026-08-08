@@ -2778,20 +2778,36 @@ body.dark-mode .quick-fetch-btn:disabled {
 
 	.stats-explorer-tabs {
 		display: flex;
-		flex-wrap: wrap;
-		gap: 4px;
+		flex-wrap: nowrap;
+		gap: 3px;
 		margin-bottom: 8px;
 		flex-shrink: 0;
+		overflow-x: auto;
+		overflow-y: hidden;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: thin;
+		overscroll-behavior-x: contain;
+	}
+
+	.stats-explorer-tabs::-webkit-scrollbar {
+		height: 4px;
+	}
+
+	.stats-explorer-tabs::-webkit-scrollbar-thumb {
+		background: rgba(255, 255, 255, 0.25);
+		border-radius: 4px;
 	}
 
 	.stats-explorer-tab {
+		flex: 0 0 auto;
 		background: rgba(255, 255, 255, 0.08);
 		border: 1px solid rgba(255, 255, 255, 0.15);
 		color: #eee;
 		border-radius: 6px;
-		padding: 4px 8px;
-		font-size: 11px;
+		padding: 3px 7px;
+		font-size: 10.5px;
 		cursor: pointer;
+		white-space: nowrap;
 	}
 
 	.stats-explorer-tab.active,
@@ -2880,19 +2896,21 @@ body.dark-mode .quick-fetch-btn:disabled {
 	/* Keep desktop Statistics panel layout independent of mobile explorer styles */
 	.stats-explorer-wrapper .stats-explorer-tabs {
 		display: flex;
-		flex-wrap: wrap;
-		gap: 4px;
+		flex-wrap: nowrap;
+		gap: 3px;
 		margin: 0 0 8px;
-		padding: 0;
-		overflow: visible;
+		padding: 0 0 2px;
+		overflow-x: auto;
+		overflow-y: hidden;
 	}
 
 	.stats-explorer-wrapper .stats-explorer-tab {
-		flex: 0 1 auto;
+		flex: 0 0 auto;
 		border-radius: 6px;
-		padding: 4px 8px;
-		font-size: 11px;
+		padding: 3px 7px;
+		font-size: 10.5px;
 		font-weight: 500;
+		white-space: nowrap;
 	}
 
 	.stats-explorer-wrapper .stats-explorer-filters {
@@ -3228,6 +3246,252 @@ body.dark-mode .quick-fetch-btn:disabled {
 	.stats-axis-y-label {
 		font-size: 8px;
 		fill: rgba(255, 255, 255, 0.75);
+	}
+
+	/* Chronicle */
+	.stats-chronicle {
+		display: flex;
+		flex-direction: column;
+		gap: 14px;
+	}
+
+	.stats-chronicle-pane {
+		padding: 10px 10px 12px;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		border-radius: 8px;
+		background: rgba(0, 0, 0, 0.18);
+	}
+
+	body:not(.dark-mode) .stats-chronicle-pane {
+		border-color: rgba(0, 0, 0, 0.1);
+		background: rgba(255, 255, 255, 0.45);
+	}
+
+	.stats-chronicle-pane-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px;
+		margin-bottom: 8px;
+	}
+
+	.stats-chronicle-pane-title {
+		margin: 0;
+		font-size: 14px;
+		font-weight: 700;
+	}
+
+	.stats-chronicle-travel {
+		flex-shrink: 0;
+		border: 1px solid rgba(143, 209, 79, 0.55);
+		background: rgba(87, 138, 52, 0.25);
+		color: inherit;
+		border-radius: 6px;
+		padding: 4px 8px;
+		font-size: 11px;
+		cursor: pointer;
+	}
+
+	.stats-chronicle-travel:hover:not(:disabled) {
+		background: rgba(87, 138, 52, 0.45);
+	}
+
+	.stats-chronicle-travel:disabled {
+		opacity: 0.45;
+		cursor: default;
+	}
+
+	.stats-chronicle-scrub {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-bottom: 8px;
+		flex-wrap: wrap;
+	}
+
+	.stats-chronicle-scrub-label {
+		font-size: 11px;
+		opacity: 0.8;
+	}
+
+	.stats-chronicle-range {
+		flex: 1;
+		min-width: 120px;
+		accent-color: #8fd14f;
+		cursor: pointer;
+	}
+
+	.stats-chronicle-travel-slot {
+		display: flex;
+		align-items: center;
+	}
+
+	.stats-chronicle-list-item.is-debut {
+		border-color: rgba(120, 180, 255, 0.45);
+		background: rgba(80, 130, 220, 0.12);
+	}
+
+	.stats-chronicle-debut-kind {
+		display: inline-block;
+		font-size: 10px;
+		padding: 1px 5px;
+		border-radius: 999px;
+		background: rgba(120, 180, 255, 0.25);
+		margin-right: 4px;
+	}
+
+	.stats-chronicle-date-chip {
+		font-size: 11px;
+		font-variant-numeric: tabular-nums;
+		padding: 2px 6px;
+		border-radius: 4px;
+		background: rgba(143, 209, 79, 0.18);
+	}
+
+	.stats-chronicle-headline {
+		font-size: 12px;
+		margin-bottom: 8px;
+		line-height: 1.35;
+	}
+
+	.stats-chronicle-subhead {
+		font-size: 11px;
+		font-weight: 700;
+		margin: 8px 0 4px;
+		opacity: 0.85;
+	}
+
+	.stats-chronicle-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		max-height: 220px;
+		overflow-y: auto;
+	}
+
+	.stats-chronicle-list-item {
+		font-size: 11px;
+		padding: 6px 8px;
+		border-radius: 6px;
+		background: rgba(255, 255, 255, 0.04);
+		border: 1px solid transparent;
+	}
+
+	body:not(.dark-mode) .stats-chronicle-list-item {
+		background: rgba(0, 0, 0, 0.04);
+	}
+
+	.stats-chronicle-list-item.is-tied {
+		border-color: rgba(255, 196, 72, 0.45);
+	}
+
+	.stats-chronicle-cat {
+		margin-bottom: 2px;
+	}
+
+	.stats-chronicle-tier-badge {
+		display: inline-block;
+		font-size: 10px;
+		padding: 1px 5px;
+		border-radius: 999px;
+		background: rgba(255, 140, 90, 0.28);
+		margin-left: 4px;
+		vertical-align: middle;
+	}
+
+	.stats-chronicle-handoff {
+		opacity: 0.9;
+	}
+
+	.stats-chronicle-hint {
+		font-size: 11px;
+		opacity: 0.7;
+		line-height: 1.35;
+		margin: 0 0 8px;
+	}
+
+	.stats-chronicle-tie-badge {
+		display: inline-block;
+		font-size: 10px;
+		padding: 1px 5px;
+		border-radius: 999px;
+		background: rgba(255, 196, 72, 0.25);
+		margin-left: 4px;
+	}
+
+	.stats-chronicle-movers {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 8px;
+		margin-top: 8px;
+		font-size: 11px;
+	}
+
+	.stats-chronicle-mover.up,
+	.stats-chronicle-tp .up {
+		color: #8fd14f;
+	}
+
+	.stats-chronicle-mover.down,
+	.stats-chronicle-tp .down {
+		color: #f07178;
+	}
+
+	.stats-chronicle-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		margin-bottom: 8px;
+	}
+
+	.stats-chronicle-sparkline {
+		margin: 4px 0 8px;
+	}
+
+	.stats-chronicle-peak-dot {
+		fill: #ffc448;
+		stroke: #1a1a1a;
+		stroke-width: 1;
+	}
+
+	.stats-chronicle-tp {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px;
+		flex-wrap: wrap;
+	}
+
+	.stats-chronicle-reel {
+		max-height: 280px;
+	}
+
+	.stats-chronicle-reel-top {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		flex-wrap: wrap;
+		margin-bottom: 4px;
+	}
+
+	.stats-chronicle-holders {
+		line-height: 1.4;
+	}
+
+	.stats-chronicle-time {
+		opacity: 0.75;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.mobile-stats-explorer .stats-chronicle {
+		gap: 12px;
+	}
+
+	.mobile-stats-explorer .stats-chronicle-movers {
+		grid-template-columns: 1fr;
 	}
 
 	.stats-explorer-tooltip {
