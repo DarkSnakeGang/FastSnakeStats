@@ -26,6 +26,37 @@ function buildPlayerDataEntry(player) {
     };
 }
 
+const ALL_MODE_NAMES = [
+    "Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang",
+    "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield",
+    "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful", "Chess", "Burger"
+];
+
+/** Modes to fetch for live/quick paths given CE display + visibility */
+function getFetchModeNames(requireVisible) {
+    return ALL_MODE_NAMES.filter(function (name) {
+        if (typeof isModeDisplayed === 'function') {
+            if (!isModeDisplayed(name)) return false;
+            return true;
+        }
+        if (requireVisible && gamemodes[name] && !gamemodes[name].visible) return false;
+        if (typeof isCeLevelMode === 'function' && isCeLevelMode(name)) {
+            return typeof getCeDisplayMode === 'function' && getCeDisplayMode() !== 'off';
+        }
+        return true;
+    });
+}
+
+function isFetchHighscoreMode(modeName) {
+    if (typeof shouldShowHighScoreColumn === 'function') {
+        // HS column for typical HS + CE level modes (count ignored for typical/CE)
+        return shouldShowHighScoreColumn('1 Apple', modeName) ||
+            shouldShowHighScoreColumn('Tally', modeName);
+    }
+    const typical = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge", "Chess", "Burger"];
+    return typical.indexOf(modeName) !== -1;
+}
+
 function makeAPIrequest(requestURL, callback){
     // Add id to solve query issue
     hasQuery = requestURL.includes("?")
@@ -440,11 +471,14 @@ async function refreshSpecificTable(settings) {
         // Fetch world records for all game modes and levels for this specific combination
         const levels = ["25", "50", "100", "All"];
         const highscoreLevels = ["H"]; // Only for highscore modes
-        const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
-        const highscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 20]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Bridge
+        const modeNames = ALL_MODE_NAMES.slice();
+        const highscoreModes = modeNames
+            .map(function (n, i) { return isFetchHighscoreMode(n) ? i : -1; })
+            .filter(function (i) { return i >= 0; });
         
         // Fetch regular level-based records for all modes
         for (let modeIndex = 0; modeIndex < modeNames.length; modeIndex++) {
+            if (typeof isModeDisplayed === 'function' && !isModeDisplayed(modeNames[modeIndex])) continue;
             for (let levelIndex = 0; levelIndex < levels.length; levelIndex++) {
                 const level = levels[levelIndex];
                 const mode = modeIndex;
@@ -498,6 +532,7 @@ async function refreshSpecificTable(settings) {
             const level = highscoreLevels[levelIndex];
             for (let modeIndex = 0; modeIndex < highscoreModes.length; modeIndex++) {
                 const mode = highscoreModes[modeIndex];
+                if (typeof isModeDisplayed === 'function' && !isModeDisplayed(modeNames[mode])) continue;
                 
                 try {
                     let record;
@@ -678,8 +713,10 @@ async function getAllWorldRecordsForCurrentSettings() {
     // When multiple tables is disabled, only fetch for visible modes and levels
     const levels = ["25", "50", "100", "All"];
     const highscoreLevels = ["H"]; // Only for highscore modes
-    const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
-    const highscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 20]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Bridge
+    const modeNames = ALL_MODE_NAMES.slice();
+    const highscoreModes = modeNames
+        .map(function (n, i) { return isFetchHighscoreMode(n) ? i : -1; })
+        .filter(function (i) { return i >= 0; });
     
     // When multiple tables is disabled, only use visible modes and levels
     let selectedModes = [];
@@ -687,14 +724,18 @@ async function getAllWorldRecordsForCurrentSettings() {
     let selectedHighscoreModes = [];
     
     if (isMultipleTablesEnabled) {
-        // In multiple tables mode, fetch for all modes and levels
-        selectedModes = modeNames;
+        // In multiple tables mode, fetch for displayed modes and levels
+        selectedModes = getFetchModeNames(false);
         selectedLevels = levels;
-        selectedHighscoreModes = highscoreModes;
+        selectedHighscoreModes = highscoreModes.filter(function (idx) {
+            return selectedModes.indexOf(modeNames[idx]) !== -1;
+        });
     } else {
-        // In single table mode, only fetch for visible modes and levels
+        // In single table mode, only fetch for visible/displayed modes and levels
         for (let i = 0; i < modeNames.length; i++) {
-            if (gamemodes[modeNames[i]] && gamemodes[modeNames[i]].visible) {
+            if (typeof isModeDisplayed === 'function') {
+                if (isModeDisplayed(modeNames[i])) selectedModes.push(modeNames[i]);
+            } else if (gamemodes[modeNames[i]] && gamemodes[modeNames[i]].visible) {
                 selectedModes.push(modeNames[i]);
             }
         }
@@ -708,7 +749,9 @@ async function getAllWorldRecordsForCurrentSettings() {
         
         // Check if High Score is visible
         if (runModes["High Score"] && runModes["High Score"].visible) {
-            selectedHighscoreModes = highscoreModes;
+            selectedHighscoreModes = highscoreModes.filter(function (idx) {
+                return selectedModes.indexOf(modeNames[idx]) !== -1;
+            });
         }
     }
     
@@ -793,6 +836,9 @@ async function getAllWorldRecordsForCurrentSettings() {
                 typeof TALLY_CE_HIGHSCORE_MODES !== 'undefined') {
                 for (let ci = 0; ci < TALLY_CE_HIGHSCORE_MODES.length; ci++) {
                     const modeName = TALLY_CE_HIGHSCORE_MODES[ci];
+                    if (typeof isModeDisplayed === 'function' && !isModeDisplayed(modeName)) {
+                        continue;
+                    }
                     if (!isMultipleTablesEnabled && gamemodes[modeName] && !gamemodes[modeName].visible) {
                         continue;
                     }
@@ -1066,8 +1112,10 @@ async function getAllWorldRecordsForDate(date) {
     // When multiple tables is disabled, only fetch for visible modes and levels
     const levels = ["25", "50", "100", "All"];
     const highscoreLevels = ["H"]; // Only for highscore modes
-    const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
-    const highscoreModes = [1, 2, 8, 9, 10, 12, 13, 15, 17, 19, 20]; // Wall, Portal, Key, Sokoban, Poison, Minesweeper, Statue, Shield, Hotdog, Gate, Bridge
+    const modeNames = ALL_MODE_NAMES.slice();
+    const highscoreModes = modeNames
+        .map(function (n, i) { return isFetchHighscoreMode(n) ? i : -1; })
+        .filter(function (i) { return i >= 0; });
     
     // When multiple tables is disabled, only use visible modes and levels
     let selectedModes = [];
@@ -1075,14 +1123,18 @@ async function getAllWorldRecordsForDate(date) {
     let selectedHighscoreModes = [];
     
     if (isMultipleTablesEnabled) {
-        // In multiple tables mode, fetch for all modes and levels
-        selectedModes = modeNames;
+        // In multiple tables mode, fetch for displayed modes and levels
+        selectedModes = getFetchModeNames(false);
         selectedLevels = levels;
-        selectedHighscoreModes = highscoreModes;
+        selectedHighscoreModes = highscoreModes.filter(function (idx) {
+            return selectedModes.indexOf(modeNames[idx]) !== -1;
+        });
     } else {
-        // In single table mode, only fetch for visible modes and levels
+        // In single table mode, only fetch for visible/displayed modes and levels
         for (let i = 0; i < modeNames.length; i++) {
-            if (gamemodes[modeNames[i]] && gamemodes[modeNames[i]].visible) {
+            if (typeof isModeDisplayed === 'function') {
+                if (isModeDisplayed(modeNames[i])) selectedModes.push(modeNames[i]);
+            } else if (gamemodes[modeNames[i]] && gamemodes[modeNames[i]].visible) {
                 selectedModes.push(modeNames[i]);
             }
         }
@@ -1096,7 +1148,9 @@ async function getAllWorldRecordsForDate(date) {
         
         // Check if High Score is visible
         if (runModes["High Score"] && runModes["High Score"].visible) {
-            selectedHighscoreModes = highscoreModes;
+            selectedHighscoreModes = highscoreModes.filter(function (idx) {
+                return selectedModes.indexOf(modeNames[idx]) !== -1;
+            });
         }
     }
     
@@ -1191,6 +1245,9 @@ async function getAllWorldRecordsForDate(date) {
                 typeof TALLY_CE_HIGHSCORE_MODES !== 'undefined') {
                 for (let ci = 0; ci < TALLY_CE_HIGHSCORE_MODES.length; ci++) {
                     const modeName = TALLY_CE_HIGHSCORE_MODES[ci];
+                    if (typeof isModeDisplayed === 'function' && !isModeDisplayed(modeName)) {
+                        continue;
+                    }
                     if (!isMultipleTablesEnabled && gamemodes[modeName] && !gamemodes[modeName].visible) {
                         continue;
                     }

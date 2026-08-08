@@ -45,7 +45,9 @@ var gamemodes =    {"Classic":{visible:true,icon:"https://i.ibb.co/Q3Qh6BSy/trop
 		    "Magnet":{visible:true,icon:"https://i.ibb.co/nMbMjjfL/trophy-18-png.png",id:"trophy_19"},
 		    "Gate":{visible:true,icon:"https://i.ibb.co/1tp8JqBM/trophy-19-png.png",id:"trophy_20"},
 		    "Bridge":{visible:true,icon:"https://i.ibb.co/Kj7tYtM7/trophy-20.png",id:"trophy_22"},
-                    "Peaceful":{visible:true,icon:"https://i.ibb.co/jvrCYD8r/trophy-17-png.png",id:"trophy_21"}};
+                    "Peaceful":{visible:true,icon:"https://i.ibb.co/jvrCYD8r/trophy-17-png.png",id:"trophy_21"},
+                    "Chess":{visible:false,icon:"https://i.postimg.cc/ZqK0CB95/bn.png",id:"trophy_chess"},
+                    "Burger":{visible:false,icon:"https://i.postimg.cc/13m2Cr16/burger.png",id:"trophy_burger"}};
 var runModes =     {"25 Apples":{visible:true,icon:null,text:"25 Apples",id:"mode_00"},
                     "50 Apples":{visible:true,icon:null,text:"50 Apples",id:"mode_01"},
                     "100 Apples":{visible:true,icon:null,text:"100 Apples",id:"mode_02"},
@@ -64,6 +66,7 @@ var isDarkMode = false; // Default to light mode
 var isTimeTravelEnabled = false; // Time travel toggle state
 var selectedTimeTravelDate = ""; // Currently selected date for time travel
 var isMultipleTablesEnabled = false; // Multiple tables toggle state
+var ceDisplayMode = 'off'; // 'off' | 'mix' | 'only' — Category Extensions (Chess/Burger)
 var isCategoryCollapsed = false; // Desktop left Category Settings panel
 var isSummaryCollapsed = false; // Desktop right Rankings panel
 var isStatsExplorerCollapsed = true; // Desktop right Statistics panel (default collapsed)
@@ -187,6 +190,21 @@ function loadSettings() {
     } else {
         isMultipleTablesEnabled = localStorage.getItem('multipleTablesEnabled') === 'true';
     }
+    if(localStorage.getItem('ceDisplayMode') == null){
+        localStorage.setItem('ceDisplayMode', ceDisplayMode);
+    } else {
+        var storedCe = localStorage.getItem('ceDisplayMode');
+        if (storedCe === 'off' || storedCe === 'mix' || storedCe === 'only') {
+            ceDisplayMode = storedCe;
+        } else {
+            ceDisplayMode = 'off';
+        }
+        if (typeof setCeDisplayMode === 'function') setCeDisplayMode(ceDisplayMode);
+    }
+    if (ceDisplayMode === 'mix' || ceDisplayMode === 'only') {
+        if (gamemodes.Chess) gamemodes.Chess.visible = true;
+        if (gamemodes.Burger) gamemodes.Burger.visible = true;
+    }
 
     // Load desktop panel collapse settings (default open)
     if(localStorage.getItem('categorySettingsCollapsed') == null){
@@ -274,6 +292,7 @@ function saveSettings() {
     localStorage.setItem('timeTravelEnabled', isTimeTravelEnabled);
     localStorage.setItem('selectedTimeTravelDate', selectedTimeTravelDate);
     localStorage.setItem('multipleTablesEnabled', isMultipleTablesEnabled);
+    localStorage.setItem('ceDisplayMode', ceDisplayMode);
     localStorage.setItem('categorySettingsCollapsed', isCategoryCollapsed);
     localStorage.setItem('summaryCollapsed', isSummaryCollapsed);
     localStorage.setItem('statsExplorerCollapsed', isStatsExplorerCollapsed);

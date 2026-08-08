@@ -18,6 +18,17 @@ const {
     CE_GAME_ID,
     CE_TALLY_HS_CATEGORY_ID
 } = require('../tally-boards');
+const {
+    CE_LEVEL_MODES,
+    CE_LEVEL_BY_NAME,
+    CE_LEVEL_CATEGORY_IDS,
+    CE_LEVEL_VAR_COUNT,
+    CE_LEVEL_VAR_SIZE,
+    CE_LEVEL_VAR_SPEED,
+    normalizeCeCountLabel,
+    normalizeCeRunLabel,
+    isCeLevelMode
+} = require('../ce-modes');
 const { isIgnoredPlayerName, shouldSkipBoardFetch } = require('../ignored-players');
 
 const GAME_ID = 'o1y9pyk6';
@@ -218,10 +229,12 @@ class RunsArchiveFetcher {
         ingest(variables.data.find((v) => v.name === 'Board Size'));
         variables.data.filter((v) => v.name === 'Speed').forEach(ingest);
 
-        // CE Tally HS metadata (optional)
+        // CE Tally HS metadata (optional) + CE level board vars (Chess/Burger)
         let ceModeLabelById = {};
         let ceSpeedLabelById = {};
         let ceSizeLabelById = {};
+        let ceLevelCountLabelById = {};
+        let ceLevelSizeLabelById = {};
         try {
             const ceVars = await this.fetchAPI(`${BASE}/games/${CE_GAME_ID}/variables`);
             for (const v of ceVars.data || []) {
@@ -232,8 +245,23 @@ class RunsArchiveFetcher {
                     }
                 }
                 if (v.name === 'Mode' || v.id === 'onvxz158') ceModeLabelById = map;
-                if (v.name === 'Speed' || v.id === 'gnx3m4gn') Object.assign(ceSpeedLabelById, map);
-                if (v.name === 'Board Size' || v.id === 'ql6mkzw8') Object.assign(ceSizeLabelById, map);
+                if (v.name === 'Speed' || v.id === CE_LEVEL_VAR_SPEED || v.id === 'gnx3m4gn') {
+                    Object.assign(ceSpeedLabelById, map);
+                }
+                // Tally CE HS board size (distinct from level boards)
+                if (v.name === 'Board Size' || v.id === 'ql6mkzw8') {
+                    if (v.id === 'ql6mkzw8' || !Object.keys(ceSizeLabelById).length) {
+                        Object.assign(ceSizeLabelById, map);
+                    }
+                }
+                if (v.id === CE_LEVEL_VAR_COUNT) {
+                    for (const [id, label] of Object.entries(map)) {
+                        ceLevelCountLabelById[id] = normalizeCeCountLabel(label) || label;
+                    }
+                }
+                if (v.id === CE_LEVEL_VAR_SIZE) {
+                    ceLevelSizeLabelById = map;
+                }
             }
         } catch (e) {
             console.warn('⚠️ CE metadata load failed:', e.message);
@@ -252,7 +280,9 @@ class RunsArchiveFetcher {
             sizeSet: new Set(SIZE_NAMES),
             ceModeLabelById,
             ceSpeedLabelById,
-            ceSizeLabelById
+            ceSizeLabelById,
+            ceLevelCountLabelById,
+            ceLevelSizeLabelById
         };
         console.log(
             `✅ Metadata: categories=${Object.keys(categoryByName).length} HS=${Object.keys(highScoreCategoryByMode).length} modes=${Object.keys(levelByMode).length}`
@@ -416,6 +446,62 @@ class RunsArchiveFetcher {
         };
     }
 
+    /**
+     * Chess / Burger full-matrix runs on snake_game_ce levels.
+     * Category keys: {Count}|{Speed}|{Size}|{Chess|Burger}|{25|50|100|All Apples|High Score}
+     */
+    classifyCeLevelRun(run, expectedMode, expectedCategoryName) {
+        if (!isCeLevelMode(expectedMode)) return null;
+        const values = run.values || {};
+        let apple = null;
+        let speed = null;
+        let size = null;
+
+        for (const [varId, valueId] of Object.entries(values)) {
+            if (varId === CE_LEVEL_VAR_COUNT || this.maps.ceLevelCountLabelById[valueId]) {
+                const label = this.maps.ceLevelCountLabelById[valueId];
+                if (label && this.maps.appleSet.has(label)) apple = label;
+            }
+            if (varId === CE_LEVEL_VAR_SPEED || this.maps.ceSpeedLabelById[valueId]) {
+                const label = this.maps.ceSpeedLabelById[valueId];
+                if (label && this.maps.speedSet.has(label)) speed = label;
+            }
+            if (varId === CE_LEVEL_VAR_SIZE || this.maps.ceLevelSizeLabelById[valueId]) {
+                const label = this.maps.ceLevelSizeLabelById[valueId];
+                if (label && this.maps.sizeSet.has(label)) size = label;
+            }
+        }
+        // Fallback: scan CE level maps by value id only
+        for (const valueId of Object.values(values)) {
+            if (!apple && this.maps.ceLevelCountLabelById[valueId]) {
+                const label = this.maps.ceLevelCountLabelById[valueId];
+                if (this.maps.appleSet.has(label)) apple = label;
+            }
+            if (!speed && this.maps.ceSpeedLabelById[valueId]) {
+                const label = this.maps.ceSpeedLabelById[valueId];
+                if (this.maps.speedSet.has(label)) speed = label;
+            }
+            if (!size && this.maps.ceLevelSizeLabelById[valueId]) {
+                const label = this.maps.ceLevelSizeLabelById[valueId];
+                if (this.maps.sizeSet.has(label)) size = label;
+            }
+        }
+
+        if (!apple || !speed || !size) return null;
+        if (shouldSkipBoardFetch(apple, expectedMode, expectedCategoryName)) return null;
+
+        const runCategory = normalizeCeRunLabel(expectedCategoryName) || expectedCategoryName;
+        return {
+            category: `${apple}|${speed}|${size}|${expectedMode}|${runCategory}`,
+            mode: expectedMode,
+            runCategory,
+            apple,
+            speed,
+            size,
+            source: 'ce'
+        };
+    }
+
     extractPlayer(run) {
         const players = run.players;
         let list = [];
@@ -475,6 +561,7 @@ class RunsArchiveFetcher {
             guest: !!player.guest,
             nameStyle: player.nameStyle || null
         };
+        if (classified.source) record.source = classified.source;
 
         const shard = this.loadShard(classified.mode, classified.runCategory);
         shard.runs[run.id] = record;
@@ -646,6 +733,45 @@ class RunsArchiveFetcher {
                 }
             });
         }
+
+        // CE level modes (Chess / Burger) — full timed + High Score matrix
+        const ceModes = modeFilter && modeFilter.length
+            ? CE_LEVEL_MODES.filter((m) => modeFilter.includes(m))
+            : CE_LEVEL_MODES.slice();
+        for (const modeName of ceModes) {
+            const levelId = CE_LEVEL_BY_NAME[modeName];
+            if (!levelId) continue;
+            if (wantTimed) {
+                for (const catName of timedCategories) {
+                    const categoryId = CE_LEVEL_CATEGORY_IDS[catName];
+                    if (!categoryId) continue;
+                    streams.push({
+                        label: `CE/${modeName}/${catName}`,
+                        gameId: CE_GAME_ID,
+                        categoryId,
+                        levelId,
+                        modeName,
+                        catName,
+                        classify: (run) => this.classifyCeLevelRun(run, modeName, catName)
+                    });
+                }
+            }
+            if (wantHS) {
+                const hsCatId = CE_LEVEL_CATEGORY_IDS['High Score'];
+                if (hsCatId) {
+                    streams.push({
+                        label: `CE/${modeName}/High Score`,
+                        gameId: CE_GAME_ID,
+                        categoryId: hsCatId,
+                        levelId,
+                        modeName,
+                        catName: 'High Score',
+                        classify: (run) => this.classifyCeLevelRun(run, modeName, 'High Score')
+                    });
+                }
+            }
+        }
+
         return streams;
     }
 

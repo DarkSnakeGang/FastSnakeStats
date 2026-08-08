@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-08-08T01:07:13.770Z",
+  "lastUpdated": "2026-08-08T03:15:59.268Z",
   "version": 1,
   "backfillComplete": true,
   "lastVerifyDate": "2026-08-07T22:31:44Z",
-  "seenRuns": 45686,
-  "totalRuns": 45658,
+  "seenRuns": 45771,
+  "totalRuns": 45743,
   "shards": [
     {
       "mode": "Arrow",
@@ -113,6 +113,36 @@
       "category": "High Score",
       "path": "time-travel-cache/runs/Cheese/High_Score.json",
       "count": 2
+    },
+    {
+      "mode": "Chess",
+      "category": "100 Apples",
+      "path": "time-travel-cache/runs/Chess/100_Apples.json",
+      "count": 1
+    },
+    {
+      "mode": "Chess",
+      "category": "25 Apples",
+      "path": "time-travel-cache/runs/Chess/25_Apples.json",
+      "count": 40
+    },
+    {
+      "mode": "Chess",
+      "category": "50 Apples",
+      "path": "time-travel-cache/runs/Chess/50_Apples.json",
+      "count": 14
+    },
+    {
+      "mode": "Chess",
+      "category": "All Apples",
+      "path": "time-travel-cache/runs/Chess/All_Apples.json",
+      "count": 7
+    },
+    {
+      "mode": "Chess",
+      "category": "High Score",
+      "path": "time-travel-cache/runs/Chess/High_Score.json",
+      "count": 23
     },
     {
       "mode": "Classic",

@@ -148,6 +148,79 @@ class WorldRecordFetcher {
             date
         };
     }
+
+    /**
+     * Chess / Burger CE level boards (timed + Highscore) on snake_game_ce.
+     * level: "25"|"50"|"100"|"All"|"H"
+     */
+    async fetchCeLevelWorldRecord(level, modeName, countName, speedName, sizeName, date) {
+        await this.initializeCeMetadata();
+        const ceId = (typeof CE_GAME_ID !== 'undefined') ? CE_GAME_ID : '9dow0go1';
+        const levelId = (typeof CE_LEVEL_BY_NAME !== 'undefined' && CE_LEVEL_BY_NAME[modeName])
+            ? CE_LEVEL_BY_NAME[modeName]
+            : null;
+        if (!levelId) {
+            return { success: false, runs: [], settings: { count: countName, speed: speedName, size: sizeName } };
+        }
+
+        const isHS = level === 'H' || level === 'High Score';
+        const runLabel = isHS ? 'High Score' : `${level} Apples`;
+        const catId = (typeof CE_LEVEL_CATEGORY_IDS !== 'undefined' && CE_LEVEL_CATEGORY_IDS[runLabel])
+            ? CE_LEVEL_CATEGORY_IDS[runLabel]
+            : null;
+        if (!catId) {
+            return { success: false, runs: [], settings: { count: countName, speed: speedName, size: sizeName } };
+        }
+
+        const countVar = (typeof CE_LEVEL_VAR_COUNT !== 'undefined') ? CE_LEVEL_VAR_COUNT : 'onvjo65n';
+        const sizeVar = (typeof CE_LEVEL_VAR_SIZE !== 'undefined') ? CE_LEVEL_VAR_SIZE : 'e8mpx9x8';
+        const speedVar = (typeof CE_LEVEL_VAR_SPEED !== 'undefined') ? CE_LEVEL_VAR_SPEED : 'gnx3m4gn';
+
+        let countId = this.resolveCeVarValue(countVar, countName);
+        if (!countId && countName === '10 Apples') {
+            countId = this.resolveCeVarValue(countVar, '10a') || this.resolveCeVarValue(countVar, '10A');
+        }
+        const speedId = this.resolveCeVarValue(speedVar, speedName);
+        const sizeId = this.resolveCeVarValue(sizeVar, sizeName);
+        if (!countId || !speedId || !sizeId) {
+            return { success: false, runs: [], settings: { count: countName, speed: speedName, size: sizeName } };
+        }
+
+        let url = `https://www.speedrun.com/api/v1/leaderboards/${ceId}/level/${levelId}/${catId}` +
+            `?top=1&var-${countVar}=${countId}&var-${speedVar}=${speedId}&var-${sizeVar}=${sizeId}`;
+        if (date) {
+            const d = /T/.test(String(date)) ? String(date) : `${date}T23:59:59Z`;
+            url += `&date=${d}`;
+        }
+
+        const leaderboard = await this.fetchAPI(url);
+        if (!leaderboard || !leaderboard.data || !leaderboard.data.runs || !leaderboard.data.runs.length) {
+            return { success: false, runs: [], settings: { count: countName, speed: speedName, size: sizeName }, date };
+        }
+
+        const bestTime = leaderboard.data.runs[0].run.times.primary;
+        const tiedRuns = [];
+        for (const run of leaderboard.data.runs) {
+            if (run.run.times.primary !== bestTime) break;
+            if (!run.run.players || !run.run.players.length) continue;
+            const player = await this.resolvePlayerFromRef(run.run.players[0]);
+            if (!player) continue;
+            tiedRuns.push({
+                player: { name: player.name, id: player.id, nameStyle: player.nameStyle },
+                time: { raw: run.run.times.primary, formatted: this.formatTime(run.run.times.primary) },
+                date: new Date(run.run.date),
+                runId: run.run.id,
+                weblink: run.run.weblink
+            });
+        }
+        return {
+            success: tiedRuns.length > 0,
+            runs: tiedRuns,
+            category: `${modeName} - ${runLabel} (${countName}, ${speedName}, ${sizeName})`,
+            settings: { count: countName, speed: speedName, size: sizeName },
+            date
+        };
+    }
     
     // Simple API request function with retry logic
     async fetchAPI(url, maxRetries = 10, baseDelay = 1000) {
@@ -385,7 +458,7 @@ class WorldRecordFetcher {
     async getWorldRecord(level, mode = 0, count = 0, speed = 0, size = 0) {
         try {
             // Check cache first
-            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful", "Chess", "Burger"];
             const modeName = modeNames[mode];
             const categoryName = level === "H" ? modeName : `${level} Apples`;
             const countName = (typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"])[count];
@@ -406,6 +479,19 @@ class WorldRecordFetcher {
 
             const speedName = ["Normal", "Fast", "Slow"][speed];
             const sizeName = ["Standard", "Small", "Large"][size];
+
+            // CE Chess / Burger level boards
+            if (typeof isCeLevelMode === 'function' && isCeLevelMode(modeName)) {
+                if (typeof getCeDisplayMode === 'function' && getCeDisplayMode() === 'off') {
+                    return { success: false, runs: [], settings: { count: countName, speed: speedName, size: sizeName } };
+                }
+                const ceResult = await this.fetchCeLevelWorldRecord(level, modeName, countName, speedName, sizeName);
+                if (window.cacheManager) {
+                    const cacheKey = window.cacheManager.getCacheKey([modeName, level === 'H' ? modeName : `${level} Apples`, countName, speedName, sizeName]);
+                    window.cacheManager.updateCacheIfChanged(cacheKey, ceResult);
+                }
+                return ceResult;
+            }
 
             // Tally HS on non-typical modes → CE category rkl4elqd
             if (level === 'H' && countName === 'Tally' &&
@@ -601,7 +687,7 @@ class WorldRecordFetcher {
                 throw error;
             }
             
-            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful", "Chess", "Burger"];
             const categoryName = level === "H" ? modeNames[mode] : level + " Apples";
             return {
                 success: false,
@@ -620,7 +706,7 @@ class WorldRecordFetcher {
     async getWorldRecordForDate(level, mode = 0, count = 0, speed = 0, size = 0, date) {
         try {
             // Check cache first
-            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful", "Chess", "Burger"];
             const modeName = modeNames[mode];
             const categoryName = level === "H" ? modeName : `${level} Apples`;
             const countName = (typeof COUNT_NAMES !== "undefined" ? COUNT_NAMES : ["1 Apple", "3 Apples", "5 Apples", "10 Apples", "Dice", "Bomb", "Tally"])[count];
@@ -642,6 +728,20 @@ class WorldRecordFetcher {
 
             const speedName = ["Normal", "Fast", "Slow"][speed];
             const sizeName = ["Standard", "Small", "Large"][size];
+
+            // CE Chess / Burger level boards
+            if (typeof isCeLevelMode === 'function' && isCeLevelMode(modeName)) {
+                if (typeof getCeDisplayMode === 'function' && getCeDisplayMode() === 'off') {
+                    return { success: false, runs: [], settings: { count: countName, speed: speedName, size: sizeName }, date };
+                }
+                const ceResult = await this.fetchCeLevelWorldRecord(level, modeName, countName, speedName, sizeName, date);
+                if (window.cacheManager) {
+                    const cacheKey = window.cacheManager.getCacheKey(
+                        [modeName, level === 'H' ? modeName : `${level} Apples`, countName, speedName, sizeName], date);
+                    window.cacheManager.updateCacheIfChanged(cacheKey, ceResult);
+                }
+                return ceResult;
+            }
 
             // Tally HS on non-typical modes → CE category rkl4elqd
             if (level === 'H' && countName === 'Tally' &&
@@ -841,7 +941,7 @@ class WorldRecordFetcher {
                 throw error;
             }
             
-            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful", "Chess", "Burger"];
             const categoryName = level === "H" ? modeNames[mode] : level + " Apples";
             return {
                 success: false,
@@ -873,8 +973,8 @@ class WorldRecordFetcher {
         // Process ALL cache checks instantly with maximum concurrency
         const cachePromises = requests.map(async (request, index) => {
             // Generate cache key for this request
-            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"];
-            const modeName = modeNames[request.mode];
+            const modeNames = ["Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful", "Chess", "Burger"];
+            const modeName = request.modeName || modeNames[request.mode];
             
             // Check if this is a high score request (either by level or levelName)
             const isHighScore = request.level === "H" || request.levelName === "High Score";

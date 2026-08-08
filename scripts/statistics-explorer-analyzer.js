@@ -18,7 +18,7 @@ const { isTallyCeHighscoreMode } = require('../tally-boards');
  */
 
 /** Bump whenever scoring / legends / hold logic changes (forces full rebuild). */
-const ANALYZER_VERSION = 18;
+const ANALYZER_VERSION = 19;
 
 const DIFFICULTY_TIERS = ['Free', 'Warmup', 'Easy', 'Medium', 'Hard', 'Mythic', 'Lottery', 'Inhuman'];
 
@@ -44,7 +44,9 @@ const MODE_BASE_TIER = {
     Hotdog: 'Easy',
     Sokoban: 'Hard',
     Gate: 'Hard',
-    Bridge: 'Medium'
+    Bridge: 'Medium',
+    Chess: 'Medium',
+    Burger: 'Medium'
 };
 
 const COUNT_MORE_EASIER = ['Bomb', '10 Apples', '5 Apples', 'Dice', '3 Apples', '1 Apple', 'Tally'];
@@ -56,7 +58,7 @@ const COUNT_LESS_EASIER_MODES = new Set([
 
 const HIGHSCORE_MODES = new Set([
     'Wall', 'Portal', 'Key', 'Sokoban', 'Poison', 'Minesweeper',
-    'Statue', 'Shield', 'Hotdog', 'Gate', 'Bridge'
+    'Statue', 'Shield', 'Hotdog', 'Gate', 'Bridge', 'Chess', 'Burger'
 ]);
 
 const APPLE_AMOUNTS = ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb', 'Tally'];
@@ -65,7 +67,7 @@ const SIZE_NAMES = ['Standard', 'Small', 'Large'];
 const MODE_NAMES = [
     'Classic', 'Wall', 'Portal', 'Cheese', 'Borderless', 'Twin', 'Winged', 'Yin Yang',
     'Key', 'Sokoban', 'Poison', 'Dimension', 'Minesweeper', 'Statue', 'Light', 'Shield',
-    'Arrow', 'Hotdog', 'Magnet', 'Gate', 'Bridge', 'Peaceful'
+    'Arrow', 'Hotdog', 'Magnet', 'Gate', 'Bridge', 'Peaceful', 'Chess', 'Burger'
 ];
 const APPLE_RUNS = ['25 Apples', '50 Apples', '100 Apples', 'All Apples'];
 

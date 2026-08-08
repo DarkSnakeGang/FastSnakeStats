@@ -5,8 +5,15 @@
 const orderedGamemodes = [
     "Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", 
     "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", 
-    "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful"
+    "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful",
+    "Chess", "Burger"
 ];
+
+/** Mode visible in tables/chips given CE display setting + per-mode toggle */
+function isGamemodeShown(gamemode) {
+    if (typeof isModeDisplayed === 'function') return isModeDisplayed(gamemode);
+    return !!(gamemodes[gamemode] && gamemodes[gamemode].visible);
+}
 
 const orderedRunModes = [
     "25 Apples", "50 Apples", "100 Apples", "All Apples", "High Score"
@@ -233,7 +240,7 @@ function calculateRanglist(){
             if(appleAmount === currentTableSettings[0] && 
                speed === currentTableSettings[1] && 
                size === currentTableSettings[2] &&
-               gamemodes[gamemode] && gamemodes[gamemode].visible &&
+               gamemodes[gamemode] && isGamemodeShown(gamemode) &&
                runModes[runMode] && runModes[runMode].visible) {
                 inSelection = true;
             }
@@ -243,7 +250,7 @@ function calculateRanglist(){
             if(appleAmounts[appleAmount] && appleAmounts[appleAmount].visible && 
                speeds[speed] && speeds[speed].visible && 
                sizes[size] && sizes[size].visible && 
-               gamemodes[gamemode] && gamemodes[gamemode].visible && 
+               gamemodes[gamemode] && isGamemodeShown(gamemode) && 
                runModes[runMode] && runModes[runMode].visible){
                 inSelection = true;
             }
@@ -590,7 +597,7 @@ function generateTableContent(table, settings, specificGamemode = null) {
     
     // Get runs for this specific combination from worldRecords
     for(gamemode in gamemodes){
-        if(gamemodes[gamemode] && gamemodes[gamemode].visible){
+        if(gamemodes[gamemode] && isGamemodeShown(gamemode)){
             thisBoardRuns[gamemode] = {};
             for(const runMode of orderedRunModes){
                 if(runModes[runMode] && runModes[runMode].visible){
@@ -657,7 +664,7 @@ function generateTableContent(table, settings, specificGamemode = null) {
     // Create tbody
     var tbody = document.createElement('tbody');
     for(gamemode in thisBoardRuns){
-        if(gamemodes[gamemode] && gamemodes[gamemode].visible && (specificGamemode === null || gamemode === specificGamemode)){
+        if(gamemodes[gamemode] && isGamemodeShown(gamemode) && (specificGamemode === null || gamemode === specificGamemode)){
             row = document.createElement('tr');
             th = document.createElement('th');
             th.appendChild(createIconElement(gamemodes[gamemode], gamemode));
@@ -760,7 +767,7 @@ function generateLeaderboard(settings, specificGamemode = null){
      
      // Use ordered gamemodes for consistent row ordering
      for(const gamemode of orderedGamemodes){
-         if(thisBoardRuns[gamemode] && gamemodes[gamemode].visible){
+         if(thisBoardRuns[gamemode] && isGamemodeShown(gamemode)){
              for(const runMode of orderedRunModes){
                  if(thisBoardRuns[gamemode][runMode]){
                      // Only show "High Score" column for highscore modes (or Tally CE modes)
@@ -827,7 +834,7 @@ function generateLeaderboard(settings, specificGamemode = null){
     var tbody = document.createElement('tbody');
     // Use ordered gamemodes for consistent row ordering (always show visible modes, even if cache has no data yet)
     for(const gamemode of orderedGamemodes){
-        if(gamemodes[gamemode] && gamemodes[gamemode].visible && (specificGamemode === null || gamemode === specificGamemode)){
+        if(gamemodes[gamemode] && isGamemodeShown(gamemode) && (specificGamemode === null || gamemode === specificGamemode)){
             const modeRuns = thisBoardRuns[gamemode] || {};
             row = document.createElement('tr');
             th = document.createElement('th');
@@ -922,7 +929,7 @@ function generateLeaderboardForMultiple(settings, container){
     
     // Use ordered gamemodes for consistent row ordering
     for(const gamemode of orderedGamemodes){
-        if(thisBoardRuns[gamemode] && gamemodes[gamemode].visible){
+        if(thisBoardRuns[gamemode] && isGamemodeShown(gamemode)){
             for(const runMode of orderedRunModes){
                 if(thisBoardRuns[gamemode][runMode]){
                     // Only show "High Score" column for highscore modes (or Tally CE modes)
@@ -983,7 +990,7 @@ function generateLeaderboardForMultiple(settings, container){
     var tbody = document.createElement('tbody');
     // Use ordered gamemodes for consistent row ordering (always show visible modes, even if cache has no data yet)
     for(const gamemode of orderedGamemodes){
-        if(gamemodes[gamemode] && gamemodes[gamemode].visible){
+        if(gamemodes[gamemode] && isGamemodeShown(gamemode)){
             const modeRuns = thisBoardRuns[gamemode] || {};
             row = document.createElement('tr');
             th = document.createElement('th');
@@ -1250,12 +1257,32 @@ function generateTableSelector(){
     categoryText.textContent = 'Settings';
     sidebarHeader.appendChild(categoryText);
     
-    // Create sidebar info button
+    // Create sidebar info + CE controls (trailing group)
+    var sidebarHeaderActions = document.createElement('div');
+    sidebarHeaderActions.setAttribute('class', 'sidebar-header-actions');
+
+    var ceDisplayButton = document.createElement('button');
+    ceDisplayButton.setAttribute('class', 'sidebar-ce-btn ce-display-btn');
+    ceDisplayButton.type = 'button';
+    if (typeof applyCeDisplayButtonState === 'function') {
+        applyCeDisplayButtonState(ceDisplayButton);
+    } else {
+        ceDisplayButton.innerHTML = (typeof ceDisplayModeLabel === 'function')
+            ? ceDisplayModeLabel(ceDisplayMode)
+            : 'CE: Off';
+    }
+    ceDisplayButton.onclick = function () {
+        if (typeof toggleCeDisplayMode === 'function') toggleCeDisplayMode();
+    };
+    sidebarHeaderActions.appendChild(ceDisplayButton);
+
     var sidebarInfoBtn = document.createElement('button');
     sidebarInfoBtn.setAttribute('class', 'sidebar-info-btn');
     sidebarInfoBtn.innerHTML = 'ℹ️';
     sidebarInfoBtn.setAttribute('title', 'Info');
-    sidebarHeader.appendChild(sidebarInfoBtn);
+    sidebarHeaderActions.appendChild(sidebarInfoBtn);
+
+    sidebarHeader.appendChild(sidebarHeaderActions);
     
     sidebar.appendChild(sidebarHeader);
 
@@ -1643,6 +1670,11 @@ function populateSidebarSettingsExtras(rightCol) {
     var modeGroup = document.createElement('div');
     modeGroup.setAttribute('class', 'button-group settings-mode-group');
     for (var gamemode in gamemodes) {
+        if (typeof isCeLevelMode === 'function' && isCeLevelMode(gamemode)) {
+            if (typeof getCeDisplayMode === 'function' && getCeDisplayMode() === 'off') continue;
+        } else if (typeof getCeDisplayMode === 'function' && getCeDisplayMode() === 'only') {
+            continue;
+        }
         modeGroup.appendChild(createOptionButton(gamemodes[gamemode], gamemode));
     }
     modeSection.appendChild(modeGroup);

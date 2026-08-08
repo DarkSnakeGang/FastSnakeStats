@@ -329,6 +329,9 @@ function showBasicMobileRecordsSection() {
             
             <!-- Mobile Records Controls -->
             <div class="mobile-records-controls">
+                <button class="mobile-option-btn ce-display-btn" id="mobileCeDisplayToggle" title="Category Extensions (Chess/Burger)">
+                    🧩 CE: Off
+                </button>
                 <button class="mobile-option-btn" id="mobileInfoBtn">ℹ️ Info</button>
             </div>
         </div>
@@ -370,7 +373,17 @@ function showBasicMobileRecordsSection() {
 
 // Setup mobile records event listeners
 function setupMobileRecordsEventListeners() {
-    // Quick Fetch, Refresh, and Stop buttons removed - no longer needed
+    const ceDisplayToggle = document.getElementById('mobileCeDisplayToggle');
+    if (ceDisplayToggle) {
+        if (typeof applyCeDisplayButtonState === 'function') {
+            applyCeDisplayButtonState(ceDisplayToggle);
+        }
+        ceDisplayToggle.addEventListener('click', async function () {
+            if (typeof toggleCeDisplayMode === 'function') {
+                await toggleCeDisplayMode();
+            }
+        });
+    }
 }
 
 // Load mobile table data
@@ -793,6 +806,11 @@ function generateMobileCategoryCheckboxes() {
     html += '<h4 class="mobile-category-title">Game Modes</h4>';
     html += '<div class="mobile-button-group">';
     for (const [key, value] of Object.entries(gamemodes)) {
+        if (typeof isCeLevelMode === 'function' && isCeLevelMode(key)) {
+            if (typeof getCeDisplayMode === 'function' && getCeDisplayMode() === 'off') continue;
+        } else if (typeof getCeDisplayMode === 'function' && getCeDisplayMode() === 'only') {
+            continue;
+        }
         // Game modes are always toggle behavior (always use value.visible)
         const isActive = value.visible;
         html += `
@@ -1162,6 +1180,11 @@ function resetMobileSettings() {
         value.visible = true;
     }
 
+    if (typeof setCeDisplayMode === 'function') setCeDisplayMode('off');
+    else if (typeof ceDisplayMode !== 'undefined') ceDisplayMode = 'off';
+    if (gamemodes.Chess) gamemodes.Chess.visible = false;
+    if (gamemodes.Burger) gamemodes.Burger.visible = false;
+
     // Clear date picker and disable time travel
     const datePicker = document.getElementById('mobileDatePicker');
     if (datePicker) {
@@ -1181,6 +1204,14 @@ function resetMobileSettings() {
     
     // Update time travel button state to reflect the reset
     updateMobileTimeTravelButtonState();
+    if (typeof applyCeDisplayButtonState === 'function') {
+        if (typeof refreshAllCeDisplayButtons === 'function') {
+            refreshAllCeDisplayButtons();
+        } else {
+            applyCeDisplayButtonState(document.getElementById('mobileCeDisplayToggle'));
+            applyCeDisplayButtonState(document.querySelector('.ce-display-btn'));
+        }
+    }
     
     // Show success message
     const resetButton = document.getElementById('mobileResetBtn');

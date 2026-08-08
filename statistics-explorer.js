@@ -49,7 +49,17 @@ var statsWasMasteryFilterContext = false;
 
 var STATS_MASTERY_MODE_GROUPS = ['High score modes only', 'Excluding Peaceful'];
 var STATS_LIST_MODE_GROUPS = ['High score modes only']; // shared Mode filter on list-filter tabs
-var STATS_HIGHSCORE_MODES = ['Wall', 'Portal', 'Key', 'Sokoban', 'Poison', 'Minesweeper', 'Statue', 'Shield', 'Hotdog', 'Gate', 'Bridge'];
+var STATS_HIGHSCORE_MODES = ['Wall', 'Portal', 'Key', 'Sokoban', 'Poison', 'Minesweeper', 'Statue', 'Shield', 'Hotdog', 'Gate', 'Bridge', 'Chess', 'Burger'];
+
+function getDisplayedGamemodeNames() {
+    var names = typeof gamemodes !== 'undefined' ? Object.keys(gamemodes) : [];
+    if (typeof filterDisplayedModes === 'function') return filterDisplayedModes(names);
+    return names;
+}
+
+function isStatsHighscoreMode(name) {
+    return STATS_HIGHSCORE_MODES.indexOf(name) !== -1;
+}
 
 var STATS_TABS = [
     { id: 'progression', label: 'Progression' },
@@ -86,9 +96,9 @@ function buildProgressionKey() {
 }
 
 function getProgressionGamemodeOptions() {
-    var names = typeof gamemodes !== 'undefined' ? Object.keys(gamemodes) : [];
+    var names = getDisplayedGamemodeNames();
     if (statsProgRunMode === 'High Score') {
-        return names.filter(function (n) { return STATS_HIGHSCORE_MODES.indexOf(n) !== -1; });
+        return names.filter(function (n) { return isStatsHighscoreMode(n); });
     }
     return names;
 }
@@ -153,9 +163,9 @@ function ensureMasteryModeDefault() {
 }
 
 function getListGamemodeOptions() {
-    var names = typeof gamemodes !== 'undefined' ? Object.keys(gamemodes) : [];
+    var names = getDisplayedGamemodeNames();
     if (statsListRunMode === 'High Score') {
-        return names.filter(function (n) { return STATS_HIGHSCORE_MODES.indexOf(n) !== -1; });
+        return names.filter(function (n) { return isStatsHighscoreMode(n); });
     }
     return names;
 }
@@ -225,9 +235,10 @@ function appendListFilters(body) {
 }
 
 function gamemodeMatchesListFilter(gamemode) {
+    if (typeof isModeDisplayed === 'function' && !isModeDisplayed(gamemode)) return false;
     if (statsListGamemode === 'All') return true;
     if (statsListGamemode === 'High score modes only') {
-        return STATS_HIGHSCORE_MODES.indexOf(gamemode) !== -1;
+        return isStatsHighscoreMode(gamemode);
     }
     if (statsListGamemode === 'Excluding Peaceful') {
         return gamemode !== 'Peaceful';
@@ -432,9 +443,9 @@ function buildChronicleWarKey() {
 }
 
 function getChronicleWarModeOptions() {
-    var names = typeof gamemodes !== 'undefined' ? Object.keys(gamemodes) : [];
+    var names = getDisplayedGamemodeNames();
     if (chronicleWarRunMode === 'High Score') {
-        return names.filter(function (n) { return STATS_HIGHSCORE_MODES.indexOf(n) !== -1; });
+        return names.filter(function (n) { return isStatsHighscoreMode(n); });
     }
     return names;
 }
@@ -1894,16 +1905,18 @@ function renderPlayerMasteryView(body) {
 }
 
 function getMasteryAllModeNames() {
-    return (masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.modes) ||
+    var all = (masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.modes) ||
         ['Classic', 'Wall', 'Portal', 'Cheese', 'Borderless', 'Twin', 'Winged', 'Yin Yang',
             'Key', 'Sokoban', 'Poison', 'Dimension', 'Minesweeper', 'Statue', 'Light', 'Shield',
-            'Arrow', 'Hotdog', 'Magnet', 'Gate', 'Bridge', 'Peaceful'];
+            'Arrow', 'Hotdog', 'Magnet', 'Gate', 'Bridge', 'Peaceful', 'Chess', 'Burger'];
+    if (typeof filterDisplayedModes === 'function') return filterDisplayedModes(all);
+    return all;
 }
 
 function getMasteryModesForFilter() {
     var all = getMasteryAllModeNames();
     if (statsListGamemode === 'High score modes only') {
-        return all.filter(function (m) { return STATS_HIGHSCORE_MODES.indexOf(m) !== -1; });
+        return all.filter(function (m) { return isStatsHighscoreMode(m); });
     }
     if (statsListGamemode === 'Excluding Peaceful') {
         return all.filter(function (m) { return m !== 'Peaceful'; });

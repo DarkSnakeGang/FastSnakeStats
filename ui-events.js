@@ -259,6 +259,66 @@ async function toggleMultipleTables() {
     }
 }
 
+function applyCeDisplayButtonState(btn) {
+    if (!btn) return;
+    var mode = (typeof getCeDisplayMode === 'function') ? getCeDisplayMode() : (ceDisplayMode || 'off');
+    var label = (typeof ceDisplayModeLabel === 'function') ? ceDisplayModeLabel(mode) : ('CE: ' + mode);
+    btn.innerHTML = '🧩 ' + label;
+    btn.classList.toggle('active', mode !== 'off');
+    var tip = 'Category Extensions (Chess/Burger): Off hides them, Mix shows with main modes, Only shows CE modes.';
+    if (mode === 'mix') tip = 'CE Mix enabled — Chess & Burger shown with main modes. Click to cycle.';
+    else if (mode === 'only') tip = 'CE Only — showing Chess & Burger exclusively. Click to cycle.';
+    btn.setAttribute('title', tip);
+}
+
+function refreshAllCeDisplayButtons() {
+    var buttons = document.querySelectorAll('.ce-display-btn');
+    for (var i = 0; i < buttons.length; i++) {
+        applyCeDisplayButtonState(buttons[i]);
+    }
+}
+
+/** Cycle CE display: Off → Mix → Only → Off */
+async function toggleCeDisplayMode() {
+    var cur = (typeof getCeDisplayMode === 'function') ? getCeDisplayMode() : (ceDisplayMode || 'off');
+    var next = cur === 'off' ? 'mix' : (cur === 'mix' ? 'only' : 'off');
+    if (typeof setCeDisplayMode === 'function') setCeDisplayMode(next);
+    else ceDisplayMode = next;
+
+    if (next === 'mix' || next === 'only') {
+        if (gamemodes.Chess) gamemodes.Chess.visible = true;
+        if (gamemodes.Burger) gamemodes.Burger.visible = true;
+    }
+
+    saveSettings();
+    refreshAllCeDisplayButtons();
+
+    generateTableSelector();
+    if (isMultipleTablesEnabled) {
+        generateMultipleTables();
+    } else {
+        generateSingleTable();
+    }
+    if (isLoading) return;
+    setLoadingState(true);
+    try {
+        saveSettings();
+        await quickFetchWorldRecords();
+        setTimeout(function () { updateTableSelector(); }, 50);
+        if (typeof calculateRanglist === 'function' && typeof generateRanglist === 'function') {
+            calculateRanglist();
+            generateRanglist();
+        }
+        if (typeof refreshStatisticsExplorer === 'function') {
+            refreshStatisticsExplorer();
+        }
+    } catch (error) {
+        console.error('Error after CE display toggle:', error);
+    } finally {
+        setLoadingState(false);
+    }
+}
+
 // Global function to set API overloaded state (called from WorldRecordFetcher)
 window.setApiOverloaded = function(overloaded) {
     isApiOverloaded = overloaded;
@@ -286,6 +346,9 @@ function setLoadingState(loading) {
             }
             return;
         }
+        if (button.classList.contains('ce-display-btn')) {
+            return;
+        }
         if (loading) {
             button.disabled = true;
             button.style.opacity = '0.5';
@@ -296,6 +359,22 @@ function setLoadingState(loading) {
             button.style.opacity = '1';
             button.style.cursor = 'pointer';
             button.removeAttribute('title');
+        }
+    });
+
+    // CE header/mobile buttons (not always .table-option-btn)
+    document.querySelectorAll('.ce-display-btn').forEach(function (button) {
+        if (loading) {
+            button.disabled = true;
+            button.style.opacity = '0.5';
+            button.style.cursor = 'not-allowed';
+        } else {
+            button.disabled = false;
+            button.style.opacity = '1';
+            button.style.cursor = 'pointer';
+            if (typeof applyCeDisplayButtonState === 'function') {
+                applyCeDisplayButtonState(button);
+            }
         }
     });
     

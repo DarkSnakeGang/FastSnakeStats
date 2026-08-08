@@ -12,6 +12,17 @@
 
 const fs = require('fs');
 const path = require('path');
+const {
+    CE_GAME_ID,
+    CE_LEVEL_MODES,
+    CE_LEVEL_BY_NAME,
+    CE_LEVEL_CATEGORY_IDS,
+    CE_LEVEL_VAR_COUNT,
+    CE_LEVEL_VAR_SIZE,
+    CE_LEVEL_VAR_SPEED,
+    normalizeCeCountLabel,
+    isCeLevelMode
+} = require('../ce-modes');
 
 const GAME_ID = 'o1y9pyk6';
 const BASE = 'https://www.speedrun.com/api/v1';
@@ -20,13 +31,14 @@ const USER_AGENT = 'FastSnakeStats-Mastery/1.0';
 const MODE_NAMES = [
     'Classic', 'Wall', 'Portal', 'Cheese', 'Borderless', 'Twin', 'Winged', 'Yin Yang',
     'Key', 'Sokoban', 'Poison', 'Dimension', 'Minesweeper', 'Statue', 'Light', 'Shield',
-    'Arrow', 'Hotdog', 'Magnet', 'Gate', 'Bridge', 'Peaceful'
+    'Arrow', 'Hotdog', 'Magnet', 'Gate', 'Bridge', 'Peaceful', 'Chess', 'Burger'
 ];
+const MAIN_MODE_NAMES = MODE_NAMES.filter((m) => !isCeLevelMode(m));
 const SPEED_NAMES = ['Normal', 'Fast', 'Slow'];
 const APPLE_AMOUNTS = ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb', 'Tally'];
 const SIZE_NAMES = ['Standard', 'Small', 'Large'];
 const RUN_NAME = 'All Apples';
-const BOARD_COUNT = MODE_NAMES.length * SPEED_NAMES.length * APPLE_AMOUNTS.length * SIZE_NAMES.length; // 1386
+const BOARD_COUNT = MODE_NAMES.length * SPEED_NAMES.length * APPLE_AMOUNTS.length * SIZE_NAMES.length;
 
 const META_DIR = path.join('time-travel-cache', 'metadata');
 const STATE_FILE = path.join(META_DIR, 'mastery-challenge-state.json');
@@ -137,13 +149,16 @@ class MasteryChallengeFetcher {
         if (!allApples) throw new Error('All Apples category not found');
 
         const levelByMode = {};
-        for (const mode of MODE_NAMES) {
+        for (const mode of MAIN_MODE_NAMES) {
             const level = levels.data.find((l) => l.name.includes(mode));
             if (!level) {
                 console.warn(`⚠️ No SRC level for mode ${mode}`);
                 continue;
             }
             levelByMode[mode] = level.id;
+        }
+        for (const mode of CE_LEVEL_MODES) {
+            if (CE_LEVEL_BY_NAME[mode]) levelByMode[mode] = CE_LEVEL_BY_NAME[mode];
         }
 
         const valueLabelById = {}; // valueId -> label
@@ -161,14 +176,42 @@ class MasteryChallengeFetcher {
         ingest(sizeVar);
         speedVars.forEach(ingest);
 
+        let ceLevelCountLabelById = {};
+        let ceLevelSizeLabelById = {};
+        let ceSpeedLabelById = {};
+        try {
+            const ceVars = await this.fetchAPI(`${BASE}/games/${CE_GAME_ID}/variables`);
+            for (const v of ceVars.data || []) {
+                const map = {};
+                if (v.values && v.values.values) {
+                    for (const [id, val] of Object.entries(v.values.values)) {
+                        map[id] = val.label;
+                    }
+                }
+                if (v.id === CE_LEVEL_VAR_COUNT) {
+                    for (const [id, label] of Object.entries(map)) {
+                        ceLevelCountLabelById[id] = normalizeCeCountLabel(label) || label;
+                    }
+                }
+                if (v.id === CE_LEVEL_VAR_SIZE) ceLevelSizeLabelById = map;
+                if (v.id === CE_LEVEL_VAR_SPEED) Object.assign(ceSpeedLabelById, map);
+            }
+        } catch (e) {
+            console.warn('⚠️ CE mastery metadata load failed:', e.message);
+        }
+
         const appleSet = new Set(APPLE_AMOUNTS);
         const speedSet = new Set(SPEED_NAMES);
         const sizeSet = new Set(SIZE_NAMES);
 
         this.maps = {
             allApplesId: allApples.id,
+            ceAllApplesId: CE_LEVEL_CATEGORY_IDS['All Apples'],
             levelByMode,
             valueLabelById,
+            ceLevelCountLabelById,
+            ceLevelSizeLabelById,
+            ceSpeedLabelById,
             appleSet,
             speedSet,
             sizeSet,
@@ -206,9 +249,13 @@ class MasteryChallengeFetcher {
         let speed = null;
         let size = null;
         for (const valueId of Object.values(values)) {
-            const label = this.maps.valueLabelById[valueId];
+            const label = this.maps.valueLabelById[valueId] ||
+                this.maps.ceLevelCountLabelById[valueId] ||
+                this.maps.ceSpeedLabelById[valueId] ||
+                this.maps.ceLevelSizeLabelById[valueId];
             if (!label) continue;
-            if (this.maps.appleSet.has(label)) apple = label;
+            const normalized = normalizeCeCountLabel(label) || label;
+            if (this.maps.appleSet.has(normalized)) apple = normalized;
             else if (this.maps.speedSet.has(label)) speed = label;
             else if (this.maps.sizeSet.has(label)) size = label;
         }
@@ -443,9 +490,13 @@ class MasteryChallengeFetcher {
                 break;
             }
 
+            const gameId = isCeLevelMode(modeName) ? CE_GAME_ID : GAME_ID;
+            const categoryId = isCeLevelMode(modeName)
+                ? this.maps.ceAllApplesId
+                : this.maps.allApplesId;
             const url =
-                `${BASE}/runs?game=${GAME_ID}` +
-                `&category=${this.maps.allApplesId}` +
+                `${BASE}/runs?game=${gameId}` +
+                `&category=${categoryId}` +
                 `&level=${levelId}` +
                 `&status=verified&embed=players&max=200` +
                 `&orderby=${orderby}&direction=${direction}&offset=${offset}`;

@@ -19,6 +19,8 @@
         root.isTallyCeHighscoreMode = api.isTallyCeHighscoreMode;
         root.shouldShowHighScoreColumn = api.shouldShowHighScoreColumn;
         root.isTallyCount = api.isTallyCount;
+        root.CE_LEVEL_HIGHSCORE_MODES = api.CE_LEVEL_HIGHSCORE_MODES;
+        root.isCeLevelHighscoreMode = api.isCeLevelHighscoreMode;
     }
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
     var COUNT_NAMES = [
@@ -35,6 +37,9 @@
         'Classic', 'Cheese', 'Borderless', 'Twin', 'Winged', 'Yin Yang',
         'Dimension', 'Light', 'Arrow', 'Magnet'
     ];
+
+    /** CE level modes (Chess/Burger) — full HS columns like typical HS modes */
+    var CE_LEVEL_HIGHSCORE_MODES = ['Chess', 'Burger'];
 
     var CE_GAME_ID = '9dow0go1';
     var CE_TALLY_HS_CATEGORY_ID = 'rkl4elqd';
@@ -54,9 +59,13 @@
         return TALLY_CE_HIGHSCORE_MODES.indexOf(mode) !== -1;
     }
 
+    function isCeLevelHighscoreMode(mode) {
+        return CE_LEVEL_HIGHSCORE_MODES.indexOf(mode) !== -1;
+    }
+
     /** Whether the table should render a High Score column for this count+mode */
     function shouldShowHighScoreColumn(count, mode) {
-        if (isTypicalHighscoreMode(mode)) return true;
+        if (isTypicalHighscoreMode(mode) || isCeLevelHighscoreMode(mode)) return true;
         return isTallyCount(count) && isTallyCeHighscoreMode(mode);
     }
 
@@ -64,6 +73,7 @@
         COUNT_NAMES: COUNT_NAMES,
         TYPICAL_HIGHSCORE_MODES: TYPICAL_HIGHSCORE_MODES,
         TALLY_CE_HIGHSCORE_MODES: TALLY_CE_HIGHSCORE_MODES,
+        CE_LEVEL_HIGHSCORE_MODES: CE_LEVEL_HIGHSCORE_MODES,
         CE_GAME_ID: CE_GAME_ID,
         CE_TALLY_HS_CATEGORY_ID: CE_TALLY_HS_CATEGORY_ID,
         CE_VAR_SPEED: CE_VAR_SPEED,
@@ -72,6 +82,7 @@
         isTallyCount: isTallyCount,
         isTypicalHighscoreMode: isTypicalHighscoreMode,
         isTallyCeHighscoreMode: isTallyCeHighscoreMode,
+        isCeLevelHighscoreMode: isCeLevelHighscoreMode,
         shouldShowHighScoreColumn: shouldShowHighScoreColumn
     };
 });

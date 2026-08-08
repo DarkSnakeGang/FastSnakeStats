@@ -1,7 +1,7 @@
 {
-  "lastUpdated": "2026-08-08T02:05:19.725Z",
+  "lastUpdated": "2026-08-08T03:16:48.849Z",
   "source": "runs-derived",
-  "totalPlayers": 934,
+  "totalPlayers": 936,
   "players": [
     {
       "id": "8greko7x",
@@ -14,22 +14,22 @@
       },
       "peakPercentage": {
         "date": "2026-05-02",
-        "percentage": 9.96
+        "percentage": 9.87
       },
       "latest": {
         "date": "2026-08-08",
         "count": 391,
-        "percentage": 8.03
+        "percentage": 7.96
       }
     },
     {
       "id": "j5w7zlqj",
       "name": "SpaceDoge",
-      "totalRecords": 995,
+      "totalRecords": 1000,
       "totalDates": 2243,
       "peakRecords": {
         "date": "2026-02-06",
-        "count": 501
+        "count": 504
       },
       "peakPercentage": {
         "date": "2020-08-11",
@@ -37,14 +37,14 @@
       },
       "latest": {
         "date": "2026-08-08",
-        "count": 378,
-        "percentage": 7.76
+        "count": 381,
+        "percentage": 7.75
       }
     },
     {
       "id": "18qw9908",
       "name": "Yarmiplay",
-      "totalRecords": 909,
+      "totalRecords": 912,
       "totalDates": 2554,
       "peakRecords": {
         "date": "2023-08-01",
@@ -56,8 +56,8 @@
       },
       "latest": {
         "date": "2026-08-08",
-        "count": 78,
-        "percentage": 1.6
+        "count": 81,
+        "percentage": 1.65
       }
     },
     {
@@ -76,7 +76,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 406,
-        "percentage": 8.34
+        "percentage": 8.26
       }
     },
     {
@@ -90,12 +90,12 @@
       },
       "peakPercentage": {
         "date": "2026-08-03",
-        "percentage": 12.26
+        "percentage": 12.15
       },
       "latest": {
         "date": "2026-08-08",
         "count": 587,
-        "percentage": 12.06
+        "percentage": 11.95
       }
     },
     {
@@ -108,32 +108,32 @@
         "count": 331
       },
       "peakPercentage": {
-        "date": "2025-02-21",
-        "percentage": 11.15
+        "date": "2025-01-21",
+        "percentage": 11.13
       },
       "latest": {
         "date": "2026-08-08",
         "count": 270,
-        "percentage": 5.55
+        "percentage": 5.5
       }
     },
     {
       "id": "81p760l8",
       "name": "Unachievium",
-      "totalRecords": 562,
+      "totalRecords": 572,
       "totalDates": 464,
       "peakRecords": {
         "date": "2026-04-08",
-        "count": 276
+        "count": 283
       },
       "peakPercentage": {
         "date": "2026-04-08",
-        "percentage": 6.12
+        "percentage": 6.22
       },
       "latest": {
         "date": "2026-08-08",
-        "count": 253,
-        "percentage": 5.2
+        "count": 262,
+        "percentage": 5.33
       }
     },
     {
@@ -166,12 +166,12 @@
       },
       "peakPercentage": {
         "date": "2026-06-18",
-        "percentage": 6.42
+        "percentage": 6.36
       },
       "latest": {
         "date": "2026-08-08",
         "count": 297,
-        "percentage": 6.1
+        "percentage": 6.05
       }
     },
     {
@@ -190,7 +190,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 91,
-        "percentage": 1.87
+        "percentage": 1.85
       }
     },
     {
@@ -228,7 +228,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 79,
-        "percentage": 1.62
+        "percentage": 1.61
       }
     },
     {
@@ -247,7 +247,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 32,
-        "percentage": 0.66
+        "percentage": 0.65
       }
     },
     {
@@ -266,7 +266,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 142,
-        "percentage": 2.92
+        "percentage": 2.89
       }
     },
     {
@@ -285,45 +285,45 @@
       "latest": {
         "date": "2026-08-08",
         "count": 28,
-        "percentage": 0.58
+        "percentage": 0.57
       }
     },
     {
       "id": "jn9qrewx",
       "name": "m0nument",
-      "totalRecords": 362,
+      "totalRecords": 364,
       "totalDates": 1447,
       "peakRecords": {
         "date": "2026-08-08",
-        "count": 189
+        "count": 191
       },
       "peakPercentage": {
         "date": "2025-11-07",
-        "percentage": 4.04
+        "percentage": 4.05
       },
       "latest": {
         "date": "2026-08-08",
-        "count": 189,
-        "percentage": 3.88
+        "count": 191,
+        "percentage": 3.89
       }
     },
     {
       "id": "jpyw14kj",
       "name": "yIsThisMyName",
-      "totalRecords": 326,
+      "totalRecords": 335,
       "totalDates": 805,
       "peakRecords": {
         "date": "2026-02-08",
-        "count": 187
+        "count": 191
       },
       "peakPercentage": {
         "date": "2026-02-08",
-        "percentage": 4.26
+        "percentage": 4.31
       },
       "latest": {
         "date": "2026-08-08",
-        "count": 131,
-        "percentage": 2.69
+        "count": 137,
+        "percentage": 2.79
       }
     },
     {
@@ -342,7 +342,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 38,
-        "percentage": 0.78
+        "percentage": 0.77
       }
     },
     {
@@ -356,12 +356,12 @@
       },
       "peakPercentage": {
         "date": "2025-03-05",
-        "percentage": 5
+        "percentage": 4.97
       },
       "latest": {
         "date": "2026-08-08",
         "count": 58,
-        "percentage": 1.19
+        "percentage": 1.18
       }
     },
     {
@@ -375,12 +375,12 @@
       },
       "peakPercentage": {
         "date": "2026-08-05",
-        "percentage": 4.64
+        "percentage": 4.59
       },
       "latest": {
         "date": "2026-08-08",
         "count": 224,
-        "percentage": 4.6
+        "percentage": 4.56
       }
     },
     {
@@ -394,31 +394,31 @@
       },
       "peakPercentage": {
         "date": "2026-05-06",
-        "percentage": 3.51
+        "percentage": 3.48
       },
       "latest": {
         "date": "2026-08-08",
         "count": 156,
-        "percentage": 3.2
+        "percentage": 3.18
       }
     },
     {
       "id": "j96zv1vj",
       "name": "Segmentum",
-      "totalRecords": 261,
+      "totalRecords": 275,
       "totalDates": 947,
       "peakRecords": {
         "date": "2025-12-29",
-        "count": 140
+        "count": 153
       },
       "peakPercentage": {
         "date": "2025-12-29",
-        "percentage": 3.57
+        "percentage": 3.86
       },
       "latest": {
         "date": "2026-08-08",
-        "count": 44,
-        "percentage": 0.9
+        "count": 56,
+        "percentage": 1.14
       }
     },
     {
@@ -437,7 +437,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 34,
-        "percentage": 0.7
+        "percentage": 0.69
       }
     },
     {
@@ -456,7 +456,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 34,
-        "percentage": 0.7
+        "percentage": 0.69
       }
     },
     {
@@ -475,13 +475,13 @@
       "latest": {
         "date": "2026-08-08",
         "count": 14,
-        "percentage": 0.29
+        "percentage": 0.28
       }
     },
     {
       "id": "j5qn00nj",
       "name": "Never_Always",
-      "totalRecords": 197,
+      "totalRecords": 199,
       "totalDates": 1138,
       "peakRecords": {
         "date": "2024-01-11",
@@ -493,8 +493,8 @@
       },
       "latest": {
         "date": "2026-08-08",
-        "count": 40,
-        "percentage": 0.82
+        "count": 42,
+        "percentage": 0.85
       }
     },
     {
@@ -527,12 +527,31 @@
       },
       "peakPercentage": {
         "date": "2026-01-09",
-        "percentage": 2.29
+        "percentage": 2.27
       },
       "latest": {
         "date": "2026-08-08",
         "count": 2,
         "percentage": 0.04
+      }
+    },
+    {
+      "id": "xko2g798",
+      "name": "Akuretaki",
+      "totalRecords": 172,
+      "totalDates": 1111,
+      "peakRecords": {
+        "date": "2024-09-20",
+        "count": 67
+      },
+      "peakPercentage": {
+        "date": "2024-09-19",
+        "percentage": 2.4
+      },
+      "latest": {
+        "date": "2026-08-08",
+        "count": 18,
+        "percentage": 0.37
       }
     },
     {
@@ -574,25 +593,6 @@
       }
     },
     {
-      "id": "xko2g798",
-      "name": "Akuretaki",
-      "totalRecords": 162,
-      "totalDates": 1111,
-      "peakRecords": {
-        "date": "2024-09-20",
-        "count": 67
-      },
-      "peakPercentage": {
-        "date": "2024-09-19",
-        "percentage": 2.4
-      },
-      "latest": {
-        "date": "2026-08-08",
-        "count": 17,
-        "percentage": 0.35
-      }
-    },
-    {
       "id": "8vkkrgyj",
       "name": "Nickolish",
       "totalRecords": 153,
@@ -608,7 +608,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 10,
-        "percentage": 0.21
+        "percentage": 0.2
       }
     },
     {
@@ -671,7 +671,7 @@
     {
       "id": "jokv9908",
       "name": "Gajapa",
-      "totalRecords": 137,
+      "totalRecords": 139,
       "totalDates": 891,
       "peakRecords": {
         "date": "2024-11-11",
@@ -722,7 +722,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 41,
-        "percentage": 0.84
+        "percentage": 0.83
       }
     },
     {
@@ -741,7 +741,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 33,
-        "percentage": 0.68
+        "percentage": 0.67
       }
     },
     {
@@ -783,6 +783,25 @@
       }
     },
     {
+      "id": "x3557mqj",
+      "name": "Ben_eXceL",
+      "totalRecords": 106,
+      "totalDates": 762,
+      "peakRecords": {
+        "date": "2025-12-05",
+        "count": 26
+      },
+      "peakPercentage": {
+        "date": "2024-10-10",
+        "percentage": 0.89
+      },
+      "latest": {
+        "date": "2026-08-08",
+        "count": 13,
+        "percentage": 0.26
+      }
+    },
+    {
       "id": "v81ng2qj",
       "name": "SUNNYblue",
       "totalRecords": 101,
@@ -798,26 +817,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 49,
-        "percentage": 1.01
-      }
-    },
-    {
-      "id": "x3557mqj",
-      "name": "Ben_eXceL",
-      "totalRecords": 98,
-      "totalDates": 762,
-      "peakRecords": {
-        "date": "2024-10-13",
-        "count": 25
-      },
-      "peakPercentage": {
-        "date": "2024-10-10",
-        "percentage": 0.89
-      },
-      "latest": {
-        "date": "2026-08-08",
-        "count": 9,
-        "percentage": 0.18
+        "percentage": 1
       }
     },
     {
@@ -855,7 +855,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 36,
-        "percentage": 0.74
+        "percentage": 0.73
       }
     },
     {
@@ -869,7 +869,7 @@
       },
       "peakPercentage": {
         "date": "2025-11-18",
-        "percentage": 1.38
+        "percentage": 1.36
       },
       "latest": {
         "date": "2026-08-08",
@@ -893,7 +893,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 10,
-        "percentage": 0.21
+        "percentage": 0.2
       }
     },
     {
@@ -931,7 +931,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 13,
-        "percentage": 0.27
+        "percentage": 0.26
       }
     },
     {
@@ -950,7 +950,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 28,
-        "percentage": 0.58
+        "percentage": 0.57
       }
     },
     {
@@ -1002,12 +1002,12 @@
       },
       "peakPercentage": {
         "date": "2026-01-20",
-        "percentage": 0.7
+        "percentage": 0.69
       },
       "latest": {
         "date": "2026-08-08",
         "count": 28,
-        "percentage": 0.58
+        "percentage": 0.57
       }
     },
     {
@@ -1040,7 +1040,7 @@
       },
       "peakPercentage": {
         "date": "2025-11-19",
-        "percentage": 0.98
+        "percentage": 0.96
       },
       "latest": {
         "date": "2026-08-08",
@@ -1059,12 +1059,12 @@
       },
       "peakPercentage": {
         "date": "2025-04-09",
-        "percentage": 1.01
+        "percentage": 1
       },
       "latest": {
         "date": "2026-08-08",
         "count": 13,
-        "percentage": 0.27
+        "percentage": 0.26
       }
     },
     {
@@ -1097,12 +1097,12 @@
       },
       "peakPercentage": {
         "date": "2026-01-14",
-        "percentage": 0.92
+        "percentage": 0.91
       },
       "latest": {
         "date": "2026-08-08",
         "count": 10,
-        "percentage": 0.21
+        "percentage": 0.2
       }
     },
     {
@@ -1173,12 +1173,12 @@
       },
       "peakPercentage": {
         "date": "2026-08-06",
-        "percentage": 0.78
+        "percentage": 0.77
       },
       "latest": {
         "date": "2026-08-08",
         "count": 38,
-        "percentage": 0.78
+        "percentage": 0.77
       }
     },
     {
@@ -1230,7 +1230,7 @@
       },
       "peakPercentage": {
         "date": "2025-12-20",
-        "percentage": 0.58
+        "percentage": 0.57
       },
       "latest": {
         "date": "2026-08-08",
@@ -1406,7 +1406,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 11,
-        "percentage": 0.23
+        "percentage": 0.22
       }
     },
     {
@@ -1705,7 +1705,7 @@
       },
       "peakPercentage": {
         "date": "2025-11-09",
-        "percentage": 0.57
+        "percentage": 0.56
       },
       "latest": {
         "date": "2026-08-08",
@@ -1743,7 +1743,7 @@
       },
       "peakPercentage": {
         "date": "2025-11-13",
-        "percentage": 0.44
+        "percentage": 0.43
       },
       "latest": {
         "date": "2026-08-08",
@@ -1800,7 +1800,7 @@
       },
       "peakPercentage": {
         "date": "2026-06-20",
-        "percentage": 0.46
+        "percentage": 0.45
       },
       "latest": {
         "date": "2026-08-08",
@@ -2066,7 +2066,7 @@
       },
       "peakPercentage": {
         "date": "2026-02-15",
-        "percentage": 0.23
+        "percentage": 0.22
       },
       "latest": {
         "date": "2026-08-08",
@@ -2123,7 +2123,7 @@
       },
       "peakPercentage": {
         "date": "2025-12-26",
-        "percentage": 0.34
+        "percentage": 0.33
       },
       "latest": {
         "date": "2026-08-08",
@@ -2313,7 +2313,7 @@
       },
       "peakPercentage": {
         "date": "2025-11-29",
-        "percentage": 0.34
+        "percentage": 0.33
       },
       "latest": {
         "date": "2026-08-08",
@@ -2470,7 +2470,7 @@
       "latest": {
         "date": "2026-08-08",
         "count": 11,
-        "percentage": 0.23
+        "percentage": 0.22
       }
     },
     {
@@ -2541,7 +2541,7 @@
       },
       "peakPercentage": {
         "date": "2025-05-03",
-        "percentage": 0.27
+        "percentage": 0.26
       },
       "latest": {
         "date": "2026-08-08",
@@ -3282,7 +3282,7 @@
       },
       "peakPercentage": {
         "date": "2025-11-01",
-        "percentage": 0.2
+        "percentage": 0.19
       },
       "latest": {
         "date": "2026-08-08",
@@ -3377,7 +3377,7 @@
       },
       "peakPercentage": {
         "date": "2025-11-27",
-        "percentage": 0.23
+        "percentage": 0.22
       },
       "latest": {
         "date": "2026-08-08",
@@ -3415,7 +3415,7 @@
       },
       "peakPercentage": {
         "date": "2026-05-14",
-        "percentage": 0.18
+        "percentage": 0.17
       },
       "latest": {
         "date": "2026-08-08",
@@ -5796,6 +5796,25 @@
         "date": "2026-08-08",
         "count": 1,
         "percentage": 0.02
+      }
+    },
+    {
+      "id": "81qp3qpj",
+      "name": "Zoop",
+      "totalRecords": 4,
+      "totalDates": 82,
+      "peakRecords": {
+        "date": "2025-02-05",
+        "count": 4
+      },
+      "peakPercentage": {
+        "date": "2025-02-03",
+        "percentage": 0.14
+      },
+      "latest": {
+        "date": "2026-08-08",
+        "count": 0,
+        "percentage": 0
       }
     },
     {
@@ -9590,7 +9609,7 @@
       },
       "peakPercentage": {
         "date": "2026-02-26",
-        "percentage": 0.05
+        "percentage": 0.04
       },
       "latest": {
         "date": "2026-08-08",
@@ -9938,6 +9957,25 @@
         "date": "2026-08-08",
         "count": 1,
         "percentage": 0.02
+      }
+    },
+    {
+      "id": "8lrkv1r8",
+      "name": "negri",
+      "totalRecords": 2,
+      "totalDates": 27,
+      "peakRecords": {
+        "date": "2026-08-08",
+        "count": 2
+      },
+      "peakPercentage": {
+        "date": "2026-07-13",
+        "percentage": 0.04
+      },
+      "latest": {
+        "date": "2026-08-08",
+        "count": 2,
+        "percentage": 0.04
       }
     },
     {
