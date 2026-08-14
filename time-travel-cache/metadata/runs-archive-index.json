@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-08-13T01:19:37.929Z",
+  "lastUpdated": "2026-08-14T01:17:38.655Z",
   "version": 1,
   "backfillComplete": true,
-  "lastVerifyDate": "2026-08-13T01:18:31Z",
-  "seenRuns": 46035,
-  "totalRuns": 46007,
+  "lastVerifyDate": "2026-08-13T02:16:20Z",
+  "seenRuns": 46053,
+  "totalRuns": 46025,
   "shards": [
     {
       "mode": "Arrow",
@@ -70,19 +70,19 @@
       "mode": "Bridge",
       "category": "100 Apples",
       "path": "time-travel-cache/runs/Bridge/100_Apples.json",
-      "count": 20
+      "count": 21
     },
     {
       "mode": "Bridge",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Bridge/25_Apples.json",
-      "count": 82
+      "count": 85
     },
     {
       "mode": "Bridge",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Bridge/50_Apples.json",
-      "count": 59
+      "count": 61
     },
     {
       "mode": "Bridge",
@@ -106,7 +106,7 @@
       "mode": "Cheese",
       "category": "100 Apples",
       "path": "time-travel-cache/runs/Cheese/100_Apples.json",
-      "count": 210
+      "count": 212
     },
     {
       "mode": "Cheese",
@@ -118,7 +118,7 @@
       "mode": "Cheese",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Cheese/50_Apples.json",
-      "count": 340
+      "count": 343
     },
     {
       "mode": "Cheese",
@@ -172,13 +172,13 @@
       "mode": "Classic",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Classic/25_Apples.json",
-      "count": 7543
+      "count": 7546
     },
     {
       "mode": "Classic",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Classic/50_Apples.json",
-      "count": 2026
+      "count": 2027
     },
     {
       "mode": "Classic",
@@ -514,7 +514,7 @@
       "mode": "Sokoban",
       "category": "100 Apples",
       "path": "time-travel-cache/runs/Sokoban/100_Apples.json",
-      "count": 142
+      "count": 143
     },
     {
       "mode": "Sokoban",
@@ -526,7 +526,7 @@
       "mode": "Sokoban",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Sokoban/50_Apples.json",
-      "count": 276
+      "count": 278
     },
     {
       "mode": "Sokoban",
