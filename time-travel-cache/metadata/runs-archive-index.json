@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-08-16T00:57:17.700Z",
+  "lastUpdated": "2026-08-17T00:55:14.943Z",
   "version": 1,
   "backfillComplete": true,
-  "lastVerifyDate": "2026-08-14T23:32:27Z",
-  "seenRuns": 46062,
-  "totalRuns": 46034,
+  "lastVerifyDate": "2026-08-16T15:25:51Z",
+  "seenRuns": 46070,
+  "totalRuns": 46042,
   "shards": [
     {
       "mode": "Arrow",
@@ -76,7 +76,7 @@
       "mode": "Bridge",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Bridge/25_Apples.json",
-      "count": 86
+      "count": 87
     },
     {
       "mode": "Bridge",
@@ -538,7 +538,7 @@
       "mode": "Sokoban",
       "category": "High Score",
       "path": "time-travel-cache/runs/Sokoban/High_Score.json",
-      "count": 390
+      "count": 393
     },
     {
       "mode": "Statue",
@@ -580,13 +580,13 @@
       "mode": "Twin",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Twin/25_Apples.json",
-      "count": 637
+      "count": 638
     },
     {
       "mode": "Twin",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Twin/50_Apples.json",
-      "count": 319
+      "count": 320
     },
     {
       "mode": "Twin",
@@ -640,7 +640,7 @@
       "mode": "Winged",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Winged/25_Apples.json",
-      "count": 687
+      "count": 688
     },
     {
       "mode": "Winged",
@@ -670,7 +670,7 @@
       "mode": "Yin Yang",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Yin_Yang/25_Apples.json",
-      "count": 749
+      "count": 750
     },
     {
       "mode": "Yin Yang",
