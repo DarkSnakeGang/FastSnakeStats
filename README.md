@@ -105,7 +105,7 @@ scripts/install-nodejs.bat
 ## Cache System Details
 
 ### GitHub Actions Workflows
-- **Daily Cache** (`daily-cache.yml`): Fetches yesterday's world records, regenerates `available-dates.json`, `player-stats.json`, and `statistics-explorer.json`
+- **Daily Cache** (`daily-cache.yml`): Syncs the runs archive, rebuilds runs-derived metadata, materializes the latest daily snapshot from runs data, and regenerates `available-dates.json`
 - **Available Dates** (`update-available-dates.yml`): Regenerates date metadata
 - **Player Stats** (`analyze-player-stats.yml`): Manual/backup rebuild of peak stats and statistics explorer metadata
 

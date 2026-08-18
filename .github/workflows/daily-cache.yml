@@ -23,24 +23,6 @@ jobs:
       with:
         node-version: '24'
         
-    - name: Create cache directories
-      run: |
-        mkdir -p time-travel-cache/daily/$(date -d "yesterday" +%Y)/$(date -d "yesterday" +%m)
-        
-    - name: Fetch yesterday's data (legacy daily for Pudding*)
-      run: node scripts/historical-cache-backfill.js --yesterday
-      env:
-        GITHUB_TOKEN: ${{ secrets.FSSGSM_TOKEN }}
-      continue-on-error: true
-
-    - name: Prune legacy daily cache (keep latest date only)
-      run: node scripts/prune-daily-cache.js
-      continue-on-error: true
-
-    - name: Update available dates metadata (legacy daily)
-      run: node scripts/generate-available-dates.js
-      continue-on-error: true
-
     - name: Sync mastery challenge (incremental; no-op until full backfill)
       run: node scripts/mastery-challenge-fetcher.js --incremental
       continue-on-error: true
@@ -71,6 +53,19 @@ jobs:
         node scripts/statistics-explorer-analyzer.js --from-runs --full
         echo "Building Chronicle…"
         node scripts/chronicle-analyzer.js
+
+    - name: Materialize latest daily cache from runs data
+      if: steps.fss-rebuild.outcome == 'success'
+      continue-on-error: true
+      run: node scripts/materialize-runs-daily-cache.js --yesterday
+
+    - name: Prune daily cache (keep latest date only)
+      run: node scripts/prune-daily-cache.js
+      continue-on-error: true
+
+    - name: Update available dates metadata (daily snapshots)
+      run: node scripts/generate-available-dates.js
+      continue-on-error: true
       
     - name: Commit and push changes
       run: |
