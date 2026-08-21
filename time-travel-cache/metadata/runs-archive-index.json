@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-08-20T00:25:47.067Z",
+  "lastUpdated": "2026-08-21T00:28:22.217Z",
   "version": 1,
   "backfillComplete": true,
-  "lastVerifyDate": "2026-08-19T23:02:39Z",
-  "seenRuns": 46191,
-  "totalRuns": 46163,
+  "lastVerifyDate": "2026-08-20T23:49:54Z",
+  "seenRuns": 46206,
+  "totalRuns": 46178,
   "shards": [
     {
       "mode": "Arrow",
@@ -70,19 +70,19 @@
       "mode": "Bridge",
       "category": "100 Apples",
       "path": "time-travel-cache/runs/Bridge/100_Apples.json",
-      "count": 26
+      "count": 30
     },
     {
       "mode": "Bridge",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Bridge/25_Apples.json",
-      "count": 97
+      "count": 98
     },
     {
       "mode": "Bridge",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Bridge/50_Apples.json",
-      "count": 67
+      "count": 71
     },
     {
       "mode": "Bridge",
@@ -94,7 +94,7 @@
       "mode": "Bridge",
       "category": "High Score",
       "path": "time-travel-cache/runs/Bridge/High_Score.json",
-      "count": 41
+      "count": 46
     },
     {
       "mode": "Burger",
@@ -280,7 +280,7 @@
       "mode": "Key",
       "category": "100 Apples",
       "path": "time-travel-cache/runs/Key/100_Apples.json",
-      "count": 181
+      "count": 182
     },
     {
       "mode": "Key",
