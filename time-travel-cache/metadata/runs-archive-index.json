@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-08-22T00:26:06.396Z",
+  "lastUpdated": "2026-08-23T00:27:39.045Z",
   "version": 1,
   "backfillComplete": true,
-  "lastVerifyDate": "2026-08-22T00:06:56Z",
-  "seenRuns": 46308,
-  "totalRuns": 46280,
+  "lastVerifyDate": "2026-08-22T17:15:38Z",
+  "seenRuns": 46311,
+  "totalRuns": 46283,
   "shards": [
     {
       "mode": "Arrow",
@@ -172,7 +172,7 @@
       "mode": "Classic",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Classic/25_Apples.json",
-      "count": 7573
+      "count": 7574
     },
     {
       "mode": "Classic",
@@ -346,7 +346,7 @@
       "mode": "Magnet",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Magnet/25_Apples.json",
-      "count": 603
+      "count": 604
     },
     {
       "mode": "Magnet",
@@ -622,7 +622,7 @@
       "mode": "Wall",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Wall/All_Apples.json",
-      "count": 58
+      "count": 59
     },
     {
       "mode": "Wall",
