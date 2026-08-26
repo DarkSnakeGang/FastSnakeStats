@@ -1326,9 +1326,33 @@ function buildLineChart(points, isHighScore) {
     svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
     svg.setAttribute('class', 'stats-line-svg');
 
+    var plotW = w - padL - padR;
+    var times = points.map(function (p) {
+        var ms = Date.parse(String(p.d) + 'T00:00:00Z');
+        return isFinite(ms) ? ms : NaN;
+    });
+    var tMin = Infinity;
+    var tMax = -Infinity;
+    for (var ti0 = 0; ti0 < times.length; ti0++) {
+        if (!isFinite(times[ti0])) continue;
+        if (times[ti0] < tMin) tMin = times[ti0];
+        if (times[ti0] > tMax) tMax = times[ti0];
+    }
+    var hasTimeSpan = isFinite(tMin) && isFinite(tMax) && tMax > tMin;
+
+    // X by calendar date (not evenly spaced by improvement index)
     function xAt(i) {
-        if (points.length === 1) return padL + (w - padL - padR) / 2;
-        return padL + (i / (points.length - 1)) * (w - padL - padR);
+        if (points.length === 1) {
+            return padL + plotW / 2;
+        }
+        if (!hasTimeSpan) {
+            return padL + (i / (points.length - 1)) * plotW;
+        }
+        var t = times[i];
+        if (!isFinite(t)) {
+            return padL + (i / (points.length - 1)) * plotW;
+        }
+        return padL + ((t - tMin) / (tMax - tMin)) * plotW;
     }
     function yAt(v) {
         return padT + (1 - (v - minV) / (maxV - minV)) * (h - padT - padB);
@@ -1443,6 +1467,20 @@ function buildLineChart(points, isHighScore) {
     t1.setAttribute('class', 'stats-axis-label');
     t1.textContent = points[points.length - 1].d;
     svg.appendChild(t1);
+
+    // Mid-span date when the range is long enough that first/last alone mislead
+    var TWO_YEARS_MS = 2 * 365.25 * 24 * 60 * 60 * 1000;
+    if (hasTimeSpan && points.length >= 3 && (tMax - tMin) >= TWO_YEARS_MS) {
+        var midT = tMin + (tMax - tMin) / 2;
+        var midDate = new Date(midT).toISOString().slice(0, 10);
+        var tMid = document.createElementNS(svgNS, 'text');
+        tMid.setAttribute('x', padL + plotW / 2);
+        tMid.setAttribute('y', h - 10);
+        tMid.setAttribute('text-anchor', 'middle');
+        tMid.setAttribute('class', 'stats-axis-label');
+        tMid.textContent = midDate;
+        svg.appendChild(tMid);
+    }
 
     wrap.appendChild(svg);
     wrap.appendChild(tip);
