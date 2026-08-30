@@ -177,7 +177,7 @@ function toDailyRecordShape(category, slimRuns, date) {
                               rel: 'user',
                               id: r.p,
                               names: { international: r.n },
-                              weblink: `https://www.speedrun.com/user/${r.p}`,
+                              weblink: `https://www.speedrun.com/user/${r.n}`,
                               'name-style': r.ns || undefined
                           }
                 ]

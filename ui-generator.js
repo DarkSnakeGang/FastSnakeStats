@@ -540,14 +540,17 @@ function createNameElement(user){
     const isGuest = user.rel === 'guest' ||
         (user.id && String(user.id).indexOf('guest:') === 0);
 
-    // Guests have no SRC user profile; prefer stored weblink, else skip fake /user/ links
-    if (user.weblink) {
+    // SRC profile pages use the username permalink, not the opaque user id
+    if (!isGuest && playerName && playerName !== 'unknown') {
+        a.setAttribute('href', 'https://www.speedrun.com/user/' + playerName);
+        a.setAttribute('target', '_blank');
+        a.setAttribute('rel', 'noopener noreferrer');
+    } else if (user.weblink && !isGuest) {
         a.setAttribute('href', user.weblink);
         a.setAttribute('target', '_blank');
-    } else if (!isGuest) {
-        a.setAttribute('href', `https://www.speedrun.com/user/${playerName}`);
-        a.setAttribute('target', '_blank');
+        a.setAttribute('rel', 'noopener noreferrer');
     }
+    // Guests have no SRC user profile — leave as unlinked styled text
     
     var nameStyle = user['name-style'] || user.nameStyle || null;
     if (isGuest && !nameStyle) {
@@ -690,13 +693,10 @@ function generateTableContent(table, settings, specificGamemode = null) {
                         timeDisplay.appendChild(timeLink);
                         runsContainer.appendChild(timeDisplay);
                         
-                        // Add all player names with their individual links
+                        // Add all player names (profile links); time above links to the run
                         for(var i = 0; i < thisBoardRuns[gamemode][runMode].runs.length; i++){
                             var run = thisBoardRuns[gamemode][runMode].runs[i];
-                            var playerLink = document.createElement('a');
-                            playerLink.setAttribute('href', run.weblink);
-                            playerLink.setAttribute('target','_blank');
-                            playerLink.appendChild(createNameElement(run.players.data[0]));
+                            runsContainer.appendChild(createNameElement(run.players.data[0]));
                             
                             // Add separator between players (except for the last one)
                             if(i < thisBoardRuns[gamemode][runMode].runs.length - 1) {
@@ -705,8 +705,6 @@ function generateTableContent(table, settings, specificGamemode = null) {
                                 separator.setAttribute('class', 'player-separator');
                                 runsContainer.appendChild(separator);
                             }
-                            
-                            runsContainer.appendChild(playerLink);
                         }
                         
                         td.appendChild(runsContainer);
@@ -860,13 +858,10 @@ function generateLeaderboard(settings, specificGamemode = null){
                         timeDisplay.appendChild(timeLink);
                         runsContainer.appendChild(timeDisplay);
                         
-                        // Add all player names with their individual links
+                        // Add all player names (profile links); time above links to the run
                         for(var i = 0; i < modeRuns[runMode].runs.length; i++){
                             var run = modeRuns[runMode].runs[i];
-                            var playerLink = document.createElement('a');
-                            playerLink.setAttribute('href', run.weblink);
-                            playerLink.setAttribute('target','_blank');
-                            playerLink.appendChild(createNameElement(run.players.data[0]));
+                            runsContainer.appendChild(createNameElement(run.players.data[0]));
                             
                             // Add separator between players (except for the last one)
                             if(i < modeRuns[runMode].runs.length - 1) {
@@ -875,8 +870,6 @@ function generateLeaderboard(settings, specificGamemode = null){
                                 separator.setAttribute('class', 'player-separator');
                                 runsContainer.appendChild(separator);
                             }
-                            
-                            runsContainer.appendChild(playerLink);
                         }
                         
                         td.appendChild(runsContainer);
@@ -1016,13 +1009,10 @@ function generateLeaderboardForMultiple(settings, container){
                         timeDisplay.appendChild(timeLink);
                         runsContainer.appendChild(timeDisplay);
                         
-                        // Add all player names with their individual links
+                        // Add all player names (profile links); time above links to the run
                         for(var i = 0; i < modeRuns[runMode].runs.length; i++){
                             var run = modeRuns[runMode].runs[i];
-                            var playerLink = document.createElement('a');
-                            playerLink.setAttribute('href', run.weblink);
-                            playerLink.setAttribute('target','_blank');
-                            playerLink.appendChild(createNameElement(run.players.data[0]));
+                            runsContainer.appendChild(createNameElement(run.players.data[0]));
                             
                             // Add separator between players (except for the last one)
                             if(i < modeRuns[runMode].runs.length - 1) {
@@ -1031,8 +1021,6 @@ function generateLeaderboardForMultiple(settings, container){
                                 separator.setAttribute('class', 'player-separator');
                                 runsContainer.appendChild(separator);
                             }
-                            
-                            runsContainer.appendChild(playerLink);
                         }
                         
                         td.appendChild(runsContainer);
