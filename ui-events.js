@@ -951,12 +951,13 @@ function getPlayerLongevityBest(playerId) {
         if (!data || !data.longevity) return empty;
 
         const longevity = data.longevity;
-        const allRows = Array.isArray(longevity.all)
+        let allRows = Array.isArray(longevity.all)
             ? longevity.all
             : (Array.isArray(longevity) ? longevity : []);
-        const standingRows = Array.isArray(longevity.standing)
-            ? longevity.standing
-            : allRows.filter(function (r) { return r.stillStanding; });
+        if (typeof filterHoldsByDisplayedModes === 'function') {
+            allRows = filterHoldsByDisplayedModes(allRows);
+        }
+        const standingRows = allRows.filter(function (r) { return r.stillStanding; });
 
         const pickBest = function (rows) {
             let best = null;
@@ -1054,6 +1055,14 @@ function getPlayerCareerStats(playerId) {
         return Promise.resolve(null);
     }
     return loadStatisticsExplorerData().then(function (data) {
+        // Prefer CE-aware recompute from longevity holds
+        if (typeof buildDisplayedCareerRows === 'function') {
+            const rows = buildDisplayedCareerRows();
+            for (let i = 0; i < rows.length; i++) {
+                if (rows[i].playerId === playerId) return rows[i];
+            }
+            return { playerId: playerId, wrDays: 0, bestAll: null, bestStanding: null };
+        }
         const rows = (data && data.career) || [];
         for (let i = 0; i < rows.length; i++) {
             if (rows[i].playerId === playerId) return rows[i];

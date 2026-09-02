@@ -46,6 +46,7 @@ var statsListGamemode = 'All';
 var statsListRunMode = 'All';
 var STATS_LIST_DISPLAY_LIMIT = 50;
 var statsWasMasteryFilterContext = false;
+var statsCareerSearchQuery = '';
 
 var STATS_MASTERY_MODE_GROUPS = ['High score modes only', 'Excluding Peaceful'];
 var STATS_LIST_MODE_GROUPS = ['High score modes only']; // shared Mode filter on list-filter tabs
@@ -262,16 +263,22 @@ function rowMatchesListFilters(row) {
 }
 
 function filterRowsByListFilters(rows) {
-    if (
-        statsListApple === 'All' &&
-        statsListSpeed === 'All' &&
-        statsListSize === 'All' &&
-        statsListRunMode === 'All' &&
-        statsListGamemode === 'All'
-    ) {
-        return rows;
-    }
-    return rows.filter(rowMatchesListFilters);
+    // Always apply filters (including CE Off/Only via isModeDisplayed), even when chips are All
+    return (rows || []).filter(rowMatchesListFilters);
+}
+
+/** Whether a category key's mode is visible under current CE display + gamemode visibility. */
+function categoryModeIsDisplayed(category) {
+    var parsed = typeof parseCategoryKey === 'function' ? parseCategoryKey(category) : null;
+    if (!parsed || !parsed.gamemode) return false;
+    if (typeof isModeDisplayed === 'function') return isModeDisplayed(parsed.gamemode);
+    return true;
+}
+
+function filterHoldsByDisplayedModes(rows) {
+    return (rows || []).filter(function (row) {
+        return row && categoryModeIsDisplayed(row.category);
+    });
 }
 
 function parsePrimaryToSeconds(primary) {
@@ -1659,22 +1666,26 @@ function selectStatsExplorerPlayer(player) {
 
 /** Player with the most currently standing WR holds (present rankings #1). */
 function getTopPresentWrPlayer() {
-    var rows = (statsExplorerData && statsExplorerData.career) || [];
-    var best = null;
-    for (var i = 0; i < rows.length; i++) {
-        var row = rows[i];
-        if (!row || !row.playerId) continue;
-        var n = row.standingHolds || 0;
-        if (!best || n > best.standingHolds ||
-            (n === best.standingHolds && String(row.playerName || '').localeCompare(String(best.name || '')) < 0)) {
-            best = {
-                id: row.playerId,
-                name: row.playerName || row.playerId,
-                standingHolds: n
-            };
-        }
+    var counts = {};
+    var names = {};
+    var holds = filterHoldsByDisplayedModes(getAllLongevityHolds());
+    for (var i = 0; i < holds.length; i++) {
+        var h = holds[i];
+        if (!h || !h.playerId || !h.stillStanding) continue;
+        counts[h.playerId] = (counts[h.playerId] || 0) + 1;
+        names[h.playerId] = h.playerName || h.playerId;
     }
-    return best && best.standingHolds > 0 ? { id: best.id, name: best.name } : null;
+    var bestId = null;
+    var bestN = 0;
+    Object.keys(counts).forEach(function (id) {
+        var n = counts[id];
+        if (!bestId || n > bestN ||
+            (n === bestN && String(names[id] || '').localeCompare(String(names[bestId] || '')) < 0)) {
+            bestId = id;
+            bestN = n;
+        }
+    });
+    return bestId && bestN > 0 ? { id: bestId, name: names[bestId] } : null;
 }
 
 function applyPlayerTabDefault() {
@@ -1847,6 +1858,10 @@ function renderPlayerView(body) {
 
     var allRows = getPlayerHoldRows(statsExplorerPlayerId);
     var rows = filterRowsByListFilters(allRows);
+    var wrDaysTotal = 0;
+    for (var di = 0; di < rows.length; di++) {
+        wrDaysTotal += rows[di].days || 0;
+    }
     var modeLabel = statsExplorerPlayerHoldMode === 'present'
         ? 'present'
         : (statsExplorerPlayerHoldMode === 'old'
@@ -1865,6 +1880,7 @@ function renderPlayerView(body) {
     meta.className = 'stats-explorer-meta';
     meta.textContent = statsExplorerPlayerName + ' · ' + rows.length + ' ' +
         modeLabel + ' hold' + (rows.length === 1 ? '' : 's') + tiedLabel +
+        ' · ' + wrDaysTotal + ' WR-days' +
         (rows.length !== allRows.length ? ' · ' + allRows.length + ' before filters' : '') +
         ' · ' + sortHint;
     body.appendChild(meta);
@@ -2198,6 +2214,80 @@ function getCareerMetrics(row) {
     };
 }
 
+function getAllLongevityHolds() {
+    var raw = statsExplorerData && statsExplorerData.longevity;
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    return raw.all || [];
+}
+
+function betterCareerHold(a, b) {
+    if (!a) return b;
+    if (!b) return a;
+    if ((b.days || 0) !== (a.days || 0)) return (b.days || 0) > (a.days || 0) ? b : a;
+    return String(b.start || '').localeCompare(String(a.start || '')) > 0 ? b : a;
+}
+
+/**
+ * Rebuild career ranking from longevity holds so CE Off/Only and tied chips apply.
+ * Precomputed career JSON always includes Chess/Burger.
+ */
+function buildDisplayedCareerRows() {
+    var holds = filterHoldsByDisplayedModes(getAllLongevityHolds());
+    holds = filterRowsByTiedMode(holds);
+    var map = {};
+    for (var i = 0; i < holds.length; i++) {
+        var h = holds[i];
+        if (!h || !h.playerId) continue;
+        var p = map[h.playerId];
+        if (!p) {
+            p = {
+                playerId: h.playerId,
+                playerName: h.playerName || h.playerId,
+                wrDays: 0,
+                bestAll: null,
+                bestStanding: null
+            };
+            map[h.playerId] = p;
+        }
+        p.playerName = h.playerName || p.playerName;
+        var days = h.days || 0;
+        p.wrDays += days;
+        p.bestAll = betterCareerHold(p.bestAll, h);
+        if (h.stillStanding) {
+            p.bestStanding = betterCareerHold(p.bestStanding, h);
+        }
+    }
+    return Object.keys(map).map(function (id) { return map[id]; }).filter(function (r) {
+        return r.wrDays > 0 || r.bestAll || r.bestStanding;
+    }).sort(function (a, b) {
+        return b.wrDays - a.wrDays || String(a.playerName).localeCompare(String(b.playerName));
+    });
+}
+
+function openCareerPlayer(playerId, playerName) {
+    selectStatsExplorerPlayer({ id: playerId, name: playerName || playerId });
+    statsExplorerPlayerShowMeme = false;
+    statsExplorerPlayerHoldMode = 'all';
+    statsExplorerPlayerTiedMode = 'all';
+    statsExplorerActiveTab = 'player';
+    var wrap = document.querySelector('.stats-explorer-wrapper');
+    if (wrap) {
+        Array.prototype.forEach.call(wrap.querySelectorAll('.stats-explorer-tab'), function (el) {
+            el.classList.toggle('active', el.dataset.tab === 'player');
+        });
+    }
+    var mobileTabs = document.getElementById('mobileStatsTabs');
+    if (mobileTabs) {
+        Array.prototype.forEach.call(mobileTabs.querySelectorAll('.stats-explorer-tab'), function (el) {
+            el.classList.toggle('active', el.dataset.tab === 'player');
+        });
+    }
+    var body = document.getElementById('statsExplorerBody') ||
+        document.getElementById('mobileStatsExplorerBody');
+    renderStatisticsExplorerContent(body);
+}
+
 function formatCategoryPartHtml(map, value) {
     if (!value || value === '-') return escapeHtml(value || '—');
     var useIcons = typeof getCategoryUseIcons === 'function' ? getCategoryUseIcons() : true;
@@ -2262,33 +2352,70 @@ function formatCareerHoldCell(hold) {
 function renderCareerView(body) {
     appendLongevityTiedChips(body, 'career');
 
-    var rows = (statsExplorerData.career || []).map(function (row) {
-        var m = getCareerMetrics(row);
+    var searchWrap = document.createElement('div');
+    searchWrap.className = 'stats-player-search';
+    var searchLabel = document.createElement('label');
+    searchLabel.className = 'stats-explorer-select-label';
+    searchLabel.setAttribute('for', 'statsCareerSearch');
+    searchLabel.textContent = 'Find player';
+    searchWrap.appendChild(searchLabel);
+    var searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.id = 'statsCareerSearch';
+    searchInput.className = 'stats-player-search-input';
+    searchInput.placeholder = 'Search beyond top 50…';
+    searchInput.value = statsCareerSearchQuery || '';
+    searchInput.setAttribute('autocomplete', 'off');
+    searchInput.addEventListener('input', function () {
+        statsCareerSearchQuery = searchInput.value || '';
+        renderStatisticsExplorerContent(body);
+        var again = document.getElementById('statsCareerSearch');
+        if (again) {
+            again.focus();
+            var len = again.value.length;
+            again.setSelectionRange(len, len);
+        }
+    });
+    searchWrap.appendChild(searchInput);
+    body.appendChild(searchWrap);
+
+    var rows = buildDisplayedCareerRows();
+    var q = String(statsCareerSearchQuery || '').trim().toLowerCase();
+    var ranked = rows.map(function (row, idx) {
         return {
+            rank: idx + 1,
             playerId: row.playerId,
             playerName: row.playerName,
-            wrDays: m.wrDays,
-            bestAll: m.bestAll,
-            bestStanding: m.bestStanding
+            wrDays: row.wrDays,
+            bestAll: row.bestAll,
+            bestStanding: row.bestStanding
         };
-    }).filter(function (r) {
-        return r.wrDays > 0 || r.bestAll || r.bestStanding;
-    }).sort(function (a, b) {
-        return b.wrDays - a.wrDays || String(a.playerName).localeCompare(String(b.playerName));
     });
+    var displayRows = q
+        ? ranked.filter(function (r) {
+            return String(r.playerName || '').toLowerCase().indexOf(q) !== -1;
+        })
+        : ranked.slice(0, STATS_LIST_DISPLAY_LIMIT);
 
     var meta = document.createElement('div');
     meta.className = 'stats-explorer-meta';
-    var shown = Math.min(rows.length, STATS_LIST_DISPLAY_LIMIT);
-    meta.textContent = shown + ' shown' +
-        (rows.length > STATS_LIST_DISPLAY_LIMIT ? ' · ' + rows.length + ' players' : '') +
-        ' · career WR-days (1 per day per WR held) · best longevity included';
+    if (q) {
+        meta.textContent = displayRows.length + ' match' + (displayRows.length === 1 ? '' : 'es') +
+            ' · ' + rows.length + ' players total · career WR-days (CE filter applied)';
+    } else {
+        var shown = Math.min(rows.length, STATS_LIST_DISPLAY_LIMIT);
+        meta.textContent = shown + ' shown' +
+            (rows.length > STATS_LIST_DISPLAY_LIMIT ? ' · ' + rows.length + ' players · search to find others' : '') +
+            ' · career WR-days (1 per day per WR held)';
+    }
     body.appendChild(meta);
 
-    if (!rows.length) {
+    if (!displayRows.length) {
         var empty = document.createElement('div');
         empty.className = 'stats-explorer-empty';
-        empty.textContent = 'No career data for this tied filter.';
+        empty.textContent = q
+            ? 'No career players match that search.'
+            : 'No career data for this tied filter.';
         body.appendChild(empty);
         return;
     }
@@ -2305,14 +2432,35 @@ function renderCareerView(body) {
     thead.appendChild(hr);
     table.appendChild(thead);
     var tbody = document.createElement('tbody');
-    rows.slice(0, STATS_LIST_DISPLAY_LIMIT).forEach(function (row, idx) {
+    displayRows.forEach(function (row) {
         var tr = document.createElement('tr');
-        tr.innerHTML =
-            '<td>' + (idx + 1) + '</td>' +
-            '<td>' + escapeHtml(row.playerName || '—') + '</td>' +
-            '<td>' + row.wrDays + '</td>' +
-            '<td>' + formatCareerHoldCell(row.bestAll) + '</td>' +
-            '<td>' + formatCareerHoldCell(row.bestStanding) + '</td>';
+        var rankTd = document.createElement('td');
+        rankTd.textContent = String(row.rank);
+        tr.appendChild(rankTd);
+
+        var nameTd = document.createElement('td');
+        var nameBtn = document.createElement('button');
+        nameBtn.type = 'button';
+        nameBtn.className = 'stats-run-link stats-mastery-player-link';
+        nameBtn.textContent = row.playerName || '—';
+        nameBtn.addEventListener('click', function () {
+            openCareerPlayer(row.playerId, row.playerName);
+        });
+        nameTd.appendChild(nameBtn);
+        tr.appendChild(nameTd);
+
+        var daysTd = document.createElement('td');
+        daysTd.textContent = String(row.wrDays);
+        tr.appendChild(daysTd);
+
+        var bestAllTd = document.createElement('td');
+        bestAllTd.innerHTML = formatCareerHoldCell(row.bestAll);
+        tr.appendChild(bestAllTd);
+
+        var bestStandingTd = document.createElement('td');
+        bestStandingTd.innerHTML = formatCareerHoldCell(row.bestStanding);
+        tr.appendChild(bestStandingTd);
+
         tbody.appendChild(tr);
     });
     table.appendChild(tbody);
