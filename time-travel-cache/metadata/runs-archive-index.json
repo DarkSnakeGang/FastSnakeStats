@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-09-02T01:31:07.767Z",
+  "lastUpdated": "2026-09-03T01:35:10.101Z",
   "version": 1,
   "backfillComplete": true,
-  "lastVerifyDate": "2026-09-01T22:30:43Z",
-  "seenRuns": 46619,
-  "totalRuns": 46591,
+  "lastVerifyDate": "2026-09-02T12:55:41Z",
+  "seenRuns": 46620,
+  "totalRuns": 46592,
   "shards": [
     {
       "mode": "Arrow",
@@ -262,7 +262,7 @@
       "mode": "Hotdog",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Hotdog/25_Apples.json",
-      "count": 408
+      "count": 409
     },
     {
       "mode": "Hotdog",
