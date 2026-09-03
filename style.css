@@ -2725,8 +2725,8 @@ body.dark-mode .quick-fetch-btn:disabled {
 		top: 100px !important;
 		right: 16px !important;
 		z-index: 249 !important;
-		width: min(820px, calc(100vw - 32px)) !important;
-		max-width: 820px !important;
+		width: min(900px, calc(100vw - 32px)) !important;
+		max-width: 900px !important;
 		display: flex !important;
 		flex-direction: column !important;
 		align-items: stretch !important;
@@ -2764,8 +2764,8 @@ body.dark-mode .quick-fetch-btn:disabled {
 		top: 100px !important;
 		bottom: auto !important;
 		right: calc(16px + var(--ranglist-panel-width, 320px) + 12px) !important;
-		width: min(820px, calc(100vw - 44px - var(--ranglist-panel-width, 320px))) !important;
-		max-width: min(820px, calc(100vw - 44px - var(--ranglist-panel-width, 320px))) !important;
+		width: min(900px, calc(100vw - 44px - var(--ranglist-panel-width, 320px))) !important;
+		max-width: min(900px, calc(100vw - 44px - var(--ranglist-panel-width, 320px))) !important;
 		max-height: calc(100vh - 120px);
 		z-index: 249 !important;
 	}
@@ -2773,8 +2773,8 @@ body.dark-mode .quick-fetch-btn:disabled {
 	/* Open Statistics alone — clear the Rankings edge tab */
 	body.summary-collapsed:not(.stats-explorer-collapsed) .stats-explorer-wrapper {
 		right: 72px !important;
-		width: min(820px, calc(100vw - 88px)) !important;
-		max-width: min(820px, calc(100vw - 88px)) !important;
+		width: min(900px, calc(100vw - 88px)) !important;
+		max-width: min(900px, calc(100vw - 88px)) !important;
 		z-index: 251 !important;
 	}
 
