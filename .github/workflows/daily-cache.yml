@@ -32,6 +32,11 @@ jobs:
       run: node scripts/runs-archive-fetcher.js --incremental
       continue-on-error: true
 
+    - name: Sync player countries (incremental SRC locations)
+      if: steps.runs-sync.outcome == 'success'
+      continue-on-error: true
+      run: node scripts/player-locations-fetcher.js --incremental
+
     - name: Rebuild FSS runs-derived timelines and stats
       id: fss-rebuild
       if: steps.runs-sync.outcome == 'success'

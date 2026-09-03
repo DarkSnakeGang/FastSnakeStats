@@ -30,6 +30,11 @@ const {
     isCeLevelMode
 } = require('../ce-modes');
 const { isIgnoredPlayerName, shouldSkipBoardFetch } = require('../ignored-players');
+const {
+    loadLocations,
+    saveLocations,
+    upsertLocationFromPlayer
+} = require('./player-locations-fetcher');
 
 const GAME_ID = 'o1y9pyk6';
 const BASE = 'https://www.speedrun.com/api/v1';
@@ -145,6 +150,19 @@ class RunsArchiveFetcher {
         /** @type {Map<string, Object>} shardKey -> { runs: { id: record } } */
         this.shardCache = new Map();
         this.dirtyShards = new Set();
+        this.locationsData = null;
+        this.locationsDirty = false;
+    }
+
+    touchLocations() {
+        if (!this.locationsData) this.locationsData = loadLocations();
+        return this.locationsData;
+    }
+
+    flushLocations() {
+        if (!this.locationsDirty || !this.locationsData) return;
+        saveLocations(this.locationsData);
+        this.locationsDirty = false;
     }
 
     async fetchAPI(url) {
@@ -527,6 +545,11 @@ class RunsArchiveFetcher {
             id;
         if (!id) return null;
         if (isIgnoredPlayerName(name)) return null;
+        // Opportunistic country upsert from embedded player (when SRC includes location)
+        try {
+            const locs = this.touchLocations();
+            if (upsertLocationFromPlayer(locs, id, p)) this.locationsDirty = true;
+        } catch (e) { /* non-fatal */ }
         return { playerId: id, playerName: name, guest: false, nameStyle };
     }
 
@@ -896,6 +919,7 @@ class RunsArchiveFetcher {
             };
             this.flushShards();
             this.saveState(state);
+            this.flushLocations();
             await sleep(150);
         }
 
@@ -903,6 +927,7 @@ class RunsArchiveFetcher {
         if (mode === 'full') state.backfillComplete = true;
         this.flushShards();
         this.saveState(state);
+        this.flushLocations();
         const index = this.writeIndex(state);
         const sec = ((Date.now() - t0) / 1000).toFixed(1);
         console.log(

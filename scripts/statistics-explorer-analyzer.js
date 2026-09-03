@@ -18,7 +18,7 @@ const { isTallyCeHighscoreMode } = require('../tally-boards');
  */
 
 /** Bump whenever scoring / legends / hold logic changes (forces full rebuild). */
-const ANALYZER_VERSION = 19;
+const ANALYZER_VERSION = 20;
 
 const DIFFICULTY_TIERS = ['Free', 'Warmup', 'Easy', 'Medium', 'Hard', 'Mythic', 'Lottery', 'Inhuman'];
 
@@ -77,7 +77,9 @@ class StatisticsExplorerAnalyzer {
         this.outputFile = 'time-travel-cache/metadata/statistics-explorer.json';
         this.stateFile = 'time-travel-cache/metadata/statistics-explorer-state.json';
         this.availableDatesFile = 'time-travel-cache/metadata/available-dates.json';
+        this.playerLocationsFile = 'time-travel-cache/metadata/player-locations.json';
         this.workerScript = path.join(__dirname, 'statistics-explorer-worker.js');
+        this.playerLocations = { players: {} };
 
         // categoryKey -> last signature { runKey, primary, playerId, playerName }
         this.prevTop = new Map();
@@ -1207,6 +1209,153 @@ class StatisticsExplorerAnalyzer {
         );
     }
 
+    loadPlayerLocations() {
+        if (!fs.existsSync(this.playerLocationsFile)) {
+            this.playerLocations = { players: {} };
+            return;
+        }
+        try {
+            const raw = JSON.parse(fs.readFileSync(this.playerLocationsFile, 'utf8'));
+            this.playerLocations = raw && raw.players ? raw : { players: {} };
+            if (!this.playerLocations.players) this.playerLocations.players = {};
+        } catch (e) {
+            console.warn('⚠️ Could not load player-locations.json:', e.message);
+            this.playerLocations = { players: {} };
+        }
+    }
+
+    countryForPlayer(playerId) {
+        if (!playerId || String(playerId).indexOf('guest:') === 0) return null;
+        const players = (this.playerLocations && this.playerLocations.players) || {};
+        if (!Object.prototype.hasOwnProperty.call(players, playerId)) return null;
+        return players[playerId]; // { code, name } | null
+    }
+
+    buildPlayerCountriesMaps() {
+        const playerCountries = {};
+        const countryNames = {};
+        const players = (this.playerLocations && this.playerLocations.players) || {};
+        for (const [id, loc] of Object.entries(players)) {
+            if (loc && loc.code) {
+                playerCountries[id] = loc.code;
+                if (loc.name) countryNames[loc.code] = loc.name;
+            } else {
+                playerCountries[id] = null;
+            }
+        }
+        return { playerCountries, countryNames };
+    }
+
+    /**
+     * Aggregate completed holds by country (after buildLongevity closes holds).
+     */
+    buildCountries() {
+        const map = new Map(); // code|unknown -> agg
+        const playerWrDays = new Map(); // playerId -> { name, wrDays, codeKey }
+
+        const mapHold = (h) => ({
+            category: h.category,
+            playerId: h.playerId,
+            playerName: h.playerName,
+            time: h.time,
+            weblink: h.weblink || null,
+            start: h.start,
+            end: h.end,
+            days: h.days,
+            stillStanding: !!h.stillStanding,
+            tiedHolders: h.tiedHolders || 1
+        });
+
+        const better = (a, b) => {
+            if (!a) return b;
+            if (!b) return a;
+            if (b.days !== a.days) return b.days > a.days ? b : a;
+            return String(b.start || '').localeCompare(String(a.start || '')) > 0 ? b : a;
+        };
+
+        const keyFor = (playerId) => {
+            const loc = this.countryForPlayer(playerId);
+            if (loc && loc.code) return loc.code;
+            return 'unknown';
+        };
+
+        for (const h of this.completedHolds) {
+            if (!h.playerId) continue;
+            const codeKey = keyFor(h.playerId);
+            let c = map.get(codeKey);
+            if (!c) {
+                const loc = this.countryForPlayer(h.playerId);
+                c = {
+                    countryCode: codeKey === 'unknown' ? null : codeKey,
+                    countryName: codeKey === 'unknown'
+                        ? 'Unknown'
+                        : ((loc && loc.name) || codeKey.toUpperCase()),
+                    playerIds: new Set(),
+                    wrDays: 0,
+                    wrDaysUntied: 0,
+                    wrDaysTied: 0,
+                    holds: 0,
+                    standingHolds: 0,
+                    bestAll: null,
+                    bestStanding: null
+                };
+                map.set(codeKey, c);
+            }
+            c.playerIds.add(h.playerId);
+            const days = h.days || 0;
+            const row = mapHold(h);
+            const isTied = (h.tiedHolders || 1) > 1;
+            c.wrDays += days;
+            c.holds += 1;
+            c.bestAll = better(c.bestAll, row);
+            if (isTied) c.wrDaysTied += days;
+            else c.wrDaysUntied += days;
+            if (h.stillStanding) {
+                c.standingHolds += 1;
+                c.bestStanding = better(c.bestStanding, row);
+            }
+
+            let pw = playerWrDays.get(h.playerId);
+            if (!pw) {
+                pw = { playerId: h.playerId, playerName: h.playerName, wrDays: 0, codeKey };
+                playerWrDays.set(h.playerId, pw);
+            }
+            pw.playerName = h.playerName || pw.playerName;
+            pw.wrDays += days;
+        }
+
+        // Top player per country
+        const topByCountry = new Map();
+        for (const pw of playerWrDays.values()) {
+            const prev = topByCountry.get(pw.codeKey);
+            if (!prev || pw.wrDays > prev.wrDays ||
+                (pw.wrDays === prev.wrDays &&
+                    String(pw.playerName).localeCompare(String(prev.playerName)) < 0)) {
+                topByCountry.set(pw.codeKey, {
+                    playerId: pw.playerId,
+                    playerName: pw.playerName,
+                    wrDays: pw.wrDays
+                });
+            }
+        }
+
+        return Array.from(map.entries()).map(([codeKey, c]) => ({
+            countryCode: c.countryCode,
+            countryName: c.countryName,
+            playerCount: c.playerIds.size,
+            wrDays: c.wrDays,
+            wrDaysUntied: c.wrDaysUntied,
+            wrDaysTied: c.wrDaysTied,
+            holds: c.holds,
+            standingHolds: c.standingHolds,
+            topPlayer: topByCountry.get(codeKey) || null,
+            bestAll: c.bestAll,
+            bestStanding: c.bestStanding
+        })).sort(
+            (a, b) => b.wrDays - a.wrDays || String(a.countryName).localeCompare(String(b.countryName))
+        );
+    }
+
     countOnOrBefore(countsMap, targetDate, datesAsc) {
         let last = 0;
         for (const d of datesAsc) {
@@ -1410,6 +1559,12 @@ class StatisticsExplorerAnalyzer {
         const lastDate = dates[dates.length - 1];
         const firstDate = dates[0];
 
+        this.loadPlayerLocations();
+        const longevity = this.buildLongevity(lastDate);
+        const career = this.buildCareer();
+        const countries = this.buildCountries();
+        const maps = this.buildPlayerCountriesMaps();
+
         const output = {
             meta: {
                 lastUpdated: new Date().toISOString(),
@@ -1424,8 +1579,11 @@ class StatisticsExplorerAnalyzer {
             popularity: this.buildPopularity(),
             unicorns: this.buildUnicorns(lastDate),
             legends: this.buildLegends(lastDate),
-            longevity: this.buildLongevity(lastDate),
-            career: this.buildCareer(),
+            longevity,
+            career,
+            countries,
+            playerCountries: maps.playerCountries,
+            countryNames: maps.countryNames,
             improving: this.buildImproving(dates, 25),
             unheld: this.buildUnheld(),
             progression: this.buildProgressionObject()
@@ -1444,7 +1602,7 @@ class StatisticsExplorerAnalyzer {
             `Unicorns: ${output.unicorns.length}, Legends: ${output.legends.length}, ` +
             `Unheld: ${output.unheld.rows.length}/${output.unheld.total}, ` +
             `Longevity all: ${output.longevity.all.length}, standing: ${output.longevity.standing.length}, ` +
-            `Career players: ${output.career.length}, ` +
+            `Career players: ${output.career.length}, Countries: ${output.countries.length}, ` +
             `Progression keys: ${Object.keys(output.progression).length}`
         );
         console.log(`Statistics explorer analysis complete in ${((Date.now() - t0) / 1000).toFixed(1)}s.`);

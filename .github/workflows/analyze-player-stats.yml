@@ -38,6 +38,8 @@ jobs:
           echo "Runs archive backfill incomplete — skipping (will not overwrite with legacy daily)"
           exit 0
         fi
+        echo "Syncing player countries…"
+        node scripts/player-locations-fetcher.js --incremental
         echo "Deriving WR timelines from runs archive…"
         node scripts/derive-runs-timelines.js
         echo "Rebuilding player stats from runs…"
@@ -53,6 +55,7 @@ jobs:
         if git diff --quiet \
             time-travel-cache/metadata/player-stats.json \
             time-travel-cache/metadata/statistics-explorer.json \
+            time-travel-cache/metadata/player-locations.json \
             time-travel-cache/metadata/chronicle.json \
             time-travel-cache/metadata/available-dates-runs.json \
             time-travel-cache/runs-derived/wr-timelines.json; then
@@ -71,6 +74,7 @@ jobs:
         git add \
           time-travel-cache/metadata/player-stats.json \
           time-travel-cache/metadata/statistics-explorer.json \
+          time-travel-cache/metadata/player-locations.json \
           time-travel-cache/metadata/chronicle.json \
           time-travel-cache/metadata/available-dates-runs.json \
           time-travel-cache/runs-derived/wr-timelines.json

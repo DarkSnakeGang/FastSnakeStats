@@ -44,9 +44,12 @@ var statsListSpeed = 'All';
 var statsListSize = 'All';
 var statsListGamemode = 'All';
 var statsListRunMode = 'All';
+var statsListCountry = 'All'; // 'All' | country code | 'Unknown'
 var STATS_LIST_DISPLAY_LIMIT = 50;
 var statsWasMasteryFilterContext = false;
 var statsCareerSearchQuery = '';
+var statsCountrySearchQuery = '';
+var statsCountryDrillCode = null; // when set, Country tab shows player list for that country
 
 var STATS_MASTERY_MODE_GROUPS = ['High score modes only', 'Excluding Peaceful'];
 var STATS_LIST_MODE_GROUPS = ['High score modes only']; // shared Mode filter on list-filter tabs
@@ -66,6 +69,7 @@ var STATS_TABS = [
     { id: 'progression', label: 'Progression' },
     { id: 'longevity', label: 'Longevity' },
     { id: 'career', label: 'Career' },
+    { id: 'country', label: 'Country' },
     { id: 'chronicle', label: 'Chronicle' },
     { id: 'player', label: 'Player' },
     { id: 'mastery', label: 'Mastery' },
@@ -77,6 +81,78 @@ var STATS_TABS = [
     { id: 'unheld', label: 'Unheld' },
     { id: 'heatmap', label: 'Heatmap' }
 ];
+
+function getPlayerCountryCode(playerId) {
+    if (!playerId || String(playerId).indexOf('guest:') === 0) return null;
+    var map = statsExplorerData && statsExplorerData.playerCountries;
+    if (!map || !Object.prototype.hasOwnProperty.call(map, playerId)) return null;
+    return map[playerId]; // code string or null
+}
+
+function getCountryDisplayName(code) {
+    if (!code || code === 'Unknown') return 'Unknown';
+    var names = statsExplorerData && statsExplorerData.countryNames;
+    if (names && names[code]) return names[code];
+    return String(code).toUpperCase();
+}
+
+/** ISO 3166-1 alpha-2 → regional-indicator flag emoji */
+function countryCodeToFlagEmoji(code) {
+    if (!code || code === 'Unknown' || String(code).length !== 2) return '';
+    var c = String(code).toUpperCase();
+    if (!/^[A-Z]{2}$/.test(c)) return '';
+    return String.fromCodePoint(
+        0x1F1E6 + c.charCodeAt(0) - 65,
+        0x1F1E6 + c.charCodeAt(1) - 65
+    );
+}
+
+function formatCountryLabel(code) {
+    var name = getCountryDisplayName(code || 'Unknown');
+    var flag = countryCodeToFlagEmoji(code);
+    return flag ? (flag + ' ' + name) : name;
+}
+
+function getCountryFilterOptions() {
+    var opts = [{ value: 'All', label: 'All' }];
+    var names = (statsExplorerData && statsExplorerData.countryNames) || {};
+    var codes = Object.keys(names).sort(function (a, b) {
+        return String(names[a] || a).localeCompare(String(names[b] || b));
+    });
+    // Also include codes present only in playerCountries
+    var pc = (statsExplorerData && statsExplorerData.playerCountries) || {};
+    Object.keys(pc).forEach(function (pid) {
+        var c = pc[pid];
+        if (c && codes.indexOf(c) === -1) codes.push(c);
+    });
+    codes.sort(function (a, b) {
+        return getCountryDisplayName(a).localeCompare(getCountryDisplayName(b));
+    });
+    var seen = {};
+    codes.forEach(function (code) {
+        if (!code || seen[code]) return;
+        seen[code] = true;
+        opts.push({ value: code, label: formatCountryLabel(code) });
+    });
+    opts.push({ value: 'Unknown', label: 'Unknown' });
+    return opts;
+}
+
+function playerMatchesCountryFilter(playerId) {
+    if (statsListCountry === 'All') return true;
+    var code = getPlayerCountryCode(playerId);
+    if (statsListCountry === 'Unknown') return code == null;
+    return code === statsListCountry;
+}
+
+function rowMatchesCountryFilter(row) {
+    if (statsListCountry === 'All') return true;
+    if (!row) return false;
+    var pid = row.playerId;
+    if (!pid && row.topPlayer) pid = row.topPlayer.playerId;
+    if (!pid) return false; // category-only rows: cannot attribute
+    return playerMatchesCountryFilter(pid);
+}
 
 function parseCategoryKey(key) {
     if (!key) return null;
@@ -232,6 +308,10 @@ function appendListFilters(body) {
         statsListGamemode = v;
         renderStatisticsExplorerContent(body);
     }));
+    filters.appendChild(createStatsSelect('Country', statsListCountry, getCountryFilterOptions(), function (v) {
+        statsListCountry = v;
+        renderStatisticsExplorerContent(body);
+    }));
     body.appendChild(filters);
 }
 
@@ -259,6 +339,7 @@ function rowMatchesListFilters(row) {
         return false;
     }
     if (!gamemodeMatchesListFilter(parsed.gamemode)) return false;
+    if (!rowMatchesCountryFilter(row)) return false;
     return true;
 }
 
@@ -668,6 +749,9 @@ function renderStatisticsExplorerContent(targetBody) {
             break;
         case 'career':
             renderCareerView(body);
+            break;
+        case 'country':
+            renderCountryView(body);
             break;
         case 'chronicle':
             renderChronicleView(body);
@@ -1515,8 +1599,8 @@ function appendLongevityTiedChips(body, onChange) {
         { group: 'tied', id: 'untied', label: 'Untied only' },
         { group: 'tied', id: 'tied', label: 'Tied only' }
     ].forEach(function (opt) {
-        // Longevity has mode chips; Career only wants tied chips
-        if (onChange === 'career' && opt.group === 'mode') return;
+        // Longevity has mode chips; Career/Country only want tied chips
+        if ((onChange === 'career' || onChange === 'country') && opt.group === 'mode') return;
         var chip = document.createElement('button');
         chip.type = 'button';
         var active = opt.group === 'mode'
@@ -1668,7 +1752,7 @@ function selectStatsExplorerPlayer(player) {
 function getTopPresentWrPlayer() {
     var counts = {};
     var names = {};
-    var holds = filterHoldsByDisplayedModes(getAllLongevityHolds());
+    var holds = filterRowsByListFilters(getAllLongevityHolds());
     for (var i = 0; i < holds.length; i++) {
         var h = holds[i];
         if (!h || !h.playerId || !h.stillStanding) continue;
@@ -2229,11 +2313,11 @@ function betterCareerHold(a, b) {
 }
 
 /**
- * Rebuild career ranking from longevity holds so CE Off/Only and tied chips apply.
- * Precomputed career JSON always includes Chess/Burger.
+ * Rebuild career ranking from longevity holds so CE Off/Only, board/country
+ * filters, and tied chips apply. Precomputed career JSON always includes CE.
  */
 function buildDisplayedCareerRows() {
-    var holds = filterHoldsByDisplayedModes(getAllLongevityHolds());
+    var holds = filterRowsByListFilters(getAllLongevityHolds());
     holds = filterRowsByTiedMode(holds);
     var map = {};
     for (var i = 0; i < holds.length; i++) {
@@ -2351,6 +2435,7 @@ function formatCareerHoldCell(hold) {
 
 function renderCareerView(body) {
     appendLongevityTiedChips(body, 'career');
+    appendListFilters(body);
 
     var searchWrap = document.createElement('div');
     searchWrap.className = 'stats-player-search';
@@ -2461,6 +2546,344 @@ function renderCareerView(body) {
         bestStandingTd.innerHTML = formatCareerHoldCell(row.bestStanding);
         tr.appendChild(bestStandingTd);
 
+        tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    var scroll = document.createElement('div');
+    scroll.className = 'stats-table-scroll';
+    scroll.appendChild(table);
+    body.appendChild(scroll);
+}
+
+function buildDisplayedCountryRows() {
+    var holds = filterRowsByListFilters(getAllLongevityHolds());
+    holds = filterRowsByTiedMode(holds);
+    var map = {};
+    var playerDays = {};
+
+    for (var i = 0; i < holds.length; i++) {
+        var h = holds[i];
+        if (!h || !h.playerId) continue;
+        var code = getPlayerCountryCode(h.playerId);
+        var key = code || 'Unknown';
+        var c = map[key];
+        if (!c) {
+            c = {
+                countryCode: code,
+                countryName: getCountryDisplayName(key),
+                playerIds: {},
+                wrDays: 0,
+                standingHolds: 0,
+                bestAll: null,
+                bestStanding: null
+            };
+            map[key] = c;
+        }
+        c.playerIds[h.playerId] = true;
+        c.wrDays += h.days || 0;
+        c.bestAll = betterCareerHold(c.bestAll, h);
+        if (h.stillStanding) {
+            c.standingHolds += 1;
+            c.bestStanding = betterCareerHold(c.bestStanding, h);
+        }
+        if (!playerDays[h.playerId]) {
+            playerDays[h.playerId] = {
+                playerId: h.playerId,
+                playerName: h.playerName || h.playerId,
+                wrDays: 0,
+                countryKey: key
+            };
+        }
+        playerDays[h.playerId].playerName = h.playerName || playerDays[h.playerId].playerName;
+        playerDays[h.playerId].wrDays += h.days || 0;
+    }
+
+    Object.keys(playerDays).forEach(function (pid) {
+        var pw = playerDays[pid];
+        var c = map[pw.countryKey];
+        if (!c) return;
+        if (!c.topPlayer || pw.wrDays > c.topPlayer.wrDays ||
+            (pw.wrDays === c.topPlayer.wrDays &&
+                String(pw.playerName).localeCompare(String(c.topPlayer.playerName)) < 0)) {
+            c.topPlayer = {
+                playerId: pw.playerId,
+                playerName: pw.playerName,
+                wrDays: pw.wrDays
+            };
+        }
+    });
+
+    return Object.keys(map).map(function (key) {
+        var c = map[key];
+        return {
+            countryCode: c.countryCode,
+            countryKey: key,
+            countryName: c.countryName,
+            playerCount: Object.keys(c.playerIds).length,
+            wrDays: c.wrDays,
+            standingHolds: c.standingHolds,
+            topPlayer: c.topPlayer || null,
+            bestAll: c.bestAll,
+            bestStanding: c.bestStanding
+        };
+    }).filter(function (r) {
+        return r.wrDays > 0;
+    }).sort(function (a, b) {
+        return b.wrDays - a.wrDays || String(a.countryName).localeCompare(String(b.countryName));
+    });
+}
+
+function buildCountryPlayerRows(countryKey) {
+    var holds = filterRowsByListFilters(getAllLongevityHolds());
+    holds = filterRowsByTiedMode(holds);
+    var map = {};
+    for (var i = 0; i < holds.length; i++) {
+        var h = holds[i];
+        if (!h || !h.playerId) continue;
+        var code = getPlayerCountryCode(h.playerId);
+        var key = code || 'Unknown';
+        if (key !== countryKey) continue;
+        var p = map[h.playerId];
+        if (!p) {
+            p = {
+                playerId: h.playerId,
+                playerName: h.playerName || h.playerId,
+                wrDays: 0,
+                bestAll: null,
+                bestStanding: null
+            };
+            map[h.playerId] = p;
+        }
+        p.playerName = h.playerName || p.playerName;
+        p.wrDays += h.days || 0;
+        p.bestAll = betterCareerHold(p.bestAll, h);
+        if (h.stillStanding) p.bestStanding = betterCareerHold(p.bestStanding, h);
+    }
+    return Object.keys(map).map(function (id) { return map[id]; }).sort(function (a, b) {
+        return b.wrDays - a.wrDays || String(a.playerName).localeCompare(String(b.playerName));
+    });
+}
+
+function renderCountryView(body) {
+    if (statsCountryDrillCode) {
+        renderCountryDrillView(body, statsCountryDrillCode);
+        return;
+    }
+
+    appendLongevityTiedChips(body, 'country');
+    appendListFilters(body);
+
+    var searchWrap = document.createElement('div');
+    searchWrap.className = 'stats-player-search';
+    var searchLabel = document.createElement('label');
+    searchLabel.className = 'stats-explorer-select-label';
+    searchLabel.setAttribute('for', 'statsCountrySearch');
+    searchLabel.textContent = 'Find country';
+    searchWrap.appendChild(searchLabel);
+    var searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.id = 'statsCountrySearch';
+    searchInput.className = 'stats-player-search-input';
+    searchInput.placeholder = 'Search beyond top 50…';
+    searchInput.value = statsCountrySearchQuery || '';
+    searchInput.setAttribute('autocomplete', 'off');
+    searchInput.addEventListener('input', function () {
+        statsCountrySearchQuery = searchInput.value || '';
+        renderStatisticsExplorerContent(body);
+        var again = document.getElementById('statsCountrySearch');
+        if (again) {
+            again.focus();
+            var len = again.value.length;
+            again.setSelectionRange(len, len);
+        }
+    });
+    searchWrap.appendChild(searchInput);
+    body.appendChild(searchWrap);
+
+    var rows = buildDisplayedCountryRows();
+    // Global country filter: when a country is selected, focus that row only
+    if (statsListCountry !== 'All') {
+        var focusKey = statsListCountry === 'Unknown' ? 'Unknown' : statsListCountry;
+        rows = rows.filter(function (r) { return r.countryKey === focusKey; });
+    }
+
+    var q = String(statsCountrySearchQuery || '').trim().toLowerCase();
+    var ranked = rows.map(function (row, idx) {
+        return Object.assign({ rank: idx + 1 }, row);
+    });
+    var displayRows = q
+        ? ranked.filter(function (r) {
+            var label = formatCountryLabel(r.countryCode || r.countryKey).toLowerCase();
+            return label.indexOf(q) !== -1 ||
+                String(r.countryName || '').toLowerCase().indexOf(q) !== -1 ||
+                String(r.countryCode || '').toLowerCase().indexOf(q) !== -1;
+        })
+        : ranked.slice(0, STATS_LIST_DISPLAY_LIMIT);
+
+    var meta = document.createElement('div');
+    meta.className = 'stats-explorer-meta';
+    if (q) {
+        meta.textContent = displayRows.length + ' match' + (displayRows.length === 1 ? '' : 'es') +
+            ' · ' + rows.length + ' countries · WR-days by country';
+    } else {
+        var shown = Math.min(rows.length, STATS_LIST_DISPLAY_LIMIT);
+        meta.textContent = shown + ' shown' +
+            (rows.length > STATS_LIST_DISPLAY_LIMIT ? ' · ' + rows.length + ' countries · search to find others' : '') +
+            ' · career WR-days aggregated by country';
+    }
+    body.appendChild(meta);
+
+    if (!displayRows.length) {
+        var empty = document.createElement('div');
+        empty.className = 'stats-explorer-empty';
+        empty.textContent = q
+            ? 'No countries match that search.'
+            : 'No country data for these filters.';
+        body.appendChild(empty);
+        return;
+    }
+
+    var table = document.createElement('table');
+    table.className = 'stats-explorer-table';
+    var thead = document.createElement('thead');
+    var hr = document.createElement('tr');
+    ['#', 'Country', 'WR-days', 'Players', 'Standing', 'Top player', 'Best all-time'].forEach(function (h) {
+        var th = document.createElement('th');
+        th.textContent = h;
+        hr.appendChild(th);
+    });
+    thead.appendChild(hr);
+    table.appendChild(thead);
+    var tbody = document.createElement('tbody');
+    displayRows.forEach(function (row) {
+        var tr = document.createElement('tr');
+
+        var rankTd = document.createElement('td');
+        rankTd.textContent = String(row.rank);
+        tr.appendChild(rankTd);
+
+        var countryTd = document.createElement('td');
+        var countryBtn = document.createElement('button');
+        countryBtn.type = 'button';
+        countryBtn.className = 'stats-run-link stats-mastery-player-link';
+        countryBtn.textContent = formatCountryLabel(row.countryCode || row.countryKey);
+        countryBtn.addEventListener('click', function () {
+            statsCountryDrillCode = row.countryKey;
+            renderStatisticsExplorerContent(body);
+        });
+        countryTd.appendChild(countryBtn);
+        tr.appendChild(countryTd);
+
+        var daysTd = document.createElement('td');
+        daysTd.textContent = String(row.wrDays);
+        tr.appendChild(daysTd);
+
+        var playersTd = document.createElement('td');
+        playersTd.textContent = String(row.playerCount);
+        tr.appendChild(playersTd);
+
+        var standingTd = document.createElement('td');
+        standingTd.textContent = String(row.standingHolds);
+        tr.appendChild(standingTd);
+
+        var topTd = document.createElement('td');
+        if (row.topPlayer) {
+            var topBtn = document.createElement('button');
+            topBtn.type = 'button';
+            topBtn.className = 'stats-run-link stats-mastery-player-link';
+            topBtn.textContent = (row.topPlayer.playerName || '—') +
+                ' (' + row.topPlayer.wrDays + 'd)';
+            topBtn.addEventListener('click', function () {
+                openCareerPlayer(row.topPlayer.playerId, row.topPlayer.playerName);
+            });
+            topTd.appendChild(topBtn);
+        } else {
+            topTd.textContent = '—';
+        }
+        tr.appendChild(topTd);
+
+        var bestTd = document.createElement('td');
+        bestTd.innerHTML = formatCareerHoldCell(row.bestAll);
+        tr.appendChild(bestTd);
+
+        tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    var scroll = document.createElement('div');
+    scroll.className = 'stats-table-scroll';
+    scroll.appendChild(table);
+    body.appendChild(scroll);
+}
+
+function renderCountryDrillView(body, countryKey) {
+    appendLongevityTiedChips(body, 'country');
+    appendListFilters(body);
+
+    var back = document.createElement('button');
+    back.type = 'button';
+    back.className = 'stats-explorer-chip';
+    back.textContent = '← All countries';
+    back.addEventListener('click', function () {
+        statsCountryDrillCode = null;
+        renderStatisticsExplorerContent(body);
+    });
+    var backBar = document.createElement('div');
+    backBar.className = 'stats-explorer-chips';
+    backBar.appendChild(back);
+    body.appendChild(backBar);
+
+    var players = buildCountryPlayerRows(countryKey);
+    var meta = document.createElement('div');
+    meta.className = 'stats-explorer-meta';
+    meta.textContent = formatCountryLabel(countryKey === 'Unknown' ? null : countryKey) +
+        ' · ' + players.length + ' player' + (players.length === 1 ? '' : 's') +
+        ' · WR-days under current filters';
+    body.appendChild(meta);
+
+    if (!players.length) {
+        var empty = document.createElement('div');
+        empty.className = 'stats-explorer-empty';
+        empty.textContent = 'No players for this country with current filters.';
+        body.appendChild(empty);
+        return;
+    }
+
+    var table = document.createElement('table');
+    table.className = 'stats-explorer-table';
+    var thead = document.createElement('thead');
+    var hr = document.createElement('tr');
+    ['#', 'Player', 'WR-days', 'Best all-time', 'Best still standing'].forEach(function (h) {
+        var th = document.createElement('th');
+        th.textContent = h;
+        hr.appendChild(th);
+    });
+    thead.appendChild(hr);
+    table.appendChild(thead);
+    var tbody = document.createElement('tbody');
+    players.forEach(function (row, idx) {
+        var tr = document.createElement('tr');
+        var rankTd = document.createElement('td');
+        rankTd.textContent = String(idx + 1);
+        tr.appendChild(rankTd);
+        var nameTd = document.createElement('td');
+        var nameBtn = document.createElement('button');
+        nameBtn.type = 'button';
+        nameBtn.className = 'stats-run-link stats-mastery-player-link';
+        nameBtn.textContent = row.playerName || '—';
+        nameBtn.addEventListener('click', function () {
+            openCareerPlayer(row.playerId, row.playerName);
+        });
+        nameTd.appendChild(nameBtn);
+        tr.appendChild(nameTd);
+        var daysTd = document.createElement('td');
+        daysTd.textContent = String(row.wrDays);
+        tr.appendChild(daysTd);
+        var bestAllTd = document.createElement('td');
+        bestAllTd.innerHTML = formatCareerHoldCell(row.bestAll);
+        tr.appendChild(bestAllTd);
+        var bestStandingTd = document.createElement('td');
+        bestStandingTd.innerHTML = formatCareerHoldCell(row.bestStanding);
+        tr.appendChild(bestStandingTd);
         tbody.appendChild(tr);
     });
     table.appendChild(tbody);
@@ -2819,7 +3242,16 @@ function renderImprovingView(body) {
     });
     body.appendChild(bar);
 
-    var rows = (statsExplorerData.improving && statsExplorerData.improving[statsExplorerImproveWindow]) || [];
+    var countryBar = document.createElement('div');
+    countryBar.className = 'stats-explorer-filters';
+    countryBar.appendChild(createStatsSelect('Country', statsListCountry, getCountryFilterOptions(), function (v) {
+        statsListCountry = v;
+        renderStatisticsExplorerContent(body);
+    }));
+    body.appendChild(countryBar);
+
+    var rows = ((statsExplorerData.improving && statsExplorerData.improving[statsExplorerImproveWindow]) || [])
+        .filter(function (row) { return playerMatchesCountryFilter(row.playerId); });
     if (!rows.length) {
         var empty = document.createElement('div');
         empty.className = 'stats-explorer-empty';
