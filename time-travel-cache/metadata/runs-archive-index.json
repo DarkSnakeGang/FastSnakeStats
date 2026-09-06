@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-09-05T01:29:18.376Z",
+  "lastUpdated": "2026-09-06T01:24:14.663Z",
   "version": 1,
   "backfillComplete": true,
-  "lastVerifyDate": "2026-09-03T16:15:26Z",
-  "seenRuns": 46645,
-  "totalRuns": 46617,
+  "lastVerifyDate": "2026-09-05T16:43:09Z",
+  "seenRuns": 46668,
+  "totalRuns": 46640,
   "shards": [
     {
       "mode": "Arrow",
@@ -70,19 +70,19 @@
       "mode": "Bridge",
       "category": "100 Apples",
       "path": "time-travel-cache/runs/Bridge/100_Apples.json",
-      "count": 50
+      "count": 55
     },
     {
       "mode": "Bridge",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Bridge/25_Apples.json",
-      "count": 122
+      "count": 127
     },
     {
       "mode": "Bridge",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Bridge/50_Apples.json",
-      "count": 92
+      "count": 96
     },
     {
       "mode": "Bridge",
@@ -94,7 +94,7 @@
       "mode": "Bridge",
       "category": "High Score",
       "path": "time-travel-cache/runs/Bridge/High_Score.json",
-      "count": 69
+      "count": 74
     },
     {
       "mode": "Burger",
@@ -256,7 +256,7 @@
       "mode": "Hotdog",
       "category": "100 Apples",
       "path": "time-travel-cache/runs/Hotdog/100_Apples.json",
-      "count": 150
+      "count": 151
     },
     {
       "mode": "Hotdog",
@@ -268,7 +268,7 @@
       "mode": "Hotdog",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Hotdog/50_Apples.json",
-      "count": 273
+      "count": 274
     },
     {
       "mode": "Hotdog",
@@ -280,7 +280,7 @@
       "mode": "Hotdog",
       "category": "High Score",
       "path": "time-travel-cache/runs/Hotdog/High_Score.json",
-      "count": 316
+      "count": 317
     },
     {
       "mode": "Key",
@@ -352,7 +352,7 @@
       "mode": "Magnet",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Magnet/25_Apples.json",
-      "count": 612
+      "count": 613
     },
     {
       "mode": "Magnet",
