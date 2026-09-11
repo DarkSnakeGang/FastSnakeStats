@@ -18,7 +18,7 @@
         'Classic', 'Wall', 'Portal', 'Cheese', 'Borderless', 'Twin', 'Winged',
         'Yin Yang', 'Key', 'Sokoban', 'Poison', 'Dimension', 'Minesweeper',
         'Statue', 'Light', 'Shield', 'Arrow', 'Hotdog', 'Magnet', 'Gate',
-        'Bridge', 'Peaceful', 'Chess', 'Burger'
+        'Bridge', 'Peaceful', 'Chess', 'Candy', 'Burger', 'Cat', 'Mexico', 'Bomb', 'Temp Wall', 'Ghost'
     ];
 
     function getPlayerDisplayName(player) {

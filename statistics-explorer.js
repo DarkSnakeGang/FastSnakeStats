@@ -53,7 +53,7 @@ var statsCountryDrillCode = null; // when set, Country tab shows player list for
 
 var STATS_MASTERY_MODE_GROUPS = ['High score modes only', 'Excluding Peaceful'];
 var STATS_LIST_MODE_GROUPS = ['High score modes only']; // shared Mode filter on list-filter tabs
-var STATS_HIGHSCORE_MODES = ['Wall', 'Portal', 'Key', 'Sokoban', 'Poison', 'Minesweeper', 'Statue', 'Shield', 'Hotdog', 'Gate', 'Bridge', 'Chess', 'Burger'];
+var STATS_HIGHSCORE_MODES = ['Wall', 'Portal', 'Key', 'Sokoban', 'Poison', 'Minesweeper', 'Statue', 'Shield', 'Hotdog', 'Gate', 'Bridge', 'Chess', 'Candy', 'Burger', 'Cat', 'Mexico', 'Bomb', 'Temp Wall', 'Ghost'];
 
 function getDisplayedGamemodeNames() {
     var names = typeof gamemodes !== 'undefined' ? Object.keys(gamemodes) : [];
@@ -2050,7 +2050,8 @@ function getMasteryAllModeNames() {
     var all = (masteryChallengeData && masteryChallengeData.meta && masteryChallengeData.meta.modes) ||
         ['Classic', 'Wall', 'Portal', 'Cheese', 'Borderless', 'Twin', 'Winged', 'Yin Yang',
             'Key', 'Sokoban', 'Poison', 'Dimension', 'Minesweeper', 'Statue', 'Light', 'Shield',
-            'Arrow', 'Hotdog', 'Magnet', 'Gate', 'Bridge', 'Peaceful', 'Chess', 'Burger'];
+            'Arrow', 'Hotdog', 'Magnet', 'Gate', 'Bridge', 'Peaceful',
+            'Chess', 'Candy', 'Burger', 'Cat', 'Mexico', 'Bomb', 'Temp Wall', 'Ghost'];
     if (typeof filterDisplayedModes === 'function') return filterDisplayedModes(all);
     return all;
 }

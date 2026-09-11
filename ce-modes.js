@@ -1,5 +1,5 @@
 /**
- * Category Extensions level modes (Chess, Burger) + display gating.
+ * Category Extensions level modes (RemixMod) + display gating.
  * Distinct from Tally CE High Score (rkl4elqd) for non-typical main modes.
  */
 (function (root, factory) {
@@ -18,6 +18,7 @@
         root.isCeLevelMode = api.isCeLevelMode;
         root.getCeDisplayMode = api.getCeDisplayMode;
         root.setCeDisplayMode = api.setCeDisplayMode;
+        root.setCeLevelModesVisible = api.setCeLevelModesVisible;
         root.isModeDisplayed = api.isModeDisplayed;
         root.filterDisplayedModes = api.filterDisplayedModes;
         root.normalizeCeCountLabel = api.normalizeCeCountLabel;
@@ -27,12 +28,20 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
     var CE_GAME_ID = '9dow0go1';
 
-    /** Modded CE levels — full timed + High Score matrix */
-    var CE_LEVEL_MODES = ['Chess', 'Burger'];
+    /** Modded CE levels — full timed + High Score matrix (SRC snake_game_ce order) */
+    var CE_LEVEL_MODES = [
+        'Chess', 'Candy', 'Burger', 'Cat', 'Mexico', 'Bomb', 'Temp Wall', 'Ghost'
+    ];
 
     var CE_LEVEL_BY_NAME = {
         Chess: 'd1j51lyd',
-        Burger: 'wkk1rmqw'
+        Candy: 'dqz5nq2d',
+        Burger: 'wkk1rmqw',
+        Cat: 'we2mqp7w',
+        Mexico: '9zpn80gw',
+        Bomb: '9gy178p9',
+        'Temp Wall': '9x13x0pd',
+        Ghost: '95klmn39'
     };
 
     /** Per-level category ids on snake_game_ce */
@@ -57,15 +66,23 @@
 
     function getCeDisplayMode() {
         if (typeof ceDisplayMode !== 'undefined' && ceDisplayMode) return ceDisplayMode;
-        return 'mix';
+        return 'off';
     }
 
     function setCeDisplayMode(mode) {
-        if (mode !== 'off' && mode !== 'mix' && mode !== 'only') mode = 'mix';
+        if (mode !== 'off' && mode !== 'mix' && mode !== 'only') mode = 'off';
         if (typeof ceDisplayMode !== 'undefined') {
             ceDisplayMode = mode;
         }
         return mode;
+    }
+
+    function setCeLevelModesVisible(visible) {
+        if (typeof gamemodes === 'undefined' || !gamemodes) return;
+        for (var i = 0; i < CE_LEVEL_MODES.length; i++) {
+            var name = CE_LEVEL_MODES[i];
+            if (gamemodes[name]) gamemodes[name].visible = !!visible;
+        }
     }
 
     function ceDisplayModeLabel(mode) {
@@ -82,7 +99,7 @@
 
     /**
      * Whether a mode should appear in tables / chips / fetch lists.
-     * CE Off → hide Chess/Burger. CE Only → hide main modes.
+     * CE Off → hide CE levels. CE Only → hide main modes.
      */
     function isModeDisplayed(name) {
         var ce = isCeLevelMode(name);
@@ -124,6 +141,7 @@
         isCeLevelMode: isCeLevelMode,
         getCeDisplayMode: getCeDisplayMode,
         setCeDisplayMode: setCeDisplayMode,
+        setCeLevelModesVisible: setCeLevelModesVisible,
         isModeDisplayed: isModeDisplayed,
         filterDisplayedModes: filterDisplayedModes,
         normalizeCeCountLabel: normalizeCeCountLabel,

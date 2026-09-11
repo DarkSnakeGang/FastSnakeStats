@@ -6,7 +6,7 @@ const orderedGamemodes = [
     "Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", 
     "Yin Yang", "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", 
     "Statue", "Light", "Shield", "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful",
-    "Chess", "Burger"
+    "Chess", "Candy", "Burger", "Cat", "Mexico", "Bomb", "Temp Wall", "Ghost"
 ];
 
 /** Mode visible in tables/chips given CE display setting + per-mode toggle */

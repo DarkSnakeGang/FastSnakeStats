@@ -31,7 +31,8 @@ const USER_AGENT = 'FastSnakeStats-Mastery/1.0';
 const MODE_NAMES = [
     'Classic', 'Wall', 'Portal', 'Cheese', 'Borderless', 'Twin', 'Winged', 'Yin Yang',
     'Key', 'Sokoban', 'Poison', 'Dimension', 'Minesweeper', 'Statue', 'Light', 'Shield',
-    'Arrow', 'Hotdog', 'Magnet', 'Gate', 'Bridge', 'Peaceful', 'Chess', 'Burger'
+    'Arrow', 'Hotdog', 'Magnet', 'Gate', 'Bridge', 'Peaceful',
+    'Chess', 'Candy', 'Burger', 'Cat', 'Mexico', 'Bomb', 'Temp Wall', 'Ghost'
 ];
 const MAIN_MODE_NAMES = MODE_NAMES.filter((m) => !isCeLevelMode(m));
 const SPEED_NAMES = ['Normal', 'Fast', 'Slow'];

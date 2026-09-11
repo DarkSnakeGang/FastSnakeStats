@@ -29,7 +29,8 @@ function buildPlayerDataEntry(player) {
 const ALL_MODE_NAMES = [
     "Classic", "Wall", "Portal", "Cheese", "Borderless", "Twin", "Winged", "Yin Yang",
     "Key", "Sokoban", "Poison", "Dimension", "Minesweeper", "Statue", "Light", "Shield",
-    "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful", "Chess", "Burger"
+    "Arrow", "Hotdog", "Magnet", "Gate", "Bridge", "Peaceful",
+    "Chess", "Candy", "Burger", "Cat", "Mexico", "Bomb", "Temp Wall", "Ghost"
 ];
 
 /** Modes to fetch for live/quick paths given CE display + visibility */
@@ -53,7 +54,7 @@ function isFetchHighscoreMode(modeName) {
         return shouldShowHighScoreColumn('1 Apple', modeName) ||
             shouldShowHighScoreColumn('Tally', modeName);
     }
-    const typical = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge", "Chess", "Burger"];
+    const typical = ["Wall", "Portal", "Key", "Sokoban", "Poison", "Minesweeper", "Statue", "Shield", "Hotdog", "Gate", "Bridge", "Chess", "Candy", "Burger", "Cat", "Mexico", "Bomb", "Temp Wall", "Ghost"];
     return typical.indexOf(modeName) !== -1;
 }
 

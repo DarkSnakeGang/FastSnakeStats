@@ -38,8 +38,10 @@
         'Dimension', 'Light', 'Arrow', 'Magnet'
     ];
 
-    /** CE level modes (Chess/Burger) — full HS columns like typical HS modes */
-    var CE_LEVEL_HIGHSCORE_MODES = ['Chess', 'Burger'];
+    /** CE level modes (RemixMod) — full HS columns like typical HS modes */
+    var CE_LEVEL_HIGHSCORE_MODES = [
+        'Chess', 'Candy', 'Burger', 'Cat', 'Mexico', 'Bomb', 'Temp Wall', 'Ghost'
+    ];
 
     var CE_GAME_ID = '9dow0go1';
     var CE_TALLY_HS_CATEGORY_ID = 'rkl4elqd';

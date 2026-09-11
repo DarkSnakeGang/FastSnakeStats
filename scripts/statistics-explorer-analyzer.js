@@ -18,13 +18,15 @@ const { isTallyCeHighscoreMode } = require('../tally-boards');
  */
 
 /** Bump whenever scoring / legends / hold logic changes (forces full rebuild). */
-const ANALYZER_VERSION = 20;
+const ANALYZER_VERSION = 21;
 
 const DIFFICULTY_TIERS = ['Free', 'Warmup', 'Easy', 'Medium', 'Hard', 'Mythic', 'Lottery', 'Inhuman'];
 
 const MODE_BASE_TIER = {
     Peaceful: 'Free',
+    Cat: 'Free',
     Classic: 'Warmup',
+    Candy: 'Warmup',
     Cheese: 'Warmup',
     Borderless: 'Warmup',
     Winged: 'Warmup',
@@ -34,6 +36,8 @@ const MODE_BASE_TIER = {
     Statue: 'Easy',
     Arrow: 'Easy',
     Light: 'Easy',
+    'Temp Wall': 'Easy',
+    Ghost: 'Easy',
     Wall: 'Medium',
     Portal: 'Medium',
     Twin: 'Medium',
@@ -46,19 +50,22 @@ const MODE_BASE_TIER = {
     Gate: 'Hard',
     Bridge: 'Medium',
     Chess: 'Medium',
-    Burger: 'Medium'
+    Burger: 'Medium',
+    Mexico: 'Medium',
+    Bomb: 'Medium'
 };
 
 const COUNT_MORE_EASIER = ['Bomb', '10 Apples', '5 Apples', 'Dice', '3 Apples', '1 Apple', 'Tally'];
 const COUNT_LESS_EASIER = ['Tally', '1 Apple', '3 Apples', 'Dice', '5 Apples', '10 Apples', 'Bomb'];
 const COUNT_POISON = ['Tally', '1 Apple', 'Dice', '3 Apples', '5 Apples', '10 Apples', 'Bomb'];
 const COUNT_LESS_EASIER_MODES = new Set([
-    'Portal', 'Key', 'Sokoban', 'Minesweeper', 'Shield', 'Hotdog'
+    'Portal', 'Key', 'Sokoban', 'Minesweeper', 'Shield', 'Hotdog', 'Mexico', 'Bomb'
 ]);
 
 const HIGHSCORE_MODES = new Set([
     'Wall', 'Portal', 'Key', 'Sokoban', 'Poison', 'Minesweeper',
-    'Statue', 'Shield', 'Hotdog', 'Gate', 'Bridge', 'Chess', 'Burger'
+    'Statue', 'Shield', 'Hotdog', 'Gate', 'Bridge',
+    'Chess', 'Candy', 'Burger', 'Cat', 'Mexico', 'Bomb', 'Temp Wall', 'Ghost'
 ]);
 
 const APPLE_AMOUNTS = ['1 Apple', '3 Apples', '5 Apples', '10 Apples', 'Dice', 'Bomb', 'Tally'];
@@ -67,7 +74,8 @@ const SIZE_NAMES = ['Standard', 'Small', 'Large'];
 const MODE_NAMES = [
     'Classic', 'Wall', 'Portal', 'Cheese', 'Borderless', 'Twin', 'Winged', 'Yin Yang',
     'Key', 'Sokoban', 'Poison', 'Dimension', 'Minesweeper', 'Statue', 'Light', 'Shield',
-    'Arrow', 'Hotdog', 'Magnet', 'Gate', 'Bridge', 'Peaceful', 'Chess', 'Burger'
+    'Arrow', 'Hotdog', 'Magnet', 'Gate', 'Bridge', 'Peaceful',
+    'Chess', 'Candy', 'Burger', 'Cat', 'Mexico', 'Bomb', 'Temp Wall', 'Ghost'
 ];
 const APPLE_RUNS = ['25 Apples', '50 Apples', '100 Apples', 'All Apples'];
 
@@ -855,8 +863,8 @@ class StatisticsExplorerAnalyzer {
     }
 
     effectiveModeTier(mode, size, speed, run, apple) {
-        // Peaceful is always Free — no overrides apply
-        if (mode === 'Peaceful') return 'Free';
+        // Peaceful / Cat are always Free — no overrides apply
+        if (mode === 'Peaceful' || mode === 'Cat') return 'Free';
 
         // Tally defaults to Medium; Tally Winged is Hard
         let tier = apple === 'Tally'
@@ -887,6 +895,9 @@ class StatisticsExplorerAnalyzer {
         } else if (mode === 'Portal' && apple === 'Bomb') {
             // Portal Bomb: Mythic any size/run; Fast → Inhuman (Slow kept Mythic below)
             tier = speed === 'Fast' ? 'Inhuman' : 'Mythic';
+        } else if (mode === 'Mexico' && apple === 'Bomb') {
+            // Mexico is Portal-like
+            tier = speed === 'Fast' ? 'Inhuman' : 'Mythic';
         } else if (mode === 'Poison' && apple === 'Bomb') {
             // Poison Bomb: Mythic any size/run; Fast → Inhuman
             // Slow Small: Mythic only for All Apples (other Slow Small runs stay below)
@@ -916,6 +927,7 @@ class StatisticsExplorerAnalyzer {
         } else if (
             mode !== 'Borderless' &&
             mode !== 'Classic' &&
+            mode !== 'Candy' &&
             mode !== 'Cheese' &&
             mode !== 'Magnet' &&
             mode !== 'Light' &&
@@ -923,17 +935,21 @@ class StatisticsExplorerAnalyzer {
             !(mode === 'Statue' && (apple === '10 Apples' || apple === 'Bomb')) &&
             !(mode === 'Arrow' && apple === 'Bomb') &&
             !(mode === 'Portal' && apple === 'Bomb') &&
+            !(mode === 'Mexico' && apple === 'Bomb') &&
             !(mode === 'Poison' && apple === 'Bomb') &&
             speed === 'Fast' &&
             size === 'Large' &&
             run === 'All Apples'
         ) {
             // Fast + Large + All Apples → Mythic
-            // Classic/Cheese/Borderless/Magnet/Light/Yin Yang stay below;
+            // Classic/Candy/Cheese/Borderless/Magnet/Light/Yin Yang stay below;
             // Statue All Apples above 5a (10a/Bomb) and Arrow Bomb stay below
             tier = 'Mythic';
         } else if (mode === 'Portal' && speed === 'Fast' && (size === 'Standard' || size === 'Large')) {
             // Fast Portal on Standard/Large is at least Hard
+            tier = 'Hard';
+        } else if (mode === 'Mexico' && speed === 'Fast' && (size === 'Standard' || size === 'Large')) {
+            // Mexico is Portal-like — Fast Standard/Large at least Hard
             tier = 'Hard';
         } else if (mode === 'Winged' && speed === 'Fast' && apple !== 'Tally') {
             // Fast Winged on Small is Easy; Standard/Large floored to Medium below
@@ -971,6 +987,7 @@ class StatisticsExplorerAnalyzer {
         if (speed === 'Slow' && tier === 'Mythic') {
             const keepMythic =
                 (mode === 'Portal' && apple === 'Bomb') ||
+                (mode === 'Mexico' && apple === 'Bomb') ||
                 // Poison Bomb Slow Small: Mythic only on All Apples
                 (mode === 'Poison' && apple === 'Bomb' && (size !== 'Small' || run === 'All Apples')) ||
                 (mode === 'Gate' && run === 'All Apples' && (size === 'Standard' || size === 'Large'));
@@ -1013,6 +1030,7 @@ class StatisticsExplorerAnalyzer {
             (mode === 'Cheese' && run === '50 Apples' && size === 'Small') ||
             (mode === 'Statue' && apple === '1 Apple' && run === '50 Apples' && size === 'Small') ||
             (mode === 'Portal' && apple === 'Bomb') ||
+            (mode === 'Mexico' && apple === 'Bomb') ||
             // Poison Bomb Slow Small: only All Apples may stay above Medium
             (mode === 'Poison' && apple === 'Bomb' && run === 'All Apples');
         if (speed === 'Slow' && size === 'Small' && !slowSmallException) {

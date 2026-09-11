@@ -46,8 +46,14 @@ var gamemodes =    {"Classic":{visible:true,icon:"https://i.ibb.co/Q3Qh6BSy/trop
 		    "Gate":{visible:true,icon:"https://i.ibb.co/1tp8JqBM/trophy-19-png.png",id:"trophy_20"},
 		    "Bridge":{visible:true,icon:"https://i.ibb.co/Kj7tYtM7/trophy-20.png",id:"trophy_22"},
                     "Peaceful":{visible:true,icon:"https://i.ibb.co/jvrCYD8r/trophy-17-png.png",id:"trophy_21"},
-                    "Chess":{visible:false,icon:"https://i.postimg.cc/ZqK0CB95/bn.png",id:"trophy_chess"},
-                    "Burger":{visible:false,icon:"https://i.postimg.cc/13m2Cr16/burger.png",id:"trophy_burger"}};
+                    "Chess":{visible:false,icon:"assets/ce/chess.png",id:"trophy_chess"},
+                    "Candy":{visible:false,icon:"assets/ce/candy.png",id:"trophy_candy"},
+                    "Burger":{visible:false,icon:"assets/ce/burger.png",id:"trophy_burger"},
+                    "Cat":{visible:false,icon:"assets/ce/cat.png",id:"trophy_cat"},
+                    "Mexico":{visible:false,icon:"assets/ce/mexico.png",id:"trophy_mexico"},
+                    "Bomb":{visible:false,icon:"assets/ce/bomb.png",id:"trophy_bomb_mode"},
+                    "Temp Wall":{visible:false,icon:"assets/ce/temp-wall.png",id:"trophy_temp_wall"},
+                    "Ghost":{visible:false,icon:"assets/ce/ghost.png",id:"trophy_ghost"}};
 var runModes =     {"25 Apples":{visible:true,icon:null,text:"25 Apples",id:"mode_00"},
                     "50 Apples":{visible:true,icon:null,text:"50 Apples",id:"mode_01"},
                     "100 Apples":{visible:true,icon:null,text:"100 Apples",id:"mode_02"},
@@ -66,7 +72,7 @@ var isDarkMode = false; // Default to light mode
 var isTimeTravelEnabled = false; // Time travel toggle state
 var selectedTimeTravelDate = ""; // Currently selected date for time travel
 var isMultipleTablesEnabled = false; // Multiple tables toggle state
-var ceDisplayMode = 'mix'; // 'off' | 'mix' | 'only' — Category Extensions (Chess/Burger)
+var ceDisplayMode = 'off'; // 'off' | 'mix' | 'only' — Category Extensions (RemixMod levels)
 var isCategoryCollapsed = false; // Desktop left Category Settings panel
 var isSummaryCollapsed = false; // Desktop right Rankings panel
 var isStatsExplorerCollapsed = true; // Desktop right Statistics panel (default collapsed)
@@ -197,13 +203,12 @@ function loadSettings() {
         if (storedCe === 'off' || storedCe === 'mix' || storedCe === 'only') {
             ceDisplayMode = storedCe;
         } else {
-            ceDisplayMode = 'mix';
+            ceDisplayMode = 'off';
         }
         if (typeof setCeDisplayMode === 'function') setCeDisplayMode(ceDisplayMode);
     }
     if (ceDisplayMode === 'mix' || ceDisplayMode === 'only') {
-        if (gamemodes.Chess) gamemodes.Chess.visible = true;
-        if (gamemodes.Burger) gamemodes.Burger.visible = true;
+        if (typeof setCeLevelModesVisible === 'function') setCeLevelModesVisible(true);
     }
 
     // Load desktop panel collapse settings (default open)

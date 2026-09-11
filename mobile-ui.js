@@ -380,8 +380,8 @@ function showBasicMobileRecordsSection() {
             
             <!-- Mobile Records Controls -->
             <div class="mobile-records-controls">
-                <button class="mobile-option-btn ce-display-btn" id="mobileCeDisplayToggle" title="Category Extensions (Chess/Burger)">
-                    🧩 CE: Mix
+                <button class="mobile-option-btn ce-display-btn" id="mobileCeDisplayToggle" title="Category Extensions (RemixMod)">
+                    🧩 CE: Off
                 </button>
                 <button class="mobile-option-btn" id="mobileInfoBtn">ℹ️ Info</button>
             </div>
@@ -677,8 +677,8 @@ function showBasicMobileSettingsSection() {
                         <button class="mobile-option-btn" id="mobileMultipleTablesToggle" title="Toggle multiple tables mode">
                             📊 Multiple Tables
                         </button>
-                        <button class="mobile-option-btn ce-display-btn" id="mobileSettingsCeDisplayToggle" title="Category Extensions (Chess/Burger)">
-                            🧩 CE: Mix
+                        <button class="mobile-option-btn ce-display-btn" id="mobileSettingsCeDisplayToggle" title="Category Extensions (RemixMod)">
+                            🧩 CE: Off
                         </button>
                         <button class="mobile-option-btn category-icons-toggle" id="mobileCategoryIconsToggle" title="Statistics categories use icons. Click to switch to text.">
                             🔣 Icons
@@ -905,7 +905,7 @@ function setupMobileSettingsEventListeners() {
         resetBtn.addEventListener('click', resetMobileSettings);
     }
 
-    // CE display (Chess / Burger)
+    // CE display (RemixMod levels)
     const settingsCeBtn = document.getElementById('mobileSettingsCeDisplayToggle');
     if (settingsCeBtn) {
         if (typeof applyCeDisplayButtonState === 'function') {
@@ -1205,8 +1205,17 @@ function resetMobileSettings() {
 
     if (typeof setCeDisplayMode === 'function') setCeDisplayMode('off');
     else if (typeof ceDisplayMode !== 'undefined') ceDisplayMode = 'off';
-    if (gamemodes.Chess) gamemodes.Chess.visible = false;
-    if (gamemodes.Burger) gamemodes.Burger.visible = false;
+    if (typeof setCeLevelModesVisible === 'function') setCeLevelModesVisible(false);
+    else {
+        if (gamemodes.Chess) gamemodes.Chess.visible = false;
+        if (gamemodes.Candy) gamemodes.Candy.visible = false;
+        if (gamemodes.Burger) gamemodes.Burger.visible = false;
+        if (gamemodes.Cat) gamemodes.Cat.visible = false;
+        if (gamemodes.Mexico) gamemodes.Mexico.visible = false;
+        if (gamemodes.Bomb) gamemodes.Bomb.visible = false;
+        if (gamemodes['Temp Wall']) gamemodes['Temp Wall'].visible = false;
+        if (gamemodes.Ghost) gamemodes.Ghost.visible = false;
+    }
 
     // Clear date picker and disable time travel
     const datePicker = document.getElementById('mobileDatePicker');

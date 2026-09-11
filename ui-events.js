@@ -265,9 +265,9 @@ function applyCeDisplayButtonState(btn) {
     var label = (typeof ceDisplayModeLabel === 'function') ? ceDisplayModeLabel(mode) : ('CE: ' + mode);
     btn.innerHTML = '🧩 ' + label;
     btn.classList.toggle('active', mode !== 'off');
-    var tip = 'Category Extensions (Chess/Burger): Off hides them, Mix shows with main modes, Only shows CE modes.';
-    if (mode === 'mix') tip = 'CE Mix enabled — Chess & Burger shown with main modes. Click to cycle.';
-    else if (mode === 'only') tip = 'CE Only — showing Chess & Burger exclusively. Click to cycle.';
+    var tip = 'Category Extensions (RemixMod): Off hides them, Mix shows with main modes, Only shows CE modes.';
+    if (mode === 'mix') tip = 'CE Mix enabled — CE modes shown with main modes. Click to cycle.';
+    else if (mode === 'only') tip = 'CE Only — showing CE modes exclusively. Click to cycle.';
     btn.setAttribute('title', tip);
 }
 
@@ -286,8 +286,7 @@ async function toggleCeDisplayMode() {
     else ceDisplayMode = next;
 
     if (next === 'mix' || next === 'only') {
-        if (gamemodes.Chess) gamemodes.Chess.visible = true;
-        if (gamemodes.Burger) gamemodes.Burger.visible = true;
+        if (typeof setCeLevelModesVisible === 'function') setCeLevelModesVisible(true);
     }
 
     saveSettings();
@@ -321,7 +320,7 @@ async function toggleCeDisplayMode() {
         if (typeof refreshMobileWorldRecordsIfVisible === 'function') {
             refreshMobileWorldRecordsIfVisible();
         }
-        // Rebuild Settings chips if user is on that tab (Chess/Burger visibility)
+        // Rebuild Settings chips if user is on that tab (CE mode visibility)
         if (typeof mobileState !== 'undefined' && mobileState.currentSection === 'settings' &&
             typeof showBasicMobileSettingsSection === 'function') {
             showBasicMobileSettingsSection();
