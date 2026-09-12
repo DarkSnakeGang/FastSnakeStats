@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-09-11T01:33:55.877Z",
+  "lastUpdated": "2026-09-12T01:39:36.904Z",
   "version": 1,
   "backfillComplete": true,
-  "lastVerifyDate": "2026-09-11T01:29:39Z",
-  "seenRuns": 46941,
-  "totalRuns": 46913,
+  "lastVerifyDate": "2026-09-11T15:37:14Z",
+  "seenRuns": 46942,
+  "totalRuns": 46914,
   "shards": [
     {
       "mode": "Arrow",
@@ -202,7 +202,7 @@
       "mode": "Classic",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Classic/All_Apples.json",
-      "count": 1357
+      "count": 1358
     },
     {
       "mode": "Classic",
