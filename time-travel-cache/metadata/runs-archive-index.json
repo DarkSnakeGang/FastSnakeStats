@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-09-13T01:30:31.845Z",
+  "lastUpdated": "2026-09-14T01:47:54.250Z",
   "version": 1,
   "backfillComplete": true,
-  "lastVerifyDate": "2026-09-12T22:58:25Z",
-  "seenRuns": 46958,
-  "totalRuns": 46930,
+  "lastVerifyDate": "2026-09-13T12:46:17Z",
+  "seenRuns": 46966,
+  "totalRuns": 46938,
   "shards": [
     {
       "mode": "Arrow",
@@ -46,19 +46,19 @@
       "mode": "Borderless",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Borderless/25_Apples.json",
-      "count": 855
+      "count": 857
     },
     {
       "mode": "Borderless",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Borderless/50_Apples.json",
-      "count": 577
+      "count": 578
     },
     {
       "mode": "Borderless",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Borderless/All_Apples.json",
-      "count": 295
+      "count": 296
     },
     {
       "mode": "Borderless",
@@ -484,13 +484,13 @@
       "mode": "Portal",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Portal/25_Apples.json",
-      "count": 718
+      "count": 719
     },
     {
       "mode": "Portal",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Portal/50_Apples.json",
-      "count": 343
+      "count": 344
     },
     {
       "mode": "Portal",
@@ -574,13 +574,13 @@
       "mode": "Statue",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Statue/25_Apples.json",
-      "count": 515
+      "count": 516
     },
     {
       "mode": "Statue",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Statue/50_Apples.json",
-      "count": 329
+      "count": 330
     },
     {
       "mode": "Statue",
