@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-09-14T01:47:54.250Z",
+  "lastUpdated": "2026-09-15T01:58:47.342Z",
   "version": 1,
   "backfillComplete": true,
-  "lastVerifyDate": "2026-09-13T12:46:17Z",
-  "seenRuns": 46966,
-  "totalRuns": 46938,
+  "lastVerifyDate": "2026-09-14T17:04:46Z",
+  "seenRuns": 46973,
+  "totalRuns": 46945,
   "shards": [
     {
       "mode": "Arrow",
@@ -40,7 +40,7 @@
       "mode": "Borderless",
       "category": "100 Apples",
       "path": "time-travel-cache/runs/Borderless/100_Apples.json",
-      "count": 266
+      "count": 267
     },
     {
       "mode": "Borderless",
@@ -118,6 +118,12 @@
       "mode": "Burger",
       "category": "High Score",
       "path": "time-travel-cache/runs/Burger/High_Score.json",
+      "count": 1
+    },
+    {
+      "mode": "Candy",
+      "category": "All Apples",
+      "path": "time-travel-cache/runs/Candy/All_Apples.json",
       "count": 1
     },
     {
@@ -316,7 +322,7 @@
       "mode": "Key",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Key/50_Apples.json",
-      "count": 365
+      "count": 367
     },
     {
       "mode": "Key",
@@ -652,7 +658,7 @@
       "mode": "Wall",
       "category": "High Score",
       "path": "time-travel-cache/runs/Wall/High_Score.json",
-      "count": 1659
+      "count": 1660
     },
     {
       "mode": "Winged",
@@ -664,7 +670,7 @@
       "mode": "Winged",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Winged/25_Apples.json",
-      "count": 695
+      "count": 696
     },
     {
       "mode": "Winged",
@@ -706,7 +712,7 @@
       "mode": "Yin Yang",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Yin_Yang/All_Apples.json",
-      "count": 634
+      "count": 635
     },
     {
       "mode": "Yin Yang",
