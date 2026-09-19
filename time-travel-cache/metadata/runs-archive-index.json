@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-09-18T01:40:21.401Z",
+  "lastUpdated": "2026-09-19T01:44:15.704Z",
   "version": 1,
   "backfillComplete": true,
-  "lastVerifyDate": "2026-09-18T00:00:33Z",
-  "seenRuns": 47124,
-  "totalRuns": 47096,
+  "lastVerifyDate": "2026-09-18T21:47:14Z",
+  "seenRuns": 47129,
+  "totalRuns": 47101,
   "shards": [
     {
       "mode": "Arrow",
@@ -124,7 +124,7 @@
       "mode": "Candy",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Candy/All_Apples.json",
-      "count": 13
+      "count": 16
     },
     {
       "mode": "Cheese",
@@ -286,7 +286,7 @@
       "mode": "Hotdog",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Hotdog/25_Apples.json",
-      "count": 413
+      "count": 414
     },
     {
       "mode": "Hotdog",
@@ -544,7 +544,7 @@
       "mode": "Shield",
       "category": "High Score",
       "path": "time-travel-cache/runs/Shield/High_Score.json",
-      "count": 323
+      "count": 324
     },
     {
       "mode": "Sokoban",
