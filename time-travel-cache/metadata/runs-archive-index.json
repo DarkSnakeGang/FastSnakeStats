@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-09-21T01:47:22.285Z",
+  "lastUpdated": "2026-09-22T01:57:40.955Z",
   "version": 1,
   "backfillComplete": true,
-  "lastVerifyDate": "2026-09-21T00:57:37Z",
-  "seenRuns": 47214,
-  "totalRuns": 47186,
+  "lastVerifyDate": "2026-09-22T00:03:54Z",
+  "seenRuns": 47220,
+  "totalRuns": 47192,
   "shards": [
     {
       "mode": "Arrow",
@@ -40,13 +40,13 @@
       "mode": "Borderless",
       "category": "100 Apples",
       "path": "time-travel-cache/runs/Borderless/100_Apples.json",
-      "count": 271
+      "count": 272
     },
     {
       "mode": "Borderless",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Borderless/25_Apples.json",
-      "count": 859
+      "count": 860
     },
     {
       "mode": "Borderless",
@@ -58,7 +58,7 @@
       "mode": "Borderless",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Borderless/All_Apples.json",
-      "count": 304
+      "count": 305
     },
     {
       "mode": "Borderless",
@@ -196,7 +196,7 @@
       "mode": "Classic",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Classic/25_Apples.json",
-      "count": 7618
+      "count": 7619
     },
     {
       "mode": "Classic",
@@ -208,7 +208,7 @@
       "mode": "Classic",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Classic/All_Apples.json",
-      "count": 1382
+      "count": 1383
     },
     {
       "mode": "Classic",
@@ -526,7 +526,7 @@
       "mode": "Shield",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Shield/25_Apples.json",
-      "count": 356
+      "count": 357
     },
     {
       "mode": "Shield",
