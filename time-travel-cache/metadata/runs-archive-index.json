@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-09-23T01:54:16.415Z",
+  "lastUpdated": "2026-09-24T01:43:48.050Z",
   "version": 1,
   "backfillComplete": true,
-  "lastVerifyDate": "2026-09-22T21:56:48Z",
-  "seenRuns": 47239,
-  "totalRuns": 47211,
+  "lastVerifyDate": "2026-09-23T13:11:02Z",
+  "seenRuns": 47244,
+  "totalRuns": 47216,
   "shards": [
     {
       "mode": "Arrow",
@@ -16,13 +16,13 @@
       "mode": "Arrow",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Arrow/25_Apples.json",
-      "count": 407
+      "count": 408
     },
     {
       "mode": "Arrow",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Arrow/50_Apples.json",
-      "count": 250
+      "count": 251
     },
     {
       "mode": "Arrow",
@@ -208,7 +208,7 @@
       "mode": "Classic",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Classic/All_Apples.json",
-      "count": 1383
+      "count": 1384
     },
     {
       "mode": "Classic",
@@ -412,13 +412,13 @@
       "mode": "Minesweeper",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Minesweeper/25_Apples.json",
-      "count": 487
+      "count": 488
     },
     {
       "mode": "Minesweeper",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Minesweeper/50_Apples.json",
-      "count": 260
+      "count": 261
     },
     {
       "mode": "Minesweeper",
