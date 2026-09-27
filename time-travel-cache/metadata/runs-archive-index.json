@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-09-26T02:05:38.011Z",
+  "lastUpdated": "2026-09-27T01:57:58.284Z",
   "version": 1,
   "backfillComplete": true,
-  "lastVerifyDate": "2026-09-25T23:58:29Z",
-  "seenRuns": 47292,
-  "totalRuns": 47264,
+  "lastVerifyDate": "2026-09-26T19:33:40Z",
+  "seenRuns": 47342,
+  "totalRuns": 47314,
   "shards": [
     {
       "mode": "Arrow",
@@ -16,7 +16,7 @@
       "mode": "Arrow",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Arrow/25_Apples.json",
-      "count": 408
+      "count": 410
     },
     {
       "mode": "Arrow",
@@ -172,7 +172,7 @@
       "mode": "Cheese",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Cheese/25_Apples.json",
-      "count": 818
+      "count": 819
     },
     {
       "mode": "Cheese",
@@ -226,13 +226,13 @@
       "mode": "Classic",
       "category": "100 Apples",
       "path": "time-travel-cache/runs/Classic/100_Apples.json",
-      "count": 596
+      "count": 597
     },
     {
       "mode": "Classic",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Classic/25_Apples.json",
-      "count": 7624
+      "count": 7625
     },
     {
       "mode": "Classic",
@@ -244,7 +244,7 @@
       "mode": "Classic",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Classic/All_Apples.json",
-      "count": 1384
+      "count": 1386
     },
     {
       "mode": "Classic",
@@ -262,13 +262,13 @@
       "mode": "Dimension",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Dimension/25_Apples.json",
-      "count": 428
+      "count": 430
     },
     {
       "mode": "Dimension",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Dimension/50_Apples.json",
-      "count": 298
+      "count": 299
     },
     {
       "mode": "Dimension",
@@ -322,7 +322,7 @@
       "mode": "Hotdog",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Hotdog/25_Apples.json",
-      "count": 418
+      "count": 420
     },
     {
       "mode": "Hotdog",
@@ -352,7 +352,7 @@
       "mode": "Key",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Key/25_Apples.json",
-      "count": 615
+      "count": 616
     },
     {
       "mode": "Key",
@@ -382,7 +382,7 @@
       "mode": "Light",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Light/25_Apples.json",
-      "count": 506
+      "count": 508
     },
     {
       "mode": "Light",
@@ -406,31 +406,31 @@
       "mode": "Magnet",
       "category": "100 Apples",
       "path": "time-travel-cache/runs/Magnet/100_Apples.json",
-      "count": 220
+      "count": 222
     },
     {
       "mode": "Magnet",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Magnet/25_Apples.json",
-      "count": 616
+      "count": 624
     },
     {
       "mode": "Magnet",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Magnet/50_Apples.json",
-      "count": 486
+      "count": 490
     },
     {
       "mode": "Magnet",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Magnet/All_Apples.json",
-      "count": 360
+      "count": 363
     },
     {
       "mode": "Magnet",
       "category": "High Score",
       "path": "time-travel-cache/runs/Magnet/High_Score.json",
-      "count": 6
+      "count": 7
     },
     {
       "mode": "Mexico",
@@ -460,13 +460,13 @@
       "mode": "Minesweeper",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Minesweeper/All_Apples.json",
-      "count": 82
+      "count": 83
     },
     {
       "mode": "Minesweeper",
       "category": "High Score",
       "path": "time-travel-cache/runs/Minesweeper/High_Score.json",
-      "count": 394
+      "count": 395
     },
     {
       "mode": "Peaceful",
@@ -478,13 +478,13 @@
       "mode": "Peaceful",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Peaceful/25_Apples.json",
-      "count": 1677
+      "count": 1680
     },
     {
       "mode": "Peaceful",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Peaceful/50_Apples.json",
-      "count": 1130
+      "count": 1131
     },
     {
       "mode": "Peaceful",
@@ -532,7 +532,7 @@
       "mode": "Portal",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Portal/25_Apples.json",
-      "count": 719
+      "count": 720
     },
     {
       "mode": "Portal",
@@ -556,13 +556,13 @@
       "mode": "Shield",
       "category": "100 Apples",
       "path": "time-travel-cache/runs/Shield/100_Apples.json",
-      "count": 125
+      "count": 126
     },
     {
       "mode": "Shield",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Shield/25_Apples.json",
-      "count": 357
+      "count": 360
     },
     {
       "mode": "Shield",
@@ -622,7 +622,7 @@
       "mode": "Statue",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Statue/25_Apples.json",
-      "count": 518
+      "count": 520
     },
     {
       "mode": "Statue",
@@ -712,19 +712,19 @@
       "mode": "Winged",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Winged/25_Apples.json",
-      "count": 702
+      "count": 703
     },
     {
       "mode": "Winged",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Winged/50_Apples.json",
-      "count": 419
+      "count": 420
     },
     {
       "mode": "Winged",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Winged/All_Apples.json",
-      "count": 214
+      "count": 216
     },
     {
       "mode": "Winged",
