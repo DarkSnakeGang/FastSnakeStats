@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-09-27T01:57:58.284Z",
+  "lastUpdated": "2026-09-28T02:04:04.511Z",
   "version": 1,
   "backfillComplete": true,
-  "lastVerifyDate": "2026-09-26T19:33:40Z",
-  "seenRuns": 47342,
-  "totalRuns": 47314,
+  "lastVerifyDate": "2026-09-27T20:16:23Z",
+  "seenRuns": 47368,
+  "totalRuns": 47340,
   "shards": [
     {
       "mode": "Arrow",
@@ -184,7 +184,7 @@
       "mode": "Cheese",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Cheese/All_Apples.json",
-      "count": 392
+      "count": 393
     },
     {
       "mode": "Cheese",
@@ -244,7 +244,7 @@
       "mode": "Classic",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Classic/All_Apples.json",
-      "count": 1386
+      "count": 1387
     },
     {
       "mode": "Classic",
@@ -322,7 +322,7 @@
       "mode": "Hotdog",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Hotdog/25_Apples.json",
-      "count": 420
+      "count": 421
     },
     {
       "mode": "Hotdog",
@@ -334,7 +334,7 @@
       "mode": "Hotdog",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Hotdog/All_Apples.json",
-      "count": 118
+      "count": 121
     },
     {
       "mode": "Hotdog",
@@ -358,7 +358,7 @@
       "mode": "Key",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Key/50_Apples.json",
-      "count": 370
+      "count": 371
     },
     {
       "mode": "Key",
@@ -406,25 +406,25 @@
       "mode": "Magnet",
       "category": "100 Apples",
       "path": "time-travel-cache/runs/Magnet/100_Apples.json",
-      "count": 222
+      "count": 223
     },
     {
       "mode": "Magnet",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Magnet/25_Apples.json",
-      "count": 624
+      "count": 627
     },
     {
       "mode": "Magnet",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Magnet/50_Apples.json",
-      "count": 490
+      "count": 492
     },
     {
       "mode": "Magnet",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Magnet/All_Apples.json",
-      "count": 363
+      "count": 364
     },
     {
       "mode": "Magnet",
@@ -442,19 +442,19 @@
       "mode": "Minesweeper",
       "category": "100 Apples",
       "path": "time-travel-cache/runs/Minesweeper/100_Apples.json",
-      "count": 121
+      "count": 122
     },
     {
       "mode": "Minesweeper",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Minesweeper/25_Apples.json",
-      "count": 489
+      "count": 490
     },
     {
       "mode": "Minesweeper",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Minesweeper/50_Apples.json",
-      "count": 261
+      "count": 262
     },
     {
       "mode": "Minesweeper",
@@ -466,13 +466,13 @@
       "mode": "Minesweeper",
       "category": "High Score",
       "path": "time-travel-cache/runs/Minesweeper/High_Score.json",
-      "count": 395
+      "count": 396
     },
     {
       "mode": "Peaceful",
       "category": "100 Apples",
       "path": "time-travel-cache/runs/Peaceful/100_Apples.json",
-      "count": 659
+      "count": 660
     },
     {
       "mode": "Peaceful",
@@ -490,7 +490,7 @@
       "mode": "Peaceful",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Peaceful/All_Apples.json",
-      "count": 1247
+      "count": 1248
     },
     {
       "mode": "Poison",
@@ -520,7 +520,7 @@
       "mode": "Poison",
       "category": "High Score",
       "path": "time-travel-cache/runs/Poison/High_Score.json",
-      "count": 532
+      "count": 533
     },
     {
       "mode": "Portal",
@@ -562,13 +562,13 @@
       "mode": "Shield",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Shield/25_Apples.json",
-      "count": 360
+      "count": 361
     },
     {
       "mode": "Shield",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Shield/50_Apples.json",
-      "count": 262
+      "count": 263
     },
     {
       "mode": "Shield",
@@ -580,7 +580,7 @@
       "mode": "Shield",
       "category": "High Score",
       "path": "time-travel-cache/runs/Shield/High_Score.json",
-      "count": 324
+      "count": 326
     },
     {
       "mode": "Sokoban",
@@ -742,7 +742,7 @@
       "mode": "Yin Yang",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Yin_Yang/25_Apples.json",
-      "count": 773
+      "count": 774
     },
     {
       "mode": "Yin Yang",
