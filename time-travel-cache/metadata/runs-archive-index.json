@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-09-29T02:49:58.462Z",
+  "lastUpdated": "2026-09-30T02:31:47.813Z",
   "version": 1,
   "backfillComplete": true,
-  "lastVerifyDate": "2026-09-29T01:43:02Z",
-  "seenRuns": 47406,
-  "totalRuns": 47378,
+  "lastVerifyDate": "2026-09-29T19:45:13Z",
+  "seenRuns": 47414,
+  "totalRuns": 47386,
   "shards": [
     {
       "mode": "Arrow",
@@ -190,7 +190,7 @@
       "mode": "Cheese",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Cheese/All_Apples.json",
-      "count": 399
+      "count": 400
     },
     {
       "mode": "Cheese",
@@ -238,19 +238,19 @@
       "mode": "Classic",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Classic/25_Apples.json",
-      "count": 7625
+      "count": 7626
     },
     {
       "mode": "Classic",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Classic/50_Apples.json",
-      "count": 2068
+      "count": 2069
     },
     {
       "mode": "Classic",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Classic/All_Apples.json",
-      "count": 1387
+      "count": 1388
     },
     {
       "mode": "Classic",
@@ -298,7 +298,7 @@
       "mode": "Gate",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Gate/25_Apples.json",
-      "count": 277
+      "count": 278
     },
     {
       "mode": "Gate",
@@ -478,7 +478,7 @@
       "mode": "Peaceful",
       "category": "100 Apples",
       "path": "time-travel-cache/runs/Peaceful/100_Apples.json",
-      "count": 660
+      "count": 661
     },
     {
       "mode": "Peaceful",
@@ -538,7 +538,7 @@
       "mode": "Portal",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Portal/25_Apples.json",
-      "count": 720
+      "count": 721
     },
     {
       "mode": "Portal",
@@ -718,7 +718,7 @@
       "mode": "Winged",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Winged/25_Apples.json",
-      "count": 703
+      "count": 704
     },
     {
       "mode": "Winged",
