@@ -811,6 +811,31 @@ body.dark-mode .dark-mode-toggle:hover {
 	text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
+.header-title {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	line-height: 1.1;
+}
+
+.src-attribution {
+	margin: 2px 0 0;
+	font-size: 13px;
+	color: rgba(255, 255, 255, 0.85);
+	text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.src-attribution a {
+	color: #fff;
+	font-weight: 600;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.src-attribution a:hover {
+	color: #d8f5c4;
+}
+
 /* Dark mode styling for desktop header */
 body.dark-mode .desktop-header {
 	background: linear-gradient(135deg, #1e3a15, #2d4a1f);

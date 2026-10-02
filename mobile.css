@@ -157,6 +157,11 @@ body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 		justify-content: center;
 	}
 
+	.mobile-header .src-attribution {
+		font-size: 11px;
+		margin-top: 1px;
+	}
+
 	.mobile-header-icon {
 		width: 36px;
 		height: 36px;
@@ -255,7 +260,7 @@ body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 
 	/* Mobile Main Content */
 	.mobile-main {
-		margin-top: calc(56px + env(safe-area-inset-top, 0px));
+		margin-top: calc(70px + env(safe-area-inset-top, 0px));
 		margin-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
 		padding: 8px 8px 16px;
 		min-height: auto;
