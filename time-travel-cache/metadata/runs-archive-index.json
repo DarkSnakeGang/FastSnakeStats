@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-10-06T03:23:43.057Z",
+  "lastUpdated": "2026-10-07T02:47:32.328Z",
   "version": 1,
   "backfillComplete": true,
-  "lastVerifyDate": "2026-10-06T02:38:45Z",
-  "seenRuns": 47578,
-  "totalRuns": 47550,
+  "lastVerifyDate": "2026-10-07T00:15:56Z",
+  "seenRuns": 47586,
+  "totalRuns": 47558,
   "shards": [
     {
       "mode": "Arrow",
@@ -268,7 +268,7 @@
       "mode": "Dimension",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Dimension/25_Apples.json",
-      "count": 432
+      "count": 433
     },
     {
       "mode": "Dimension",
@@ -508,19 +508,19 @@
       "mode": "Poison",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Poison/25_Apples.json",
-      "count": 649
+      "count": 650
     },
     {
       "mode": "Poison",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Poison/50_Apples.json",
-      "count": 385
+      "count": 386
     },
     {
       "mode": "Poison",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Poison/All_Apples.json",
-      "count": 120
+      "count": 121
     },
     {
       "mode": "Poison",
@@ -568,19 +568,19 @@
       "mode": "Shield",
       "category": "25 Apples",
       "path": "time-travel-cache/runs/Shield/25_Apples.json",
-      "count": 365
+      "count": 366
     },
     {
       "mode": "Shield",
       "category": "50 Apples",
       "path": "time-travel-cache/runs/Shield/50_Apples.json",
-      "count": 270
+      "count": 271
     },
     {
       "mode": "Shield",
       "category": "All Apples",
       "path": "time-travel-cache/runs/Shield/All_Apples.json",
-      "count": 87
+      "count": 89
     },
     {
       "mode": "Shield",
