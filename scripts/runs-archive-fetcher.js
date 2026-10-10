@@ -4,12 +4,20 @@
  * Uses GET /runs (not /leaderboards). Play date (`run.date`) is semantic;
  * verify-date is the incremental ingest watermark only.
  *
+ * Board runs go to time-travel-cache/runs/<mode>/<category>.json (WR derivation input).
+ * Every other verified run (non-board categories, archived categories, board rejects,
+ * ignored/missing players) goes to time-travel-cache/runs-other/<game-slug>/<category>[__<level>].json
+ * so the archive covers every verified run of both games.
+ *
  * Usage:
  *   node scripts/runs-archive-fetcher.js --from=2026-07-01 --to=2026-07-31 --modes=Classic,Wall
  *   node scripts/runs-archive-fetcher.js --full
  *   node scripts/runs-archive-fetcher.js --incremental
+ *   node scripts/runs-archive-fetcher.js --other-backfill   (rebuild runs-other/ only; boards untouched)
+ *   node scripts/runs-archive-fetcher.js --repair-boards    (re-scan boards, add runs missing from runs/)
  */
 
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const {
@@ -52,17 +60,38 @@ const CATEGORY_NAMES = ['25 Apples', '50 Apples', '100 Apples', 'All Apples', 'H
 
 const META_DIR = path.join('time-travel-cache', 'metadata');
 const RUNS_DIR = path.join('time-travel-cache', 'runs');
+const OTHER_RUNS_DIR = path.join('time-travel-cache', 'runs-other');
 const STATE_FILE = path.join(META_DIR, 'runs-archive-state.json');
 const INDEX_FILE = path.join(META_DIR, 'runs-archive-index.json');
 
 const ARCHIVE_VERSION = 1;
 const EARLIEST_MONTH = '2018-01';
 
+const GAME_SLUGS = { [GAME_ID]: 'snake_game', [CE_GAME_ID]: 'snake_game_ce' };
+/** Archived SRC categories: v1 /categories/{id} returns 404, so the name can't be looked up */
+const ARCHIVED_CATEGORY_NAMES = { n2y9egzd: '69 Apples', '82430zwd': 'Cheese High Score' };
+
+/** classify() results: run belongs to another stream / excluded by --modes / store in runs-other */
+const SKIP = 'skip';
+const FILTERED = 'filtered';
+const OTHER = { other: true };
+
 function parseArgs(argv) {
-    const out = { full: false, incremental: false, from: null, to: null, modes: null, categories: null };
+    const out = {
+        full: false,
+        incremental: false,
+        otherBackfill: false,
+        repairBoards: false,
+        from: null,
+        to: null,
+        modes: null,
+        categories: null
+    };
     for (const a of argv) {
         if (a === '--full') out.full = true;
         else if (a === '--incremental') out.incremental = true;
+        else if (a === '--other-backfill') out.otherBackfill = true;
+        else if (a === '--repair-boards') out.repairBoards = true;
         else if (a.startsWith('--from=')) out.from = a.slice(7);
         else if (a.startsWith('--to=')) out.to = a.slice(5);
         else if (a.startsWith('--modes=')) {
@@ -79,7 +108,7 @@ function parseArgs(argv) {
             }).filter(Boolean);
         }
     }
-    if (!out.full && !out.incremental && !out.from) {
+    if (!out.full && !out.incremental && !out.otherBackfill && !out.repairBoards && !out.from) {
         out.incremental = true;
     }
     return out;
@@ -141,17 +170,49 @@ function safeFilePart(name) {
     return String(name).replace(/[^\w.-]+/g, '_');
 }
 
+function cleanLevelName(name) {
+    return String(name).trim().replace(/\s*\(Modded\)$/i, '').replace(/\s+Mode$/i, '').trim();
+}
+
+function runCategoryId(run) {
+    if (!run.category) return null;
+    return typeof run.category === 'string' ? run.category : (run.category.data && run.category.data.id) || null;
+}
+
+function runLevelId(run) {
+    if (!run.level) return null;
+    return typeof run.level === 'string' ? run.level : (run.level.data && run.level.data.id) || null;
+}
+
+function comboKey(gameId, categoryId, levelId) {
+    return `${gameId}|${categoryId}|${levelId || '-'}`;
+}
+
+function recordGameId(record) {
+    if (record.game) return record.game;
+    return String(record.weblink || '').includes('/snake_game_ce/') ? CE_GAME_ID : GAME_ID;
+}
+
 class RunsArchiveFetcher {
     constructor() {
         this.lastFailureTime = 0;
         this.failureDelay = 0;
         this.apiCalls = 0;
         this.maps = null;
-        /** @type {Map<string, Object>} shardKey -> { runs: { id: record } } */
+        /** @type {Map<string, Object>} shard file path -> { runs: { id: record } } */
         this.shardCache = new Map();
         this.dirtyShards = new Set();
         this.locationsData = null;
         this.locationsDirty = false;
+        /** --other-backfill: write runs-other/ only, never board shards */
+        this.otherOnly = false;
+        /** --repair-boards: write board runs missing from runs/ only */
+        this.repairBoards = false;
+        this.boardRunIds = new Set();
+        this.boardMissing = new Set();
+        /** gameId -> Set of examiner user ids seen while paging (partitions for full sweeps) */
+        this.examinersByGame = {};
+        this.coveredCombos = new Set();
     }
 
     touchLocations() {
@@ -186,12 +247,15 @@ class RunsArchiveFetcher {
                     continue;
                 }
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    const httpErr = new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    httpErr.status = response.status;
+                    throw httpErr;
                 }
                 this.lastFailureTime = 0;
                 this.failureDelay = 0;
                 return await response.json();
             } catch (err) {
+                if (err.status === 404) throw err;
                 console.error(`❌ API attempt ${attempt}: ${err.message}`);
                 this.lastFailureTime = Date.now();
                 this.failureDelay = 2000;
@@ -253,8 +317,19 @@ class RunsArchiveFetcher {
         let ceSizeLabelById = {};
         let ceLevelCountLabelById = {};
         let ceLevelSizeLabelById = {};
+        const gameMeta = {
+            [GAME_ID]: { categories: categories.data || [], levels: levels.data || [] }
+        };
         try {
-            const ceVars = await this.fetchAPI(`${BASE}/games/${CE_GAME_ID}/variables`);
+            const [ceVars, ceCategories, ceLevels] = await Promise.all([
+                this.fetchAPI(`${BASE}/games/${CE_GAME_ID}/variables`),
+                this.fetchAPI(`${BASE}/games/${CE_GAME_ID}/categories`),
+                this.fetchAPI(`${BASE}/games/${CE_GAME_ID}/levels`)
+            ]);
+            gameMeta[CE_GAME_ID] = {
+                categories: ceCategories.data || [],
+                levels: ceLevels.data || []
+            };
             for (const v of ceVars.data || []) {
                 const map = {};
                 if (v.values && v.values.values) {
@@ -285,7 +360,17 @@ class RunsArchiveFetcher {
             console.warn('⚠️ CE metadata load failed:', e.message);
         }
 
+        const categoryNameById = Object.assign({}, ARCHIVED_CATEGORY_NAMES);
+        const levelNameById = {};
+        for (const meta of Object.values(gameMeta)) {
+            for (const c of meta.categories) categoryNameById[c.id] = c.name;
+            for (const l of meta.levels) levelNameById[l.id] = cleanLevelName(l.name);
+        }
+
         this.maps = {
+            gameMeta,
+            categoryNameById,
+            levelNameById,
             categoryByName,
             highScoreCategoryByMode,
             levelByMode,
@@ -333,15 +418,15 @@ class RunsArchiveFetcher {
         return path.join(dir, `${safeFilePart(category)}.json`);
     }
 
-    shardKey(mode, category) {
-        return `${mode}||${category}`;
+    otherShardPath(gameId, category, level) {
+        const dir = path.join(OTHER_RUNS_DIR, GAME_SLUGS[gameId] || gameId);
+        const name = safeFilePart(category) + (level ? `__${safeFilePart(level)}` : '');
+        return path.join(dir, `${name}.json`);
     }
 
-    loadShard(mode, category) {
-        const key = this.shardKey(mode, category);
-        if (this.shardCache.has(key)) return this.shardCache.get(key);
-        const file = this.shardPath(mode, category);
-        let data = { mode, category, runs: {} };
+    loadShardFile(file, makeEmpty) {
+        if (this.shardCache.has(file)) return this.shardCache.get(file);
+        let data = makeEmpty();
         if (fs.existsSync(file)) {
             try {
                 data = JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -350,16 +435,29 @@ class RunsArchiveFetcher {
                 console.warn(`⚠️ Corrupt shard ${file}, resetting`);
             }
         }
-        this.shardCache.set(key, data);
+        this.shardCache.set(file, data);
         return data;
     }
 
+    loadShard(mode, category) {
+        return this.loadShardFile(this.shardPath(mode, category), () => ({ mode, category, runs: {} }));
+    }
+
+    loadOtherShard(gameId, categoryId, category, levelId, level) {
+        return this.loadShardFile(this.otherShardPath(gameId, category, level), () => ({
+            game: gameId,
+            category,
+            categoryId,
+            level,
+            levelId,
+            runs: {}
+        }));
+    }
+
     flushShards() {
-        for (const key of this.dirtyShards) {
-            const [mode, category] = key.split('||');
-            const data = this.shardCache.get(key);
+        for (const file of this.dirtyShards) {
+            const data = this.shardCache.get(file);
             if (!data) continue;
-            const file = this.shardPath(mode, category);
             const dir = path.dirname(file);
             if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
             fs.writeFileSync(file, JSON.stringify(data));
@@ -367,40 +465,87 @@ class RunsArchiveFetcher {
         this.dirtyShards.clear();
     }
 
-    writeIndex(state) {
-        let totalRuns = 0;
-        const shards = [];
-        if (fs.existsSync(RUNS_DIR)) {
-            for (const mode of fs.readdirSync(RUNS_DIR)) {
-                const modeDir = path.join(RUNS_DIR, mode);
-                if (!fs.statSync(modeDir).isDirectory()) continue;
-                for (const file of fs.readdirSync(modeDir)) {
-                    if (!file.endsWith('.json')) continue;
-                    const full = path.join(modeDir, file);
-                    const data = JSON.parse(fs.readFileSync(full, 'utf8'));
-                    const n = data.runs ? Object.keys(data.runs).length : 0;
-                    totalRuns += n;
-                    shards.push({
-                        mode: data.mode || mode,
-                        category: data.category || file.replace(/\.json$/, ''),
-                        path: full.replace(/\\/g, '/'),
-                        count: n
-                    });
-                }
+    /** Board run ids already archived — --other-backfill must never duplicate them */
+    loadBoardRunIds() {
+        const ids = new Set();
+        if (!fs.existsSync(RUNS_DIR)) return ids;
+        for (const mode of fs.readdirSync(RUNS_DIR)) {
+            const modeDir = path.join(RUNS_DIR, mode);
+            if (!fs.statSync(modeDir).isDirectory()) continue;
+            for (const file of fs.readdirSync(modeDir)) {
+                if (!file.endsWith('.json')) continue;
+                const data = JSON.parse(fs.readFileSync(path.join(modeDir, file), 'utf8'));
+                for (const id of Object.keys(data.runs || {})) ids.add(id);
             }
         }
+        return ids;
+    }
+
+    writeIndex(state, officialTotals) {
+        let totalRuns = 0;
+        const shards = [];
+        const totalsByGame = { [GAME_ID]: 0, [CE_GAME_ID]: 0 };
+        const listShard = (full, entryFor) => {
+            const raw = fs.readFileSync(full);
+            const data = JSON.parse(raw.toString('utf8'));
+            const records = Object.values(data.runs || {});
+            for (const record of records) {
+                const g = recordGameId(record);
+                totalsByGame[g] = (totalsByGame[g] || 0) + 1;
+            }
+            totalRuns += records.length;
+            shards.push(Object.assign(entryFor(data), {
+                path: full.replace(/\\/g, '/'),
+                count: records.length,
+                sha: crypto.createHash('sha1').update(raw).digest('hex')
+            }));
+        };
+        const walk = (rootDir, entryFor) => {
+            if (!fs.existsSync(rootDir)) return;
+            for (const sub of fs.readdirSync(rootDir)) {
+                const subDir = path.join(rootDir, sub);
+                if (!fs.statSync(subDir).isDirectory()) continue;
+                for (const file of fs.readdirSync(subDir)) {
+                    if (!file.endsWith('.json')) continue;
+                    listShard(path.join(subDir, file), (data) => entryFor(data, sub, file));
+                }
+            }
+        };
+        walk(RUNS_DIR, (data, mode, file) => ({
+            mode: data.mode || mode,
+            category: data.category || file.replace(/\.json$/, ''),
+            board: true
+        }));
+        walk(OTHER_RUNS_DIR, (data) => ({
+            game: data.game,
+            category: data.category,
+            level: data.level || null,
+            board: false
+        }));
+
+        let previous = null;
+        try {
+            if (fs.existsSync(INDEX_FILE)) previous = JSON.parse(fs.readFileSync(INDEX_FILE, 'utf8'));
+        } catch (e) { /* rebuilt below */ }
+
         const index = {
             lastUpdated: new Date().toISOString(),
             version: ARCHIVE_VERSION,
             backfillComplete: !!state.backfillComplete,
+            otherBackfillComplete: !!(state.otherBackfill && state.otherBackfill.completedAt),
             lastVerifyDate: state.lastVerifyDate || null,
             seenRuns: Object.keys(state.seenRunIds || {}).length,
             totalRuns,
+            totalsByGame,
+            officialTotalsByGame: officialTotals || (previous && previous.officialTotalsByGame) || null,
             shards
         };
         if (!fs.existsSync(META_DIR)) fs.mkdirSync(META_DIR, { recursive: true });
         fs.writeFileSync(INDEX_FILE, JSON.stringify(index, null, 2));
-        console.log(`💾 Index ${INDEX_FILE} · totalRuns=${totalRuns} shards=${shards.length}`);
+        console.log(
+            `💾 Index ${INDEX_FILE} · totalRuns=${totalRuns} shards=${shards.length} · ` +
+                Object.entries(totalsByGame).map(([g, n]) => `${GAME_SLUGS[g] || g}=${n}`).join(' ')
+        );
         return index;
     }
 
@@ -520,7 +665,8 @@ class RunsArchiveFetcher {
         };
     }
 
-    extractPlayer(run) {
+    /** First player of a run, including ignored players (flagged); null when none */
+    describePlayer(run) {
         const players = run.players;
         let list = [];
         if (Array.isArray(players)) list = players;
@@ -530,39 +676,65 @@ class RunsArchiveFetcher {
         const nameStyle = p['name-style'] || p.nameStyle || null;
         if (p.rel === 'guest' || (!p.id && p.name)) {
             const name = (p.name && String(p.name).trim()) || 'Anonymous';
-            if (isIgnoredPlayerName(name)) return null;
             return {
                 playerId: `guest:${name}`,
                 playerName: name,
                 guest: true,
-                nameStyle: nameStyle || { style: 'solid', color: { dark: '#9e9e9e', light: '#9e9e9e' } }
+                ignored: isIgnoredPlayerName(name),
+                nameStyle: nameStyle || { style: 'solid', color: { dark: '#9e9e9e', light: '#9e9e9e' } },
+                raw: p
             };
         }
         const id = p.id;
+        if (!id) return null;
         const name =
             (p.names && (p.names.international || p.names.japanese)) ||
             p.name ||
             id;
-        if (!id) return null;
-        if (isIgnoredPlayerName(name)) return null;
-        // Opportunistic country upsert from embedded player (when SRC includes location)
-        try {
-            const locs = this.touchLocations();
-            if (upsertLocationFromPlayer(locs, id, p)) this.locationsDirty = true;
-        } catch (e) { /* non-fatal */ }
-        return { playerId: id, playerName: name, guest: false, nameStyle };
+        return { playerId: id, playerName: name, guest: false, ignored: isIgnoredPlayerName(name), nameStyle, raw: p };
     }
 
-    upsertRun(state, run, classified) {
-        if (!run || !run.id || !classified) return false;
-        if (state.seenRunIds[run.id]) return false;
+    /** Board player: null for ignored or missing players (WR derivation excludes them) */
+    extractPlayer(run) {
+        const d = this.describePlayer(run);
+        if (!d || d.ignored) return null;
+        if (!d.guest) {
+            // Opportunistic country upsert from embedded player (when SRC includes location)
+            try {
+                const locs = this.touchLocations();
+                if (upsertLocationFromPlayer(locs, d.playerId, d.raw)) this.locationsDirty = true;
+            } catch (e) { /* non-fatal */ }
+        }
+        return { playerId: d.playerId, playerName: d.playerName, guest: d.guest, nameStyle: d.nameStyle };
+    }
+
+    /**
+     * Route one fetched run: board shard when the board classifier accepts it and the
+     * player counts, otherwise runs-other/. Returns true when a record was written.
+     */
+    ingestRun(state, run, stream) {
+        if (!run || !run.id) return false;
         if (!run.status || run.status.status !== 'verified') return false;
 
-        const player = this.extractPlayer(run);
-        if (!player) {
-            state.seenRunIds[run.id] = 1;
-            return false;
+        const classified = stream.classify(run);
+        if (classified === SKIP || classified === FILTERED) return false;
+
+        if (classified && !classified.other) {
+            const player = this.extractPlayer(run);
+            if (player) {
+                if (this.otherOnly) {
+                    if (!this.boardRunIds.has(run.id)) this.boardMissing.add(run.id);
+                    return false;
+                }
+                return this.upsertBoardRun(state, run, classified, player, stream.gameId);
+            }
         }
+        if (this.repairBoards) return false;
+        return this.upsertOtherRun(state, run, stream.gameId);
+    }
+
+    upsertBoardRun(state, run, classified, player, gameId) {
+        if (this.repairBoards ? this.boardRunIds.has(run.id) : state.seenRunIds[run.id]) return false;
 
         const playDate = runPlayDate(run);
         const primary = (run.times && run.times.primary) || null;
@@ -572,13 +744,14 @@ class RunsArchiveFetcher {
 
         const record = {
             id: run.id,
+            game: gameId,
             category: classified.category,
             date: playDate,
             verifyDate: (run.status && run.status['verify-date']) || null,
             submitted: run.submitted || null,
             time: primary,
             timeT: primaryT,
-            weblink: run.weblink || `https://www.speedrun.com/snake_game/run/${run.id}`,
+            weblink: run.weblink || `https://www.speedrun.com/${GAME_SLUGS[gameId]}/run/${run.id}`,
             playerId: player.playerId,
             playerName: player.playerName,
             guest: !!player.guest,
@@ -588,8 +761,49 @@ class RunsArchiveFetcher {
 
         const shard = this.loadShard(classified.mode, classified.runCategory);
         shard.runs[run.id] = record;
-        this.dirtyShards.add(this.shardKey(classified.mode, classified.runCategory));
+        this.dirtyShards.add(this.shardPath(classified.mode, classified.runCategory));
         state.seenRunIds[run.id] = 1;
+        if (this.repairBoards) {
+            this.boardRunIds.add(run.id);
+            console.log(`   🩹 ${run.id} ${run.date} → ${classified.mode}/${classified.runCategory}`);
+        }
+        return true;
+    }
+
+    upsertOtherRun(state, run, gameId) {
+        if (this.otherOnly) {
+            if (this.boardRunIds.has(run.id)) return false;
+        } else if (state.seenRunIds[run.id]) {
+            return false;
+        }
+
+        const categoryId = runCategoryId(run);
+        const levelId = runLevelId(run);
+        const category = this.maps.categoryNameById[categoryId] || categoryId || 'unknown';
+        const level = levelId ? (this.maps.levelNameById[levelId] || levelId) : null;
+        const shard = this.loadOtherShard(gameId, categoryId, category, levelId, level);
+        state.seenRunIds[run.id] = 1;
+        if (shard.runs[run.id]) return false;
+
+        const player = this.describePlayer(run);
+        const times = run.times || {};
+        shard.runs[run.id] = {
+            id: run.id,
+            game: gameId,
+            category,
+            level,
+            date: runPlayDate(run),
+            verifyDate: (run.status && run.status['verify-date']) || null,
+            submitted: run.submitted || null,
+            time: times.primary || null,
+            timeT: typeof times.primary_t === 'number' ? times.primary_t : null,
+            weblink: run.weblink || `https://www.speedrun.com/${GAME_SLUGS[gameId]}/run/${run.id}`,
+            playerId: player ? player.playerId : null,
+            playerName: player ? player.playerName : null,
+            guest: !!(player && player.guest),
+            ignoredPlayer: !!(player && player.ignored)
+        };
+        this.dirtyShards.add(this.otherShardPath(gameId, category, level));
         return true;
     }
 
@@ -618,8 +832,9 @@ class RunsArchiveFetcher {
 
             const url =
                 `${BASE}/runs?game=${stream.gameId}` +
-                `&category=${stream.categoryId}` +
+                (stream.categoryId ? `&category=${stream.categoryId}` : '') +
                 (stream.levelId ? `&level=${stream.levelId}` : '') +
+                (stream.examiner ? `&examiner=${stream.examiner}` : '') +
                 `&status=verified&embed=players&max=200` +
                 `&orderby=${orderby}&direction=${direction}&offset=${offset}`;
 
@@ -630,12 +845,16 @@ class RunsArchiveFetcher {
 
             for (const run of runs) {
                 examined++;
+                const examiner = run.status && run.status.examiner;
+                if (examiner) {
+                    if (!this.examinersByGame[stream.gameId]) this.examinersByGame[stream.gameId] = new Set();
+                    this.examinersByGame[stream.gameId].add(examiner);
+                }
                 const stamp = runVerifyStamp(run);
                 if (stamp && (!maxVerifySeen || stamp > maxVerifySeen)) {
                     maxVerifySeen = stamp;
                 }
 
-                const classified = stream.classify(run);
                 const playDate = runPlayDate(run);
 
                 if (mode === 'incremental') {
@@ -643,8 +862,7 @@ class RunsArchiveFetcher {
                         stopStream = true;
                         break;
                     }
-                    if (classified && this.upsertRun(state, run, classified)) stored++;
-                    else if (!classified && run.id) state.seenRunIds[run.id] = 1;
+                    if (this.ingestRun(state, run, stream)) stored++;
                     continue;
                 }
 
@@ -670,8 +888,7 @@ class RunsArchiveFetcher {
                     break;
                 }
 
-                if (classified && this.upsertRun(state, run, classified)) stored++;
-                else if (!classified && run.id) state.seenRunIds[run.id] = 1;
+                if (this.ingestRun(state, run, stream)) stored++;
             }
 
             if (stopStream) break;
@@ -751,7 +968,7 @@ class RunsArchiveFetcher {
                 classify: (run) => {
                     const c = this.classifyCeTallyRun(run);
                     if (!c) return null;
-                    if (modeFilter && modeFilter.length && !modeFilter.includes(c.mode)) return null;
+                    if (modeFilter && modeFilter.length && !modeFilter.includes(c.mode)) return FILTERED;
                     return c;
                 }
             });
@@ -795,6 +1012,77 @@ class RunsArchiveFetcher {
             }
         }
 
+        return streams;
+    }
+
+    /**
+     * Catch-all streams for runs-other/: every listed (category, level) of both games that
+     * no board stream covers, plus one game-wide sweep per game for archived categories and
+     * level-less runs in per-level categories. Combos owned by another stream are skipped.
+     */
+    buildOtherStreams() {
+        const covered = new Set(
+            this.buildStreams(null, null).map((s) => comboKey(s.gameId, s.categoryId, s.levelId))
+        );
+        const streams = [];
+        const games = Object.keys(this.maps.gameMeta);
+
+        for (const gameId of games) {
+            const { categories, levels } = this.maps.gameMeta[gameId];
+            const slug = GAME_SLUGS[gameId] || gameId;
+            for (const cat of categories) {
+                const levelIds = cat.type === 'per-level' ? levels.map((l) => l.id) : [null];
+                for (const levelId of levelIds) {
+                    const key = comboKey(gameId, cat.id, levelId);
+                    if (covered.has(key)) continue;
+                    covered.add(key);
+                    const levelLabel = levelId ? `/${this.maps.levelNameById[levelId] || levelId}` : '';
+                    streams.push({
+                        label: `Other/${slug}/${cat.name}${levelLabel}`,
+                        gameId,
+                        categoryId: cat.id,
+                        levelId,
+                        other: true,
+                        classify: () => OTHER
+                    });
+                }
+            }
+        }
+
+        this.coveredCombos = covered;
+        for (const gameId of games) {
+            streams.push(this.sweepStream(gameId, null));
+        }
+        return streams;
+    }
+
+    sweepStream(gameId, examiner) {
+        const covered = this.coveredCombos;
+        return {
+            label: `Other/${GAME_SLUGS[gameId] || gameId}/sweep${examiner ? `/examiner:${examiner}` : ''}`,
+            gameId,
+            categoryId: null,
+            levelId: null,
+            examiner,
+            other: true,
+            classify: (run) =>
+                covered.has(comboKey(gameId, runCategoryId(run), runLevelId(run))) ? SKIP : OTHER
+        };
+    }
+
+    /**
+     * Archived categories can't be filtered by id (v1 returns 404), and a game-wide listing
+     * stops at ~10k offset (Google Snake has ~48k runs). Full rebuilds therefore re-sweep
+     * per examiner (every examiner seen while paging the other streams); each examiner's
+     * history fits the asc+desc window, and date ordering pages stably.
+     */
+    buildExaminerSweeps() {
+        const streams = [];
+        for (const [gameId, examiners] of Object.entries(this.examinersByGame)) {
+            for (const examiner of Array.from(examiners).sort()) {
+                streams.push(this.sweepStream(gameId, examiner));
+            }
+        }
         return streams;
     }
 
@@ -844,7 +1132,14 @@ class RunsArchiveFetcher {
 
         let mode = 'incremental';
         if (opts.full) mode = 'full';
+        else if (opts.otherBackfill) mode = 'other-backfill';
+        else if (opts.repairBoards) mode = 'repair-boards';
         else if (opts.from || opts.to) mode = 'range';
+
+        if ((mode === 'other-backfill' || mode === 'repair-boards') && !fs.existsSync(STATE_FILE)) {
+            console.log('ℹ️ No runs-archive-state.json — run --full first (it also fills runs-other/).');
+            return null;
+        }
 
         if (mode === 'incremental' && !fs.existsSync(STATE_FILE)) {
             console.log('ℹ️ No runs-archive-state.json — incremental no-op. Run range/full first.');
@@ -862,8 +1157,8 @@ class RunsArchiveFetcher {
         if (mode === 'full') {
             console.log('📚 Full historical runs archive (fresh state)');
             // Wipe prior shards for a clean full rebuild
-            if (fs.existsSync(RUNS_DIR)) {
-                fs.rmSync(RUNS_DIR, { recursive: true, force: true });
+            for (const dir of [RUNS_DIR, OTHER_RUNS_DIR]) {
+                if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
             }
             this.shardCache.clear();
             this.dirtyShards.clear();
@@ -878,21 +1173,57 @@ class RunsArchiveFetcher {
             console.log(`🧪 Range ${opts.from || '…'} → ${opts.to || '…'}`);
             state = this.loadState();
             // Keep prior backfillComplete — range is additive fill, not a reset
+        } else if (mode === 'other-backfill') {
+            console.log('📚 Rebuilding runs-other/ (board shards and watermark untouched)');
+            state = this.loadState();
+            if (fs.existsSync(OTHER_RUNS_DIR)) {
+                fs.rmSync(OTHER_RUNS_DIR, { recursive: true, force: true });
+            }
+            this.otherOnly = true;
+            this.boardRunIds = this.loadBoardRunIds();
+            console.log(`ℹ️ ${this.boardRunIds.size} board runs already archived`);
+        } else if (mode === 'repair-boards') {
+            console.log('🩹 Re-scanning board streams for runs missing from runs/ (watermark untouched)');
+            state = this.loadState();
+            this.repairBoards = true;
+            this.boardRunIds = this.loadBoardRunIds();
+            console.log(`ℹ️ ${this.boardRunIds.size} board runs already archived`);
         } else {
             console.log(`🔁 Incremental since ${this.loadState().lastVerifyDate || '(none)'}`);
             state = this.loadState();
         }
+        if (!state.otherStreamsDone) state.otherStreamsDone = {};
 
-        const streams = this.buildStreams(opts.modes, opts.categories);
-        console.log(`▶️ ${streams.length} streams`);
+        const filtered = !!((opts.modes && opts.modes.length) || (opts.categories && opts.categories.length));
+        const partitioned = mode === 'full' || mode === 'other-backfill';
+        let streams;
+        if (mode === 'other-backfill') {
+            streams = this.buildStreams(null, null).concat(this.buildOtherStreams());
+        } else if (mode === 'repair-boards') {
+            streams = this.buildStreams(opts.modes, opts.categories);
+        } else {
+            streams = this.buildStreams(opts.modes, opts.categories)
+                .concat(filtered ? [] : this.buildOtherStreams());
+        }
+        const examinerSweeps = partitioned && !filtered;
+        console.log(`▶️ ${streams.length} streams${examinerSweeps ? ' + examiner sweeps' : ''}`);
 
         let totalStored = 0;
         let globalMaxVerify = state.lastVerifyDate || null;
 
-        for (const stream of streams) {
+        for (let i = 0; i < streams.length; i++) {
+            const stream = streams[i];
             console.log(`▶️ ${stream.label}`);
             let result;
-            if (mode === 'full') {
+            if (stream.examiner) {
+                try {
+                    result = await this.fetchStreamFull(stream, state);
+                } catch (e) {
+                    if (e.status !== 404) throw e;
+                    console.warn(`   ⚠️ ${stream.label}: examiner account no longer exists, skipped`);
+                    continue;
+                }
+            } else if (mode === 'full' || mode === 'other-backfill' || mode === 'repair-boards') {
                 result = await this.fetchStreamFull(stream, state);
             } else if (mode === 'range') {
                 result = await this.runMonthWindows(
@@ -908,32 +1239,90 @@ class RunsArchiveFetcher {
             console.log(
                 `   ${stream.label}: pages=${result.pages} examined=${result.examined} stored=${result.stored}`
             );
+            if (result.hitOffsetLimit && stream.other && (stream.examiner || !examinerSweeps)) {
+                console.warn(`   ⚠️ ${stream.label}: over ~20k runs, middle of the history is not reachable`);
+            }
             if (result.maxVerifySeen && (!globalMaxVerify || result.maxVerifySeen > globalMaxVerify)) {
                 globalMaxVerify = result.maxVerifySeen;
             }
-            state.streamsDone[stream.label] = {
-                at: new Date().toISOString(),
-                stored: result.stored,
-                examined: result.examined,
-                hitOffsetLimit: !!result.hitOffsetLimit
-            };
+            const done = stream.other ? state.otherStreamsDone : state.streamsDone;
+            if ((mode !== 'other-backfill' || stream.other) && mode !== 'repair-boards') {
+                done[stream.label] = {
+                    at: new Date().toISOString(),
+                    stored: result.stored,
+                    examined: result.examined,
+                    hitOffsetLimit: !!result.hitOffsetLimit
+                };
+            }
             this.flushShards();
             this.saveState(state);
             this.flushLocations();
             await sleep(150);
+
+            if (examinerSweeps && i === streams.length - 1 && !stream.examiner) {
+                const extra = this.buildExaminerSweeps();
+                console.log(`▶️ ${extra.length} examiner sweeps`);
+                streams.push(...extra);
+            }
         }
 
-        if (globalMaxVerify) state.lastVerifyDate = globalMaxVerify;
-        if (mode === 'full') state.backfillComplete = true;
+        let officialTotals = null;
+        if (mode === 'other-backfill') {
+            // Board runs keep the incremental watermark; this pass only rebuilt runs-other/
+            state.otherBackfill = {
+                completedAt: new Date().toISOString(),
+                boardRunsMissingFromBoards: this.boardMissing.size
+            };
+            if (this.boardMissing.size) {
+                console.warn(
+                    `⚠️ ${this.boardMissing.size} board-eligible runs are not in runs/ ` +
+                        '(not counted anywhere; a --full rebuild would add them)'
+                );
+            }
+            officialTotals = await this.fetchOfficialTotals();
+        } else if (mode === 'repair-boards') {
+            state.boardRepair = { completedAt: new Date().toISOString(), added: totalStored };
+        } else {
+            if (globalMaxVerify) state.lastVerifyDate = globalMaxVerify;
+            if (mode === 'full') state.backfillComplete = true;
+        }
         this.flushShards();
         this.saveState(state);
         this.flushLocations();
-        const index = this.writeIndex(state);
+        const index = this.writeIndex(state, officialTotals);
+        if (officialTotals) {
+            for (const [gameId, official] of Object.entries(officialTotals.games)) {
+                console.log(
+                    `📊 ${GAME_SLUGS[gameId]}: archive=${index.totalsByGame[gameId] || 0} official=${official.totalRuns}`
+                );
+            }
+        }
         const sec = ((Date.now() - t0) / 1000).toFixed(1);
         console.log(
             `✅ Done in ${sec}s · API=${this.apiCalls} · stored≈${totalStored} · totalRuns=${index.totalRuns}`
         );
         return index;
+    }
+
+    /** Official verified totals from SRC's game summary, for drift checks (manual backfill only) */
+    async fetchOfficialTotals() {
+        const games = {};
+        for (const [gameId, slug] of Object.entries(GAME_SLUGS)) {
+            try {
+                const summary = await this.fetchAPI(
+                    `https://www.speedrun.com/api/v2/GetGameSummary?gameUrl=${slug}`
+                );
+                const stats = (summary && summary.stats) || {};
+                games[gameId] = {
+                    totalRuns: Number(stats.totalRuns),
+                    totalRunsFG: Number(stats.totalRunsFG),
+                    totalRunsIL: Number(stats.totalRunsIL)
+                };
+            } catch (e) {
+                console.warn(`⚠️ Official total for ${slug} unavailable: ${e.message}`);
+            }
+        }
+        return { checkedAt: new Date().toISOString(), games };
     }
 }
 
@@ -950,5 +1339,6 @@ module.exports = RunsArchiveFetcher;
 module.exports.MODE_NAMES = MODE_NAMES;
 module.exports.CATEGORY_NAMES = CATEGORY_NAMES;
 module.exports.RUNS_DIR = RUNS_DIR;
+module.exports.OTHER_RUNS_DIR = OTHER_RUNS_DIR;
 module.exports.STATE_FILE = STATE_FILE;
 module.exports.INDEX_FILE = INDEX_FILE;

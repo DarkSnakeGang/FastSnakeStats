@@ -112,6 +112,7 @@ function collectPlayerIds() {
                 if (!full || !fs.existsSync(full)) continue;
                 const data = JSON.parse(fs.readFileSync(full, 'utf8'));
                 for (const run of Object.values(data.runs || {})) {
+                    if (run.ignoredPlayer) continue;
                     if (run.playerId && String(run.playerId).indexOf('guest:') !== 0) {
                         ids.add(run.playerId);
                     }
