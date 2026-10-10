@@ -15,6 +15,7 @@
  *   node scripts/runs-archive-fetcher.js --incremental
  *   node scripts/runs-archive-fetcher.js --other-backfill   (rebuild runs-other/ only; boards untouched)
  *   node scripts/runs-archive-fetcher.js --repair-boards    (re-scan boards, add runs missing from runs/)
+ *   node scripts/runs-archive-fetcher.js --backfill-examiners (set examiner on existing records only)
  */
 
 const crypto = require('crypto');
@@ -63,6 +64,10 @@ const RUNS_DIR = path.join('time-travel-cache', 'runs');
 const OTHER_RUNS_DIR = path.join('time-travel-cache', 'runs-other');
 const STATE_FILE = path.join(META_DIR, 'runs-archive-state.json');
 const INDEX_FILE = path.join(META_DIR, 'runs-archive-index.json');
+/** examiner user id -> display name (null for deleted accounts) */
+const EXAMINERS_FILE = path.join(META_DIR, 'examiners.json');
+/** --backfill-examiners re-fetches leftover runs by id only when there are at most this many */
+const EXAMINER_REFETCH_LIMIT = 1500;
 
 const ARCHIVE_VERSION = 1;
 const EARLIEST_MONTH = '2018-01';
@@ -82,6 +87,7 @@ function parseArgs(argv) {
         incremental: false,
         otherBackfill: false,
         repairBoards: false,
+        backfillExaminers: false,
         from: null,
         to: null,
         modes: null,
@@ -92,6 +98,7 @@ function parseArgs(argv) {
         else if (a === '--incremental') out.incremental = true;
         else if (a === '--other-backfill') out.otherBackfill = true;
         else if (a === '--repair-boards') out.repairBoards = true;
+        else if (a === '--backfill-examiners') out.backfillExaminers = true;
         else if (a.startsWith('--from=')) out.from = a.slice(7);
         else if (a.startsWith('--to=')) out.to = a.slice(5);
         else if (a.startsWith('--modes=')) {
@@ -108,7 +115,10 @@ function parseArgs(argv) {
             }).filter(Boolean);
         }
     }
-    if (!out.full && !out.incremental && !out.otherBackfill && !out.repairBoards && !out.from) {
+    if (
+        !out.full && !out.incremental && !out.otherBackfill && !out.repairBoards &&
+        !out.backfillExaminers && !out.from
+    ) {
         out.incremental = true;
     }
     return out;
@@ -409,6 +419,7 @@ class RunsArchiveFetcher {
     }
 
     saveState(state) {
+        if (state.scratch) return; // throwaway state for read-only passes must never replace the real one
         if (!fs.existsSync(META_DIR)) fs.mkdirSync(META_DIR, { recursive: true });
         fs.writeFileSync(STATE_FILE, JSON.stringify(state));
     }
@@ -463,6 +474,41 @@ class RunsArchiveFetcher {
             fs.writeFileSync(file, JSON.stringify(data));
         }
         this.dirtyShards.clear();
+    }
+
+    loadExaminerNames() {
+        if (!fs.existsSync(EXAMINERS_FILE)) return {};
+        try {
+            return JSON.parse(fs.readFileSync(EXAMINERS_FILE, 'utf8')).examiners || {};
+        } catch (e) {
+            console.warn('⚠️ Corrupt examiners.json, rebuilding');
+            return {};
+        }
+    }
+
+    /** Look up display names for examiner ids not in examiners.json yet (one call per new id) */
+    async resolveExaminerNames(ids) {
+        const names = this.loadExaminerNames();
+        const todo = Array.from(ids).filter((id) => id && !Object.prototype.hasOwnProperty.call(names, id));
+        if (!todo.length) return names;
+        console.log(`👤 Resolving ${todo.length} examiner name(s)`);
+        for (const id of todo.sort()) {
+            try {
+                const user = await this.fetchAPI(`${BASE}/users/${id}`);
+                const n = user && user.data && user.data.names;
+                names[id] = (n && (n.international || n.japanese)) || null;
+            } catch (e) {
+                if (e.status !== 404) throw e;
+                names[id] = null; // deleted account
+            }
+            await sleep(120);
+        }
+        if (!fs.existsSync(META_DIR)) fs.mkdirSync(META_DIR, { recursive: true });
+        fs.writeFileSync(
+            EXAMINERS_FILE,
+            JSON.stringify({ lastUpdated: new Date().toISOString(), examiners: names }, null, 2)
+        );
+        return names;
     }
 
     /** Board run ids already archived — --other-backfill must never duplicate them */
@@ -538,6 +584,9 @@ class RunsArchiveFetcher {
             totalRuns,
             totalsByGame,
             officialTotalsByGame: officialTotals || (previous && previous.officialTotalsByGame) || null,
+            examiners: Object.fromEntries(
+                Object.entries(this.loadExaminerNames()).filter(([, name]) => name)
+            ),
             shards
         };
         if (!fs.existsSync(META_DIR)) fs.mkdirSync(META_DIR, { recursive: true });
@@ -755,7 +804,8 @@ class RunsArchiveFetcher {
             playerId: player.playerId,
             playerName: player.playerName,
             guest: !!player.guest,
-            nameStyle: player.nameStyle || null
+            nameStyle: player.nameStyle || null,
+            examiner: (run.status && run.status.examiner) || null
         };
         if (classified.source) record.source = classified.source;
 
@@ -801,7 +851,8 @@ class RunsArchiveFetcher {
             playerId: player ? player.playerId : null,
             playerName: player ? player.playerName : null,
             guest: !!(player && player.guest),
-            ignoredPlayer: !!(player && player.ignored)
+            ignoredPlayer: !!(player && player.ignored),
+            examiner: (run.status && run.status.examiner) || null
         };
         this.dirtyShards.add(this.otherShardPath(gameId, category, level));
         return true;
@@ -1126,9 +1177,139 @@ class RunsArchiveFetcher {
         });
     }
 
+    async resolveSeenExaminers() {
+        const ids = new Set();
+        for (const set of Object.values(this.examinersByGame)) set.forEach((id) => ids.add(id));
+        try {
+            await this.resolveExaminerNames(ids);
+        } catch (e) {
+            console.warn(`⚠️ Examiner name lookup failed (ids kept, names next run): ${e.message}`);
+        }
+    }
+
+    /**
+     * Set `examiner` on archived records from SRC, changing nothing else (no watermark,
+     * seenRunIds or other record fields). Re-lists every stream (each listed run carries
+     * status.examiner, including runs by deleted examiners), then re-fetches leftovers by id.
+     */
+    async backfillExaminers() {
+        const t0 = Date.now();
+        if (!fs.existsSync(STATE_FILE)) {
+            console.log('ℹ️ No runs-archive-state.json — nothing to backfill.');
+            return null;
+        }
+        const state = this.loadState();
+        /** run id -> { file, record } across board and other shards */
+        const byId = new Map();
+        for (const root of [RUNS_DIR, OTHER_RUNS_DIR]) {
+            if (!fs.existsSync(root)) continue;
+            for (const sub of fs.readdirSync(root)) {
+                const dir = path.join(root, sub);
+                if (!fs.statSync(dir).isDirectory()) continue;
+                for (const file of fs.readdirSync(dir)) {
+                    if (!file.endsWith('.json')) continue;
+                    const full = path.join(dir, file);
+                    const data = this.loadShardFile(full, () => ({ runs: {} }));
+                    for (const record of Object.values(data.runs)) byId.set(record.id, { file: full, record });
+                }
+            }
+        }
+        console.log(`🔎 Examiner backfill for ${byId.size} archived runs`);
+
+        const resolved = new Set();
+        let changed = 0;
+        const apply = (run) => {
+            const entry = byId.get(run.id);
+            if (!entry) return;
+            resolved.add(run.id);
+            const examiner = (run.status && run.status.examiner) || null;
+            if (entry.record.examiner === examiner) return;
+            entry.record.examiner = examiner;
+            this.dirtyShards.add(entry.file);
+            changed++;
+        };
+        this.ingestRun = (_state, run) => {
+            if (run && run.id && run.status && run.status.status === 'verified') apply(run);
+            return false;
+        };
+
+        const scratch = { scratch: true, seenRunIds: {}, lastVerifyDate: null };
+        const streams = this.buildStreams(null, null).concat(this.buildOtherStreams());
+        for (const stream of streams) {
+            const result = await this.fetchStreamFull(stream, scratch);
+            console.log(`   ${stream.label}: examined=${result.examined} · resolved=${resolved.size}/${byId.size}`);
+            this.flushShards();
+            await sleep(150);
+        }
+
+        const leftover = Array.from(byId.keys()).filter((id) => !resolved.has(id));
+        console.log(`ℹ️ ${leftover.length} runs not listed by any stream`);
+        // Leftovers that SRC deleted or no longer lists as verified keep no examiner
+        let gone = 0;
+        let notVerified = 0;
+        const clear = (runId) => {
+            const entry = byId.get(runId);
+            if (!('examiner' in entry.record)) return;
+            delete entry.record.examiner;
+            this.dirtyShards.add(entry.file);
+        };
+        if (leftover.length && leftover.length <= EXAMINER_REFETCH_LIMIT) {
+            for (let i = 0; i < leftover.length; i++) {
+                try {
+                    const payload = await this.fetchAPI(`${BASE}/runs/${leftover[i]}`);
+                    const run = payload && payload.data;
+                    if (run && run.status && run.status.status === 'verified') {
+                        apply(run);
+                    } else {
+                        notVerified++;
+                        clear(leftover[i]);
+                    }
+                } catch (e) {
+                    if (e.status !== 404) throw e;
+                    gone++;
+                    clear(leftover[i]);
+                }
+                if ((i + 1) % 100 === 0) {
+                    console.log(`  … by id ${i + 1}/${leftover.length}`);
+                    this.flushShards();
+                }
+                await sleep(120);
+            }
+            console.log(`ℹ️ Leftovers: ${gone} deleted on SRC, ${notVerified} no longer verified (archive still has them)`);
+        } else if (leftover.length) {
+            console.warn(`⚠️ Over ${EXAMINER_REFETCH_LIMIT} leftovers — left without examiner`);
+        }
+        this.flushShards();
+
+        const ids = new Set();
+        let withExaminer = 0;
+        const perGame = {};
+        for (const { record } of byId.values()) {
+            const g = GAME_SLUGS[recordGameId(record)];
+            if (!perGame[g]) perGame[g] = { withExaminer: 0, without: 0 };
+            if (record.examiner) {
+                ids.add(record.examiner);
+                withExaminer++;
+                perGame[g].withExaminer++;
+            } else {
+                perGame[g].without++;
+            }
+        }
+        await this.resolveExaminerNames(ids);
+        const index = this.writeIndex(state, null);
+        const sec = ((Date.now() - t0) / 1000).toFixed(1);
+        console.log(`📊 ${JSON.stringify(perGame)} · examiners=${ids.size}`);
+        console.log(
+            `✅ Done in ${sec}s · API=${this.apiCalls} · records changed=${changed} · ` +
+                `with examiner=${withExaminer}/${byId.size} · totalRuns=${index.totalRuns}`
+        );
+        return index;
+    }
+
     async run(opts) {
         const t0 = Date.now();
         await this.initMaps();
+        if (opts.backfillExaminers) return this.backfillExaminers();
 
         let mode = 'incremental';
         if (opts.full) mode = 'full';
@@ -1289,6 +1470,7 @@ class RunsArchiveFetcher {
         this.flushShards();
         this.saveState(state);
         this.flushLocations();
+        await this.resolveSeenExaminers();
         const index = this.writeIndex(state, officialTotals);
         if (officialTotals) {
             for (const [gameId, official] of Object.entries(officialTotals.games)) {
