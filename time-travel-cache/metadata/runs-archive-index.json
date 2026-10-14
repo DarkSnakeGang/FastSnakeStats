@@ -1,13 +1,13 @@
 {
-  "lastUpdated": "2026-10-13T04:01:22.726Z",
+  "lastUpdated": "2026-10-14T02:14:55.384Z",
   "version": 1,
   "backfillComplete": true,
   "otherBackfillComplete": true,
-  "lastVerifyDate": "2026-10-13T00:22:23Z",
-  "seenRuns": 48791,
-  "totalRuns": 48791,
+  "lastVerifyDate": "2026-10-14T00:52:16Z",
+  "seenRuns": 48798,
+  "totalRuns": 48798,
   "totalsByGame": {
-    "o1y9pyk6": 47725,
+    "o1y9pyk6": 47732,
     "9dow0go1": 1066
   },
   "officialTotalsByGame": {
@@ -581,16 +581,16 @@
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Light/25_Apples.json",
-      "count": 512,
-      "sha": "1ff1d93e6584dc4d4a10a67d45952fc71f2c0323"
+      "count": 514,
+      "sha": "cf0f8daef1475149554d01d8e5791ecebc12def1"
     },
     {
       "mode": "Light",
       "category": "50 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Light/50_Apples.json",
-      "count": 313,
-      "sha": "463acca62215cd94391037028dc929bdea45d03f"
+      "count": 314,
+      "sha": "97a2effbcf5d1d6f51e970b8f1003e4597ce3d06"
     },
     {
       "mode": "Light",
@@ -893,24 +893,24 @@
       "category": "100 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Statue/100_Apples.json",
-      "count": 142,
-      "sha": "e511af0f95e48616629e4ee2b2cb9c80f9071c54"
+      "count": 143,
+      "sha": "c0da2b75c255e7df9ce87ab404eb0dc4713c1cda"
     },
     {
       "mode": "Statue",
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Statue/25_Apples.json",
-      "count": 523,
-      "sha": "a44c8c367e47d93dbcae992c1ef4172bdfab3913"
+      "count": 524,
+      "sha": "e27618e0283ef2bf296058c358e3047f7a0e1f37"
     },
     {
       "mode": "Statue",
       "category": "50 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Statue/50_Apples.json",
-      "count": 333,
-      "sha": "2eae1fd4e4995d0e549ad14098964ffe16ca4a85"
+      "count": 334,
+      "sha": "87c438e4fa728fdeab65f3387218411502fc2674"
     },
     {
       "mode": "Statue",
@@ -925,8 +925,8 @@
       "category": "High Score",
       "board": true,
       "path": "time-travel-cache/runs/Statue/High_Score.json",
-      "count": 326,
-      "sha": "4259424e057fb232ba01f3a957d0b07cd7472364"
+      "count": 327,
+      "sha": "fdfb0ce7c83baf9c9e2f209cf5d04e5a2782402c"
     },
     {
       "mode": "Twin",
