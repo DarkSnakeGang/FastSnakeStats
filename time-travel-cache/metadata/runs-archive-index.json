@@ -1,13 +1,13 @@
 {
-  "lastUpdated": "2026-10-14T02:14:55.384Z",
+  "lastUpdated": "2026-10-15T01:56:19.148Z",
   "version": 1,
   "backfillComplete": true,
   "otherBackfillComplete": true,
-  "lastVerifyDate": "2026-10-14T00:52:16Z",
-  "seenRuns": 48798,
-  "totalRuns": 48798,
+  "lastVerifyDate": "2026-10-14T20:57:43Z",
+  "seenRuns": 48805,
+  "totalRuns": 48805,
   "totalsByGame": {
-    "o1y9pyk6": 47732,
+    "o1y9pyk6": 47739,
     "9dow0go1": 1066
   },
   "officialTotalsByGame": {
@@ -93,8 +93,8 @@
       "category": "All Apples",
       "board": true,
       "path": "time-travel-cache/runs/Arrow/All_Apples.json",
-      "count": 123,
-      "sha": "09e53642e5c4693343fbd4a73050cecf73f66d69"
+      "count": 124,
+      "sha": "f0ff43a4f40a340e8a9784c4ce5bd82add6828dc"
     },
     {
       "mode": "Arrow",
@@ -293,24 +293,24 @@
       "category": "100 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Cheese/100_Apples.json",
-      "count": 225,
-      "sha": "ea0c471243767fb4a43da866f5e6c4c708861b63"
+      "count": 226,
+      "sha": "a1764a046b22774956c3a8fa68086e3607deb611"
     },
     {
       "mode": "Cheese",
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Cheese/25_Apples.json",
-      "count": 825,
-      "sha": "01bffc81bc960d62345a469259996dd5caa3b374"
+      "count": 826,
+      "sha": "22b1b4575e29aa331c13d96ce122b348aca5b745"
     },
     {
       "mode": "Cheese",
       "category": "50 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Cheese/50_Apples.json",
-      "count": 359,
-      "sha": "812679d5b5d6f2761ff317bb03dda80941e89b7a"
+      "count": 360,
+      "sha": "4f11f8144b8417f7fdb7f0ddd503d2a5dcdbeb75"
     },
     {
       "mode": "Cheese",
@@ -469,8 +469,8 @@
       "category": "50 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Gate/50_Apples.json",
-      "count": 210,
-      "sha": "91e3e2802a1d1b2bd3f17c34afd1bf67b16f8383"
+      "count": 211,
+      "sha": "8734783570a4a39755384b31bda497ca22479452"
     },
     {
       "mode": "Gate",
@@ -565,8 +565,8 @@
       "category": "High Score",
       "board": true,
       "path": "time-travel-cache/runs/Key/High_Score.json",
-      "count": 511,
-      "sha": "4c13e63ff4f71320ef3672c7fd323a264c661ed4"
+      "count": 512,
+      "sha": "eab6b4ecb293caf45b22254fe64c1d8304fa3e83"
     },
     {
       "mode": "Light",
@@ -693,8 +693,8 @@
       "category": "High Score",
       "board": true,
       "path": "time-travel-cache/runs/Minesweeper/High_Score.json",
-      "count": 401,
-      "sha": "570db12ac56987c7b023da1537379fd11f579925"
+      "count": 402,
+      "sha": "1163da3e4dfaffbaaf255bf947ffbee10de78f49"
     },
     {
       "mode": "Peaceful",
