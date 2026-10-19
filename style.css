@@ -96,6 +96,7 @@ body.dark-mode .container .mode2 td {
 	justify-content: flex-start;
 	align-items: center;
 	position: relative;
+	flex-shrink: 0;
 	margin-bottom: 15px;
 	padding-bottom: 10px;
 	border-bottom: 1px solid var(--sidebar-header-border);
@@ -327,6 +328,9 @@ h2{
 	flex: 1 1 auto;
 	min-height: 0;
 	padding-right: 4px;
+	overscroll-behavior: contain;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
 }
 
 .settings-layout {
@@ -2565,8 +2569,11 @@ body.dark-mode .quick-fetch-btn:disabled {
 
 /* Ensure desktop elements are shown on desktop */
 @media (min-width: 1024px) {
-	/* Show desktop elements */
-	.table-selector,
+	/* Show desktop elements. Settings must stay a flex column so its body can scroll. */
+	.table-selector {
+		display: flex !important;
+	}
+
 	.container,
 	h1 {
 		display: block !important;
@@ -2604,8 +2611,11 @@ body.dark-mode .quick-fetch-btn:disabled {
 
 /* Ensure desktop elements are shown on desktop */
 @media (min-width: 1024px) {
-	/* Show desktop elements */
-	.table-selector,
+	/* Show desktop elements. Settings must stay a flex column so its body can scroll. */
+	.table-selector {
+		display: flex !important;
+	}
+
 	.container,
 	h1 {
 		display: block !important;
@@ -3934,6 +3944,16 @@ body.dark-mode .quick-fetch-btn:disabled {
 
 	.snake-mods-btn {
 		display: flex !important;
+	}
+
+	/* Short laptops: sit beside the Play tab instead of below it, so Options fits */
+	@media (max-height: 900px) {
+		body:not(.category-collapsed) .table-selector {
+			top: 88px;
+			left: 72px;
+			max-height: calc(100vh - 104px);
+			width: min(1320px, calc(100vw - 88px));
+		}
 	}
 
 	/* Sit just above the Category Settings collapse tab (both 88px tall, 12px gap) */
