@@ -1,13 +1,13 @@
 {
-  "lastUpdated": "2026-10-19T01:55:32.525Z",
+  "lastUpdated": "2026-10-20T02:13:27.620Z",
   "version": 1,
   "backfillComplete": true,
   "otherBackfillComplete": true,
-  "lastVerifyDate": "2026-10-18T19:16:45Z",
-  "seenRuns": 48893,
-  "totalRuns": 48893,
+  "lastVerifyDate": "2026-10-19T16:59:06Z",
+  "seenRuns": 48898,
+  "totalRuns": 48898,
   "totalsByGame": {
-    "o1y9pyk6": 47827,
+    "o1y9pyk6": 47832,
     "9dow0go1": 1066
   },
   "officialTotalsByGame": {
@@ -381,8 +381,8 @@
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Classic/25_Apples.json",
-      "count": 7664,
-      "sha": "bceacc8d6cb05c4f829054d154bd7b73baa49de4"
+      "count": 7665,
+      "sha": "4dd09e644297b73a9134bb2fe48ec9200fe26c1f"
     },
     {
       "mode": "Classic",
@@ -701,16 +701,16 @@
       "category": "100 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Peaceful/100_Apples.json",
-      "count": 662,
-      "sha": "8b4aee9d2b3402bcfcaae9023445c95d64d24f63"
+      "count": 663,
+      "sha": "3746c8633fc2ec04fd66ba1d84a1e164e6de2d0a"
     },
     {
       "mode": "Peaceful",
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Peaceful/25_Apples.json",
-      "count": 1689,
-      "sha": "bda6d672ff456fdbc8ff68a3bd7a9f61fc098bec"
+      "count": 1690,
+      "sha": "f70505a3efd10fd21f993e8e269186044651ed26"
     },
     {
       "mode": "Peaceful",
@@ -725,8 +725,8 @@
       "category": "All Apples",
       "board": true,
       "path": "time-travel-cache/runs/Peaceful/All_Apples.json",
-      "count": 1250,
-      "sha": "00f1f521c9157288753b62d95cb71e091e62da83"
+      "count": 1251,
+      "sha": "b3d3d2c8c58fded4f739514691ea1289d70581ec"
     },
     {
       "mode": "Poison",
@@ -1061,8 +1061,8 @@
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Yin_Yang/25_Apples.json",
-      "count": 777,
-      "sha": "3035ba94573f25882e476d1d8037e2c52f55aae4"
+      "count": 778,
+      "sha": "f4c70865ac5ad0e21a572554fafc38e0deee55f6"
     },
     {
       "mode": "Yin Yang",
