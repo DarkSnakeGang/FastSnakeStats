@@ -1,13 +1,13 @@
 {
-  "lastUpdated": "2026-10-20T02:13:27.620Z",
+  "lastUpdated": "2026-10-21T02:06:52.676Z",
   "version": 1,
   "backfillComplete": true,
   "otherBackfillComplete": true,
-  "lastVerifyDate": "2026-10-19T16:59:06Z",
-  "seenRuns": 48898,
-  "totalRuns": 48898,
+  "lastVerifyDate": "2026-10-20T03:27:07Z",
+  "seenRuns": 48922,
+  "totalRuns": 48922,
   "totalsByGame": {
-    "o1y9pyk6": 47832,
+    "o1y9pyk6": 47856,
     "9dow0go1": 1066
   },
   "officialTotalsByGame": {
@@ -77,8 +77,8 @@
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Arrow/25_Apples.json",
-      "count": 414,
-      "sha": "f5ccc3afcc929b5b2d561e0daf64788233eda850"
+      "count": 415,
+      "sha": "599c5403d28b9d2087a0824bf66e9ea0ebb073f9"
     },
     {
       "mode": "Arrow",
@@ -93,8 +93,8 @@
       "category": "All Apples",
       "board": true,
       "path": "time-travel-cache/runs/Arrow/All_Apples.json",
-      "count": 126,
-      "sha": "a45c1ab93d7ac5ff098e587ddae34cb3179d0166"
+      "count": 128,
+      "sha": "feb3bf7160eefb121f3730476bc0d247fa50d1a5"
     },
     {
       "mode": "Arrow",
@@ -541,24 +541,24 @@
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Key/25_Apples.json",
-      "count": 627,
-      "sha": "89d672b6e62fdc0c4d0c6f51d8c2e9702699404a"
+      "count": 628,
+      "sha": "659c2313638995eb8f267150dcb75c6ad47f19b0"
     },
     {
       "mode": "Key",
       "category": "50 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Key/50_Apples.json",
-      "count": 382,
-      "sha": "396f7ba787c9a25e6941b9e3ee8050af5c02119d"
+      "count": 383,
+      "sha": "0526c311cf58f0ce6d81076d6d95cf5b4e621f3e"
     },
     {
       "mode": "Key",
       "category": "All Apples",
       "board": true,
       "path": "time-travel-cache/runs/Key/All_Apples.json",
-      "count": 161,
-      "sha": "5f348adf4a177b16e7e1d87168470a402bd9301d"
+      "count": 162,
+      "sha": "172b34f71975d90dca1c03e8c0c48c74602f2425"
     },
     {
       "mode": "Key",
@@ -597,8 +597,8 @@
       "category": "All Apples",
       "board": true,
       "path": "time-travel-cache/runs/Light/All_Apples.json",
-      "count": 172,
-      "sha": "d445200b209a86a28db205bfecb2d533f36a4aef"
+      "count": 173,
+      "sha": "2cf94acc5b5e5974d4d0edfbd75ad7d8dbf0ed72"
     },
     {
       "mode": "Light",
@@ -701,32 +701,32 @@
       "category": "100 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Peaceful/100_Apples.json",
-      "count": 663,
-      "sha": "3746c8633fc2ec04fd66ba1d84a1e164e6de2d0a"
+      "count": 664,
+      "sha": "7e40ac2197fcd960335315d3cef0fba14a36ffd1"
     },
     {
       "mode": "Peaceful",
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Peaceful/25_Apples.json",
-      "count": 1690,
-      "sha": "f70505a3efd10fd21f993e8e269186044651ed26"
+      "count": 1692,
+      "sha": "44cf36d4563a9e1084f853c523ba3ee5e5e90bf7"
     },
     {
       "mode": "Peaceful",
       "category": "50 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Peaceful/50_Apples.json",
-      "count": 1134,
-      "sha": "eb214932cc2fb6d6eeca94173dcca0c8049d1f8f"
+      "count": 1135,
+      "sha": "dc13f32b66497f6e3efdd170283b679d34de376a"
     },
     {
       "mode": "Peaceful",
       "category": "All Apples",
       "board": true,
       "path": "time-travel-cache/runs/Peaceful/All_Apples.json",
-      "count": 1251,
-      "sha": "b3d3d2c8c58fded4f739514691ea1289d70581ec"
+      "count": 1252,
+      "sha": "d73d7176adb924ed049968b4f16ab8bf99d0d623"
     },
     {
       "mode": "Poison",
@@ -813,8 +813,8 @@
       "category": "100 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Shield/100_Apples.json",
-      "count": 134,
-      "sha": "082414f3712ebfe05c62cd092c2b890fbeb36013"
+      "count": 135,
+      "sha": "678fff7a57905fed564a0031d0f02c90d965ece4"
     },
     {
       "mode": "Shield",
@@ -837,16 +837,16 @@
       "category": "All Apples",
       "board": true,
       "path": "time-travel-cache/runs/Shield/All_Apples.json",
-      "count": 89,
-      "sha": "2780275807671f0b97ab390c588a3680f6e4173c"
+      "count": 92,
+      "sha": "f48c3e2673f3cf836906a7ade94b9083edebe5dd"
     },
     {
       "mode": "Shield",
       "category": "High Score",
       "board": true,
       "path": "time-travel-cache/runs/Shield/High_Score.json",
-      "count": 332,
-      "sha": "8d0b73b66c4e8e7805791f9b8bc1f707b07ce005"
+      "count": 334,
+      "sha": "8d16b50338a60f2191a87fc7e56ed89b927adcdf"
     },
     {
       "mode": "Sokoban",
@@ -893,32 +893,32 @@
       "category": "100 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Statue/100_Apples.json",
-      "count": 143,
-      "sha": "c0da2b75c255e7df9ce87ab404eb0dc4713c1cda"
+      "count": 144,
+      "sha": "54ac604b97d13af6648b22667505854ee1132c5b"
     },
     {
       "mode": "Statue",
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Statue/25_Apples.json",
-      "count": 524,
-      "sha": "e27618e0283ef2bf296058c358e3047f7a0e1f37"
+      "count": 525,
+      "sha": "55ab6a3065a1b706c87e895a9e61937ceff377f9"
     },
     {
       "mode": "Statue",
       "category": "50 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Statue/50_Apples.json",
-      "count": 334,
-      "sha": "87c438e4fa728fdeab65f3387218411502fc2674"
+      "count": 335,
+      "sha": "297fb790e67eedd558602971d150ef25e59325d6"
     },
     {
       "mode": "Statue",
       "category": "All Apples",
       "board": true,
       "path": "time-travel-cache/runs/Statue/All_Apples.json",
-      "count": 266,
-      "sha": "037f5ddcc2a3729514724630c0035f8911860fa3"
+      "count": 268,
+      "sha": "3cb260cd436b241446209b5fdbecef143a3a48ed"
     },
     {
       "mode": "Statue",
@@ -1037,8 +1037,8 @@
       "category": "All Apples",
       "board": true,
       "path": "time-travel-cache/runs/Winged/All_Apples.json",
-      "count": 216,
-      "sha": "7b91398829b49f46e783fd056e2c9243943280f1"
+      "count": 217,
+      "sha": "f750af0f6b9819a776648f64e9e3a27bd6d70d8b"
     },
     {
       "mode": "Winged",
