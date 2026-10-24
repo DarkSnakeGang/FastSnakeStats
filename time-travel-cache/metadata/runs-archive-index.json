@@ -1,13 +1,13 @@
 {
-  "lastUpdated": "2026-10-23T02:04:06.273Z",
+  "lastUpdated": "2026-10-24T02:04:26.316Z",
   "version": 1,
   "backfillComplete": true,
   "otherBackfillComplete": true,
-  "lastVerifyDate": "2026-10-22T22:34:11Z",
-  "seenRuns": 48943,
-  "totalRuns": 48943,
+  "lastVerifyDate": "2026-10-23T23:43:35Z",
+  "seenRuns": 48946,
+  "totalRuns": 48946,
   "totalsByGame": {
-    "o1y9pyk6": 47877,
+    "o1y9pyk6": 47880,
     "9dow0go1": 1066
   },
   "officialTotalsByGame": {
@@ -501,16 +501,16 @@
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Hotdog/25_Apples.json",
-      "count": 438,
-      "sha": "9a99c18974743db217632a3044b480e0bdaaaf9b"
+      "count": 439,
+      "sha": "92d3aee22e778e0c775cdfd485de2adf5427e043"
     },
     {
       "mode": "Hotdog",
       "category": "50 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Hotdog/50_Apples.json",
-      "count": 294,
-      "sha": "edc12c1e71731e98de68a0ec33ad25139eb3ba27"
+      "count": 295,
+      "sha": "5cbd0a1594042ea6b80c4e5b1347b69678e18f38"
     },
     {
       "mode": "Hotdog",
@@ -725,8 +725,8 @@
       "category": "All Apples",
       "board": true,
       "path": "time-travel-cache/runs/Peaceful/All_Apples.json",
-      "count": 1254,
-      "sha": "cd63fbb64118cb62e76e70c34c16add9bebb56a1"
+      "count": 1255,
+      "sha": "8f50c470c9fa8a57fb618f3db6976587cb798d07"
     },
     {
       "mode": "Poison",
