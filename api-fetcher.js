@@ -842,6 +842,10 @@ async function getAllWorldRecordsForCurrentSettings() {
                 typeof TALLY_CE_HIGHSCORE_MODES !== 'undefined') {
                 for (let ci = 0; ci < TALLY_CE_HIGHSCORE_MODES.length; ci++) {
                     const modeName = TALLY_CE_HIGHSCORE_MODES[ci];
+                    if (typeof shouldShowHighScoreColumn === 'function' &&
+                        !shouldShowHighScoreColumn('Tally', modeName)) {
+                        continue;
+                    }
                     if (typeof isModeDisplayed === 'function' && !isModeDisplayed(modeName)) {
                         continue;
                     }
@@ -1251,6 +1255,10 @@ async function getAllWorldRecordsForDate(date) {
                 typeof TALLY_CE_HIGHSCORE_MODES !== 'undefined') {
                 for (let ci = 0; ci < TALLY_CE_HIGHSCORE_MODES.length; ci++) {
                     const modeName = TALLY_CE_HIGHSCORE_MODES[ci];
+                    if (typeof shouldShowHighScoreColumn === 'function' &&
+                        !shouldShowHighScoreColumn('Tally', modeName)) {
+                        continue;
+                    }
                     if (typeof isModeDisplayed === 'function' && !isModeDisplayed(modeName)) {
                         continue;
                     }

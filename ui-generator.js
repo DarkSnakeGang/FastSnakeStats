@@ -15,6 +15,16 @@ function isGamemodeShown(gamemode) {
     return !!(gamemodes[gamemode] && gamemodes[gamemode].visible);
 }
 
+/** High Score cells for Tally on non-highscore modes follow the CE toggle. */
+function isBoardCellShown(count, gamemode, runMode, modeRuns) {
+    if (!modeRuns || typeof modeRuns[runMode] === 'undefined') return false;
+    if (runMode === 'High Score' && typeof shouldShowHighScoreColumn === 'function' &&
+        !shouldShowHighScoreColumn(count, gamemode)) {
+        return false;
+    }
+    return true;
+}
+
 const orderedRunModes = [
     "25 Apples", "50 Apples", "100 Apples", "All Apples", "High Score"
 ];
@@ -229,6 +239,12 @@ function calculateRanglist(){
             runs = filterIgnoredRuns(runs);
         }
         if(!runs || runs.length === 0){
+            continue;
+        }
+
+        // Tally high scores for non-highscore modes are Category Extensions
+        if(runMode === 'High Score' && typeof shouldShowHighScoreColumn === 'function' &&
+            !shouldShowHighScoreColumn(appleAmount, gamemode)){
             continue;
         }
 
@@ -675,7 +691,7 @@ function generateTableContent(table, settings, specificGamemode = null) {
 
             for(runMode of thisBoardRunModes){
                 td = document.createElement('td');
-                if(typeof(thisBoardRuns[gamemode][runMode]) != 'undefined'){
+                if(isBoardCellShown(settings[0], gamemode, runMode, thisBoardRuns[gamemode])){
                     td.setAttribute('class','result');
                     if(thisBoardRuns[gamemode][runMode].runs && thisBoardRuns[gamemode][runMode].runs.length != 0){
                         // Create a container for all runs
@@ -841,7 +857,7 @@ function generateLeaderboard(settings, specificGamemode = null){
 
             for(runMode of thisBoardRunModes){
                 td = document.createElement('td');
-                if(typeof(modeRuns[runMode]) != 'undefined'){
+                if(isBoardCellShown(settings[0], gamemode, runMode, modeRuns)){
                     td.setAttribute('class','result');
                     if(modeRuns[runMode].runs && modeRuns[runMode].runs.length != 0){
                         // Create a container for all runs
@@ -992,7 +1008,7 @@ function generateLeaderboardForMultiple(settings, container){
 
             for(runMode of thisBoardRunModes){
                 td = document.createElement('td');
-                if(typeof(modeRuns[runMode]) != 'undefined'){
+                if(isBoardCellShown(settings[0], gamemode, runMode, modeRuns)){
                     td.setAttribute('class','result');
                     if(modeRuns[runMode].runs && modeRuns[runMode].runs.length != 0){
                         // Create a container for all runs

@@ -339,6 +339,8 @@ function rowMatchesListFilters(row) {
         return false;
     }
     if (!gamemodeMatchesListFilter(parsed.gamemode)) return false;
+    if (parsed.runMode === 'High Score' && typeof shouldShowHighScoreColumn === 'function' &&
+        !shouldShowHighScoreColumn(parsed.apple, parsed.gamemode)) return false;
     if (!rowMatchesCountryFilter(row)) return false;
     return true;
 }
@@ -352,7 +354,9 @@ function filterRowsByListFilters(rows) {
 function categoryModeIsDisplayed(category) {
     var parsed = typeof parseCategoryKey === 'function' ? parseCategoryKey(category) : null;
     if (!parsed || !parsed.gamemode) return false;
-    if (typeof isModeDisplayed === 'function') return isModeDisplayed(parsed.gamemode);
+    if (typeof isModeDisplayed === 'function' && !isModeDisplayed(parsed.gamemode)) return false;
+    if (parsed.runMode === 'High Score' && typeof shouldShowHighScoreColumn === 'function' &&
+        !shouldShowHighScoreColumn(parsed.apple, parsed.gamemode)) return false;
     return true;
 }
 

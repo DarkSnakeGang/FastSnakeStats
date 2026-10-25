@@ -65,9 +65,22 @@
         return CE_LEVEL_HIGHSCORE_MODES.indexOf(mode) !== -1;
     }
 
-    /** Whether the table should render a High Score column for this count+mode */
+    /** 'off' | 'mix' | 'only'. Defaults to off so CE tally boards stay hidden. */
+    function currentCeDisplayMode() {
+        if (typeof getCeDisplayMode === 'function') return getCeDisplayMode();
+        if (typeof ceDisplayMode !== 'undefined' && ceDisplayMode) return ceDisplayMode;
+        return 'off';
+    }
+
+    /**
+     * Whether the table should render a High Score cell for this count+mode.
+     * Tally high scores for non-highscore modes are Category Extensions
+     * (snake_game_ce) and stay hidden while CE display is Off.
+     */
     function shouldShowHighScoreColumn(count, mode) {
-        if (isTypicalHighscoreMode(mode) || isCeLevelHighscoreMode(mode)) return true;
+        if (isTypicalHighscoreMode(mode)) return true;
+        if (currentCeDisplayMode() === 'off') return false;
+        if (isCeLevelHighscoreMode(mode)) return true;
         return isTallyCount(count) && isTallyCeHighscoreMode(mode);
     }
 
