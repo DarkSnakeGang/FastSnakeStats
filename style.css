@@ -308,8 +308,8 @@ h2{
 	border-radius: 15px;
 	padding: 20px;
 	box-shadow: 0 8px 32px var(--shadow);
-	max-width: 1320px;
-	width: min(1320px, calc(100vw - 32px));
+	max-width: 520px;
+	width: min(520px, calc(100vw - 32px));
 	max-height: calc(100vh - 196px);
 	z-index: 260;
 	backdrop-filter: blur(15px);
@@ -333,37 +333,62 @@ h2{
 	scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
 }
 
-.settings-layout {
+.settings-screen-tabs {
 	display: flex;
-	flex-direction: row;
-	align-items: flex-start;
-	gap: 20px;
+	gap: 6px;
+	margin: 0 0 14px;
+}
+
+.settings-screen-tab {
+	flex: 1 1 0;
+	min-width: 0;
+	padding: 8px 6px;
+	border-radius: 999px;
+	border: 1px solid rgba(255, 255, 255, 0.22);
+	background: rgba(0, 0, 0, 0.18);
+	color: #fff;
+	font-size: 13px;
+	font-weight: 650;
+	line-height: 1.2;
+	cursor: pointer;
+	transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.settings-screen-tab:hover {
+	background: rgba(0, 0, 0, 0.28);
+}
+
+.settings-screen-tab.active {
+	background: #007bff;
+	border-color: rgba(255, 255, 255, 0.4);
+}
+
+.settings-layout {
+	display: block;
 }
 
 .settings-col {
+	display: none;
 	min-width: 0;
+	width: 100%;
+	max-width: none;
+	padding-left: 0;
+	border-left: none;
 }
 
-.settings-col-left {
-	flex: 0 0 380px;
-	width: 380px;
-	max-width: 380px;
+.settings-col.is-active {
+	display: block;
 }
 
-.settings-col-center {
-	flex: 1 1 420px;
-	min-width: 0;
-	padding-left: 18px;
-	border-left: 1px solid rgba(255, 255, 255, 0.22);
-}
-
+.settings-col-left,
+.settings-col-center,
 .settings-col-right {
-	flex: 0 1 400px;
-	width: 400px;
-	max-width: 440px;
-	min-width: 320px;
-	padding-left: 18px;
-	border-left: 1px solid rgba(255, 255, 255, 0.22);
+	flex: none;
+	width: 100%;
+	max-width: none;
+	min-width: 0;
+	padding-left: 0;
+	border-left: none;
 }
 
 .settings-col-right .settings-tools-section {
@@ -1080,7 +1105,7 @@ body:not(.dark-mode) .container td {
 .settings-col-left > div:first-child .button-group {
 	flex-wrap: wrap;
 	justify-content: center;
-	max-width: 260px;
+	max-width: 100%;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -3952,7 +3977,7 @@ body.dark-mode .quick-fetch-btn:disabled {
 			top: 88px;
 			left: 72px;
 			max-height: calc(100vh - 104px);
-			width: min(1320px, calc(100vw - 88px));
+			width: min(520px, calc(100vw - 88px));
 		}
 	}
 

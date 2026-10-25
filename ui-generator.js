@@ -1235,6 +1235,30 @@ function generateSingleTable(){
     }
 }
 
+function currentSettingsScreen() {
+    return (settingsScreen === 'modes' || settingsScreen === 'travel') ? settingsScreen : 'board';
+}
+
+function applySettingsScreen(sidebar) {
+    if (!sidebar) return;
+    var screen = currentSettingsScreen();
+    var columns = {
+        board: sidebar.querySelector('.settings-col-left'),
+        modes: sidebar.querySelector('.settings-col-center'),
+        travel: sidebar.querySelector('.settings-col-right')
+    };
+    Object.keys(columns).forEach(function (id) {
+        var col = columns[id];
+        if (!col) return;
+        col.classList.toggle('is-active', id === screen);
+    });
+    sidebar.querySelectorAll('.settings-screen-tab').forEach(function (btn) {
+        var on = btn.getAttribute('data-screen') === screen;
+        btn.classList.toggle('active', on);
+        btn.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+}
+
 function generateTableSelector(){
     // Create sidebar for table selection
     var sidebar = document.createElement('div');
@@ -1302,7 +1326,30 @@ function generateTableSelector(){
         }
     });
 
-    // Three-column layout: category | modes | time travel
+    var settingsScreenTabs = document.createElement('div');
+    settingsScreenTabs.setAttribute('class', 'settings-screen-tabs');
+    settingsScreenTabs.setAttribute('role', 'tablist');
+    [
+        ['board', 'Board'],
+        ['modes', 'Modes'],
+        ['travel', 'Time Travel']
+    ].forEach(function (pair) {
+        var tab = document.createElement('button');
+        tab.type = 'button';
+        tab.setAttribute('class', 'settings-screen-tab');
+        tab.setAttribute('data-screen', pair[0]);
+        tab.setAttribute('role', 'tab');
+        tab.textContent = pair[1];
+        tab.addEventListener('click', function () {
+            settingsScreen = pair[0];
+            saveSettings();
+            applySettingsScreen(sidebar);
+        });
+        settingsScreenTabs.appendChild(tab);
+    });
+    sidebarBody.appendChild(settingsScreenTabs);
+
+    // One screen at a time: board | modes | time travel
     var settingsLayout = document.createElement('div');
     settingsLayout.setAttribute('class', 'settings-layout');
     var leftCol = document.createElement('div');
@@ -1638,6 +1685,7 @@ function generateTableSelector(){
 
     document.body.insertBefore(sidebar, document.querySelector('.container'));
     mountSettingsTools(rightCol);
+    applySettingsScreen(sidebar);
     applyPanelCollapseState();
 }
 

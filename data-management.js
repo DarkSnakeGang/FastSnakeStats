@@ -73,6 +73,7 @@ var isTimeTravelEnabled = false; // Time travel toggle state
 var selectedTimeTravelDate = ""; // Currently selected date for time travel
 var isMultipleTablesEnabled = false; // Multiple tables toggle state
 var ceDisplayMode = 'off'; // 'off' | 'mix' | 'only' — Category Extensions (RemixMod levels)
+var settingsScreen = 'board'; // 'board' | 'modes' | 'travel' — one Settings screen at a time
 var isCategoryCollapsed = false; // Desktop left Category Settings panel
 var isSummaryCollapsed = false; // Desktop right Rankings panel
 var isStatsExplorerCollapsed = true; // Desktop right Statistics panel (default collapsed)
@@ -211,6 +212,13 @@ function loadSettings() {
         if (typeof setCeLevelModesVisible === 'function') setCeLevelModesVisible(true);
     }
 
+    if (localStorage.getItem('settingsScreen') == null) {
+        localStorage.setItem('settingsScreen', settingsScreen);
+    } else {
+        var storedScreen = localStorage.getItem('settingsScreen');
+        settingsScreen = (storedScreen === 'modes' || storedScreen === 'travel') ? storedScreen : 'board';
+    }
+
     // Load desktop panel collapse settings (default open)
     if(localStorage.getItem('categorySettingsCollapsed') == null){
         localStorage.setItem('categorySettingsCollapsed', 'false');
@@ -298,6 +306,7 @@ function saveSettings() {
     localStorage.setItem('selectedTimeTravelDate', selectedTimeTravelDate);
     localStorage.setItem('multipleTablesEnabled', isMultipleTablesEnabled);
     localStorage.setItem('ceDisplayMode', ceDisplayMode);
+    localStorage.setItem('settingsScreen', settingsScreen);
     localStorage.setItem('categorySettingsCollapsed', isCategoryCollapsed);
     localStorage.setItem('summaryCollapsed', isSummaryCollapsed);
     localStorage.setItem('statsExplorerCollapsed', isStatsExplorerCollapsed);

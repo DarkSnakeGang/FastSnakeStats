@@ -615,10 +615,26 @@ function showBasicMobileSettingsSection() {
 
     // Settings are already loaded during initial page load, no need to reload here
 
+    var screen = (typeof settingsScreen === 'string' && (settingsScreen === 'modes' || settingsScreen === 'travel'))
+        ? settingsScreen
+        : 'board';
+    function screenClass(id) {
+        return screen === id ? ' is-active' : '';
+    }
+    function tabClass(id) {
+        return screen === id ? ' active' : '';
+    }
+
     mobileTablesContainer.innerHTML = `
         <div class="mobile-settings-content">
             <h2 class="mobile-card-title mobile-settings-title">Settings</h2>
-            
+            <div class="settings-screen-tabs" role="tablist">
+                <button type="button" class="settings-screen-tab${tabClass('board')}" data-screen="board" role="tab" aria-selected="${screen === 'board'}">Board</button>
+                <button type="button" class="settings-screen-tab${tabClass('modes')}" data-screen="modes" role="tab" aria-selected="${screen === 'modes'}">Modes</button>
+                <button type="button" class="settings-screen-tab${tabClass('travel')}" data-screen="travel" role="tab" aria-selected="${screen === 'travel'}">Time Travel</button>
+            </div>
+
+            <div class="settings-screen${screenClass('travel')}" data-screen="travel">
                          <!-- Time Travel Date Picker and Player Search -->
              <div class="mobile-form-group">
                  <div class="mobile-inline-search-container">
@@ -646,20 +662,14 @@ function showBasicMobileSettingsSection() {
                      </div>
                  </div>
              </div>
+            </div>
 
+            <div class="settings-screen${screenClass('board')}" data-screen="board">
             <!-- Category Settings -->
             <div class="mobile-form-group">
                 <label class="mobile-form-label">Category Settings</label>
                 <div id="mobileCategorySettings" class="mobile-category-grid">
                     ${generateMobileCategoryCheckboxes()}
-                </div>
-            </div>
-
-            <!-- Run Mode Settings -->
-            <div class="mobile-form-group">
-                <label class="mobile-form-label">Run Mode Settings</label>
-                <div id="mobileRunModeSettings">
-                    ${generateMobileRunModeCheckboxes()}
                 </div>
             </div>
 
@@ -689,11 +699,28 @@ function showBasicMobileSettingsSection() {
                     </div>
                 </div>
             </div>
+            </div>
+
+            <div class="settings-screen${screenClass('modes')}" data-screen="modes">
+            <div class="mobile-form-group">
+                <label class="mobile-form-label">Game Modes</label>
+                <div id="mobileGameModeSettings" class="mobile-category-grid">
+                    ${generateMobileGameModeButtons()}
+                </div>
+            </div>
+            <div class="mobile-form-group">
+                <label class="mobile-form-label">Run Mode Settings</label>
+                <div id="mobileRunModeSettings">
+                    ${generateMobileRunModeCheckboxes()}
+                </div>
+            </div>
+            </div>
         </div>
     `;
 
     // Add event listeners
     setupMobileSettingsEventListeners();
+    setupMobileSettingsScreenTabs();
     
     // Ensure settings are synchronized with desktop system
     //console.log('Mobile settings section loaded - settings synchronized with desktop');
@@ -812,9 +839,12 @@ function generateMobileCategoryCheckboxes() {
     }
     html += '</div></div>';
 
-    // Game Modes
+    return html;
+}
+
+function generateMobileGameModeButtons() {
+    let html = '';
     html += '<div class="mobile-category-section">';
-    html += '<h4 class="mobile-category-title">Game Modes</h4>';
     html += '<div class="mobile-button-group">';
     for (const [key, value] of Object.entries(gamemodes)) {
         if (typeof isCeLevelMode === 'function' && isCeLevelMode(key)) {
@@ -822,7 +852,6 @@ function generateMobileCategoryCheckboxes() {
         } else if (typeof getCeDisplayMode === 'function' && getCeDisplayMode() === 'only') {
             continue;
         }
-        // Game modes are always toggle behavior (always use value.visible)
         const isActive = value.visible;
         html += `
             <button class="mobile-table-option-btn ${isActive ? 'active' : ''}" data-setting="${key}" data-type="gamemode" title="${key}">
@@ -831,7 +860,6 @@ function generateMobileCategoryCheckboxes() {
         `;
     }
     html += '</div></div>';
-
     return html;
 }
 
@@ -850,6 +878,33 @@ function generateMobileRunModeCheckboxes() {
     }
     html += '</div>';
     return html;
+}
+
+function setupMobileSettingsScreenTabs() {
+    var root = document.querySelector('.mobile-settings-content');
+    if (!root) return;
+    root.querySelectorAll('.settings-screen-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            var next = tab.getAttribute('data-screen');
+            settingsScreen = (next === 'modes' || next === 'travel') ? next : 'board';
+            if (typeof saveSettings === 'function') saveSettings();
+            applyMobileSettingsScreen(root);
+        });
+    });
+}
+
+function applyMobileSettingsScreen(root) {
+    root = root || document.querySelector('.mobile-settings-content');
+    if (!root) return;
+    var screen = (settingsScreen === 'modes' || settingsScreen === 'travel') ? settingsScreen : 'board';
+    root.querySelectorAll('.settings-screen').forEach(function (pane) {
+        pane.classList.toggle('is-active', pane.getAttribute('data-screen') === screen);
+    });
+    root.querySelectorAll('.settings-screen-tab').forEach(function (tab) {
+        var on = tab.getAttribute('data-screen') === screen;
+        tab.classList.toggle('active', on);
+        tab.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
 }
 
 // Setup mobile settings event listeners
@@ -1090,7 +1145,8 @@ function setupMobileCheckboxListeners() {
 
     [
         document.getElementById('mobileCategorySettings'),
-        document.getElementById('mobileRunModeSettings')
+        document.getElementById('mobileRunModeSettings'),
+        document.getElementById('mobileGameModeSettings')
     ].forEach(function (host) {
         if (!host || host.dataset.catBound === '1') return;
         host.dataset.catBound = '1';

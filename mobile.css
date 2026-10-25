@@ -1782,6 +1782,37 @@ body.dark-mode .mobile-main .mobile-individual-refresh-btn:hover {
 		margin-bottom: 18px !important;
 	}
 
+	.mobile-settings-content .settings-screen-tabs {
+		display: flex;
+		gap: 6px;
+		margin: 0 0 16px;
+	}
+
+	.mobile-settings-content .settings-screen-tab {
+		flex: 1 1 0;
+		min-width: 0;
+		border-radius: 999px;
+		padding: 8px 6px;
+		font-size: 13px;
+		font-weight: 650;
+		background: rgba(255, 255, 255, 0.16);
+		border: 1px solid rgba(255, 255, 255, 0.28);
+		color: #fff;
+	}
+
+	.mobile-settings-content .settings-screen-tab.active {
+		background: var(--mobile-brand, #4C792D);
+		border-color: var(--mobile-brand-light, #6a9a45);
+	}
+
+	.mobile-settings-content .settings-screen {
+		display: none;
+	}
+
+	.mobile-settings-content .settings-screen.is-active {
+		display: block;
+	}
+
 	.mobile-table-wrapper th,
 	.mobile-multiple-tables-container th {
 		padding: 4px 2px;
