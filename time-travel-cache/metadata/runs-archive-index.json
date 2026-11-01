@@ -1,13 +1,13 @@
 {
-  "lastUpdated": "2026-10-31T02:50:23.467Z",
+  "lastUpdated": "2026-11-01T02:42:34.396Z",
   "version": 1,
   "backfillComplete": true,
   "otherBackfillComplete": true,
-  "lastVerifyDate": "2026-10-30T17:17:34Z",
-  "seenRuns": 49067,
-  "totalRuns": 49067,
+  "lastVerifyDate": "2026-10-31T19:56:48Z",
+  "seenRuns": 49069,
+  "totalRuns": 49069,
   "totalsByGame": {
-    "o1y9pyk6": 47979,
+    "o1y9pyk6": 47981,
     "9dow0go1": 1088
   },
   "officialTotalsByGame": {
@@ -413,8 +413,8 @@
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Classic/25_Apples.json",
-      "count": 7667,
-      "sha": "0efb6365d5144e48b9fc8cbf550a90c30710c5a1"
+      "count": 7668,
+      "sha": "d67d09aeb48b3d62fa7421821719a157d051d189"
     },
     {
       "mode": "Classic",
@@ -469,8 +469,8 @@
       "category": "All Apples",
       "board": true,
       "path": "time-travel-cache/runs/Dimension/All_Apples.json",
-      "count": 122,
-      "sha": "40185f2354768e07fcd11e5afa321d7730bd28bd"
+      "count": 123,
+      "sha": "12c919f320ef18a32491a059f8550e7195b0e23a"
     },
     {
       "mode": "Dimension",
