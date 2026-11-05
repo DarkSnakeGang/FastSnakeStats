@@ -1,14 +1,14 @@
 {
-  "lastUpdated": "2026-11-04T03:26:01.519Z",
+  "lastUpdated": "2026-11-05T03:48:54.284Z",
   "version": 1,
   "backfillComplete": true,
   "otherBackfillComplete": true,
-  "lastVerifyDate": "2026-11-04T02:46:30Z",
-  "seenRuns": 49163,
-  "totalRuns": 49163,
+  "lastVerifyDate": "2026-11-04T22:35:41Z",
+  "seenRuns": 49171,
+  "totalRuns": 49171,
   "totalsByGame": {
-    "o1y9pyk6": 48067,
-    "9dow0go1": 1096
+    "o1y9pyk6": 48074,
+    "9dow0go1": 1097
   },
   "officialTotalsByGame": {
     "checkedAt": "2026-10-10T01:54:41.729Z",
@@ -557,24 +557,24 @@
       "category": "100 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Hotdog/100_Apples.json",
-      "count": 162,
-      "sha": "d012f9f200b0442bcac473a05365d11ccd6f50a2"
+      "count": 163,
+      "sha": "dc9ce532b3882251469a6f245619c55d7bb704e3"
     },
     {
       "mode": "Hotdog",
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Hotdog/25_Apples.json",
-      "count": 448,
-      "sha": "11acd1e7cc1c6fcabefb4e9ddb97d11bccc70ecd"
+      "count": 449,
+      "sha": "af548075a5cdfa768d5e526dce1f6becbecc1076"
     },
     {
       "mode": "Hotdog",
       "category": "50 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Hotdog/50_Apples.json",
-      "count": 298,
-      "sha": "c58dd95221873b364cc398955507d19e4d5c502e"
+      "count": 300,
+      "sha": "d0607f63d9de7f4feb91f02ef3a4d7ca56085256"
     },
     {
       "mode": "Hotdog",
@@ -589,8 +589,8 @@
       "category": "High Score",
       "board": true,
       "path": "time-travel-cache/runs/Hotdog/High_Score.json",
-      "count": 333,
-      "sha": "5407995199e59a3452e810e998eae4c5d6759f1a"
+      "count": 336,
+      "sha": "5de226d7504360c27007cfd57a7696b1af249e49"
     },
     {
       "mode": "Key",
@@ -1325,8 +1325,8 @@
       "level": null,
       "board": false,
       "path": "time-travel-cache/runs-other/snake_game_ce/Combined.json",
-      "count": 10,
-      "sha": "40272778b0f4511f356f607e9d3e42d191456e7d"
+      "count": 11,
+      "sha": "d4adc4ce7c9bfbd33b8777909e0613b79e3f7485"
     },
     {
       "game": "9dow0go1",
