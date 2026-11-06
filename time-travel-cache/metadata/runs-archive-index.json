@@ -1,13 +1,13 @@
 {
-  "lastUpdated": "2026-11-05T03:48:54.284Z",
+  "lastUpdated": "2026-11-06T03:46:16.597Z",
   "version": 1,
   "backfillComplete": true,
   "otherBackfillComplete": true,
-  "lastVerifyDate": "2026-11-04T22:35:41Z",
-  "seenRuns": 49171,
-  "totalRuns": 49171,
+  "lastVerifyDate": "2026-11-05T23:31:33Z",
+  "seenRuns": 49185,
+  "totalRuns": 49185,
   "totalsByGame": {
-    "o1y9pyk6": 48074,
+    "o1y9pyk6": 48088,
     "9dow0go1": 1097
   },
   "officialTotalsByGame": {
@@ -189,16 +189,16 @@
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Bridge/25_Apples.json",
-      "count": 134,
-      "sha": "d096f61e9cc49f30258877d69165288e88c8c5b0"
+      "count": 137,
+      "sha": "cc01bb18fe9028d9cb1863df1b4611792bbac0c8"
     },
     {
       "mode": "Bridge",
       "category": "50 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Bridge/50_Apples.json",
-      "count": 102,
-      "sha": "27cd5067cf46a1fcb3a1c455e0855ec20436b7de"
+      "count": 103,
+      "sha": "67066a9f17bd4d07705b4175ce829556420e433b"
     },
     {
       "mode": "Bridge",
@@ -213,8 +213,8 @@
       "category": "High Score",
       "board": true,
       "path": "time-travel-cache/runs/Bridge/High_Score.json",
-      "count": 79,
-      "sha": "35a4fd07d72fbedfbae6ea5e75f2e39040580215"
+      "count": 83,
+      "sha": "caedf36fd86b40d2e9f01fb98dd049e49d6349d8"
     },
     {
       "mode": "Burger",
@@ -413,24 +413,24 @@
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Classic/25_Apples.json",
-      "count": 7673,
-      "sha": "0b92d73d6c54fac635a9df35b0fcdfce9cf765e9"
+      "count": 7675,
+      "sha": "ac16187227b84de9261b0a14ce5685f0387a4dd4"
     },
     {
       "mode": "Classic",
       "category": "50 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Classic/50_Apples.json",
-      "count": 2078,
-      "sha": "de43fba11d008a6c076f4d266e7b113ac2bc106f"
+      "count": 2080,
+      "sha": "22cc5619828f58bb2b7308890f405138573b15d9"
     },
     {
       "mode": "Classic",
       "category": "All Apples",
       "board": true,
       "path": "time-travel-cache/runs/Classic/All_Apples.json",
-      "count": 1404,
-      "sha": "e5a9f493e7afa282d8191ec51e45cf2ba60445d2"
+      "count": 1406,
+      "sha": "1f7446a6576fcb2dd8266024520e8a1f34918382"
     },
     {
       "mode": "Classic",
