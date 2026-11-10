@@ -1,13 +1,13 @@
 {
-  "lastUpdated": "2026-11-09T03:05:53.809Z",
+  "lastUpdated": "2026-11-10T04:51:16.127Z",
   "version": 1,
   "backfillComplete": true,
   "otherBackfillComplete": true,
-  "lastVerifyDate": "2026-11-09T00:55:28Z",
-  "seenRuns": 49272,
-  "totalRuns": 49272,
+  "lastVerifyDate": "2026-11-10T02:55:20Z",
+  "seenRuns": 49282,
+  "totalRuns": 49282,
   "totalsByGame": {
-    "o1y9pyk6": 48165,
+    "o1y9pyk6": 48175,
     "9dow0go1": 1107
   },
   "officialTotalsByGame": {
@@ -461,8 +461,8 @@
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Dimension/25_Apples.json",
-      "count": 440,
-      "sha": "f8c90a3b898331892cd82d2e7a12602c392bd893"
+      "count": 441,
+      "sha": "a89ec08ea2bcd5d124da80d4efdad38fde0f04eb"
     },
     {
       "mode": "Dimension",
@@ -733,8 +733,8 @@
       "category": "100 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Minesweeper/100_Apples.json",
-      "count": 128,
-      "sha": "175c1d2eeff6ccd15aa098bb3aaf45b369eaa037"
+      "count": 130,
+      "sha": "94f8013e20ae9a56c30530c0171e3e8e318771fa"
     },
     {
       "mode": "Minesweeper",
@@ -749,8 +749,8 @@
       "category": "50 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Minesweeper/50_Apples.json",
-      "count": 272,
-      "sha": "a695c2cd24a41f7317d34cd95b38215f2033eaab"
+      "count": 273,
+      "sha": "833c0f18f5d3a0184b5197bcdc56efe268763ea4"
     },
     {
       "mode": "Minesweeper",
@@ -765,8 +765,8 @@
       "category": "High Score",
       "board": true,
       "path": "time-travel-cache/runs/Minesweeper/High_Score.json",
-      "count": 408,
-      "sha": "5d59ad395b034d0c82ed2b7b0b1fb50904002f47"
+      "count": 410,
+      "sha": "e9f2593a535d361f1b41a591902fb6bbb329c988"
     },
     {
       "mode": "Peaceful",
@@ -805,24 +805,24 @@
       "category": "100 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Poison/100_Apples.json",
-      "count": 201,
-      "sha": "b556be38a0bf13d9b29d1367d2dea98876f7ed86"
+      "count": 202,
+      "sha": "fa7ded30a1e079332bd096580bb546022cdf4c3a"
     },
     {
       "mode": "Poison",
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Poison/25_Apples.json",
-      "count": 657,
-      "sha": "64a044d115060c61dad0082957842c254c3a4cbc"
+      "count": 658,
+      "sha": "762dd8c2e7d70bfefec6d0f47d07f93965644967"
     },
     {
       "mode": "Poison",
       "category": "50 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Poison/50_Apples.json",
-      "count": 391,
-      "sha": "1c52a331eb6f7e7e42467440a279f9e763ffbf3b"
+      "count": 392,
+      "sha": "5180482954f01183d89ac899cc3841093b41d0d1"
     },
     {
       "mode": "Poison",
@@ -837,8 +837,8 @@
       "category": "High Score",
       "board": true,
       "path": "time-travel-cache/runs/Poison/High_Score.json",
-      "count": 545,
-      "sha": "fdfb49c2647782b1a34d1ab259ff2fedaeda093e"
+      "count": 546,
+      "sha": "10d5b9910dd93664b39b15769b0929fe45482be2"
     },
     {
       "mode": "Portal",
