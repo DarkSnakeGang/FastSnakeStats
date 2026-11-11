@@ -1,13 +1,13 @@
 {
-  "lastUpdated": "2026-11-10T04:51:16.127Z",
+  "lastUpdated": "2026-11-11T03:14:08.261Z",
   "version": 1,
   "backfillComplete": true,
   "otherBackfillComplete": true,
-  "lastVerifyDate": "2026-11-10T02:55:20Z",
-  "seenRuns": 49282,
-  "totalRuns": 49282,
+  "lastVerifyDate": "2026-11-11T01:56:19Z",
+  "seenRuns": 49283,
+  "totalRuns": 49283,
   "totalsByGame": {
-    "o1y9pyk6": 48175,
+    "o1y9pyk6": 48176,
     "9dow0go1": 1107
   },
   "officialTotalsByGame": {
@@ -469,8 +469,8 @@
       "category": "50 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Dimension/50_Apples.json",
-      "count": 307,
-      "sha": "4532e2b655bf3c9fc40321992547d7292d2e6af7"
+      "count": 308,
+      "sha": "7438c87ed5d0afdab1216f30ab9096a08ba5056f"
     },
     {
       "mode": "Dimension",
