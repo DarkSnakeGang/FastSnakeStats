@@ -1,14 +1,14 @@
 {
-  "lastUpdated": "2026-11-11T03:14:08.261Z",
+  "lastUpdated": "2026-11-12T04:26:16.356Z",
   "version": 1,
   "backfillComplete": true,
   "otherBackfillComplete": true,
-  "lastVerifyDate": "2026-11-11T01:56:19Z",
-  "seenRuns": 49283,
-  "totalRuns": 49283,
+  "lastVerifyDate": "2026-11-11T22:59:46Z",
+  "seenRuns": 49297,
+  "totalRuns": 49297,
   "totalsByGame": {
-    "o1y9pyk6": 48176,
-    "9dow0go1": 1107
+    "o1y9pyk6": 48189,
+    "9dow0go1": 1108
   },
   "officialTotalsByGame": {
     "checkedAt": "2026-10-10T01:54:41.729Z",
@@ -453,24 +453,24 @@
       "category": "100 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Dimension/100_Apples.json",
-      "count": 144,
-      "sha": "334237dbf9a866d345fe1d8dfa4f31fe28841c25"
+      "count": 145,
+      "sha": "789fc36b01bc78eb6a57be740591ee83a5144e17"
     },
     {
       "mode": "Dimension",
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Dimension/25_Apples.json",
-      "count": 441,
-      "sha": "a89ec08ea2bcd5d124da80d4efdad38fde0f04eb"
+      "count": 442,
+      "sha": "6c0fe942cd4eba639ae6570a82ecfecff9f6e9f6"
     },
     {
       "mode": "Dimension",
       "category": "50 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Dimension/50_Apples.json",
-      "count": 308,
-      "sha": "7438c87ed5d0afdab1216f30ab9096a08ba5056f"
+      "count": 309,
+      "sha": "e30ecd70f1d8501c188cf5333b8765aef9f591fa"
     },
     {
       "mode": "Dimension",
@@ -1026,6 +1026,14 @@
     },
     {
       "mode": "Temp Wall",
+      "category": "All Apples",
+      "board": true,
+      "path": "time-travel-cache/runs/Temp_Wall/All_Apples.json",
+      "count": 1,
+      "sha": "0893a83095aab173432a3dd82bad3b30456a1fb1"
+    },
+    {
+      "mode": "Temp Wall",
       "category": "High Score",
       "board": true,
       "path": "time-travel-cache/runs/Temp_Wall/High_Score.json",
@@ -1085,8 +1093,8 @@
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Wall/25_Apples.json",
-      "count": 1333,
-      "sha": "168e28a38d828b14bbf94c1bb9f08cfdf40ff657"
+      "count": 1334,
+      "sha": "db5a3e72542014fd2a81559eb10c051d576e7e3c"
     },
     {
       "mode": "Wall",
@@ -1109,8 +1117,8 @@
       "category": "High Score",
       "board": true,
       "path": "time-travel-cache/runs/Wall/High_Score.json",
-      "count": 1672,
-      "sha": "1f000f108033abd7c3c8014d8b4b55e2c64156e0"
+      "count": 1673,
+      "sha": "9e5824cbb5f30972819105bedb79613767fb393a"
     },
     {
       "mode": "Winged",
@@ -1157,24 +1165,24 @@
       "category": "100 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Yin_Yang/100_Apples.json",
-      "count": 175,
-      "sha": "ef6624606c2dea104f56fff016994d9a86126420"
+      "count": 177,
+      "sha": "1f06a68134feb2c52c8a064829d83940f0d79d20"
     },
     {
       "mode": "Yin Yang",
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Yin_Yang/25_Apples.json",
-      "count": 788,
-      "sha": "3f903135eeb445e4ce7c9e6612376c8a737584f0"
+      "count": 791,
+      "sha": "675c015b4ed6d47d496a34c7d34941404c75d640"
     },
     {
       "mode": "Yin Yang",
       "category": "50 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Yin_Yang/50_Apples.json",
-      "count": 228,
-      "sha": "6a5e9876c0acf40e8e4083e3f9fd84e313eb82f9"
+      "count": 231,
+      "sha": "1f872b14b5ebb6cd7041bf130216c33ab588cabc"
     },
     {
       "mode": "Yin Yang",
