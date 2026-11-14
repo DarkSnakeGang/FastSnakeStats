@@ -1,13 +1,13 @@
 {
-  "lastUpdated": "2026-11-13T03:42:33.073Z",
+  "lastUpdated": "2026-11-14T03:40:27.880Z",
   "version": 1,
   "backfillComplete": true,
   "otherBackfillComplete": true,
-  "lastVerifyDate": "2026-11-11T22:59:46Z",
-  "seenRuns": 49297,
-  "totalRuns": 49297,
+  "lastVerifyDate": "2026-11-13T14:31:44Z",
+  "seenRuns": 49301,
+  "totalRuns": 49301,
   "totalsByGame": {
-    "o1y9pyk6": 48189,
+    "o1y9pyk6": 48193,
     "9dow0go1": 1108
   },
   "officialTotalsByGame": {
@@ -741,8 +741,8 @@
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Minesweeper/25_Apples.json",
-      "count": 499,
-      "sha": "6b92c432a5059e1452fb298f49b8de9808e509d9"
+      "count": 500,
+      "sha": "cb3e735a36825fd9cc3c39ea4a1a9b8c325ae81f"
     },
     {
       "mode": "Minesweeper",
@@ -765,8 +765,8 @@
       "category": "High Score",
       "board": true,
       "path": "time-travel-cache/runs/Minesweeper/High_Score.json",
-      "count": 410,
-      "sha": "e9f2593a535d361f1b41a591902fb6bbb329c988"
+      "count": 411,
+      "sha": "d264766858a974a2dfef6293f10fa6e0191c387a"
     },
     {
       "mode": "Peaceful",
@@ -933,8 +933,8 @@
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Sokoban/25_Apples.json",
-      "count": 379,
-      "sha": "29828d1f44882256b5139df0367c72d088667af4"
+      "count": 380,
+      "sha": "1b85b0d0c5279eef7e4e6e9e67622639c99d02b2"
     },
     {
       "mode": "Sokoban",
@@ -957,8 +957,8 @@
       "category": "High Score",
       "board": true,
       "path": "time-travel-cache/runs/Sokoban/High_Score.json",
-      "count": 394,
-      "sha": "fae697bf4278bf0c94adec359c689fcc41f3d01e"
+      "count": 395,
+      "sha": "81d9b69cf6c9daefe77283dc7df01ab5c2542222"
     },
     {
       "mode": "Statue",
