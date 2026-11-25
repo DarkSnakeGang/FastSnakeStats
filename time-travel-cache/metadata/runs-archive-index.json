@@ -1,13 +1,13 @@
 {
-  "lastUpdated": "2026-11-24T07:10:26.034Z",
+  "lastUpdated": "2026-11-25T05:44:41.059Z",
   "version": 1,
   "backfillComplete": true,
   "otherBackfillComplete": true,
-  "lastVerifyDate": "2026-11-23T19:34:22Z",
-  "seenRuns": 49644,
-  "totalRuns": 49644,
+  "lastVerifyDate": "2026-11-25T02:51:06Z",
+  "seenRuns": 49656,
+  "totalRuns": 49656,
   "totalsByGame": {
-    "o1y9pyk6": 48504,
+    "o1y9pyk6": 48516,
     "9dow0go1": 1140
   },
   "officialTotalsByGame": {
@@ -429,8 +429,8 @@
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Classic/25_Apples.json",
-      "count": 7690,
-      "sha": "64d7f9602d656282b15feff9e0dd46313588761a"
+      "count": 7691,
+      "sha": "2d9bd970bd5d68c0f02a80badbe05076482bcf6b"
     },
     {
       "mode": "Classic",
@@ -701,32 +701,32 @@
       "category": "100 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Magnet/100_Apples.json",
-      "count": 226,
-      "sha": "602aa79d54e38b621f2bc570f5b2ebb531e01496"
+      "count": 227,
+      "sha": "06f15a5bcd980d01cacdd039b5e6218513606280"
     },
     {
       "mode": "Magnet",
       "category": "25 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Magnet/25_Apples.json",
-      "count": 659,
-      "sha": "0227c6be03df4ec4ed6aa4c47460b7d8afe39cc9"
+      "count": 662,
+      "sha": "e0fa8c5b51a4355d6c61b8434d0dcbd071a7138a"
     },
     {
       "mode": "Magnet",
       "category": "50 Apples",
       "board": true,
       "path": "time-travel-cache/runs/Magnet/50_Apples.json",
-      "count": 519,
-      "sha": "5553b6358e333932f6c12954485ac886c6ad5f01"
+      "count": 523,
+      "sha": "834e4a6949b297ef8a550c0be6bfd46b0bf59a7f"
     },
     {
       "mode": "Magnet",
       "category": "All Apples",
       "board": true,
       "path": "time-travel-cache/runs/Magnet/All_Apples.json",
-      "count": 393,
-      "sha": "af555b39fa87d7bb19ffc03c274332ea1a30939c"
+      "count": 396,
+      "sha": "834d63f1b99185ba5c9a2c12cbaa66ca8d22c384"
     },
     {
       "mode": "Magnet",
