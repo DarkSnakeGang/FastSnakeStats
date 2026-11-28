@@ -1,13 +1,13 @@
 {
-  "lastUpdated": "2026-11-27T05:29:09.899Z",
+  "lastUpdated": "2026-11-28T05:03:27.773Z",
   "version": 1,
   "backfillComplete": true,
   "otherBackfillComplete": true,
-  "lastVerifyDate": "2026-11-26T15:03:45Z",
-  "seenRuns": 49670,
-  "totalRuns": 49670,
+  "lastVerifyDate": "2026-11-27T17:30:58Z",
+  "seenRuns": 49671,
+  "totalRuns": 49671,
   "totalsByGame": {
-    "o1y9pyk6": 48530,
+    "o1y9pyk6": 48531,
     "9dow0go1": 1140
   },
   "officialTotalsByGame": {
@@ -725,8 +725,8 @@
       "category": "All Apples",
       "board": true,
       "path": "time-travel-cache/runs/Magnet/All_Apples.json",
-      "count": 398,
-      "sha": "af3f16ec4fb501c9f933b041f50f12f7fe728a27"
+      "count": 399,
+      "sha": "e46ecb17dfa614fc78eba2e118ec6f44677a0a04"
     },
     {
       "mode": "Magnet",
